@@ -21,6 +21,9 @@
 !/storage/framework/sessions/.gitignore
 !/storage/framework/views/.gitignore
 !/storage/logs/.gitignore
+/bootstrap/cache/*.php
+/bootstrap/cache/*.tmp
+!/bootstrap/cache/.gitignore
 /vendor
 /public/vendor
 *.zip
