@@ -210,7 +210,6 @@ class ThreeCompaniesSeeder extends Seeder
         // Categories for Aran Cafe
         $catBevId = DB::table('categories')->insertGetId([
             'name' => 'Beverages',
-            'code' => 'BEV',
             'company_id' => $aran->id,
             'is_active' => 1,
             'created_at' => now(),
@@ -218,7 +217,6 @@ class ThreeCompaniesSeeder extends Seeder
         ]);
         $catBakId = DB::table('categories')->insertGetId([
             'name' => 'Bakery & Pastry',
-            'code' => 'BAK',
             'company_id' => $aran->id,
             'is_active' => 1,
             'created_at' => now(),
@@ -226,7 +224,6 @@ class ThreeCompaniesSeeder extends Seeder
         ]);
         $catIngId = DB::table('categories')->insertGetId([
             'name' => 'Raw Ingredients',
-            'code' => 'ING',
             'company_id' => $aran->id,
             'is_active' => 1,
             'created_at' => now(),
@@ -329,7 +326,6 @@ class ThreeCompaniesSeeder extends Seeder
 
         $catBulkId = DB::table('categories')->insertGetId([
             'name' => 'Bulk Tanker Water',
-            'code' => 'BULK-WTR',
             'company_id' => $tmws->id,
             'is_active' => 1,
             'created_at' => now(),
@@ -337,7 +333,6 @@ class ThreeCompaniesSeeder extends Seeder
         ]);
         $catSrvId = DB::table('categories')->insertGetId([
             'name' => 'Tanker Logistics Services',
-            'code' => 'TNK-SRV',
             'company_id' => $tmws->id,
             'is_active' => 1,
             'created_at' => now(),
@@ -538,7 +533,6 @@ class ThreeCompaniesSeeder extends Seeder
 
         $catCanWId = DB::table('categories')->insertGetId([
             'name' => 'Packaged Water Cans & Bottles',
-            'code' => 'CAN-WTR',
             'company_id' => $dkw->id,
             'is_active' => 1,
             'created_at' => now(),
