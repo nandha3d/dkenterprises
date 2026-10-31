@@ -2660,3 +2660,25 @@ User: People, HRM and Settings did not follow the modern UI; add a developer rol
   - Updated `.github/workflows/deploy.yml` with dual fallback: `${{ secrets.MILESWEB_PASSWORD || vars.MILESWEB_PASSWORD }}` and updated `APP_DIR` to `/var/www/2928957e-908a-4326-a64d-a58ad5b99ca0/dkenterprises.animazon.in`.
   - Instructed user to place sensitive passwords under **Repository Secrets** (`Settings > Secrets and variables > Actions > Secrets`).
 
+---
+
+## 126. Interactive Capability Bridge & Double Plus Symbol Resolution (2026-10-31)
+
+- **Interactive Capability Warning Bridge (`resources/views/errors/403.blade.php`):**
+  - Replaced dead-end `403 | CAPABILITY IS DISABLED: OPERATIONS.WATER_LOGISTICS` screen with an ultra-detailed, interactive warning & navigation bridge.
+  - Explains why the feature is restricted in the currently active company (e.g. Aran Cafe being a Bakery & Cafe profile).
+  - Automatically queries and displays all accessible companies that DO have the requested capability enabled (e.g. Tiruchendur Murugan Water Supply, DK Waters).
+  - Features one-click `[ ⇄ Switch to {Company} & Proceed ]` buttons passing `return_to` so the user is instantly switched into that enterprise and routed straight to their target URL.
+  - Added `return_to` handling and validation in `CompanySelectorController::choose()` and `CompanySelectorController::enter()`.
+- **Double Plus Symbol (`+ +`) Resolution:**
+  - Identified root cause: buttons using `<i class="dripicons-plus"></i>` already render a font plus icon; authors additionally typed literal `+` before the label, resulting in `+ +`.
+  - Cleaned up across 10 blade templates (`water_logistics/index.blade.php`, `cafe/index.blade.php`, `damage_stock.blade.php`, `sale/index.blade.php`, `purchase/index.blade.php`, `qr/index.blade.php`, `installment_plans/index.blade.php`, `exchange/index.blade.php`, `bookings/calendar.blade.php`).
+- **Bootstrap Cache Hygiene:**
+  - Added `bootstrap/cache/*.php` and `bootstrap/cache/*.tmp` to `.gitignore` and untracked stale dev package files to guarantee green production boots without debugbar crashes.
+- **Verification:**
+  - Verified in browser subagent: verified the interactive capability bridge with visual snapshot `capability_warning_screen_1793431805263.png`.
+  - Verified company switching: seamlessly transitioned from Aran Cafe to TMWS and loaded `/water-logistics` with visual snapshot `water_logistics_clean_buttons_1793431817628.png`.
+  - Feature test suite: 12/12 passing (87 assertions, 100% green).
+  - Production server on MilesWeb updated and synchronized with `origin/main` (commit `40626d2`).
+
+
