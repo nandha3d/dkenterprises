@@ -79,12 +79,39 @@ class ThreeCompaniesSeeder extends Seeder
         $service = app(CompanyDirectoryService::class);
         $groupId = 2; // DK Enterprises group
 
+        // Ensure user 1 exists
+        if (!DB::table('users')->where('id', 1)->exists()) {
+            DB::table('users')->insert([
+                'id' => 1,
+                'name' => 'admin',
+                'email' => 'admin@gmail.com',
+                'password' => bcrypt('admin'),
+                'phone' => '12345678',
+                'role_id' => 1,
+                'biller_id' => null,
+                'warehouse_id' => null,
+                'is_active' => 1,
+                'is_deleted' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
         if (!DB::table('company_groups')->where('id', $groupId)->exists()) {
             DB::table('company_groups')->insert([
                 'id' => $groupId,
                 'code' => 'DK',
                 'name' => 'DK Enterprises',
                 'status' => 'active',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        if (!DB::table('company_group_admins')->where('company_group_id', $groupId)->where('user_id', 1)->exists()) {
+            DB::table('company_group_admins')->insert([
+                'company_group_id' => $groupId,
+                'user_id' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

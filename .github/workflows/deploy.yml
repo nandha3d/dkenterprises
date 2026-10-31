@@ -88,16 +88,16 @@ jobs:
       - name: Deploy to MilesWeb over SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.MILESWEB_HOST || '45.199.139.25' }}
-          username: ${{ secrets.MILESWEB_USER || 'animazon1' }}
-          password: ${{ secrets.MILESWEB_PASSWORD }}
+          host: ${{ secrets.MILESWEB_HOST || vars.MILESWEB_HOST || '45.199.139.25' }}
+          username: ${{ secrets.MILESWEB_USER || vars.MILESWEB_USER || 'animazon1' }}
+          password: ${{ secrets.MILESWEB_PASSWORD || vars.MILESWEB_PASSWORD }}
           key: ${{ secrets.MILESWEB_SSH_KEY }}
-          port: ${{ secrets.MILESWEB_PORT || 22 }}
+          port: ${{ secrets.MILESWEB_PORT || vars.MILESWEB_PORT || 22 }}
           script_stop: true
           envs: GITHUB_SHA
           script: |
             echo "=== Starting DK Enterprises Deployment on MilesWeb ==="
-            APP_DIR="/var/www/2928957e-908a-4326-a64d-a58ad5b99ca0/dkenterprises"
+            APP_DIR="/var/www/2928957e-908a-4326-a64d-a58ad5b99ca0/dkenterprises.animazon.in"
             
             # Ensure application directory exists
             if [ ! -d "$APP_DIR" ]; then
