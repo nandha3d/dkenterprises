@@ -2639,3 +2639,24 @@ User: People, HRM and Settings did not follow the modern UI; add a developer rol
   3. *Server Deployment*: Connected via SSH to `animazon1@45.199.139.25`, cloned repo to `/var/www/2928957e-908a-4326-a64d-a58ad5b99ca0/dkenterprises`, ran `composer install --no-dev --optimize-autoloader` (100% success), and configured storage permissions (775).
   4. *Browser 403 Resolution*: Solved `403 | COMPANY ACCESS DENIED.` caused by stale post-reset session cookie (`company_id=7`). Updated `ResolveCompanyContext.php` to catch `AuthorizationException` and redirect smoothly to `/select-company`. Set `is_default=1` for Company 1 in `company_user`.
   5. *GPS API Guidance*: Documented Leaflet OpenStreetMap (100% free, zero key required), hardware telematics ping API (`POST /api/telematics/ping`), and Google Maps / Mapbox credentials.
+
+---
+
+## 125. Live Subdomain Routing & Remote Multi-Entity Seeder Execution (2026-10-31)
+
+- **Subdomain Routing & Native LiteSpeed Integration:**
+  - Enhance CP created document root `/var/www/2928957e-908a-4326-a64d-a58ad5b99ca0/dkenterprises.animazon.in`.
+  - Mirrored application root into `dkenterprises.animazon.in` with root `index.php` and `.htaccess` matching proven `lenzbreeze.com` pattern.
+  - LiteSpeed serves all static assets natively (`/css/`, `/js/`, `/vendor/`, `/images/`, `/docs/`) without symlink permission conflicts.
+  - Verified live URL: `https://dkenterprises.animazon.in` returning `HTTP 200 OK` on login and docs.
+- **Remote Database Seeding in `animazon1_dkenterprises`:**
+  - Removed non-existent `code` column from `categories` inserts and corrected `status` to `is_active` in `water_tankers`.
+  - Executed `php artisan db:seed --class="Database\Seeders\ThreeCompaniesSeeder" --force` on MilesWeb MariaDB.
+  - Verified database state via tinker:
+    - 3 Active Companies: `ARANCAFE` (ID 1), `TMWS` (ID 2), `DKWATERS` (ID 3).
+    - 4 Branches, 4 Warehouses, 20 Products, 3 Water Tankers, 2 Distribution Routes.
+- **GitHub Actions Configuration Review:**
+  - Analyzed user configuration in GitHub Settings.
+  - Updated `.github/workflows/deploy.yml` with dual fallback: `${{ secrets.MILESWEB_PASSWORD || vars.MILESWEB_PASSWORD }}` and updated `APP_DIR` to `/var/www/2928957e-908a-4326-a64d-a58ad5b99ca0/dkenterprises.animazon.in`.
+  - Instructed user to place sensitive passwords under **Repository Secrets** (`Settings > Secrets and variables > Actions > Secrets`).
+
