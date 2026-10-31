@@ -195,18 +195,39 @@ class SaleController extends Controller
             $lims_category_list = Category::where('is_active', true)->get();
             $lims_unit_list = Unit::where('is_active', true)->get();
             $lims_customer_group_all = class_exists(\App\Models\CustomerGroup::class) ? \App\Models\CustomerGroup::where('is_active', true)->get() : collect();
-            $water_tankers = class_exists(\App\Models\WaterTanker::class) ? \App\Models\WaterTanker::where('is_active', true)->get() : collect();
-            $water_can_routes = class_exists(\App\Models\WaterCanRoute::class) ? \App\Models\WaterCanRoute::where('is_active', true)->get() : collect();
-            $packaged_water_products = Product::where('is_active', true)
-                ->where(function($q) {
-                    $q->where('code', 'LIKE', 'CAN-%')
-                      ->orWhere('code', 'LIKE', 'BTL-%')
-                      ->orWhere('name', 'LIKE', '%Can%')
-                      ->orWhere('name', 'LIKE', '%Bottle%')
-                      ->orWhere('is_water_logistics', true)
-                      ->orWhere('water_vertical_type', 'packaged_water');
-                })
-                ->get();
+
+            $companyContext = $request->attributes->get(\App\Services\Platform\CompanyContext::class);
+            $activeCompanyId = $companyContext?->companyId ?? ($request->hasSession() ? $request->session()->get('company_id') : null) ?? session('company_id');
+            $activeCompany = $activeCompanyId ? \App\Models\Company::find($activeCompanyId) : null;
+            $activeIndustry = $activeCompany?->industry;
+
+            if ($activeIndustry === 'bulk_water') {
+                $water_tankers = class_exists(\App\Models\WaterTanker::class) ? \App\Models\WaterTanker::where('is_active', true)->get() : collect();
+                $water_can_routes = collect();
+                $packaged_water_products = collect();
+            } elseif ($activeIndustry === 'packaged_water') {
+                $water_tankers = collect();
+                $water_can_routes = class_exists(\App\Models\WaterCanRoute::class) ? \App\Models\WaterCanRoute::where('is_active', true)->get() : collect();
+                $packaged_water_products = Product::where('is_active', true)
+                    ->where(function ($q) use ($activeCompanyId) {
+                        if ($activeCompanyId) {
+                            $q->where('company_id', $activeCompanyId);
+                        }
+                    })
+                    ->where(function ($q) {
+                        $q->where('code', 'LIKE', 'CAN-%')
+                          ->orWhere('code', 'LIKE', 'BTL-%')
+                          ->orWhere('name', 'LIKE', '%Can%')
+                          ->orWhere('name', 'LIKE', '%Bottle%')
+                          ->orWhere('is_water_logistics', true)
+                          ->orWhere('water_vertical_type', 'packaged_water');
+                    })
+                    ->get();
+            } else {
+                $water_tankers = collect();
+                $water_can_routes = collect();
+                $packaged_water_products = collect();
+            }
             $documentContext = app(\App\Services\Commercial\DocumentContextResolver::class)->fromRequest($request, 'sale', request()->attributes->get(\App\Services\Platform\CompanyContext::class), (int) \Auth::id());
             return view('backend.sale.index', compact('starting_date', 'ending_date', 'warehouse_id', 'sale_status', 'payment_status', 'sale_type', 'payment_method', 'lims_gift_card_list', 'lims_pos_setting_data', 'lims_reward_point_setting_data', 'lims_account_list', 'lims_warehouse_list', 'all_permission','options', 'numberOfInvoice', 'custom_fields', 'field_name', 'lims_courier_list','smsTemplates', 'currency_list', 'todaySalesAmount', 'todaySalesCount', 'totalPaid', 'totalDue', 'lims_customer_list', 'recent_bills', 'lims_tax_list', 'lims_biller_list', 'currency', 'saleTypes', 'documentSeries', 'billSundries', 'standardRemarks', 'agents', 'areas', 'lims_product_list_without_variant', 'lims_product_list_with_variant', 'pending_challans', 'lims_brand_list', 'lims_category_list', 'lims_unit_list', 'lims_customer_group_all', 'water_tankers', 'water_can_routes', 'packaged_water_products'))->with('documentContext', $documentContext)->with('catalogCostVisible', $this->salesCatalogCostVisible());
 

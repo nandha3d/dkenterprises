@@ -114,7 +114,7 @@
                             <td>Tanker Driver</td>
                             <td><span class="badge badge-primary">Bulk Tankers</span></td>
                             <td>98422 10104</td>
-                            <td>TN 34 BF 1120 (9KL)</td>
+                            <td>TN 34 BF 1120 (Tanker)</td>
                             <td>Monthly Salaried</td>
                             <td><strong>₹250 / trip sheet</strong></td>
                             <td><span class="badge badge-warning text-dark font-weight-bold">₹800.00</span></td>

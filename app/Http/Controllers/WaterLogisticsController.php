@@ -21,23 +21,55 @@ class WaterLogisticsController extends Controller
         $this->accountingService = $accountingService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $tankers = WaterTanker::where('is_active', true)->get();
-        $trips = WaterTankerTrip::with(['tanker', 'customer'])->latest()->take(20)->get();
-        $routes = WaterCanRoute::where('is_active', true)->get();
-        $deliveries = WaterCanDelivery::with(['route', 'customer'])->latest()->take(20)->get();
-        $customers = Customer::where('is_active', true)->select('id', 'name', 'phone_number')->get();
+        $companyContext = $request->attributes->get(\App\Services\Platform\CompanyContext::class);
+        $companyId = $companyContext?->companyId ?? session('company_id');
+        $activeCompany = $companyId ? \App\Models\Company::find($companyId) : null;
+        $industry = $request->query('vertical') ?? ($activeCompany ? $activeCompany->industry : null);
 
-        // High Level Metrics
+        if (!in_array($industry, ['bulk_water', 'packaged_water'])) {
+            $industry = ($activeCompany && ($activeCompany->code === 'TMWS' || str_contains(strtolower($activeCompany->trade_name ?? ''), 'tanker') || str_contains(strtolower($activeCompany->trade_name ?? ''), 'murugan')))
+                ? 'bulk_water'
+                : 'packaged_water';
+        }
+
+        $tankers = WaterTanker::where('is_active', true)->get();
+        $trips = WaterTankerTrip::with(['tanker', 'customer'])->latest()->take(50)->get();
+        $routes = WaterCanRoute::where('is_active', true)->get();
+        $deliveries = WaterCanDelivery::with(['route', 'customer'])->latest()->take(50)->get();
+        $customers = Customer::where('is_active', true)
+            ->where(function ($q) use ($companyId) {
+                if ($companyId) {
+                    $q->where('company_id', $companyId)->orWhereNull('company_id');
+                }
+            })
+            ->select('id', 'name', 'phone_number')
+            ->get();
+
+        $canInventories = DB::table('water_can_inventories')
+            ->leftJoin('customers', 'water_can_inventories.customer_id', '=', 'customers.id')
+            ->select('water_can_inventories.*', 'customers.name as customer_name', 'customers.phone_number')
+            ->get();
+
+        // Metrics for Bulk Water Vertical
         $totalTankerTrips = WaterTankerTrip::count();
-        $totalWaterDispatchedKl = WaterTankerTrip::sum('water_quantity_kl');
-        $totalCanDeliveries = WaterCanDelivery::sum('cans_delivered');
-        $totalTankerRevenue = WaterTankerTrip::sum('trip_rate');
+        $totalWaterDispatchedKl = (float) WaterTankerTrip::sum('water_quantity_kl');
+        $totalTankerRevenue = (float) WaterTankerTrip::sum('trip_rate');
+        $totalTankerExpenses = (float) WaterTankerTrip::sum(DB::raw('COALESCE(diesel_expense, 0) + COALESCE(driver_batta, 0) + COALESCE(toll_expense, 0)'));
+
+        // Metrics for 20L Can Vertical
+        $totalCanDeliveries = (int) WaterCanDelivery::sum('cans_delivered');
+        $totalCanRevenue = (float) WaterCanDelivery::sum('total_amount');
+        $totalCansHeld = (int) DB::table('water_can_inventories')->sum('total_cans_held');
+        $totalDepositHeld = (float) DB::table('water_can_inventories')->sum('deposit_held');
+        $activeRoutesCount = $routes->count();
 
         return view('backend.water_logistics.index', compact(
-            'tankers', 'trips', 'routes', 'deliveries', 'customers',
-            'totalTankerTrips', 'totalWaterDispatchedKl', 'totalCanDeliveries', 'totalTankerRevenue'
+            'tankers', 'trips', 'routes', 'deliveries', 'customers', 'canInventories',
+            'totalTankerTrips', 'totalWaterDispatchedKl', 'totalCanDeliveries', 'totalTankerRevenue',
+            'totalTankerExpenses', 'totalCanRevenue', 'totalCansHeld', 'totalDepositHeld', 'activeRoutesCount',
+            'activeCompany', 'industry'
         ));
     }
 
@@ -320,24 +352,51 @@ class WaterLogisticsController extends Controller
 
     public function calculateTankerTrip(Request $request)
     {
+        $companyContext = $request->attributes->get(\App\Services\Platform\CompanyContext::class);
+        $companyId = $companyContext?->companyId ?? session('company_id');
+
         $tanker = WaterTanker::find($request->tanker_id);
-        $capKl = $tanker ? (float)$tanker->capacity_kl : (float)($request->capacity_kl ?? 40);
+        $capKl = $tanker ? (float)$tanker->capacity_kl : (float)($request->capacity_kl ?? 10);
 
-        $baseRates = [
-            40 => ['code' => 'BW-40KL', 'name' => 'Commercial Bulk Water Supply (40KL Tanker Trip)', 'rate' => 4500],
-            24 => ['code' => 'BW-24KL', 'name' => 'Commercial Bulk Water Supply (24KL Tanker Trip)', 'rate' => 2800],
-            16 => ['code' => 'BW-16KL', 'name' => 'Commercial Bulk Water Supply (16KL Tanker Trip)', 'rate' => 2000],
-            9  => ['code' => 'BW-9KL',  'name' => 'Commercial Bulk Water Supply (9KL Tanker Trip)',  'rate' => 1200],
+        // Dynamically find matching bulk water product without hardcoded capacity arrays
+        $product = null;
+        if ($request->filled('product_id')) {
+            $product = \App\Models\Product::find($request->product_id);
+        }
+        if (!$product && $companyId) {
+            $product = \App\Models\Product::where('company_id', $companyId)
+                ->where('is_active', true)
+                ->where(function ($q) use ($capKl) {
+                    $q->where('water_capacity_spec', 'LIKE', "%{$capKl}%")
+                      ->orWhere('code', 'LIKE', "%{$capKl}%")
+                      ->orWhere('name', 'LIKE', "%{$capKl}%");
+                })
+                ->first();
+
+            if (!$product) {
+                $product = \App\Models\Product::where('company_id', $companyId)
+                    ->where('is_active', true)
+                    ->where(function ($q) {
+                        $q->where('is_water_logistics', true)
+                          ->where('water_vertical_type', 'bulk_water')
+                          ->orWhere('code', 'LIKE', 'BW-%');
+                    })
+                    ->first();
+            }
+        }
+
+        $ratePerKl = (float)($product?->price ? ($product->price / max(1, (float)($product->water_capacity_spec ?: $capKl))) : 120.0);
+        $defaultTripRate = $product?->price ?: round($capKl * $ratePerKl);
+        $baseRate = (float)($request->base_rate ?: $defaultTripRate);
+        $baseCode = $product?->code ?: ('BW-' . round($capKl) . 'KL');
+        $baseName = $product?->name ?: ("Commercial Bulk Water Supply (" . $capKl . "KL Tanker Trip)");
+
+        $baseInfo = [
+            'code' => $baseCode,
+            'name' => $baseName,
+            'rate' => $baseRate,
+            'product_id' => $product?->id,
         ];
-
-        $closestCap = 40;
-        if ($capKl <= 10) $closestCap = 9;
-        elseif ($capKl <= 18) $closestCap = 16;
-        elseif ($capKl <= 28) $closestCap = 24;
-        else $closestCap = 40;
-
-        $baseInfo = $baseRates[$closestCap];
-        $baseRate = (float)($request->base_rate ?: $baseInfo['rate']);
 
         $startKm = (float)($request->start_km ?? ($tanker->current_odometer_km ?? 0));
         $endKm = (float)($request->end_km ?? 0);
@@ -346,9 +405,9 @@ class WaterLogisticsController extends Controller
             $totalKm = (float)$request->total_km;
         }
 
-        $baseKmLimit = (float)($request->base_km_limit ?: 10);
+        $baseKmLimit = (float)($request->base_km_limit ?: ($product?->base_km_limit ?: 10));
         $excessKm = max(0, $totalKm - $baseKmLimit);
-        $excessRate = (float)($request->excess_km_rate ?: 45);
+        $excessRate = (float)($request->excess_km_rate ?: ($product?->excess_km_rate ?: 45));
         $excessCharge = $excessKm * $excessRate;
 
         $pumpMins = (int)($request->motor_pumping_minutes ?? 0);

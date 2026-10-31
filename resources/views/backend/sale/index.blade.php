@@ -252,7 +252,7 @@
                             @endif
                             @if(isset($water_can_routes) && $water_can_routes->count() > 0)
                             <button type="button" class="btn btn-sm btn-success text-white comm-items-btn" id="btn-open-can-dispatch" data-toggle="modal" data-target="#can-dispatch-modal" style="background:#16a34a; border-color:#16a34a;">
-                                <i class="fa fa-cubes mr-1"></i> 💧 Packaged Water (20L, 25L, 1L)
+                                <i class="fa fa-cubes mr-1"></i> 💧 Packaged Water Delivery
                             </button>
                             @endif
                             <button type="button" class="btn btn-sm btn-outline-secondary comm-items-btn" id="btn-multi-item" data-toggle="modal" data-target="#multi-item-modal">
@@ -1678,6 +1678,7 @@
     </div>
 </div>
 
+@if(isset($water_tankers) && $water_tankers->count() > 0)
 <!-- Modal: Tanker Trip Sheet & Rate Calculator -->
 <div id="tanker-trip-calc-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -1713,7 +1714,7 @@
                         <div class="row">
                             <div class="col-4 form-group mb-2">
                                 <label class="small text-muted font-weight-bold mb-1">Tanker Cap. (KL)</label>
-                                <input type="number" id="calc_capacity_kl" class="form-control form-control-sm font-weight-bold" value="40" step="1" readonly>
+                                <input type="number" id="calc_capacity_kl" class="form-control form-control-sm font-weight-bold" value="{{ $water_tankers->first()->capacity_kl ?? 10 }}" step="0.5" readonly>
                             </div>
                             <div class="col-4 form-group mb-2">
                                 <label class="small text-muted font-weight-bold mb-1">Chamber / Load *</label>
@@ -1728,7 +1729,7 @@
                             </div>
                             <div class="col-4 form-group mb-2">
                                 <label class="small text-muted font-weight-bold mb-1">Delivered (KL) *</label>
-                                <input type="number" id="calc_delivered_kl" class="form-control form-control-sm font-weight-bold text-success" value="40" step="0.5" min="0.5">
+                                <input type="number" id="calc_delivered_kl" class="form-control form-control-sm font-weight-bold text-success" value="{{ $water_tankers->first()->capacity_kl ?? 10 }}" step="0.5" min="0.5">
                             </div>
                         </div>
                         <div class="row">
@@ -1738,7 +1739,7 @@
                             </div>
                             <div class="col-6 form-group mb-2">
                                 <label class="small text-muted font-weight-bold mb-1">Base Water Charge (₹)</label>
-                                <input type="number" id="calc_base_rate" class="form-control form-control-sm font-weight-bold" value="4500" step="50">
+                                <input type="number" id="calc_base_rate" class="form-control form-control-sm font-weight-bold" value="0" step="50">
                             </div>
                         </div>
                         <div class="row">
@@ -1815,7 +1816,7 @@
                         <div class="d-flex align-items-center gap-3">
                             <div>
                                 <small class="text-muted d-block" style="font-size: 10px; font-weight: 700;">BASE WATER</small>
-                                <span class="font-weight-bold text-dark" id="calc-disp-base">₹ 4,500.00</span>
+                                <span class="font-weight-bold text-dark" id="calc-disp-base">₹ 0.00</span>
                             </div>
                             <div>
                                 <small class="text-muted d-block" style="font-size: 10px; font-weight: 700;">EXCESS MILEAGE</small>
@@ -1832,7 +1833,7 @@
                         </div>
                         <div class="text-right">
                             <small class="text-muted d-block" style="font-size: 10px; font-weight: 700;">NET BILLABLE TOTAL</small>
-                            <span class="font-weight-bold text-success" style="font-size: 18px;" id="calc-disp-total">₹ 4,850.00</span>
+                            <span class="font-weight-bold text-success" style="font-size: 18px;" id="calc-disp-total">₹ 0.00</span>
                         </div>
                     </div>
                 </div>
@@ -1851,7 +1852,9 @@
         </div>
     </div>
 </div>
+@endif
 
+@if(isset($water_can_routes) && $water_can_routes->count() > 0)
 <!-- Modal: Packaged Water & Can Dispatch Assistant (Customizable 20L, 25L, 1L, etc.) -->
 <div id="can-dispatch-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-md" role="document">
@@ -1935,6 +1938,7 @@
         </div>
     </div>
 </div>
+@endif
 
 @include('backend.commercial.orders', ['orderKind' => 'sale'])
 @endsection
@@ -2016,9 +2020,10 @@
             $('#currency_id').val($(this).data('currency_id')); $('#exchange_rate').val(parseFloat($(this).data('exchange_rate')) || 1);
         });
 
+        @if(isset($water_tankers) && $water_tankers->count() > 0)
         // --- Water Tanker Trip Calculator Reactive Logic ---
         function updateTankerCalc() {
-            var cap = parseFloat($('#calc_capacity_kl').val()) || 40;
+            var cap = parseFloat($('#calc_capacity_kl').val()) || 10;
             var delKl = parseFloat($('#calc_delivered_kl').val()) || cap;
             var rem = Math.max(0, cap - delKl);
             if (rem <= 0) {
@@ -2027,7 +2032,7 @@
                 $('#calc_remaining_tank').val(rem.toFixed(1) + ' KL (Available for Next Customer)');
             }
 
-            var baseRate = parseFloat($('#calc_base_rate').val()) || 4500;
+            var baseRate = parseFloat($('#calc_base_rate').val()) || (cap * 120);
             var startKm = parseFloat($('#calc_start_km').val()) || 0;
             var endKm = parseFloat($('#calc_end_km').val()) || 0;
             var totalKm = Math.max(0, endKm - startKm);
@@ -2059,9 +2064,9 @@
         }
 
         $('#calc_load_portion').on('change', function() {
-            var cap = parseFloat($('#calc_capacity_kl').val()) || 40;
+            var cap = parseFloat($('#calc_capacity_kl').val()) || 10;
             var portion = $(this).val();
-            var fullRate = cap >= 35 ? 4500 : (cap >= 20 ? 2800 : (cap >= 14 ? 2000 : 1200));
+            var fullRate = parseFloat($('#calc_base_rate').data('full-rate')) || (cap * 120);
 
             if (portion === 'full') {
                 $('#calc_delivered_kl').val(cap);
@@ -2081,9 +2086,9 @@
         });
 
         $('#calc_delivered_kl').on('input change', function() {
-            var cap = parseFloat($('#calc_capacity_kl').val()) || 40;
+            var cap = parseFloat($('#calc_capacity_kl').val()) || 10;
             var del = parseFloat($(this).val()) || 0;
-            var fullRate = cap >= 35 ? 4500 : (cap >= 20 ? 2800 : (cap >= 14 ? 2000 : 1200));
+            var fullRate = parseFloat($('#calc_base_rate').data('full-rate')) || (cap * 120);
             if (del < cap && $('#calc_load_portion').val() === 'full') {
                 $('#calc_load_portion').val('custom');
             }
@@ -2096,7 +2101,7 @@
 
         $('#calc_tanker_id').on('change', function() {
             var opt = $(this).find('option:selected');
-            var cap = parseFloat(opt.data('cap')) || 40;
+            var cap = parseFloat(opt.data('cap')) || 10;
             var odo = parseFloat(opt.data('odo')) || 0;
             $('#calc_capacity_kl').val(cap);
             $('#calc_delivered_kl').val(cap);
@@ -2104,10 +2109,10 @@
             $('#calc_start_km').val(odo);
             $('#calc_end_km').val(odo + 25);
 
-            if (cap >= 35) $('#calc_base_rate').val(4500);
-            else if (cap >= 20) $('#calc_base_rate').val(2800);
-            else if (cap >= 14) $('#calc_base_rate').val(2000);
-            else $('#calc_base_rate').val(1200);
+            var matchingProd = allProducts.find(p => (p.code && p.code.includes(Math.round(cap) + 'KL')) || (p.name && p.name.includes(Math.round(cap) + 'KL')) || (p.code && p.code.startsWith('BW-')));
+            var fullRate = matchingProd ? parseFloat(matchingProd.price) : Math.round(cap * 120);
+            $('#calc_base_rate').data('full-rate', fullRate);
+            $('#calc_base_rate').val(fullRate);
 
             updateTankerCalc();
         });
@@ -2122,13 +2127,13 @@
                 return;
             }
 
-            var cap = parseFloat($('#calc_capacity_kl').val()) || 40;
+            var cap = parseFloat($('#calc_capacity_kl').val()) || 10;
             var delKl = parseFloat($('#calc_delivered_kl').val()) || cap;
             var rem = Math.max(0, cap - delKl);
             var portion = $('#calc_load_portion').val();
             var portionText = $('#calc_load_portion option:selected').text();
 
-            var baseRate = parseFloat($('#calc_base_rate').val()) || 4500;
+            var baseRate = parseFloat($('#calc_base_rate').val()) || (cap * 120);
             var startKm = parseFloat($('#calc_start_km').val()) || 0;
             var endKm = parseFloat($('#calc_end_km').val()) || 0;
             var totalKm = Math.max(0, endKm - startKm);
@@ -2160,8 +2165,9 @@
             $('#hidden_driver_batta').val(batta);
             $('#hidden_water_quantity_kl').val(delKl);
 
-            var baseCode = cap >= 35 ? 'BW-40KL' : (cap >= 20 ? 'BW-24KL' : (cap >= 14 ? 'BW-16KL' : 'BW-9KL'));
-            var baseProd = allProducts.find(p => p.code === baseCode) || { id: 0, code: baseCode, name: 'Commercial Bulk Water Supply (' + cap + 'KL Tanker)', unit: 'TRIP' };
+            var matchingProd = allProducts.find(p => (p.code && p.code.includes(Math.round(cap) + 'KL')) || (p.name && p.name.includes(Math.round(cap) + 'KL')) || (p.code && p.code.startsWith('BW-')));
+            var baseCode = matchingProd ? matchingProd.code : ('BW-' + Math.round(cap) + 'KL');
+            var baseProd = matchingProd || { id: 0, code: baseCode, name: 'Commercial Bulk Water Supply (' + cap + 'KL Tanker)', unit: 'TRIP' };
 
             var lineTitle = '';
             if (portion === 'full') {
@@ -2229,7 +2235,9 @@
             $('#tanker-trip-calc-modal').modal('hide');
             calculateTotal();
         });
+        @endif
 
+        @if(isset($water_can_routes) && $water_can_routes->count() > 0)
         // --- Packaged Water & Can Dispatch Assistant Reactive Logic ---
         $('#can_product_id').on('change', function() {
             var opt = $(this).find('option:selected');
@@ -2287,6 +2295,7 @@
             $('#can-dispatch-modal').modal('hide');
             calculateTotal();
         });
+        @endif
     });
 
     // --- State variables ---

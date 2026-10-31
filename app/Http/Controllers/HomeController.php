@@ -69,7 +69,7 @@ class HomeController extends Controller
                 'key' => 'water_logistics',
                 'name' => 'Water Logistics & Tanker Fleet',
                 'category' => 'Industry Solution',
-                'description' => 'Bulk water tanker fleet trip sheets (9KL, 16KL, 24KL), diesel & toll expense vouchers, site receiver signatures, and Tata Ace 20L Can distribution with live inventory balancing and corporate 15/30-day B2B credit aging.',
+                'description' => 'Commercial bulk water tanker fleet trip sheets, chamber decanting, diesel & toll expense vouchers, and route distribution management.',
                 'icon' => 'dripicons-drop',
                 'tone' => 'info',
                 'route' => 'water-logistics.index',
@@ -555,7 +555,7 @@ class HomeController extends Controller
             } elseif ($comp->code === 'TMWS' || str_contains(strtolower($comp->trade_name), 'murugan') || str_contains(strtolower($comp->trade_name), 'tanker')) {
                 $card['vertical'] = 'bulk_water';
                 $card['vertical_title'] = 'Commercial Bulk Water Logistics';
-                $card['tagline'] = 'Heavy Tanker Lorries (20KL, 40KL, 10KL)';
+                $card['tagline'] = 'Heavy Tanker Fleet & Chamber Decanting';
                 $card['theme_color'] = 'blue';
                 $card['icon'] = 'dripicons-drop';
                 $card['active_tankers'] = Schema::hasTable('water_tankers') ? DB::table('water_tankers')->where('is_active', 1)->count() : 0;
@@ -569,7 +569,7 @@ class HomeController extends Controller
             } else {
                 $card['vertical'] = 'packaged_water';
                 $card['vertical_title'] = 'Packaged Drinking Water Supply';
-                $card['tagline'] = '20L, 25L, 10L Cans & Bottle Route Fleet';
+                $card['tagline'] = 'Packaged Water Cans & Bottle Route Fleet';
                 $card['theme_color'] = 'emerald';
                 $card['icon'] = 'dripicons-box';
                 $card['active_routes'] = Schema::hasTable('water_can_routes') ? DB::table('water_can_routes')->where('is_active', 1)->count() : 0;

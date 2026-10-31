@@ -923,7 +923,7 @@ Route::group(['middleware' => ['common', 'auth', 'active', 'legacy.company']], f
     });
 
     // Module: Water Supply & Fleet Logistics
-    Route::controller(\App\Http\Controllers\WaterLogisticsController::class)->group(function () {
+    Route::middleware(['company.context', 'common'])->controller(\App\Http\Controllers\WaterLogisticsController::class)->group(function () {
         Route::get('water-logistics', 'index')->name('water-logistics.index');
         Route::post('water-logistics/trip-sheets', 'storeTripSheet')->name('water-logistics.trip-sheets.store');
         Route::post('water-logistics/trip', 'storeTripSheet')->name('water-logistics.trip.store');
@@ -937,7 +937,7 @@ Route::group(['middleware' => ['common', 'auth', 'active', 'legacy.company']], f
     });
 
     // Module: Cafe & Bakery Operations
-    Route::controller(\App\Http\Controllers\CafeOperationsController::class)->group(function () {
+    Route::middleware(['company.context', 'common'])->controller(\App\Http\Controllers\CafeOperationsController::class)->group(function () {
         Route::get('cafe', 'index')->name('cafe.index');
         Route::get('cafe/pos', 'pos')->name('cafe.pos');
         Route::post('cafe/orders', 'storeOrder')->name('cafe.orders.store');

@@ -8,7 +8,7 @@
             <h3 class="font-weight-bold text-dark m-0">
                 <i class="dripicons-to-do text-primary mr-2"></i> Bulk Water Tankers &amp; Customizable Trip Sheets
             </h3>
-            <p class="text-muted small m-0 mt-1">Multi-capacity fleet (40KL trailer, 24KL, 16KL, 9KL) with automated distance, motor running &amp; waiting surcharges.</p>
+            <p class="text-muted small m-0 mt-1">Multi-capacity fleet with automated distance, motor running &amp; waiting surcharges.</p>
         </div>
         <div class="col-md-5 text-right">
             <button type="button" class="btn btn-primary btn-sm shadow-sm" data-toggle="modal" data-target="#newTripModal">

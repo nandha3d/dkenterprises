@@ -90,7 +90,7 @@ export const translations: Record<string, { en: string; ta: string }> = {
 
   // Bulk Water Tankers Portal & Trip Sheet Rules
   'tankers.title': { en: 'Bulk Water Tanker Fleet', ta: 'பல்க் டேங்கர் லாரி பிரிவு' },
-  'tankers.subtitle': { en: 'Real-time lorry allocation, 9KL to 40KL+ custom capacities, and surcharge tracking', ta: 'நிகழ்நேர லாரி ஒதுக்கீடு, 9KL முதல் 40KL+ வரை தனிப்பயன் கொள்ளளவு, கூடுதல் கட்டணங்கள்' },
+  'tankers.subtitle': { en: 'Real-time lorry allocation, dynamic custom capacities, and surcharge tracking', ta: 'நிகழ்நேர லாரி ஒதுக்கீடு, தனிப்பயன் கொள்ளளவு, கூடுதல் கட்டணங்கள்' },
   'tankers.new_dispatch': { en: '+ New Tanker Dispatch', ta: '+ புதிய டேங்கர் ட்ரிப் அனுப்பு' },
   'tankers.active_fleet': { en: 'Fleet Running Ratio', ta: 'சாலையில் ஓடும் லாரிகள்' },
   'tankers.water_moved': { en: 'Water Volume Delivered', ta: 'வழங்கப்பட்ட மொத்த தண்ணீர்' },

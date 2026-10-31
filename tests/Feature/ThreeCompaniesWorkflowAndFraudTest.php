@@ -454,7 +454,60 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
         $response->assertSee('Tiruchendur Murugan Water Supply');
         $response->assertSee('DK Waters');
         $response->assertSee('2 Active Outlets');
-        $response->assertSee('Heavy Tanker Lorries');
+        $response->assertSee('Heavy Tanker Fleet');
         $response->assertSee('Empty Can Recovery', false);
+    }
+
+    /**
+     * Test 13: Water Logistics Screen Vertical Isolation (Bulk Water vs 20L Can Routes).
+     */
+    public function test_water_logistics_vertical_screen_isolation(): void
+    {
+        $user = \App\Models\User::find(1);
+        $this->actingAs($user, 'web');
+
+        $tmws = Company::where('code', 'TMWS')->first();
+        $dkWaters = Company::where('code', 'DKWATERS')->first();
+
+        // 1. Enter TMWS context (Bulk Water vertical)
+        session([
+            'company_id' => $tmws->id,
+            'branch_id' => $tmws->branches()->first()->id,
+            'financial_year_id' => 2,
+        ]);
+
+        $responseTmws = $this->get('/water-logistics');
+        $responseTmws->assertStatus(200);
+        $responseTmws->assertSee('Commercial Bulk Water &amp; Fleet Logistics', false);
+        $responseTmws->assertSee('Log Tanker Trip');
+        $responseTmws->assertDontSee('20L Can Delivery');
+        $responseTmws->assertDontSee('Customer Cans in Custody');
+        $responseTmws->assertDontSee('9KL/16KL/24KL');
+        $responseTmws->assertDontSee('10KL/20KL/40KL');
+
+        $responseTmwsSale = $this->get('/sales');
+        $responseTmwsSale->assertStatus(200);
+        $responseTmwsSale->assertSee('Tanker Trip Calc');
+        $responseTmwsSale->assertDontSee('Packaged Water Delivery');
+
+        // 2. Enter DK Waters context (Packaged Water vertical)
+        session([
+            'company_id' => $dkWaters->id,
+            'branch_id' => $dkWaters->branches()->first()->id,
+            'financial_year_id' => 3,
+        ]);
+
+        $responseDkWaters = $this->get('/water-logistics');
+        $responseDkWaters->assertStatus(200);
+        $responseDkWaters->assertSee('20L Can Route Distribution &amp; Logistics', false);
+        $responseDkWaters->assertSee('20L Can Delivery');
+        $responseDkWaters->assertDontSee('Log Tanker Trip');
+        $responseDkWaters->assertDontSee('Total Bulk Water Delivered');
+        $responseDkWaters->assertDontSee('9KL/16KL/24KL');
+
+        $responseDkWatersSale = $this->get('/sales');
+        $responseDkWatersSale->assertStatus(200);
+        $responseDkWatersSale->assertSee('Packaged Water Delivery');
+        $responseDkWatersSale->assertDontSee('Tanker Trip Calc');
     }
 }

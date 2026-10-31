@@ -473,8 +473,9 @@
             map.flyTo([targetLat, targetLng], 17, {duration: 1});
 
             // Show alert box
+            var capLabel = firstTanker.capacity_kl ? ' (' + firstTanker.capacity_kl + ' KL)' : '';
             $('#geofence-alert-text').html(
-                'Tanker <strong>' + firstTanker.vehicle_number + ' (40KL)</strong> arrived at <strong>' + firstCust.name + '</strong>!'
+                'Tanker <strong>' + firstTanker.vehicle_number + capLabel + '</strong> arrived at <strong>' + firstCust.name + '</strong>!'
             );
             $('#geofence-alert-box').fadeIn(400);
 

@@ -92,7 +92,7 @@ export const FleetPortal: React.FC<FleetPortalProps> = ({
           </div>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.84rem', marginTop: '0.2rem' }}>
             {lang === 'en' 
-              ? 'Manage Bulk Tankers (40KL, 28KL, 24KL, 16KL, 9KL) & Tata Ace delivery trucks with FC, Insurance & Odometer compliance'
+              ? 'Manage Bulk Water Tankers & Tata Ace delivery trucks with open capacities, FC, Insurance & Odometer compliance'
               : 'டேங்கர் மற்றும் டாட்டா ஏஸ் வாகனங்களின் FC, இன்சூரன்ஸ், மற்றும் கிலோமீட்டர் தணிக்கை'}
           </p>
         </div>
@@ -198,7 +198,7 @@ export const FleetPortal: React.FC<FleetPortalProps> = ({
             </span>
           </div>
           <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)' }}>
-            40KL Trailer · 28KL · 24KL · 16KL (x2) · 9KL (x1)
+            Multi-Capacity Tanker Fleet & Delivery Vehicles
           </div>
         </div>
       </div>

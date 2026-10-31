@@ -330,13 +330,19 @@
                             </div>
                         @elseif($card['vertical'] === 'bulk_water')
                             <div class="company-visual-meter-header">
-                                <span>Multi-Compartment Chamber Segments (20KL & 40KL)</span>
+                                <span>Multi-Compartment Chamber Segments</span>
                                 <span class="text-info font-weight-bold">Split Ready</span>
                             </div>
                             <div class="company-chamber-segments">
-                                <div class="company-chamber-box" title="Chamber 1">Chamber 1 (10KL)</div>
-                                <div class="company-chamber-box" title="Chamber 2">Chamber 2 (10KL)</div>
-                                <div class="company-chamber-box" title="Chamber 3 (40KL Tanker)">Chamber 3 (20KL)</div>
+                                @if(!empty($card['tankers_list']) && count($card['tankers_list']) > 0)
+                                    @foreach($card['tankers_list']->take(3) as $tnkItem)
+                                        <div class="company-chamber-box" title="{{ $tnkItem->vehicle_number }}">{{ $tnkItem->vehicle_number }} ({{ $tnkItem->capacity_kl }} KL)</div>
+                                    @endforeach
+                                @else
+                                    <div class="company-chamber-box" title="Chamber 1">Chamber 1 (Full Load)</div>
+                                    <div class="company-chamber-box" title="Chamber 2">Chamber 2 (Split Load)</div>
+                                    <div class="company-chamber-box" title="Chamber 3">Chamber 3 (Multi-Drop)</div>
+                                @endif
                             </div>
                         @else
                             <div class="company-visual-meter-header">

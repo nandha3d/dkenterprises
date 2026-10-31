@@ -17,6 +17,9 @@
         || $nav->has('operations.projects') || $nav->has('service.repair') || $nav->has('operations.cafe_bakery')
         || ($nav->allows('addons') && \Auth::user()?->role_id != 5 && ($nav->has('sales.ecommerce') || $nav->has('operations.restaurant')));
     $settingsSections = \App\Services\Platform\SettingsCatalog::sections($nav);
+    $sidebarCompanyId = $navigationContext?->companyId ?? session('company_id');
+    $sidebarCompany = $sidebarCompanyId ? \App\Models\Company::find($sidebarCompanyId) : null;
+    $sidebarIndustry = $sidebarCompany?->industry;
 @endphp
 
 <div class="side-search d-print-none" role="search">
@@ -250,9 +253,37 @@
                     <li id="route-sheet-menu"><a href="{{ url('/trade/routes') }}" data-keywords="route sheet van">Routes</a></li>
                 @endif
                 @if($nav->has('operations.water_logistics'))
-                    <li><a href="{{route('water-logistics.index')}}">Fleet Trips &amp; Can Routes</a></li>
-                    <li><a href="{{route('fleet.tracking')}}"><i class="fa fa-map-marker mr-1 text-primary"></i> Live Fleet GPS Tracking</a></li>
-                    <li><a href="{{route('water-logistics.credit-aging')}}">Corporate Credit Aging</a></li>
+                    @if($sidebarIndustry === 'bulk_water')
+                        <li class="{{ request()->is('water-logistics') ? 'active' : '' }}">
+                            <a href="{{route('water-logistics.index')}}"><i class="dripicons-truck mr-1 text-primary"></i> Tanker Trips &amp; Dispatch</a>
+                        </li>
+                        <li class="{{ request()->is('fleet/tracking*') ? 'active' : '' }}">
+                            <a href="{{route('fleet.tracking')}}"><i class="fa fa-map-marker mr-1 text-primary"></i> Live Fleet GPS Tracking</a>
+                        </li>
+                        <li class="{{ request()->is('*credit-aging*') ? 'active' : '' }}">
+                            <a href="{{route('water-logistics.credit-aging')}}"><i class="dripicons-time-reverse mr-1 text-warning"></i> Corporate Credit Aging</a>
+                        </li>
+                    @elseif($sidebarIndustry === 'packaged_water')
+                        <li class="{{ request()->is('water-logistics') ? 'active' : '' }}">
+                            <a href="{{route('water-logistics.index')}}"><i class="dripicons-drop mr-1 text-info"></i> 20L Can Delivery Routes</a>
+                        </li>
+                        <li class="{{ request()->is('fleet/tracking*') ? 'active' : '' }}">
+                            <a href="{{route('fleet.tracking')}}"><i class="fa fa-map-marker mr-1 text-info"></i> Live Route GPS Tracking</a>
+                        </li>
+                        <li class="{{ request()->is('*credit-aging*') ? 'active' : '' }}">
+                            <a href="{{route('water-logistics.credit-aging')}}"><i class="dripicons-time-reverse mr-1 text-warning"></i> Customer Credit Aging</a>
+                        </li>
+                    @else
+                        <li class="{{ request()->is('water-logistics') ? 'active' : '' }}">
+                            <a href="{{route('water-logistics.index')}}"><i class="dripicons-map mr-1 text-primary"></i> Fleet Trips &amp; Can Routes</a>
+                        </li>
+                        <li class="{{ request()->is('fleet/tracking*') ? 'active' : '' }}">
+                            <a href="{{route('fleet.tracking')}}"><i class="fa fa-map-marker mr-1 text-primary"></i> Live Fleet GPS Tracking</a>
+                        </li>
+                        <li class="{{ request()->is('*credit-aging*') ? 'active' : '' }}">
+                            <a href="{{route('water-logistics.credit-aging')}}"><i class="dripicons-time-reverse mr-1 text-warning"></i> Corporate Credit Aging</a>
+                        </li>
+                    @endif
                 @endif
             </ul>
         </li>

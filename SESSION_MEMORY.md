@@ -2701,5 +2701,50 @@ User: People, HRM and Settings did not follow the modern UI; add a developer rol
   4. *Responsive Multi-Branch Switch Card*: Updated `public/css/workspace-home.css` so `.zw-company` uses `flex-wrap: wrap` and `.zw-company-fields` spans 100% width cleanly below the company mark and title when branch dropdowns exist.
   5. *Live Verification*: Tested 70 asset URLs across the site via automated script (100% HTTP 200 OK). Captured browser snapshots `dashboard_page_1793433147025.png` and `workspace_reloaded_1793433270907.png` confirming pristine zoloERP Pro dark sidebar, glassmorphic metric cards, correctly hidden modals, crisp vector icons, and beautifully formatted company switch panels.
 
+---
+
+## 128. Enterprise Vertical Process Flow Isolation & Purge of Hardcoded Capacities (2026-10-31)
+
+- **User Directives Addressed:**
+  1. *Zero Process Flow Conflict*: Ensure no overlap or confusion between bulk water tanker supply and 20L water can distribution. Each enterprise vertical operates strictly within its own process flow:
+     - **Tiruchendur Murugan Water Supply (`TMWS`)**: Heavy commercial bulk water tankers (dynamic KL capacities, multi-compartment chamber split decanting, trip sheets, driver batta/diesel expenses, live fleet GPS telematics). Must never display 20L can distribution, Tata Ace routes, or empty can customer custody.
+     - **DK Waters (`DKWATERS`)**: 20L packaged drinking water distribution (Tata Ace beat routes, can delivery manifests, empty returns, customer can balance/custody ledger, container anti-theft deposit ledger). Must never display bulk tanker trip sheets, tanker vehicle registries, or chamber decanting.
+     - **Aran Cafe (`ARANCAFE`)**: Bakery & Cafe operations (POS, BOM, ingredients, drawer reconciliation).
+  2. *Purge Hardcoded Capacities Everywhere*: Remove all static mentions of `9KL/16KL/24KL`, `10KL/20KL/40KL`, and hardcoded static rates (`4500`, `2800`, `2000`, `1200`). All capacities and rates are open and dynamic.
+
+- **Architectural & File Modifications:**
+  1. `app/Http/Controllers/WaterLogisticsController.php`:
+     - Dynamically resolves active industry (`bulk_water` vs `packaged_water`) based on request attribute/session company context.
+     - Scopes customer queries strictly by active `company_id`.
+     - In `calculateTankerTrip()`, purged hardcoded static rate array (`$baseRates`). Dynamically resolves matching catalog bulk water products by tanker capacity spec and calculates rates dynamically.
+  2. `resources/views/backend/water_logistics/index.blade.php`:
+     - Completely split the views: if `bulk_water`, renders strictly commercial bulk tanker dispatch and fleet metrics; if `packaged_water`, renders strictly 20L can delivery manifests, routes, and custody ledgers.
+     - Replaced the confusing combined fallback view with an **Enterprise Vertical Gateway** allowing direct entry into TMWS or DK Waters.
+     - Purged hardcoded `(10KL/20KL/40KL)` and default `value="16.0"` delivered KL inputs.
+  3. `app/Http/Controllers/SaleController.php`:
+     - Scoped `$water_tankers`, `$water_can_routes`, and `$packaged_water_products` strictly by company vertical (`bulk_water` only receives tankers; `packaged_water` only receives can routes and packaged products; `cafe_bakery` receives neither).
+     - Company resolution checks request attributes (`CompanyContext`), session, and fallback.
+  4. `resources/views/backend/sale/index.blade.php`:
+     - Replaced button label `💧 Packaged Water (20L, 25L, 1L)` with `💧 Packaged Water Delivery`.
+     - Wrapped `#tanker-trip-calc-modal` and its JavaScript handler in `@if(isset($water_tankers) && $water_tankers->count() > 0)`.
+     - Wrapped `#can-dispatch-modal` and its JavaScript handler in `@if(isset($water_can_routes) && $water_can_routes->count() > 0)`.
+     - Replaced hardcoded rates and capacities in `#calc_load_portion`, `#calc_delivered_kl`, and `#calc_tanker_id` with dynamic full rate derivation from catalog products or rate-per-KL.
+     - Dynamic product code fallback derives from tanker capacity (`BW-${Math.round(cap)}KL`).
+  5. `resources/views/backend/water_logistics/fleet_tracking.blade.php`:
+     - Replaced hardcoded `(40KL)` geofence alert text with dynamic `capacity_kl`.
+  6. `resources/views/backend/index.blade.php`:
+     - Dynamic chamber segments derived from `$card['tankers_list']` instead of hardcoded `(20KL & 40KL)`.
+  7. `app/Http/Controllers/HomeController.php`:
+     - Cleaned up addon description: removed `(9KL, 16KL, 24KL)`.
+     - Cleaned up taglines: TMWS is `Heavy Tanker Fleet & Chamber Decanting` and DK Waters is `Packaged Water Cans & Bottle Route Fleet`.
+  8. `resources/views/backend/layout/sidebar.blade.php`:
+     - Sidebar links isolate dynamically: TMWS shows `Tanker Trips & Dispatch` while DK Waters shows `20L Can Delivery Routes`.
+  9. `frontend/src/portals/FleetPortal.tsx`, `frontend/src/portals/TankersPortal.tsx`, `frontend/src/services/languageEngine.ts`:
+     - Purged static `(40KL, 28KL, 24KL, 16KL, 9KL)` text; replaced with open, dynamic capacity descriptions.
+  10. `tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php`:
+      - Added Test 13: `test_water_logistics_vertical_screen_isolation` validating that TMWS displays bulk tanker trips and suppresses 20L can routes/custody, and DK Waters displays 20L can distribution and suppresses tanker trips.
+      - 13/13 feature tests passing (106 assertions, 100% GREEN).
+
+
 
 
