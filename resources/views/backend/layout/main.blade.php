@@ -1278,7 +1278,7 @@ $activeYear = $companyContext ? \Illuminate\Support\Facades\DB::table('fiscal_ye
   <script type="text/javascript" src="{{ versioned_asset('js/table-polish.js') }}"></script>
   <script type="text/javascript" src="{{ versioned_asset('js/erp-print.js') }}" data-css="{{ versioned_asset('css/zolo-tokens.css') }} {{ versioned_asset('css/erp-print.css') }}"></script>
 
-  <script type="text/javascript" src="{{ versioned_asset('js/barcode-qrcode-scanner_plugin.js') }}"></script>
+  {{-- <script type="text/javascript" src="{{ versioned_asset('js/barcode-qrcode-scanner_plugin.js') }}"></script> --}}
 
   @endif
   @endif

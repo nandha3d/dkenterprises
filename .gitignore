@@ -25,7 +25,6 @@
 /bootstrap/cache/*.tmp
 !/bootstrap/cache/.gitignore
 /vendor
-/public/vendor
 *.zip
 .env
 .env.backup
