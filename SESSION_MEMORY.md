@@ -2628,3 +2628,14 @@ User: People, HRM and Settings did not follow the modern UI; add a developer rol
       - Created `public/docs/procedural_workflow_and_operations_manual.html` accessible at `http://dk-track.test/docs/procedural_workflow_and_operations_manual.html`.
       - Standalone manual featuring sticky navigation sidebar, deep dark glassmorphism theme, SOP timelines, chamber schematics, double-entry GL tables, automated risk matrix, and 3 live interactive JavaScript fraud calculators (Cash Skimming, Water Decanting, Can Deposit Embezzlement).
       - Verified in browser subagent: verified all components and captured screenshots (`manual_top_1793423289262.png`, `manual_middle_1793423301563.png`, `manual_simulator_section_1793423324095.png`, `manual_simulators_vector2_1793423336620.png`, `manual_test_suite_table_1793423350888.png`).
+
+---
+
+## 124. GitHub Repository Migration, CI/CD Automation & MilesWeb Server Deployment (2026-10-31)
+
+- **User Directives Addressed:**
+  1. *Git Repository*: Initialized and pushed codebase to `https://github.com/nandha3d/dkenterprises.git` on `main` branch.
+  2. *CI/CD Pipeline*: Created `.github/workflows/deploy.yml` with automated test runner (MySQL 8.0, PHP 8.3, `ThreeCompaniesWorkflowAndFraudTest.php`) and automated deployment over SSH to MilesWeb.
+  3. *Server Deployment*: Connected via SSH to `animazon1@45.199.139.25`, cloned repo to `/var/www/2928957e-908a-4326-a64d-a58ad5b99ca0/dkenterprises`, ran `composer install --no-dev --optimize-autoloader` (100% success), and configured storage permissions (775).
+  4. *Browser 403 Resolution*: Solved `403 | COMPANY ACCESS DENIED.` caused by stale post-reset session cookie (`company_id=7`). Updated `ResolveCompanyContext.php` to catch `AuthorizationException` and redirect smoothly to `/select-company`. Set `is_default=1` for Company 1 in `company_user`.
+  5. *GPS API Guidance*: Documented Leaflet OpenStreetMap (100% free, zero key required), hardware telematics ping API (`POST /api/telematics/ping`), and Google Maps / Mapbox credentials.
