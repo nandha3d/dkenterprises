@@ -17,7 +17,7 @@
             </div>
             <div class="col-md-6 text-right">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createInstallmentModal">
-                    <i class="dripicons-plus"></i> + Create Installment Plan
+                    <i class="dripicons-plus"></i> Create Installment Plan
                 </button>
             </div>
         </div>

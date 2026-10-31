@@ -536,7 +536,7 @@
                     <i class="dripicons-view-thumb mr-1"></i> ⇄ Split View
                 </button>
                 <button type="button" class="btn btn-sm btn-outline-success py-1 px-3 font-weight-bold" id="btn-fullwidth-new" title="Create New Purchase Bill">
-                    <i class="dripicons-plus"></i> + New Purchase
+                    <i class="dripicons-plus"></i> New Purchase
                 </button>
                 <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" id="toggle-filter" title="Toggle Filters">
                     <i class="dripicons-experiment"></i> Filter

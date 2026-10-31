@@ -17,7 +17,7 @@
             </div>
             <div class="col-md-5 text-right">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createQrModal">
-                    <i class="dripicons-plus"></i> + Generate New QR Code
+                    <i class="dripicons-plus"></i> Generate New QR Code
                 </button>
             </div>
         </div>

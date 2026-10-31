@@ -62,6 +62,7 @@ class CompanySelectorController extends Controller
             'company_id' => 'required|integer|min:1',
             'branch_id' => 'nullable|integer|min:1',
             'financial_year_id' => 'nullable|integer|min:1',
+            'return_to' => 'nullable|string',
         ]);
 
         return $this->enter($request, $data['company_id'], $data['branch_id'] ?? null, $data['financial_year_id'] ?? null);
@@ -147,6 +148,12 @@ class CompanySelectorController extends Controller
         $request->session()->forget(self::SESSION_KEYS);
         $request->session()->put(['company_id' => $context->companyId, 'branch_id' => $context->branchId,
             'financial_year_id' => $context->financialYearId]);
+
+        if ($returnTo = $request->input('return_to')) {
+            if (str_starts_with($returnTo, '/') || str_starts_with($returnTo, url('/'))) {
+                return redirect($returnTo);
+            }
+        }
 
         // A switch started from the workspace lands on the new company's workspace.
         return $request->input('return') === 'workspace' ? redirect('/workspace') : redirect()->intended('/dashboard');

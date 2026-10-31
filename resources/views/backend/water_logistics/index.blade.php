@@ -26,10 +26,10 @@
                     <i class="dripicons-time-reverse"></i> Credit Aging Board
                 </a>
                 <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#tankerTripModal">
-                    <i class="dripicons-plus"></i> + Log Tanker Trip
+                    <i class="dripicons-plus"></i> Log Tanker Trip
                 </button>
                 <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#canDeliveryModal">
-                    <i class="dripicons-plus"></i> + 20L Can Delivery
+                    <i class="dripicons-plus"></i> 20L Can Delivery
                 </button>
             </div>
         </div>

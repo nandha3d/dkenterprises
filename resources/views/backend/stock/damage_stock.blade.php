@@ -18,7 +18,7 @@
             </div>
             <div class="col-md-6 text-right">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createDamageModal">
-                    <i class="dripicons-plus"></i> + Add Damage Stock
+                    <i class="dripicons-plus"></i> Add Damage Stock
                 </button>
             </div>
         </div>

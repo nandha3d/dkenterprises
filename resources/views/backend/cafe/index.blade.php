@@ -25,10 +25,10 @@
                     <i class="dripicons-shopping-bag"></i> Launch Cafe Quick POS
                 </a>
                 <button type="button" class="btn btn-info btn-sm mr-2" data-toggle="modal" data-target="#rawMaterialModal">
-                    <i class="dripicons-plus"></i> + Log Raw Materials
+                    <i class="dripicons-plus"></i> Log Raw Materials
                 </button>
                 <button type="button" class="btn btn-dark btn-sm" data-toggle="modal" data-target="#drawerModal">
-                    <i class="dripicons-wallet"></i> + Evening Drawer Reconcile
+                    <i class="dripicons-wallet"></i> Evening Drawer Reconcile
                 </button>
             </div>
         </div>
