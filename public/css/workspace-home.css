@@ -150,6 +150,9 @@ body.dark-mode .zw { --ind: #94a3b8; --ind-fmcg: #34d399; --ind-textile: #a78bfa
   html.app-shell .zw .zw-modules { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
   html.app-shell .zw .zw-module { min-height: 62px; padding: 12px 14px; }
   html.app-shell .zw .zw-companies { grid-template-columns: minmax(0, 1fr); gap: 8px; }
-  html.app-shell .zw .zw-company { padding: 10px 12px 10px 16px; gap: 8px; flex-direction: row; align-items: center; }
-  html.app-shell .zw .zw-company-head { flex: 1 1 auto; }
+  html.app-shell .zw .zw-company { padding: 12px 14px 12px 16px; gap: 10px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; flex-direction: row; }
+  html.app-shell .zw .zw-company-head { flex: 1 1 180px; min-width: 160px; }
+  html.app-shell .zw .zw-company-fields { display: flex; gap: 8px; align-items: center; flex: 1 1 100%; justify-content: flex-end; }
+  html.app-shell .zw .zw-company-fields select { flex: 1 1 auto; min-width: 0; }
+  html.app-shell .zw .zw-company:not(:has(select)) .zw-company-fields { flex: 0 0 auto; }
 }
