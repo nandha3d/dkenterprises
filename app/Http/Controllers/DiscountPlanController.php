@@ -1,0 +1,123 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Enums\CustomerTypeEnum;
+use Illuminate\Http\Request;
+use App\Models\DiscountPlan;
+use App\Models\DiscountPlanCustomer;
+use App\Models\Customer;
+use Spatie\Permission\Models\Role;
+use Auth;
+
+class DiscountPlanController extends Controller
+{
+    public function index()
+    {
+        $role = Role::find(Auth::user()->role_id);
+        if($role->hasPermissionTo('discount_plan')) {
+            $lims_discount_plan_all = DiscountPlan::with('customers')->orderBy('id', 'desc')->get();
+            return view('backend.discount_plan.index', compact('lims_discount_plan_all'));
+        }
+        else
+            return redirect()->back()->with('not_permitted', __('db.Sorry! You are not allowed to access this module'));
+    }
+
+    public function create()
+    {
+        $lims_customer_list = Customer::where([
+            'is_active' => true,
+            'type' => CustomerTypeEnum::REGULAR->value
+        ])->get();
+        return view('backend.discount_plan.create', compact('lims_customer_list'));
+    }
+
+    public function store(Request $request)
+    {
+        $this->validateCompanyReferences($request);
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($request) {
+        $data = $request->all();
+        if(!isset($data['is_active'])) {
+            $data['is_active'] = 0;
+        }
+        $lims_discount_plan = DiscountPlan::create($data);
+        foreach ($data['customer_id'] as $key => $customer_id) {
+            DiscountPlanCustomer::create(['discount_plan_id' => $lims_discount_plan->id, 'customer_id' => $customer_id]);
+        }
+        return redirect()->route('discount-plans.index')->with('message', __('db.Discount Plan created successfully'));
+        });
+    }
+
+    public function edit($id)
+    {
+        $lims_discount_plan = DiscountPlan::findOrFail($id);
+
+        $lims_customer_list = Customer::where([
+            'is_active' => true,
+            'type' => CustomerTypeEnum::REGULAR->value
+        ])->get();
+
+        $selected_customer_ids = DiscountPlanCustomer::where('discount_plan_id', $id)->pluck('customer_id')->toArray();
+
+        $all_customer_ids = $lims_customer_list->pluck('id')->toArray();
+
+        return view('backend.discount_plan.edit', compact(
+            'lims_discount_plan',
+            'lims_customer_list',
+            'selected_customer_ids',
+            'all_customer_ids'
+        ));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $this->validateCompanyReferences($request);
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($request, $id) {
+        $data = $request->all();
+        $lims_discount_plan = DiscountPlan::findOrFail($id);
+        if(!isset($data['is_active'])) {
+            $data['is_active'] = 0;
+        }
+        $pre_customer_ids = DiscountPlanCustomer::where('discount_plan_id', $id)->pluck('customer_id')->toArray();
+        //deleting previous customer id if not exist
+        foreach ($pre_customer_ids as $key => $customer_id) {
+            if(!in_array($customer_id, $data['customer_id'])) {
+                DiscountPlanCustomer::where([
+                    ['discount_plan_id', $id],
+                    ['customer_id', $customer_id]
+                ])->first()->delete();
+            }
+        }
+        //inserting new customer id
+        foreach ($data['customer_id'] as $key => $customer_id) {
+            if(!in_array($customer_id, $pre_customer_ids)) {
+                DiscountPlanCustomer::create(['discount_plan_id' => $id, 'customer_id' => $customer_id]);
+            }
+        }
+        $lims_discount_plan->update($data);
+        return redirect()->route('discount-plans.index')->with('message', __('db.Discount Plan updated successfully'));
+        });
+    }
+
+    public function destroy($id)
+    {
+        $lims_discount_plan = DiscountPlan::findOrFail($id);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($lims_discount_plan) {
+            DiscountPlanCustomer::where('discount_plan_id', $lims_discount_plan->id)->delete();
+            \App\Models\DiscountPlanDiscount::where('discount_plan_id', $lims_discount_plan->id)->delete();
+            $lims_discount_plan->delete();
+        });
+        return redirect()->route('discount-plans.index')->with('message', 'Discount plan deleted. Bills already made keep their discount.');
+    }
+
+    private function validateCompanyReferences(Request $request): void
+    {
+        $request->validate(['customer_id' => 'required|array|min:1', 'customer_id.*' => 'required|integer|min:1|distinct']);
+        $context = $request->attributes->get(\App\Services\Platform\CompanyContext::class);
+        abort_unless($context, 403);
+        $ids = $request->input('customer_id');
+        if (Customer::query()->where('company_id', $context->companyId)->whereIn('id', $ids)->count() !== count($ids)) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['customer_id' => 'Every customer must belong to the current company.']);
+        }
+    }
+}

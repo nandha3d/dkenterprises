@@ -1,0 +1,385 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700;800&display=swap');
+
+/* ==========================================================================
+   DK TRACK — FRESH BESPOKE ENTERPRISE DESIGN SYSTEM
+   Default: Clean Crisp Light Theme | Switchable: Sleek Modern Dark Theme
+   ========================================================================== */
+
+:root {
+  /* Default Light Theme Tokens */
+  --bg-app: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-surface-subtle: #F1F5F9;
+  --bg-surface-hover: #E2E8F0;
+  --bg-elevated: #FFFFFF;
+  
+  --border-subtle: #E2E8F0;
+  --border-medium: #CBD5E1;
+  --border-focus: #0284C7;
+  
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  --text-dim: #94A3B8;
+  
+  --brand-primary: #0284C7;
+  --brand-primary-light: #E0F2FE;
+  --brand-primary-dark: #0369A1;
+  
+  --accent-emerald: #059669;
+  --accent-emerald-light: #D1FAE5;
+  --accent-emerald-text: #065F46;
+  
+  --accent-amber: #D97706;
+  --accent-amber-light: #FEF3C7;
+  --accent-amber-text: #92400E;
+  
+  --accent-rose: #E11D48;
+  --accent-rose-light: #FFE4E6;
+  --accent-rose-text: #9F1239;
+  
+  --accent-indigo: #4F46E5;
+  --accent-indigo-light: #EEF2FF;
+  --accent-indigo-text: #3730A3;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
+  --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-tamil: 'Noto Sans Tamil', 'Plus Jakarta Sans', sans-serif;
+}
+
+[data-theme="dark"] {
+  /* Switchable Sleek Dark Theme Tokens */
+  --bg-app: #090D16;
+  --bg-surface: #111827;
+  --bg-surface-subtle: #1E293B;
+  --bg-surface-hover: #334155;
+  --bg-elevated: #1F2937;
+  
+  --border-subtle: #1E293B;
+  --border-medium: #334155;
+  --border-focus: #38BDF8;
+  
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --text-dim: #64748B;
+  
+  --brand-primary: #38BDF8;
+  --brand-primary-light: rgba(56, 189, 248, 0.12);
+  --brand-primary-dark: #0284C7;
+  
+  --accent-emerald: #10B981;
+  --accent-emerald-light: rgba(16, 185, 129, 0.12);
+  --accent-emerald-text: #34D399;
+  
+  --accent-amber: #FBBF24;
+  --accent-amber-light: rgba(251, 191, 36, 0.12);
+  --accent-amber-text: #FDE68A;
+  
+  --accent-rose: #FB7185;
+  --accent-rose-light: rgba(251, 113, 133, 0.12);
+  --accent-rose-text: #FECDD3;
+  
+  --accent-indigo: #818CF8;
+  --accent-indigo-light: rgba(129, 140, 248, 0.12);
+  --accent-indigo-text: #C7D2FE;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
+  --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
+}
+
+/* ==========================================================================
+   Base Elements
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.font-tamil {
+  font-family: var(--font-tamil);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-app);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 999px;
+}
+
+/* ==========================================================================
+   Fresh Clean Cards & Containers (NO AI Border-Left Templates)
+   ========================================================================== */
+
+.fresh-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.fresh-card:hover {
+  border-color: var(--border-medium);
+  box-shadow: var(--shadow-md);
+}
+
+/* Visual Metrics Strip / Bento Style */
+.fresh-metric-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 1.15rem 1.35rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.6rem;
+  transition: all 0.18s ease;
+}
+
+.fresh-metric-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-medium);
+}
+
+/* Visual Progress Bars & Gauges */
+.visual-progress-track {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-surface-subtle);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.visual-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Pulsing Live Radar Indicator */
+.live-pulse-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.live-pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--accent-emerald);
+  border-radius: 50%;
+  position: relative;
+}
+
+.live-pulse-dot::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 50%;
+  background-color: var(--accent-emerald);
+  opacity: 0.7;
+  animation: radarPulse 1.8s infinite cubic-bezier(0.24, 0, 0.38, 1);
+}
+
+@keyframes radarPulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+
+/* Visual Status Pills */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+
+.status-pill-blue {
+  background: var(--brand-primary-light);
+  color: var(--brand-primary-dark);
+}
+[data-theme="dark"] .status-pill-blue {
+  color: var(--brand-primary);
+}
+
+.status-pill-green {
+  background: var(--accent-emerald-light);
+  color: var(--accent-emerald-text);
+}
+[data-theme="dark"] .status-pill-green {
+  color: var(--accent-emerald-text);
+}
+
+.status-pill-amber {
+  background: var(--accent-amber-light);
+  color: var(--accent-amber-text);
+}
+
+.status-pill-neutral {
+  background: var(--bg-surface-subtle);
+  color: var(--text-secondary);
+}
+
+/* Clean Form Controls */
+.fresh-input {
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 0.6rem 0.85rem;
+  font-family: inherit;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.fresh-input:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px var(--brand-primary-light);
+}
+
+/* Modern Clean Buttons */
+.btn-fresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.55rem 1.15rem;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.btn-fresh-primary {
+  background: #0284C7;
+  color: #FFFFFF;
+  box-shadow: 0 1px 2px rgba(2, 132, 199, 0.2);
+}
+.btn-fresh-primary:hover {
+  background: #0369A1;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35);
+}
+
+.btn-fresh-emerald {
+  background: #059669;
+  color: #FFFFFF;
+}
+.btn-fresh-emerald:hover {
+  background: #047857;
+}
+
+.btn-fresh-outline {
+  background: var(--bg-surface);
+  border-color: var(--border-medium);
+  color: var(--text-primary);
+}
+.btn-fresh-outline:hover {
+  background: var(--bg-surface-subtle);
+  border-color: var(--text-muted);
+}
+
+/* Clean Tables */
+.fresh-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+.fresh-table th {
+  background: var(--bg-surface-subtle);
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.fresh-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.fresh-table tr:hover td {
+  background: var(--bg-surface-subtle);
+}
+
+/* Modals Backdrop */
+.fresh-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+.fresh-modal-dialog {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  box-shadow: var(--shadow-float);
+  width: 100%;
+  max-width: 620px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalEnter {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}

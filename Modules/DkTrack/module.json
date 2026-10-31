@@ -1,0 +1,13 @@
+{
+    "name": "DkTrack",
+    "alias": "dktrack",
+    "description": "DK Enterprises Fleet Logistics, Water Supply & Bakery Operations Addon",
+    "keywords": ["fleet", "tanker", "water", "bakery", "gps", "geofence"],
+    "priority": 1,
+    "providers": [
+        "Modules\\DkTrack\\Providers\\DkTrackServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

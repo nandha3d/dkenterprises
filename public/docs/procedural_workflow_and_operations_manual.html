@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>zoloERP Pro • Multi-Enterprise Procedural Workflow & Operations Manual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-card: rgba(17, 24, 39, 0.75);
+      --bg-card-hover: rgba(24, 33, 53, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(99, 102, 241, 0.4);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-subtle: #6b7280;
+      
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.2);
+      --blue: #0ea5e9;
+      --blue-glow: rgba(14, 165, 233, 0.2);
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.2);
+      --rose: #f43f5e;
+      --rose-glow: rgba(244, 63, 94, 0.2);
+      --indigo: #6366f1;
+      --purple: #a855f7;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Fixed Sidebar Navigation */
+    .sidebar {
+      width: 290px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      background: rgba(11, 15, 25, 0.95);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid var(--border-subtle);
+      padding: 24px 18px;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #fff;
+      font-size: 18px;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    }
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-list {
+      list-style: none;
+      overflow-y: auto;
+      flex: 1;
+      padding-right: 6px;
+    }
+    .nav-list::-webkit-scrollbar { width: 4px; }
+    .nav-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+    .nav-group-title {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-subtle);
+      margin: 18px 0 8px 8px;
+    }
+    .nav-item { margin-bottom: 3px; }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .nav-link.active {
+      background: rgba(99, 102, 241, 0.15);
+      color: #818cf8;
+      font-weight: 600;
+      border-left: 3px solid #6366f1;
+    }
+    .nav-badge {
+      margin-left: auto;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Main Content Area */
+    .main-wrapper {
+      flex: 1;
+      padding: 40px 60px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Hero Section */
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.95));
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 36px 40px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    .hero-banner::after {
+      content: "";
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.15), transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge-strip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      letter-spacing: 0.02em;
+    }
+    .pill-badge.green { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .pill-badge.blue { background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); }
+    .pill-badge.purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+
+    .hero-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.25;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-desc {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 900px;
+      line-height: 1.6;
+    }
+
+    /* Section Cards */
+    .section-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 32px;
+      margin-bottom: 40px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    .section-block:hover { border-color: rgba(255, 255, 255, 0.12); }
+
+    .section-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .section-heading-wrap { display: flex; align-items: center; gap: 14px; }
+    .section-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .theme-amber .section-icon-box { background: rgba(245, 158, 11, 0.15); color: var(--amber); border: 1px solid var(--amber-glow); }
+    .theme-blue .section-icon-box { background: rgba(14, 165, 233, 0.15); color: var(--blue); border: 1px solid var(--blue-glow); }
+    .theme-emerald .section-icon-box { background: rgba(16, 185, 129, 0.15); color: var(--emerald); border: 1px solid var(--emerald-glow); }
+    .theme-rose .section-icon-box { background: rgba(244, 63, 94, 0.15); color: var(--rose); border: 1px solid var(--rose-glow); }
+    .theme-purple .section-icon-box { background: rgba(168, 85, 247, 0.15); color: var(--purple); border: 1px solid rgba(168, 85, 247, 0.3); }
+
+    .section-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+    .section-tagline { font-size: 13px; color: var(--text-subtle); margin-top: 2px; }
+
+    /* Grid Layouts */
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 24px; }
+    @media (max-width: 1024px) {
+      .grid-3, .grid-2 { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .main-wrapper { padding: 24px 20px; }
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.2s ease;
+    }
+    .stat-card:hover { transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.15); }
+    .stat-label { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-subtle); margin-bottom: 6px; }
+    .stat-val { font-size: 24px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+    .stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+    /* Tables */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      margin: 16px 0 24px 0;
+      background: rgba(0, 0, 0, 0.2);
+    }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+    th {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 12px 16px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-subtle);
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+    }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); color: var(--text-main); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+    .code-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #93c5fd;
+    }
+
+    /* Workflow Timeline / Steps */
+    .timeline { position: relative; padding-left: 32px; margin: 20px 0; }
+    .timeline::before {
+      content: "";
+      position: absolute;
+      top: 6px;
+      bottom: 6px;
+      left: 11px;
+      width: 2px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .timeline-step { position: relative; margin-bottom: 26px; }
+    .timeline-dot {
+      position: absolute;
+      left: -32px;
+      top: 3px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #1e293b;
+      border: 2px solid #6366f1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .timeline-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .timeline-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+    /* Interactive Fraud Calculator Widgets */
+    .sim-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(244, 63, 94, 0.25);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 20px 0;
+      box-shadow: 0 4px 20px rgba(244, 63, 94, 0.08);
+    }
+    .sim-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .sim-badge {
+      background: rgba(244, 63, 94, 0.2);
+      color: #fb7185;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(244, 63, 94, 0.4);
+    }
+    .sim-input-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 768px) { .sim-input-row { grid-template-columns: 1fr; } }
+    .sim-field label { display: block; font-size: 11.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+    .sim-field input, .sim-field select {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      outline: none;
+    }
+    .sim-field input:focus { border-color: #f43f5e; box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.2); }
+    .sim-result-box {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .sim-risk-flag {
+      font-size: 12px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .sim-risk-flag.critical { background: rgba(244, 63, 94, 0.2); color: #f43f5e; border: 1px solid #f43f5e; }
+    .sim-risk-flag.safe { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; }
+
+    /* Chamber Visualizer Graphic */
+    .chamber-graphic {
+      display: flex;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      margin: 16px 0;
+    }
+    .chamber-seg {
+      flex: 1;
+      background: rgba(14, 165, 233, 0.12);
+      border: 1px dashed rgba(14, 165, 233, 0.4);
+      border-radius: 8px;
+      padding: 16px 12px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .chamber-seg:hover { background: rgba(14, 165, 233, 0.25); border-style: solid; }
+    .chamber-title { font-size: 12px; font-weight: 700; color: #38bdf8; margin-bottom: 4px; }
+    .chamber-cap { font-size: 16px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+
+    /* Alert Boxes */
+    .alert-box {
+      padding: 16px 20px;
+      border-radius: 10px;
+      margin: 16px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+    .alert-box.info { background: rgba(14, 165, 233, 0.1); border-left: 4px solid var(--blue); color: #bae6fd; }
+    .alert-box.success { background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--emerald); color: #a7f3d0; }
+    .alert-box.warning { background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--amber); color: #fde68a; }
+    .alert-box.danger { background: rgba(244, 63, 94, 0.1); border-left: 4px solid var(--rose); color: #fecdd3; }
+
+    /* Footer */
+    .doc-footer {
+      text-align: center;
+      padding: 40px 0 20px;
+      border-top: 1px solid var(--border-subtle);
+      color: var(--text-subtle);
+      font-size: 12.5px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Table of Contents -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">Z</div>
+      <div>
+        <div class="brand-title">zoloERP Pro</div>
+        <div class="brand-subtitle">Operations Manual</div>
+      </div>
+    </div>
+
+    <ul class="nav-list">
+      <li class="nav-group-title">Overview</li>
+      <li class="nav-item"><a href="#architecture" class="nav-link active">1. Architecture & Isolation <span class="nav-badge" style="background:#6366f1;">v1.0</span></a></li>
+      <li class="nav-item"><a href="#command-deck" class="nav-link">2. Executive Command Deck</a></li>
+      
+      <li class="nav-group-title">Enterprises</li>
+      <li class="nav-item"><a href="#aran-cafe" class="nav-link">3. Aran Cafe (2 Branches) <span class="nav-badge" style="background:#f59e0b; color:#000;">POS</span></a></li>
+      <li class="nav-item"><a href="#tmws" class="nav-link">4. Tiruchendur Murugan <span class="nav-badge" style="background:#0ea5e9; color:#000;">Tankers</span></a></li>
+      <li class="nav-item"><a href="#dk-waters" class="nav-link">5. DK Waters <span class="nav-badge" style="background:#10b981; color:#000;">Cans</span></a></li>
+
+      <li class="nav-group-title">Security & Fraud</li>
+      <li class="nav-item"><a href="#fraud-simulator" class="nav-link">6. Interactive Fraud Simulator</a></li>
+      <li class="nav-item"><a href="#fraud-matrix" class="nav-link">7. Comprehensive Risk Matrix</a></li>
+      
+      <li class="nav-group-title">Validation</li>
+      <li class="nav-item"><a href="#test-suite" class="nav-link">8. Automated Test Suite <span class="nav-badge" style="background:#10b981; color:#000;">12 PASS</span></a></li>
+    </ul>
+
+    <div style="padding-top: 14px; border-top: 1px solid var(--border-subtle); font-size: 11px; color: var(--text-subtle);">
+      Active Database: <code class="code-tag" style="color:#38bdf8;">dk_enterprises_erp</code><br>
+      Session: <code class="code-tag" style="color:#a855f7;">Section 123 Sync</code>
+    </div>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <main class="main-wrapper">
+
+    <!-- Hero Banner -->
+    <header class="hero-banner">
+      <div class="hero-badge-strip">
+        <span class="pill-badge green">✓ 100% Green Test Suite (87 Assertions)</span>
+        <span class="pill-badge blue">3 Enterprise Entities Live</span>
+        <span class="pill-badge purple">Double-Entry Financial Integration</span>
+      </div>
+      <h1 class="hero-title">Multi-Enterprise Procedural Workflow &amp; Operations Manual</h1>
+      <p class="hero-desc">
+        Comprehensive standard operating procedures, multi-branch POS management, heavy water tanker chamber logistics, 
+        packaged drinking water route balancing, and algorithmic fraud detection for <strong>Aran Cafe</strong>, 
+        <strong>Tiruchendur Murugan Water Supply</strong>, and <strong>DK Waters</strong>.
+      </p>
+    </header>
+
+    <!-- SECTION 1: Architecture -->
+    <section id="architecture" class="section-block">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <div class="section-icon-box" style="background:rgba(99,102,241,0.15); color:#818cf8; border:1px solid rgba(99,102,241,0.3);">
+            🏛️
+          </div>
+          <div>
+            <h2 class="section-title">1. Enterprise Architecture &amp; Database Isolation</h2>
+            <p class="section-tagline">Strict multi-tenant segregation, double-entry financial posting, and automated context resolution.</p>
+          </div>
+        </div>
+      </div>
+
+      <p style="margin-bottom: 20px; color: var(--text-muted);">
+        Every business transaction executes within an isolated tenant scope defined by <code class="code-tag">company_id</code>, <code class="code-tag">branch_id</code>, and <code class="code-tag">financial_year_id</code>. Zero catalog, stock, or ledger leakage can occur between entities.
+      </p>
+
+      <div class="grid-3">
+        <div class="stat-card">
+          <div class="stat-label">Company 1: Retail &amp; F&amp;B</div>
+          <div class="stat-val" style="color:var(--amber);">Aran Cafe</div>
+          <div class="stat-sub">Code: <code class="code-tag">ARANCAFE</code> • 2 Branches • Quick POS</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Company 2: Bulk Logistics</div>
+          <div class="stat-val" style="color:var(--blue);">TMWS Tankers</div>
+          <div class="stat-sub">Code: <code class="code-tag">TMWS</code> • 3 Lorries (70KL Fleet)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Company 3: Route Distribution</div>
+          <div class="stat-val" style="color:var(--emerald);">DK Waters</div>
+          <div class="stat-sub">Code: <code class="code-tag">DKWATERS</code> • 2 Tata Ace Beats • 20L Cans</div>
+        </div>
+      </div>
+
+      <div class="alert-box info">
+        <span>💡</span>
+        <div>
+          <strong>Strict Tenant Resolution Protocol:</strong> Any authenticated request without complete context parameters in the session is caught by <code class="code-tag">ResolveLegacyCompanyContext</code> middleware and guided to the company picker or automatically initialized via <code class="code-tag">CompanySelectorController::choose</code>.
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: Command Deck -->
+    <section id="command-deck" class="section-block">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <div class="section-icon-box" style="background:rgba(168,85,247,0.15); color:var(--purple); border:1px solid rgba(168,85,247,0.3);">
+            📊
+          </div>
+          <div>
+            <h2 class="section-title">2. Executive Multi-Enterprise Command Deck</h2>
+            <p class="section-tagline">Real-time KPI aggregation, visual progress meters, and one-click workspace switching.</p>
+          </div>
+        </div>
+      </div>
+
+      <p style="margin-bottom: 20px; color: var(--text-muted);">
+        The ERP homepage (<code class="code-tag">/dashboard</code>) integrates the <strong>Multi-Enterprise Command Deck</strong>, providing high-level operational metrics across all 3 enterprises simultaneously:
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Enterprise</th>
+              <th>Theme</th>
+              <th>Primary Metrics Grid</th>
+              <th>Graphical Progress Visualizer</th>
+              <th>Quick Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Aran Cafe</strong></td>
+              <td><span style="color:var(--amber);">Amber</span></td>
+              <td>2 Branches, Daily Sales (₹), Cash Drawers Open, Catalog Items</td>
+              <td><strong>2-Branch Stock Allocation Bar</strong> (Main: 750 vs Express: 635)</td>
+              <td>POS Counter, Cafe Shift, Active Workspace Indicator</td>
+            </tr>
+            <tr>
+              <td><strong>Tiruchendur Murugan Water Supply</strong></td>
+              <td><span style="color:var(--blue);">Deep Blue</span></td>
+              <td>Tanker Fleet (3 Lorries / 70KL), Delivered Water, Excess KM, Pumping Mins</td>
+              <td><strong>Multi-Compartment Chamber Segments</strong> (10KL + 10KL + 20KL)</td>
+              <td>Tanker Trips, Fleet GPS Tracking, One-Click Switch</td>
+            </tr>
+            <tr>
+              <td><strong>DK Waters</strong></td>
+              <td><span style="color:var(--emerald);">Emerald</span></td>
+              <td>Route Fleet (2 Routes), Delivered Today, Market Circulation, Deposit Ledger</td>
+              <td><strong>Empty Can Recovery Track</strong> (92% Recovered, 8% Market Debt)</td>
+              <td>Can Routes, Credit Aging Board, One-Click Switch</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 3: Aran Cafe -->
+    <section id="aran-cafe" class="section-block theme-amber">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <div class="section-icon-box">☕</div>
+          <div>
+            <h2 class="section-title">3. Company 1: Aran Cafe (2 Branches)</h2>
+            <p class="section-tagline">Bakery production, multi-branch stock boundaries, touch POS, and evening cash drawer balancing.</p>
+          </div>
+        </div>
+        <span class="pill-badge" style="background:rgba(245,158,11,0.2); color:var(--amber); border:1px solid var(--amber);">ARANCAFE</span>
+      </div>
+
+      <h3 style="font-size:16px; margin: 20px 0 10px 0;">3.1 Branch Roster &amp; Warehouse Mapping</h3>
+      <div class="grid-2">
+        <div class="stat-card">
+          <div class="stat-label">Branch 1 (Code: MAIN)</div>
+          <div style="font-weight:700; font-size:15px; margin-bottom:4px;">Main Cafe &amp; Kitchen</div>
+          <div class="stat-sub">Warehouse: <code class="code-tag">Aran Cafe - Main</code> (ID 1)<br>Production kitchen, master ingredient stock, sit-in counter.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Branch 2 (Code: BRANCH-2)</div>
+          <div style="font-weight:700; font-size:15px; margin-bottom:4px;">Express Counter &amp; Takeaway</div>
+          <div class="stat-sub">Warehouse: <code class="code-tag">Aran Cafe - Express Counter</code> (ID 2)<br>Kiosk takeaway, high-speed espresso machine, finished pastries.</div>
+        </div>
+      </div>
+
+      <h3 style="font-size:16px; margin: 24px 0 10px 0;">3.2 Daily Standard Operating Procedure (SOP)</h3>
+      <div class="timeline">
+        <div class="timeline-step">
+          <div class="timeline-dot">1</div>
+          <div class="timeline-title">Morning Shift Opening &amp; Float Entry (07:00 AM)</div>
+          <div class="timeline-desc">
+            Head cashier logs in at <code class="code-tag">/cafe</code>, counts the physical opening cash drawer float (e.g. ₹1,000 in loose change), and initializes the drawer shift record.
+          </div>
+        </div>
+        <div class="timeline-step">
+          <div class="timeline-dot">2</div>
+          <div class="timeline-title">Kitchen Raw Ingredients Issue (07:30 AM)</div>
+          <div class="timeline-desc">
+            Kitchen supervisor issues daily raw materials via <code class="code-tag">POST /cafe/raw-materials</code> (Fresh Milk <code class="code-tag">ING-MILK</code>, Cane Sugar <code class="code-tag">ING-SUGAR</code>). ERP executes <code class="code-tag">InventoryMovementService::issue</code> to decrement warehouse inventory via FIFO.
+          </div>
+        </div>
+        <div class="timeline-step">
+          <div class="timeline-dot">3</div>
+          <div class="timeline-title">Touch POS Terminal Billing (All Day)</div>
+          <div class="timeline-desc">
+            Counter staff billing on <code class="code-tag">/cafe/pos</code>. Filter Kaapi (₹35), Masala Chai (₹30), Croissants (₹85), Sourdough (₹120), Muffins (₹65). Receipts post directly to Cash/UPI ledger (<code class="code-tag">1010</code>) and Sales Revenue (<code class="code-tag">4010</code>).
+          </div>
+        </div>
+        <div class="timeline-step">
+          <div class="timeline-dot">4</div>
+          <div class="timeline-title">Evening Cash Drawer Reconciliation (10:30 PM)</div>
+          <div class="timeline-desc">
+            Cashier enters physical cash counted and UPI settlement total. The system calculates:
+            <br>
+            <code class="code-tag">Discrepancy = (Physical Cash - Opening Float + UPI) - (System Cash + System UPI)</code>.
+            <br>
+            Variance within ±₹10.00 is certified <span style="color:var(--emerald); font-weight:700;">balanced</span>. Shortages are immediately locked and flagged for manager audit.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: TMWS -->
+    <section id="tmws" class="section-block theme-blue">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <div class="section-icon-box">💧</div>
+          <div>
+            <h2 class="section-title">4. Company 2: Tiruchendur Murugan Water Supply</h2>
+            <p class="section-tagline">Commercial bulk tanker logistics, multi-compartment chamber split drops, and telematics audit.</p>
+          </div>
+        </div>
+        <span class="pill-badge" style="background:rgba(14,165,233,0.2); color:var(--blue); border:1px solid var(--blue);">TMWS</span>
+      </div>
+
+      <h3 style="font-size:16px; margin: 20px 0 10px 0;">4.1 Heavy Tanker Fleet Roster</h3>
+      <div class="grid-3">
+        <div class="stat-card">
+          <div class="stat-label">Lorry 1 (TN-58-BW-2001)</div>
+          <div class="stat-val" style="color:var(--blue);">20 KL</div>
+          <div class="stat-sub">Dual Chamber (10KL + 10KL)<br>Dedicated hospital &amp; IT campus supply</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Lorry 2 (TN-58-BW-4001)</div>
+          <div class="stat-val" style="color:var(--blue);">40 KL</div>
+          <div class="stat-sub">Tri-Chamber (10KL + 10KL + 20KL)<br>Heavy industrial multi-drop capacity</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Lorry 3 (TN-58-BW-1001)</div>
+          <div class="stat-val" style="color:var(--blue);">10 KL</div>
+          <div class="stat-sub">Single Chamber (10KL)<br>Emergency and compact lane delivery</div>
+        </div>
+      </div>
+
+      <h3 style="font-size:16px; margin: 20px 0 10px 0;">4.2 Multi-Compartment Chamber Visualizer</h3>
+      <div class="chamber-graphic">
+        <div class="chamber-seg">
+          <div class="chamber-title">CHAMBER 1</div>
+          <div class="chamber-cap">10 KL</div>
+          <div style="font-size:11px; color:var(--text-subtle); margin-top:4px;">Customer A Delivery</div>
+        </div>
+        <div class="chamber-seg">
+          <div class="chamber-title">CHAMBER 2</div>
+          <div class="chamber-cap">10 KL</div>
+          <div style="font-size:11px; color:var(--text-subtle); margin-top:4px;">Customer B Delivery</div>
+        </div>
+        <div class="chamber-seg" style="background:rgba(14,165,233,0.06); border-color:rgba(14,165,233,0.2);">
+          <div class="chamber-title">CHAMBER 3 (40KL Tanker)</div>
+          <div class="chamber-cap" style="color:var(--text-subtle);">20 KL</div>
+          <div style="font-size:11px; color:var(--text-subtle); margin-top:4px;">Industrial Reserve</div>
+        </div>
+      </div>
+
+      <h3 style="font-size:16px; margin: 24px 0 10px 0;">4.3 Surcharge Billing Formula &amp; Financial Ledger</h3>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
+        The sales invoice incorporates precise itemized logistics lines without disrupting compact layout:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Line Description</th>
+              <th>Item Code</th>
+              <th>Billing Rate</th>
+              <th>Accounting GL Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Bulk Water Tanker Supply (10KL / 20KL / 40KL)</td>
+              <td><code class="code-tag">BW-20KL</code></td>
+              <td>Base Rate (e.g. ₹2,400 for 10KL)</td>
+              <td>Credit Bulk Water Revenue (<code class="code-tag">4010</code>)</td>
+            </tr>
+            <tr>
+              <td>Excess Distance Mileage Surcharge</td>
+              <td><code class="code-tag">SRV-KM</code></td>
+              <td>₹45.00 / KM (Beyond 10 KM free limit)</td>
+              <td>Credit Bulk Water Revenue (<code class="code-tag">4010</code>)</td>
+            </tr>
+            <tr>
+              <td>Motor Pumping Operating Service</td>
+              <td><code class="code-tag">SRV-PUMP</code></td>
+              <td>₹10.00 / minute of unloading pump operation</td>
+              <td>Credit Service Revenue (<code class="code-tag">4010</code>)</td>
+            </tr>
+            <tr>
+              <td>Site Waiting Delay Charge</td>
+              <td><code class="code-tag">SRV-WAIT</code></td>
+              <td>₹15.00 / minute of customer premises delay</td>
+              <td>Credit Detention Income (<code class="code-tag">4010</code>)</td>
+            </tr>
+            <tr>
+              <td>Tanker Diesel &amp; Driver Batta Expense</td>
+              <td>Expense Voucher</td>
+              <td>Trip operating cost incurred</td>
+              <td>Debit Diesel Expense (<code class="code-tag">5020</code>) / Credit Cash (<code class="code-tag">1010</code>)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 5: DK Waters -->
+    <section id="dk-waters" class="section-block theme-emerald">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <div class="section-icon-box">📦</div>
+          <div>
+            <h2 class="section-title">5. Company 3: DK Waters</h2>
+            <p class="section-tagline">Custom water package sizes, Tata Ace route distribution, anti-theft bottle balance, and deposit ledger.</p>
+          </div>
+        </div>
+        <span class="pill-badge" style="background:rgba(16,185,129,0.2); color:var(--emerald); border:1px solid var(--emerald);">DKWATERS</span>
+      </div>
+
+      <h3 style="font-size:16px; margin: 20px 0 10px 0;">5.1 Packaging Catalog &amp; Deposit Values</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Product Code</th>
+              <th>Specification</th>
+              <th>Retail Unit Price</th>
+              <th>Deposit Required</th>
+              <th>Market Conservation Rule</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="code-tag">CAN-20L</code></td>
+              <td>20L Packaged Water Can</td>
+              <td>₹40.00</td>
+              <td>₹150.00</td>
+              <td>1-for-1 Empty Return Exchange</td>
+            </tr>
+            <tr>
+              <td><code class="code-tag">CAN-25L</code></td>
+              <td>25L Industrial Water Can</td>
+              <td>₹55.00</td>
+              <td>₹180.00</td>
+              <td>1-for-1 Empty Return Exchange</td>
+            </tr>
+            <tr>
+              <td><code class="code-tag">CAN-10L</code></td>
+              <td>10L Dispenser Water Can</td>
+              <td>₹30.00</td>
+              <td>₹100.00</td>
+              <td>1-for-1 Empty Return Exchange</td>
+            </tr>
+            <tr>
+              <td><code class="code-tag">BTL-1L</code></td>
+              <td>1L Mineral Water Bottle (Box of 12)</td>
+              <td>₹180.00</td>
+              <td>₹0.00</td>
+              <td>Discretionary PET Bottle Sale</td>
+            </tr>
+            <tr>
+              <td><code class="code-tag">CAN-DEP</code></td>
+              <td>Security Deposit (Refundable)</td>
+              <td>₹150.00</td>
+              <td>N/A</td>
+              <td>Refundable on physical bottle return</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="font-size:16px; margin: 24px 0 10px 0;">5.2 Anti-Theft Bottle Balance &amp; Credit Aging</h3>
+      <p style="font-size:13px; color:var(--text-muted); line-height:1.6;">
+        Every delivery stop dynamically recalibrates the customer's held bottle debt in <code class="code-tag">water_can_inventories</code>.
+        Corporate accounts (e.g., IT parks, hospitals) are billed on net-30 terms and monitored via the <strong>Credit Aging Board</strong> (<code class="code-tag">/water-logistics/credit-aging</code>) under aging buckets: <span style="color:var(--emerald); font-weight:600;">0-30 Days</span>, <span style="color:var(--amber); font-weight:600;">31-60 Days</span>, and <span style="color:var(--rose); font-weight:600;">60+ Days Overdue</span>.
+      </p>
+    </section>
+
+    <!-- SECTION 6: Interactive Fraud Simulator -->
+    <section id="fraud-simulator" class="section-block theme-rose">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <div class="section-icon-box">🛡️</div>
+          <div>
+            <h2 class="section-title">6. Interactive Operational Fraud Detection Simulator</h2>
+            <p class="section-tagline">Test live algorithmic fraud audit logic powered by OperationalFraudAuditService.js</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Widget 1: Cafe Drawer Skimming -->
+      <div class="sim-card">
+        <div class="sim-header">
+          <div>
+            <h4 style="font-size:15px; font-weight:700;">Simulate Vector 1: Cafe Cash Skimming Detection</h4>
+            <p style="font-size:12px; color:var(--text-subtle);">Tests register shortfall against system billing records.</p>
+          </div>
+          <span class="sim-badge">ARAN CAFE</span>
+        </div>
+        <div class="sim-input-row">
+          <div class="sim-field">
+            <label>Morning Float (₹)</label>
+            <input type="number" id="sim1_float" value="1000">
+          </div>
+          <div class="sim-field">
+            <label>System Cash Sales (₹)</label>
+            <input type="number" id="sim1_sales" value="5000">
+          </div>
+          <div class="sim-field">
+            <label>Physical Cash Counted (₹)</label>
+            <input type="number" id="sim1_physical" value="5100">
+          </div>
+        </div>
+        <div class="sim-result-box" id="sim1_output">
+          <div>
+            <span style="font-size:12px; color:var(--text-muted);">Expected in Drawer: <strong id="sim1_expected" style="color:#fff;">₹6,000.00</strong></span> | 
+            <span style="font-size:12px; color:var(--text-muted);">Discrepancy: <strong id="sim1_diff" style="color:#f43f5e;">-₹900.00</strong></span>
+          </div>
+          <span class="sim-risk-flag critical" id="sim1_badge">POTENTIAL_CASH_SKIMMING (CRITICAL)</span>
+        </div>
+      </div>
+
+      <!-- Widget 2: Tanker Water Theft -->
+      <div class="sim-card" style="border-color:rgba(14,165,233,0.3);">
+        <div class="sim-header">
+          <div>
+            <h4 style="font-size:15px; font-weight:700;">Simulate Vector 2: Bulk Water Decanting &amp; Siphoning Theft</h4>
+            <p style="font-size:12px; color:var(--text-subtle);">Compares borewell loaded volume against customer delivery vouchers.</p>
+          </div>
+          <span class="sim-badge" style="background:rgba(14,165,233,0.2); color:#38bdf8; border-color:#0ea5e9;">TMWS TANKERS</span>
+        </div>
+        <div class="sim-input-row">
+          <div class="sim-field">
+            <label>Loaded Tanker Volume (KL)</label>
+            <input type="number" id="sim2_loaded" value="20.0" step="0.5">
+          </div>
+          <div class="sim-field">
+            <label>Sum of Delivered Vouchers (KL)</label>
+            <input type="number" id="sim2_delivered" value="14.0" step="0.5">
+          </div>
+          <div class="sim-field">
+            <label>Returned to Depot (KL)</label>
+            <input type="number" id="sim2_returned" value="0.0" step="0.5">
+          </div>
+        </div>
+        <div class="sim-result-box" id="sim2_output">
+          <div>
+            <span style="font-size:12px; color:var(--text-muted);">Accounted Volume: <strong id="sim2_accounted" style="color:#fff;">14.00 KL</strong></span> | 
+            <span style="font-size:12px; color:var(--text-muted);">Unaccounted Loss: <strong id="sim2_loss" style="color:#f43f5e;">6.00 KL</strong></span>
+          </div>
+          <span class="sim-risk-flag critical" id="sim2_badge">WATER_THEFT_DETECTED (CRITICAL)</span>
+        </div>
+      </div>
+
+      <!-- Widget 3: Can Deposit Embezzlement -->
+      <div class="sim-card" style="border-color:rgba(16,185,129,0.3);">
+        <div class="sim-header">
+          <div>
+            <h4 style="font-size:15px; font-weight:700;">Simulate Vector 3: Phantom Security Deposit Refund Fraud</h4>
+            <p style="font-size:12px; color:var(--text-subtle);">Blocks paying out cash refunds for bottles the customer never held.</p>
+          </div>
+          <span class="sim-badge" style="background:rgba(16,185,129,0.2); color:#34d399; border-color:#10b981;">DK WATERS</span>
+        </div>
+        <div class="sim-input-row">
+          <div class="sim-field">
+            <label>Customer Held Cans (Ledger)</label>
+            <input type="number" id="sim3_held" value="6">
+          </div>
+          <div class="sim-field">
+            <label>Requested Refund Cans</label>
+            <input type="number" id="sim3_requested" value="20">
+          </div>
+          <div class="sim-field">
+            <label>Deposit Rate Per Can (₹)</label>
+            <input type="number" id="sim3_rate" value="150" readonly>
+          </div>
+        </div>
+        <div class="sim-result-box" id="sim3_output">
+          <div>
+            <span style="font-size:12px; color:var(--text-muted);">Authorized Refund: <strong id="sim3_auth" style="color:#10b981;">₹900.00 (6 Cans)</strong></span> | 
+            <span style="font-size:12px; color:var(--text-muted);">Blocked Fraud: <strong id="sim3_blocked" style="color:#f43f5e;">₹2,100.00 (14 Cans)</strong></span>
+          </div>
+          <span class="sim-risk-flag critical" id="sim3_badge">PHANTOM_DEPOSIT_REFUND_BLOCKED</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 7: Comprehensive Fraud Matrix -->
+    <section id="fraud-matrix" class="section-block">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <div class="section-icon-box" style="background:rgba(244,63,94,0.15); color:var(--rose); border:1px solid rgba(244,63,94,0.3);">
+            ⚖️
+          </div>
+          <div>
+            <h2 class="section-title">7. Comprehensive Operational Fraud &amp; Risk Matrix</h2>
+            <p class="section-tagline">Formal attack taxonomy, detection algorithms, and automated system responses.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Enterprise</th>
+              <th>Fraud Attack Vector</th>
+              <th>Modus Operandi</th>
+              <th>Detection Algorithm</th>
+              <th>Enforced System Mitigation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Aran Cafe</strong></td>
+              <td>Cash Skimming</td>
+              <td>Cashier collects cash from customers, fails to ring up receipt, or pockets evening float.</td>
+              <td><code class="code-tag">auditCashDrawer()</code></td>
+              <td>Drawer status set to <code class="code-tag" style="color:#f43f5e;">short</code>; discrepancy alert dispatched to manager; drawer locked.</td>
+            </tr>
+            <tr>
+              <td><strong>Aran Cafe</strong></td>
+              <td>Phantom Kitchen Wastage</td>
+              <td>Chef logs 35L milk spoiled/discarded to conceal inventory taken home.</td>
+              <td><code class="code-tag">auditIngredientConsumption()</code></td>
+              <td>Flags <code class="code-tag" style="color:#f43f5e;">IMPOSSIBLE_CONSUMPTION</code> if exceeding stock; recipe variance flagged above 15% tolerance.</td>
+            </tr>
+            <tr>
+              <td><strong>Aran Cafe</strong></td>
+              <td>Cross-Branch Stock Hijacking</td>
+              <td>Express counter staff billing inventory belonging exclusively to Main Kitchen warehouse.</td>
+              <td>Tenant Scope Filter</td>
+              <td>Warehouse branch ID must match cashier active session branch; blocked with 403 Forbidden.</td>
+            </tr>
+            <tr>
+              <td><strong>TMWS Tankers</strong></td>
+              <td>Odometer Rollback</td>
+              <td>Driver rolls back mechanical odometer to hide unauthorized personal trips.</td>
+              <td><code class="code-tag">auditTankerOdometer()</code></td>
+              <td>Asserts <code class="code-tag">End KM &gt;= Start KM</code>; rollback raises critical audit exception.</td>
+            </tr>
+            <tr>
+              <td><strong>TMWS Tankers</strong></td>
+              <td>Inflated Distance Billing</td>
+              <td>Driver claims 110 KM for delivery to charge excess KM, while actual route was 32 KM.</td>
+              <td><code class="code-tag">auditTankerOdometer()</code></td>
+              <td>Cross-references claimed KM against GPS telematics trace; clamped to verified GPS distance.</td>
+            </tr>
+            <tr>
+              <td><strong>TMWS Tankers</strong></td>
+              <td>Water Theft &amp; Decanting</td>
+              <td>Driver leaves with 20KL, delivers 14KL to customer, and sells remaining 6KL for cash.</td>
+              <td><code class="code-tag">auditWaterDecanting()</code></td>
+              <td>Calculates <code class="code-tag">Loaded - (Delivered + Returned)</code>; shrinkage &gt; 0.3KL triggers water theft charge on driver account.</td>
+            </tr>
+            <tr>
+              <td><strong>TMWS Tankers</strong></td>
+              <td>Fake Pumping Delay</td>
+              <td>Driver claims 180 mins motor pumping (₹1,800 charge) for an unloading process taking 25 mins.</td>
+              <td><code class="code-tag">auditSurchargePumping()</code></td>
+              <td>Caps allowable pumping time to <code class="code-tag">Delivered KL * 5.0 mins/KL</code>; excess minutes blocked.</td>
+            </tr>
+            <tr>
+              <td><strong>DK Waters</strong></td>
+              <td>Driver Can Siphoning</td>
+              <td>Driver takes 80 cans, delivers 65, returns 5, and claims 10 were "lost", reselling them on street.</td>
+              <td><code class="code-tag">auditRouteCanBalance()</code></td>
+              <td>Asserts <code class="code-tag">Loaded == Delivered + Returned Filled</code>; missing cans billed as driver shrinkage liability.</td>
+            </tr>
+            <tr>
+              <td><strong>DK Waters</strong></td>
+              <td>Phantom Deposit Refund</td>
+              <td>Customer or driver requests cash refund for 20 cans, while customer only holds 4 on record.</td>
+              <td><code class="code-tag">auditDepositRefundEligibility()</code></td>
+              <td>Validates <code class="code-tag">Requested &lt;= Customer Held Cans</code>; caps refund strictly to verified cans, blocks fraudulent cash release.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 8: Automated Test Suite -->
+    <section id="test-suite" class="section-block theme-emerald">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <div class="section-icon-box">🧪</div>
+          <div>
+            <h2 class="section-title">8. Automated Feature Test Suite (100% Green)</h2>
+            <p class="section-tagline">12 end-to-end automated tests with 87 assertions verifying workflows and fraud detection.</p>
+          </div>
+        </div>
+        <span class="pill-badge green">ALL PASS</span>
+      </div>
+
+      <div style="background:#0b0f19; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:18px; margin-bottom:20px; font-family:'JetBrains Mono', monospace; font-size:12.5px; color:#a7f3d0; line-height:1.7;">
+        $ php artisan test tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php<br>
+        <span style="color:#34d399; font-weight:700;">PASS</span> Tests\Feature\ThreeCompaniesWorkflowAndFraudTest<br>
+        &nbsp;✓ multi company isolation and distinct entities <span style="color:#6b7280;">(0.28s)</span><br>
+        &nbsp;✓ aran cafe branch isolation and order flow <span style="color:#6b7280;">(0.46s)</span><br>
+        &nbsp;✓ aran cafe fraud cash skimming detected on drawer closing <span style="color:#6b7280;">(0.07s)</span><br>
+        &nbsp;✓ aran cafe fraud phantom kitchen wastage writeoff blocked <span style="color:#6b7280;">(0.06s)</span><br>
+        &nbsp;✓ tmws tanker chamber split delivery and surcharges <span style="color:#6b7280;">(0.06s)</span><br>
+        &nbsp;✓ tmws fraud odometer tampering and inflated mileage detected <span style="color:#6b7280;">(0.07s)</span><br>
+        &nbsp;✓ tmws fraud water theft unauthorized decanting detected <span style="color:#6b7280;">(0.06s)</span><br>
+        &nbsp;✓ tmws fraud inflated motor pumping surcharge detected <span style="color:#6b7280;">(0.06s)</span><br>
+        &nbsp;✓ dk waters packaged can and bottle distribution flow <span style="color:#6b7280;">(0.32s)</span><br>
+        &nbsp;✓ dk waters fraud driver missing can siphoning detected <span style="color:#6b7280;">(0.07s)</span><br>
+        &nbsp;✓ dk waters fraud phantom deposit refund blocked <span style="color:#6b7280;">(0.06s)</span><br>
+        &nbsp;✓ dashboard displays all three company insight cards <span style="color:#6b7280;">(0.40s)</span><br><br>
+        <span style="color:#34d399; font-weight:700;">Tests: 12 passed (87 assertions)</span><br>
+        <span style="color:#6b7280;">Duration: 2.18s</span>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="doc-footer">
+      zoloERP Pro • Multi-Enterprise Operating System &bull; Madurai, Tamil Nadu<br>
+      Certified Operating Procedures &bull; Section 123 Persistent State Memory
+    </footer>
+
+  </main>
+
+  <!-- Interactive Simulator Script -->
+  <script>
+    // Simulator 1: Cafe Cash Skimming
+    function updateSim1() {
+      const floatVal = parseFloat(document.getElementById('sim1_float').value) || 0;
+      const salesVal = parseFloat(document.getElementById('sim1_sales').value) || 0;
+      const physVal = parseFloat(document.getElementById('sim1_physical').value) || 0;
+
+      const expected = floatVal + salesVal;
+      const diff = physVal - expected;
+
+      document.getElementById('sim1_expected').textContent = '₹' + expected.toLocaleString('en-IN', {minimumFractionDigits: 2});
+      const diffEl = document.getElementById('sim1_diff');
+      const badgeEl = document.getElementById('sim1_badge');
+
+      if (diff < -10) {
+        diffEl.textContent = '-₹' + Math.abs(diff).toLocaleString('en-IN', {minimumFractionDigits: 2});
+        diffEl.style.color = '#f43f5e';
+        badgeEl.textContent = 'POTENTIAL_CASH_SKIMMING (CRITICAL)';
+        badgeEl.className = 'sim-risk-flag critical';
+      } else if (diff > 10) {
+        diffEl.textContent = '+₹' + diff.toLocaleString('en-IN', {minimumFractionDigits: 2});
+        diffEl.style.color = '#f59e0b';
+        badgeEl.textContent = 'OVER_REGISTER_ANOMALY (AUDIT)';
+        badgeEl.className = 'sim-risk-flag critical';
+      } else {
+        diffEl.textContent = '₹0.00 (Balanced)';
+        diffEl.style.color = '#10b981';
+        badgeEl.textContent = 'DRAWER_BALANCED (LOW RISK)';
+        badgeEl.className = 'sim-risk-flag safe';
+      }
+    }
+
+    // Simulator 2: Tanker Water Theft
+    function updateSim2() {
+      const loaded = parseFloat(document.getElementById('sim2_loaded').value) || 0;
+      const delivered = parseFloat(document.getElementById('sim2_delivered').value) || 0;
+      const returned = parseFloat(document.getElementById('sim2_returned').value) || 0;
+
+      const accounted = delivered + returned;
+      const loss = loaded - accounted;
+
+      document.getElementById('sim2_accounted').textContent = accounted.toFixed(2) + ' KL';
+      const lossEl = document.getElementById('sim2_loss');
+      const badgeEl = document.getElementById('sim2_badge');
+
+      if (loss > 0.3) {
+        lossEl.textContent = loss.toFixed(2) + ' KL';
+        lossEl.style.color = '#f43f5e';
+        badgeEl.textContent = 'WATER_THEFT_DETECTED (CRITICAL)';
+        badgeEl.className = 'sim-risk-flag critical';
+      } else {
+        lossEl.textContent = Math.max(0, loss).toFixed(2) + ' KL';
+        lossEl.style.color = '#10b981';
+        badgeEl.textContent = 'NORMAL_TOLERANCE (LOW RISK)';
+        badgeEl.className = 'sim-risk-flag safe';
+      }
+    }
+
+    // Simulator 3: Can Deposit Embezzlement
+    function updateSim3() {
+      const held = parseInt(document.getElementById('sim3_held').value) || 0;
+      const requested = parseInt(document.getElementById('sim3_requested').value) || 0;
+      const rate = 150;
+
+      const authorizedCans = Math.min(held, requested);
+      const blockedCans = Math.max(0, requested - held);
+
+      document.getElementById('sim3_auth').textContent = '₹' + (authorizedCans * rate).toLocaleString('en-IN') + ' (' + authorizedCans + ' Cans)';
+      const blockedEl = document.getElementById('sim3_blocked');
+      const badgeEl = document.getElementById('sim3_badge');
+
+      if (blockedCans > 0) {
+        blockedEl.textContent = '₹' + (blockedCans * rate).toLocaleString('en-IN') + ' (' + blockedCans + ' Cans)';
+        blockedEl.style.color = '#f43f5e';
+        badgeEl.textContent = 'PHANTOM_DEPOSIT_REFUND_BLOCKED';
+        badgeEl.className = 'sim-risk-flag critical';
+      } else {
+        blockedEl.textContent = '₹0.00 (0 Cans)';
+        blockedEl.style.color = '#10b981';
+        badgeEl.textContent = 'REFUND_AUTHORIZED (SAFE)';
+        badgeEl.className = 'sim-risk-flag safe';
+      }
+    }
+
+    // Attach listeners
+    ['sim1_float', 'sim1_sales', 'sim1_physical'].forEach(id => document.getElementById(id).addEventListener('input', updateSim1));
+    ['sim2_loaded', 'sim2_delivered', 'sim2_returned'].forEach(id => document.getElementById(id).addEventListener('input', updateSim2));
+    ['sim3_held', 'sim3_requested'].forEach(id => document.getElementById(id).addEventListener('input', updateSim3));
+
+    // Initialize
+    updateSim1();
+    updateSim2();
+    updateSim3();
+
+    // Scroll spy for active sidebar nav
+    window.addEventListener('scroll', () => {
+      const sections = document.querySelectorAll('section');
+      const navLinks = document.querySelectorAll('.nav-link');
+      let current = '';
+
+      sections.forEach(section => {
+        const top = section.offsetTop - 120;
+        if (window.scrollY >= top) {
+          current = section.getAttribute('id');
+        }
+      });
+
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

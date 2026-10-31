@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class DiscountPlan extends Model
+{
+    use \App\Models\Concerns\ScopesCompanyQueries;
+
+    use HasFactory;
+
+    protected $fillable = ['name', 'is_active', 'type'];
+
+    public function customers()
+    {
+        return $this->belongsToMany('App\Models\Customer', 'discount_plan_customers');
+    }
+}

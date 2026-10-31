@@ -1,0 +1,70 @@
+.command-center-nav {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 5px 12px;
+    border-bottom: 1px solid #cbd5e1;
+    background: #f1f5f9;
+}
+.command-center-nav a {
+    padding: 3px 9px;
+    border-radius: 4px;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+}
+.command-center-nav a[aria-current="page"], .command-center-nav a:hover {
+    background: var(--z-primary-hover);
+    color: #fff;
+    text-decoration: none;
+}
+.command-center-nav a:focus-visible { outline: 2px solid var(--z-primary); outline-offset: 2px; }
+.command-center-nav kbd { margin-left: 4px; font-size: 10px; }
+.dark-mode .command-center-nav { background: #141c2e; border-color: #334155; }
+.dark-mode .command-center-nav a { color: #e2e8f0; }
+.command-center-fast .desk-app { min-height: 0; }
+.command-center-fast .desk-workspace-layout { min-height: 0; }
+.command-center-fast .desk-sticky-footer { position: sticky; left: auto; right: auto; }
+.command-center-fast .desk-main { overflow: visible; }
+.command-center-fast dialog:not([open]) { display: none; }
+@media (max-width: 900px) {
+    .command-center-fast .desk-workspace-layout { flex-direction: column; }
+    .command-center-fast .desk-side-panel { width: 100%; min-width: 0; max-height: 220px; }
+    .command-center-fast .desk-doc-container { min-width: 0; }
+    .command-center-fast .desk-sticky-footer { flex-wrap: wrap; gap: 8px; }
+}
+
+#party-outstanding-badge { font-size: 9.5px; font-weight: 700; white-space: nowrap; }
+#party-pending-link { font-size: 9.5px; font-weight: 700; color: var(--z-primary-hover); white-space: nowrap; cursor: pointer; }
+dialog.document-pending-dialog { max-width: 720px; }
+dialog.document-pending-dialog table { width: 100%; margin-bottom: 10px; font-size: 12.5px; }
+dialog.document-pending-dialog th, dialog.document-pending-dialog td { padding: 4px 8px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+dialog.document-pending-dialog td.num, dialog.document-pending-dialog th.num { text-align: right; }
+
+/* Side Order Register Panel (In-place Tab View) */
+#side-order-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: 100%;
+    overflow-y: auto;
+}
+.side-orders-header {
+    border-bottom: 1px solid var(--zb-border);
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+}
+.side-order-card {
+    border-left: 3px solid var(--z-primary) !important;
+}
+.side-order-card .side-action-btn.btn-side-load-order {
+    background: var(--primary-bg-color);
+    color: var(--z-primary);
+    font-weight: 700;
+}
+.side-order-card .side-action-btn.btn-side-load-order:hover {
+    background: var(--z-primary);
+    color: #fff;
+}

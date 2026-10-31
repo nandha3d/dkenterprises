@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.2/phpunit.xsd" bootstrap="vendor/autoload.php" colors="true" cacheDirectory=".phpunit.cache">
+  <testsuites>
+    <testsuite name="Company foundation">
+      <file>tests/Feature/AccountingHardeningTest.php</file>
+      <file>tests/Feature/YearCloseAndOpeningBalanceTest.php</file>
+      <file>tests/Feature/CollectionTrackingTest.php</file>
+      <file>tests/Feature/InventoryMovementServiceTest.php</file>
+      <file>tests/Feature/StockLedgerCommandsTest.php</file>
+      <file>tests/Feature/StockLedgerMigrationTest.php</file>
+      <file>tests/Feature/StockLedgerConcurrencyTest.php</file>
+      <file>tests/Feature/ErpServiceStockLedgerTest.php</file>
+      <file>tests/Feature/LegacyStockShadowTest.php</file>
+      <file>tests/Feature/LegacyInventoryCutoverTest.php</file>
+      <file>tests/Feature/MysqlCompanyMigrationTest.php</file>
+      <file>tests/Feature/ErpServiceRegressionTest.php</file>
+      <file>tests/Feature/CompanyFoundationTest.php</file>
+      <file>tests/Feature/CompanyContextTest.php</file>
+      <file>tests/Feature/CompanyGroupDirectoryTest.php</file>
+      <file>tests/Feature/CompanyGroupIndustryTest.php</file>
+      <file>tests/Feature/CompanyWriterTest.php</file>
+      <file>tests/Feature/BranchIsolationTest.php</file>
+      <file>tests/Feature/LegacyCatalogIsolationTest.php</file>
+      <file>tests/Feature/RemainingCompanyHardeningTest.php</file>
+      <file>tests/Feature/DestructiveRoutesTest.php</file>
+      <file>tests/Feature/CompanyAccountingWebTest.php</file>
+      <file>tests/Feature/CommandSafetyTest.php</file>
+      <file>tests/Feature/CapabilityEngineTest.php</file>
+      <file>tests/Feature/DocumentNumberServiceTest.php</file>
+      <file>tests/Feature/PlatformMigrationTest.php</file>
+    </testsuite>
+  </testsuites>
+  <php>
+    <env name="APP_ENV" value="testing"/>
+    <env name="CACHE_DRIVER" value="array"/>
+    <env name="SESSION_DRIVER" value="array"/>
+    <env name="QUEUE_CONNECTION" value="sync"/><env name="ERP_SHARED_COMMERCIAL_ENABLED" value="false" force="true"/><env name="ERP_COMPLIANCE_ENABLED" value="false" force="true"/><env name="ERP_OPERATIONS_ENABLED" value="false" force="true"/><env name="ERP_BACKUP_ENABLED" value="false" force="true"/><env name="ERP_OPTIONAL_ACTIVATION_READY" value="false" force="true"/>
+  </php>
+</phpunit>

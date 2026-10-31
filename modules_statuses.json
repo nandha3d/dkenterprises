@@ -1,0 +1,9 @@
+{
+    "Woocommerce": false,
+    "Ecommerce": false,
+    "Middleware": true,
+    "Manufacturing": false,
+    "Restaurant": false,
+    "Project": false,
+    "DkTrack": false
+}

@@ -1,0 +1,60 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\Concerns\ScopesCompanyQueries;
+use App\Models\Concerns\StampsBranchAndYear;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class GoodsReceivedNote extends Model
+{
+    use ScopesCompanyQueries, StampsBranchAndYear;
+
+    protected $table = 'goods_received_notes';
+
+    protected $guarded = ['id'];
+
+    protected $casts = [
+        // Plain dates in JSON: a UTC timestamp loaded the form one day early in IST.
+        'grn_date' => 'date:Y-m-d',
+        'lr_date' => 'date:Y-m-d',
+        'sundries_json' => 'array',
+        'total_qty' => 'float',
+        'total_cost' => 'float',
+        'total_tax' => 'float',
+        'grand_total' => 'float',
+        'posted_at' => 'datetime',
+    ];
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(GoodsReceivedNoteItem::class, 'goods_received_note_id');
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id');
+    }
+
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class, 'warehouse_id');
+    }
+
+    public function purchaseType(): BelongsTo
+    {
+        return $this->belongsTo(PurchaseType::class, 'purchase_type_id');
+    }
+
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(Agent::class, 'agent_id');
+    }
+
+    public function purchase(): BelongsTo
+    {
+        return $this->belongsTo(Purchase::class, 'purchase_id');
+    }
+}

@@ -1,0 +1,120 @@
+<?php
+
+namespace App\Services\Commercial;
+
+use App\Models\Sale;
+use App\Services\ERP\CompanyWriteGuard;
+use App\Services\Platform\CompanyContext;
+use App\Services\Accounting\AccountingService;
+use App\Services\Inventory\InventoryMovementService;
+use App\Services\Inventory\StockLine;
+use App\Services\Inventory\StockMovementCommand;
+use Illuminate\Support\Facades\DB;
+
+/** Effects for an already persisted sale. The application owns document creation and pricing. */
+class SalePostingService
+{
+    public function post(Sale $sale, ?CompanyContext $context = null, ?int $actor = null): Sale
+    {
+        $actor ??= auth()->id();
+        $guard = app(CompanyWriteGuard::class);
+        $context = $guard->context($context, $actor);
+        return DB::transaction(function () use ($sale, $context, $actor, $guard) {
+            $sale = Sale::visibleIn($context)->lockForUpdate()->findOrFail($sale->id);
+            if ((int) $sale->branch_id !== $context->branchId || (int) $sale->financial_year_id !== $context->financialYearId) {
+                throw new \LogicException('Legacy document posting requires a reviewed commercial migration.');
+            }
+            if ($sale->reversed_at) {
+                throw new \LogicException('A reversed sale cannot be posted again.');
+            }
+            if ($sale->posted_at || (int) $sale->sale_status !== 1) {
+                return $sale;
+            }
+            $date = $guard->begin($context, $sale->created_at->toDateString());
+            $stock = [];
+            $delivered = 0;
+            // Lines already dispatched on a Customer DC clear its accrual at the DC cost instead of issuing stock again.
+            $settled = app(MaterialDocumentService::class)->settledLines('sale', $sale->id, $context);
+            // Lock all referenced products once, preserving company ownership checks for every line.
+            $products = \App\Models\Product::forCompany($context)
+                ->whereIn('id', $sale->productSales->pluck('product_id'))->orderBy('id')->lockForUpdate()->get()->keyBy('id');
+            foreach ($sale->productSales as $line) {
+                if ((int) $line->company_id !== $context->companyId) {
+                    throw new \LogicException('A document line belongs to another company.');
+                }
+                $product = $products->get($line->product_id);
+                if (!$product) {
+                    throw \Illuminate\Validation\ValidationException::withMessages(['product_id' => 'Select a company-owned record.']);
+                }
+                $qty = (float) $line->qty;
+                if (($dc = $settled[$line->id] ?? null) && !in_array($product->type, ['service', 'digital'], true)) {
+                    $base = app(\App\Services\Inventory\UomConversionService::class)->toBase($product, $qty, $line->sale_unit_id ? (int) $line->sale_unit_id : null);
+                    $delivered += $dc['value'];
+                    $qty = round($qty - $qty * min(1, $dc['qty_base'] / $base), 4);
+                    if ($qty <= MaterialDocumentService::EPSILON) {
+                        continue;
+                    }
+                }
+                if (!in_array($product->type, ['service', 'digital'], true)) {
+                    $stock[] = StockLine::fromArray(['qty' => $qty, 'uom_id' => $line->sale_unit_id,
+                        'attributes' => ['commercial_line_id' => $line->id] + ($line->stock_details_json['attributes'] ?? [])] + ($line->stock_details_json ?? []) + $line->toArray());
+                }
+            }
+            $cost = 0;
+            if ($stock !== []) {
+                $movement = app(InventoryMovementService::class)->issue(new StockMovementCommand(
+                    date: $date, lines: $stock, warehouseId: $sale->warehouse_id,
+                    sourceType: 'sale', sourceId: $sale->id, sourceNo: $sale->reference_no,
+                    idempotencyKey: 'sale:'.$sale->id, userId: $actor, context: $context,
+                ));
+                $cost = -(float) $movement->lines->sum('value');
+            }
+            $accounts = app(PostingAccounts::class);
+            $lines = [];
+            $add = function (string|int $role, float $debit, float $credit, bool $party = false) use (&$lines, $accounts, $context, $sale, $actor) {
+                if (round($debit + $credit, 4) == 0) {
+                    return;
+                }
+                $lines[] = ['chart_of_account_id' => is_int($role) ? $role : $accounts->account($role, $context, $actor),
+                    'debit' => round($debit, 4), 'credit' => round($credit, 4),
+                    'partner_type' => $party ? 'customer' : null, 'partner_id' => $party ? $sale->customer_id : null];
+            };
+            foreach ($sale->payments()->forCompany($context)->get() as $payment) {
+                $add($accounts->settlement($payment, $context, $actor), (float) $payment->amount, 0);
+            }
+            $add('accounts_receivable', (float) $sale->grand_total - (float) $sale->paid_amount, 0, true);
+            $add('sales_discount', (float) $sale->order_discount, 0);
+            $add('sales_revenue', 0, (float) $sale->total_price - (float) $sale->total_tax);
+            if ($sale->tax_snapshot_json) {
+                foreach (['cgst', 'sgst', 'igst', 'cess'] as $component) {
+                    $amount = $sale->tax_snapshot_json['reverse_charge'] ? 0 : $sale->productSales->sum(fn ($line) => $line->tax_snapshot_json[$component] ?? 0);
+                    $add('output_tax_'.$component, 0, (float) $amount);
+                }
+            } else {
+                $add('tax_payable', 0, (float) $sale->total_tax + (float) $sale->order_tax);
+            }
+            $add('shipping_income', 0, (float) $sale->shipping_cost);
+            if ($roundOff = (float) ($sale->attributes_json['round_off'] ?? 0)) {
+                app(\App\Services\Tax\GstSetupService::class)->ensureLedgers($context->companyId, ['rounding']);
+                $add('rounding', max(-$roundOff, 0), max($roundOff, 0));
+            }
+            $add('cogs', $cost + $delivered / 10000, 0);
+            $add('inventory', 0, $cost);
+            $add('goods_delivered_not_invoiced', 0, $delivered / 10000);
+            if ($lines !== []) {
+                app(AccountingService::class)->postJournalEntry([
+                    'entry_date' => $date, 'reference_type' => 'sale', 'reference_id' => $sale->id,
+                    'reference_no' => $sale->reference_no, 'posting_key' => 'sale:'.$sale->id.':v1',
+                    'due_date' => $sale->attributes_json['due_date'] ?? $date, 'created_by' => $actor,
+                    'description' => 'Sale '.$sale->reference_no,
+                ], $lines, $context);
+            }
+            if (config('compliance.enabled') && \Illuminate\Support\Facades\Schema::hasColumn('sales', 'document_snapshot_json')) {
+                $sale->forceFill(['document_snapshot_json' => app(\App\Services\Documents\DocumentRenderingService::class)->capture($sale, 'sale', $context)]);
+            }
+            $sale->forceFill(['posted_at' => now()])->save();
+            app(\App\Services\Tax\GstProjectionService::class)->record($sale, 'sale', $sale->productSales->pluck('tax_snapshot_json')->all(), $context);
+            return $sale;
+        });
+    }
+}

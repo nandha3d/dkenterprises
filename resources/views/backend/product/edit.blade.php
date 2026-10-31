@@ -1,0 +1,2163 @@
+@section('rich-editor', '1')
+@section('image-upload', '1')
+@extends('backend.layout.main')
+
+@if(in_array('ecommerce',explode(',',$general_setting->modules)) || in_array('restaurant',explode(',',$general_setting->modules)))
+@push('css')
+<link rel="stylesheet" href="{{ versioned_asset('css/pages/shared-product-create.css') }}">
+@endpush
+@endif
+
+@section('content')
+
+<x-success-message key="edit_message" />
+
+<x-product-command-bar active="products"></x-product-command-bar>
+@php
+    $modules = explode(',', $general_setting->modules);
+    $ecommerce = in_array('ecommerce', $modules);
+    $restaurant = in_array('restaurant', $modules);
+@endphp
+<section class="forms">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card product-single-screen-card">
+                    <div class="card-header d-flex align-items-center justify-content-between py-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <h4 class="mb-0 font-weight-bold u-fs-1_05rem">{{__('db.Update Product')}}</h4>
+                            <span class="text-muted small ml-2 font-italic">{{__('db.The field labels marked with * are required input fields')}}.</span>
+                        </div>
+                        <div class="card-header-actions d-flex align-items-center gap-2">
+                            <a href="{{route('products.index')}}" class="btn btn-sm btn-outline-secondary">{{__('db.Cancel')}}</a>
+                            <x-ui.button type="submit" variant="primary" size="sm" id="submit-btn" icon="dripicons-checkmark">{{__('db.Update Product')}}</x-ui.button>
+                        </div>
+                    </div>
+
+                    <x-error-message key="not_permitted" />
+
+                    <div class="card-body p-2">
+                        <form id="product-form">
+                            <input type="hidden" name="id" value="{{$lims_product_data->id}}" />
+                            <div class="zolo-product-grid">
+
+                                <!-- BOX 1: Primary Identity & Categorization (Blue) -->
+                                <x-ui.section-box variant="blue" title="{{__('db.Product Details')}}" icon="box">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label>{{__('db.Product Type')}} *</label>
+                                                <select name="type" required class="form-control selectpicker" id="type">
+                                                    <option value="standard">Standard</option>
+                                                    <option value="combo">Combo</option>
+                                                    <option value="digital">Digital</option>
+                                                    <option value="service">Service</option>
+                                                </select>
+                                                <input type="hidden" name="type_hidden" value="{{$lims_product_data->type}}">
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label>{{__('db.Barcode Symbology')}} *</label>
+                                                <input type="hidden" name="barcode_symbology_hidden" value="{{$lims_product_data->barcode_symbology}}">
+                                                <select name="barcode_symbology" required class="form-control selectpicker">
+                                                    <option value="C128">Code 128</option>
+                                                    <option value="C39">Code 39</option>
+                                                    <option value="UPCA">UPC-A</option>
+                                                    <option value="UPCE">UPC-E</option>
+                                                    <option value="EAN8">EAN-8</option>
+                                                    <option value="EAN13">EAN-13</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label>{{__('db.Product Name')}} *</label>
+                                                <input type="text" name="name" value="{{$lims_product_data->name}}" required class="form-control" id="name">
+                                                <span class="validation-msg text-danger small" id="name-error"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label>{{__('db.Product Code')}} *</label>
+                                                <div class="input-group">
+                                                    <input type="text" name="code" id="code" value="{{$lims_product_data->code}}" class="form-control" required>
+                                                    <div class="input-group-append">
+                                                        <button id="genbutton" type="button" class="btn btn-sm btn-default" title="{{__('db.Generate')}}"><i class="fa fa-refresh"></i></button>
+                                                    </div>
+                                                </div>
+                                                <span class="validation-msg text-danger small" id="code-error"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label>{{__('db.Brand')}}</label>
+                                                <input type="hidden" name="brand" value="{{ $lims_product_data->brand_id}}">
+                                                <select name="brand_id" class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="{{ __('db.Select Brand...') }}">
+                                                    @foreach($lims_brand_list as $brand)
+                                                        <option value="{{$brand->id}}">{{$brand->title}}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label>{{__('db.category')}} *</label>
+                                                <input type="hidden" name="category" value="{{$lims_product_data->category_id}}">
+                                                <select name="category_id" required class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="{{ __('db.Select Category...') }}">
+                                                    @foreach($lims_category_list as $category)
+                                                        <option value="{{$category->id}}">{{$category->name}}</option>
+                                                    @endforeach
+                                                </select>
+                                                <span class="validation-msg text-danger small"></span>
+                                            </div>
+                                        </div>
+                                        <div id="unit" class="col-12">
+                                            <div class="row">
+                                                <div class="col-12 form-group">
+                                                    <label>{{__('db.Product Unit')}} *</label>
+                                                    <select required class="form-control selectpicker" data-live-search="true" data-live-search-style="begins" title="{{ __('db.Select Product Unit...') }}" name="unit_id">
+                                                        @foreach($lims_unit_list as $unit)
+                                                            @if($unit->base_unit==null)
+                                                                <option value="{{$unit->id}}">{{$unit->unit_name}}</option>
+                                                            @endif
+                                                        @endforeach
+                                                    </select>
+                                                    <input type="hidden" name="unit" value="{{ $lims_product_data->unit_id}}">
+                                                    <span class="validation-msg text-danger small"></span>
+                                                </div>
+                                                <div class="col-6 form-group">
+                                                    <label>{{__('db.Sale Unit')}}</label>
+                                                    <select class="form-control selectpicker" name="sale_unit_id" id="sale-unit"></select>
+                                                    <input type="hidden" name="sale_unit" value="{{ $lims_product_data->sale_unit_id}}">
+                                                </div>
+                                                <div class="col-6 form-group">
+                                                    <label>{{__('db.Purchase Unit')}}</label>
+                                                    <select class="form-control selectpicker" name="purchase_unit_id"></select>
+                                                    <input type="hidden" name="purchase_unit" value="{{ $lims_product_data->purchase_unit_id}}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="digital" class="col-12">
+                                            <div class="form-group">
+                                                <label>{{__('db.Attach File')}}</label>
+                                                <input id="file" type="file" name="file" class="form-control">
+                                                <span class="validation-msg text-danger small"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </x-ui.section-box>
+
+                                <!-- BOX 2: Pricing, Margins & Tax (Emerald) -->
+                                <x-ui.section-box variant="emerald" title="{{__('db.Pricing & Tax')}}" icon="pricing">
+                                    <div class="row">
+                                        <div id="cost" class="col-6 @if(Auth::user()->role_id > 2) d-none @endif">
+                                            <div class="form-group">
+                                                <label>{{__('db.Product Cost')}} *</label>
+                                                <input type="number" name="cost" value="{{$lims_product_data->cost}}" required class="form-control product_cost" step="any">
+                                                <div class="alert alert-warning very-small-text d-none p-1 position-absolute" id="product-cost-warning">
+                                                    Cost must be higher than 0!
+                                                </div>
+                                                <span class="validation-msg text-danger small"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label>{{ __('db.Profit Margin Type') }}</label>
+                                                <select name="profit_margin_type" class="form-control selectpicker" required>
+                                                    <option value="percentage" {{ $lims_product_data->profit_margin_type == 'percentage' ? 'selected' : '' }}>Percentage (%)</option>
+                                                    <option value="flat" {{ $lims_product_data->profit_margin_type == 'flat' ? 'selected' : '' }}>Flat</option>
+                                                </select>
+                                                <span class="validation-msg text-danger small"></span>
+                                            </div>
+                                        </div>
+                                        <div id="profit_margin" class="col-6">
+                                            <div class="form-group">
+                                                <label>{{__('db.Profit Margin')}}</label>
+                                                <input type="number" name="profit_margin" value="{{$lims_product_data->profit_margin}}" class="form-control" step="0.01">
+                                                <span class="validation-msg text-danger small"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label>{{__('db.Product Price')}} *</label>
+                                                <input type="number" name="price" value="{{$lims_product_data->price}}" required class="form-control" step="any">
+                                                <div class="alert alert-warning very-small-text d-none p-1 position-absolute" id="product-price-warning">
+                                                    Price must be higher than Cost!
+                                                </div>
+                                                <span class="validation-msg text-danger small"></span>
+                                            </div>
+                                            <input type="hidden" name="qty" value="{{ $lims_product_data->qty }}">
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label>{{__('db.Wholesale Price')}}</label>
+                                                <input type="number" name="wholesale_price" class="form-control" value="{{$lims_product_data->wholesale_price}}" step="any">
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label>{{__('db.Daily Sale Objective')}}</label>
+                                                <input type="number" name="daily_sale_objective" class="form-control" step="any" value="{{$lims_product_data->daily_sale_objective}}">
+                                            </div>
+                                        </div>
+
+                                        <input type="hidden" name="tax" value="{{$lims_product_data->tax_id}}">
+                                        @if(\App\Services\Tax\GstSetupService::usesGst())
+                                            @include('backend.product.partials.gst-fields', ['product' => $lims_product_data])
+                                        @else
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label>{{__('db.Product Tax')}}</label>
+                                                <select name="tax_id" class="selectpicker form-control">
+                                                    <option value="">No Tax</option>
+                                                    @foreach($lims_tax_list as $tax)
+                                                        <option value="{{$tax->id}}">{{$tax->name}}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <input type="hidden" name="tax_method_id" value="{{$lims_product_data->tax_method}}">
+                                                <label>{{__('db.Tax Method')}}</label>
+                                                <select name="tax_method" class="form-control selectpicker">
+                                                    <option value="1">{{__('db.Exclusive')}}</option>
+                                                    <option value="2">{{__('db.Inclusive')}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        @include('backend.product.partials.stock-policy', ['product' => $lims_product_data, 'colClass' => 'col-6'])
+
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label>{{ __('db.Warranty') }}</label>
+                                                <div class="input-group">
+                                                    <input type="number" name="warranty" min="1" class="form-control" placeholder="1" value="{{ $lims_product_data->warranty }}">
+                                                    <select name="warranty_type" class="form-control selectpicker">
+                                                        <option value="days" {{ $lims_product_data->warranty_type == 'days' ? 'selected' : '' }}>{{ __('db.Days') }}</option>
+                                                        <option value="months" {{ $lims_product_data->warranty_type == 'months' ? 'selected' : '' }}>{{ __('db.Months') }}</option>
+                                                        <option value="years" {{ $lims_product_data->warranty_type == 'years' ? 'selected' : '' }}>{{ __('db.Years') }}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label>{{ __('db.Guarantee') }}</label>
+                                                <div class="input-group">
+                                                    <input type="number" name="guarantee" min="1" class="form-control" placeholder="1" value="{{ $lims_product_data->guarantee }}">
+                                                    <select name="guarantee_type" class="form-control selectpicker">
+                                                        <option value="days" {{ $lims_product_data->guarantee_type == 'days' ? 'selected' : '' }}>{{ __('db.Days') }}</option>
+                                                        <option value="months" {{ $lims_product_data->guarantee_type == 'months' ? 'selected' : '' }}>{{ __('db.Months') }}</option>
+                                                        <option value="years" {{ $lims_product_data->guarantee_type == 'years' ? 'selected' : '' }}>{{ __('db.Years') }}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        @foreach($custom_fields as $field)
+                                            <?php $field_name = str_replace(' ', '_', strtolower($field->name)); ?>
+                                            @if(!$field->is_admin || \Auth::user()->role_id == 1)
+                                            <div class="col-12">
+                                                <div class="form-group">
+                                                    <label>{{$field->name}}</label>
+                                                    @if($field->type == 'text')
+                                                        <input type="text" name="{{$field_name}}" value="{{$lims_product_data->$field_name}}" class="form-control" @if($field->is_required){{'required'}}@endif>
+                                                    @elseif($field->type == 'number')
+                                                        <input type="number" name="{{$field_name}}" value="{{$lims_product_data->$field_name}}" class="form-control" @if($field->is_required){{'required'}}@endif>
+                                                    @elseif($field->type == 'textarea')
+                                                        <textarea rows="2" name="{{$field_name}}" class="form-control no-tiny" @if($field->is_required){{'required'}}@endif>{{$lims_product_data->$field_name}}</textarea>
+                                                    @elseif($field->type == 'checkbox')
+                                                        <?php $option_values = explode(",", $field->option_value); $field_values = explode(",", $lims_product_data->$field_name); ?>
+                                                        <div>
+                                                            @foreach($option_values as $value)
+                                                                <label class="mr-2"><input type="checkbox" name="{{$field_name}}[]" value="{{$value}}" @if(in_array($value, $field_values)) checked @endif @if($field->is_required){{'required'}}@endif> {{$value}}</label>
+                                                            @endforeach
+                                                        </div>
+                                                    @elseif($field->type == 'radio_button')
+                                                        <?php $option_values = explode(",", $field->option_value); ?>
+                                                        <div>
+                                                            @foreach($option_values as $value)
+                                                                <label class="radio-inline mr-2"><input type="radio" name="{{$field_name}}" value="{{$value}}" @if($value == $lims_product_data->$field_name){{'checked'}}@endif @if($field->is_required){{'required'}}@endif> {{$value}}</label>
+                                                            @endforeach
+                                                        </div>
+                                                    @elseif($field->type == 'select')
+                                                        <?php $option_values = explode(",", $field->option_value); ?>
+                                                        <select class="form-control selectpicker" name="{{$field_name}}" @if($field->is_required){{'required'}}@endif>
+                                                            @foreach($option_values as $value)
+                                                                <option value="{{$value}}" @if($value == $lims_product_data->$field_name){{'selected'}}@endif>{{$value}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    @elseif($field->type == 'multi_select')
+                                                        <?php $option_values = explode(",", $field->option_value); $field_values = explode(",", $lims_product_data->$field_name); ?>
+                                                        <select class="form-control selectpicker" name="{{$field_name}}[]" @if($field->is_required){{'required'}}@endif multiple>
+                                                            @foreach($option_values as $value)
+                                                                <option value="{{$value}}" @if(in_array($value, $field_values)) selected @endif>{{$value}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    @elseif($field->type == 'date_picker')
+                                                        <input type="date" name="{{$field_name}}" value="{{$lims_product_data->$field_name}}" class="form-control" @if($field->is_required){{'required'}}@endif>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                </x-ui.section-box>
+
+                                <!-- BOX 3: Media, Details & SEO (Purple) -->
+                                <x-ui.section-box variant="purple" title="{{__('db.Media, Details & SEO')}}" icon="media">
+                                    <div class="form-group">
+                                        <label>{{__('db.Product Image')}} <i class="dripicons-question" data-toggle="tooltip" title="{{__('db.You can upload multiple image Only jpeg, jpg, png, gif file can be uploaded First image will be base image')}}"></i></label>
+                                        <div id="imageUpload" class="dropzone"></div>
+                                        <span class="validation-msg text-danger small" id="image-error"></span>
+                                    </div>
+
+                                    @if($lims_product_data->image)
+                                    <div class="form-group">
+                                        <table class="table table-hover table-sm mb-0">
+                                            <tbody>
+                                                @foreach(explode(",", $lims_product_data->image) as $image)
+                                                <tr>
+                                                    <td><i class="fa fa-list"></i></td>
+                                                    <td>
+                                                        <img src="{{url('images/product', $image)}}" height="40" width="40" alt="">
+                                                        <input type="hidden" name="prev_img[]" value="{{$image}}">
+                                                    </td>
+                                                    <td class="text-right"><button type="button" class="btn btn-sm btn-danger remove-img" title="{{__('db.delete')}}"><i class="dripicons-cross"></i></button></td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    @endif
+
+                                    <div class="form-group">
+                                        <label>{{__('db.Product Details')}}</label>
+                                        <textarea name="product_details" class="form-control no-tiny" rows="2" placeholder="{{ __('db.Type product details') }}">{{str_replace('@', '"', $lims_product_data->product_details)}}</textarea>
+                                    </div>
+
+                                    @if($ecommerce || $restaurant)
+                                    {{-- products.tags comes with the ecommerce/restaurant addon --}}
+                                    <div class="form-group">
+                                        <label>{{__('db.Product Tags')}}</label>
+                                        <input type="text" name="tags" class="form-control" value="{{$lims_product_data->tags}}" placeholder="Tag1, Tag2...">
+                                        <span class="validation-msg text-danger small" id="tags-error"></span>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6 form-group">
+                                            <label>{{ __('Meta Title') }}</label>
+                                            <input type="text" name="meta_title" class="form-control" value="{{$lims_product_data->meta_title}}">
+                                        </div>
+                                        <div class="col-6 form-group">
+                                            <label>{{ __('Meta Description') }}</label>
+                                            <input type="text" name="meta_description" class="form-control" value="{{$lims_product_data->meta_description}}">
+                                        </div>
+                                        <div class="col-12 form-group related-section">
+                                            <label>{{__('db.Related Products')}}</label>
+                                            <input type="text" id="search_products" class="form-control" placeholder="{{ __('db.Search related products...') }}">
+                                            <div class="search_result"></div>
+                                            @if(isset($related_products))
+                                                <div class="selected_items mt-1">
+                                                    @foreach($related_products as $product)
+                                                    @php $image = explode(',', $product->image); @endphp
+                                                    <div data-id="{{$product->id}}"><img src="{{asset('images/product/small/')}}/{{$image[0]}}" alt=""><h4>{{$product->name}}</h4><span class="remove_item"><i class="dripicons-cross"></i></span></div>
+                                                    @endforeach
+                                                </div>
+                                                <textarea class="selected_ids hidden no-tiny" name="products">{{$related_products}},</textarea>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    @endif
+
+                                    @if($restaurant)
+                                    <div class="row">
+                                        <div class="col-12 form-group extra-section">
+                                            <label>{{__('db.Extras')}}</label>
+                                            <input type="text" id="search_addons" class="form-control" placeholder="{{ __('db.Search extras...') }}">
+                                            <div class="search_result_addon"></div>
+                                            @if(isset($extras))
+                                                <div class="selected_addons mt-1">
+                                                    @foreach($extras as $product)
+                                                    @php $image = explode(',', $product->image); @endphp
+                                                    <div data-id="{{$product->id}}"><img src="{{asset('images/product/small/')}}/{{$image[0]}}" alt=""><h4>{{$product->name}}</h4><span class="remove_item"><i class="dripicons-cross"></i></span></div>
+                                                    @endforeach
+                                                </div>
+                                                <textarea class="selected_addon_ids hidden no-tiny" name="extras">{{$extras}},</textarea>
+                                            @endif
+                                        </div>
+                                        <div class="col-6 form-group">
+                                            <label>{{__('db.Kitchen')}}</label>
+                                            <input type="hidden" name="kitchen" value="{{$lims_product_data->kitchen_id}}" />
+                                            <select id="kitchen_id" name="kitchen_id" class="form-control" title="Select kitchen...">
+                                                @foreach($kitchen_list as $kitchen)
+                                                <option value="{{$kitchen->id}}">{{$kitchen->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-6 form-group">
+                                            <label>{{__('db.Menu Type')}} *</label>
+                                            @php $menu_type = explode(',', $lims_product_data->menu_type); @endphp
+                                            <div>
+                                                @foreach($menu_type_list as $menu)
+                                                    <label class="mr-2"><input type="checkbox" name="menu_type[]" value="{{$menu->id}}" required @checked(in_array($menu->id, $menu_type))/> {{$menu->name}}</label>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
+                                </x-ui.section-box>
+
+                            </div>
+
+                            <!-- Full Content Width Stripe: Inventory & Stock Control Toggle Buttons -->
+                            <div class="zolo-inventory-stripe">
+                                <div class="zolo-inventory-stripe-header">
+                                    <span class="zolo-inventory-stripe-icon">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                                    </span>
+                                    <h6 class="zolo-inventory-stripe-title">{{ __('db.Inventory & Stock Control') }}</h6>
+                                </div>
+
+                                <div class="zolo-inventory-stripe-alert" id="alert-qty">
+                                    <label for="alert_quantity">{{ __('db.Alert Quantity') }}</label>
+                                    <input type="number" name="alert_quantity" id="alert_quantity" value="{{$lims_product_data->alert_quantity}}" class="form-control form-control-sm" step="any" placeholder="{{ __('db.Minimum alert qty') }}">
+                                </div>
+
+                                <div class="zolo-inventory-stripe-divider"></div>
+
+                                <div class="zolo-inventory-stripe-toggles">
+                                    {{-- Variants are set when the product is created; an existing variant product keeps the flag. --}}
+                                    @if($lims_product_data->is_variant)
+                                    <span id="variant-option" hidden><input name="is_variant" type="checkbox" id="is-variant" value="1" checked></span>
+                                    @endif
+
+                                    <label id="diffPrice-option" class="zolo-toggle-pill @if($lims_product_data->is_diffPrice) is-active @endif" data-role="emerald" for="is-diffPrice" title="{{ __('db.Different price by warehouse') }}">
+                                        <input name="is_diffPrice" type="checkbox" id="is-diffPrice" value="1" @checked($lims_product_data->is_diffPrice)>
+                                        <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
+                                        <span>{{__('db.Different price by warehouse')}}</span>
+                                    </label>
+
+                                    <label id="batch-option" class="zolo-toggle-pill @if($lims_product_data->is_batch) is-active @endif" data-role="amber" for="is-batch" title="{{ __('db.Batch & expiry date') }}">
+                                        <input name="is_batch" type="checkbox" id="is-batch" value="1" @checked($lims_product_data->is_batch)>
+                                        <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
+                                        <span>{{__('db.Batch & expiry date')}}</span>
+                                    </label>
+
+                                    <label id="imei-option" class="zolo-toggle-pill @if($lims_product_data->is_imei) is-active @endif" data-role="blue" for="is-imei" title="{{ __('db.IMEI / Serial numbers') }}">
+                                        <input name="is_imei" type="checkbox" id="is-imei" value="1" @checked($lims_product_data->is_imei)>
+                                        <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
+                                        <span>{{__('db.IMEI / Serial numbers')}}</span>
+                                    </label>
+
+                                    <label class="zolo-toggle-pill @if($lims_product_data->promotion) is-active @endif" data-role="blue" for="promotion" title="{{ __('db.Promotional Price') }}">
+                                        <input type="hidden" name="promotion_hidden" value="{{$lims_product_data->promotion}}">
+                                        <input name="promotion" type="checkbox" id="promotion" value="1" @checked($lims_product_data->promotion)>
+                                        <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
+                                        <span>{{__('db.Promotional Price')}}</span>
+                                    </label>
+
+                                    <label id="featured" class="zolo-toggle-pill @if($lims_product_data->featured) is-active @endif" data-role="purple" for="chk_featured" title="{{ __('db.Featured product will be displayed in POS') }}">
+                                        <input type="checkbox" name="featured" id="chk_featured" value="1" @checked($lims_product_data->featured)>
+                                        <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
+                                        <span>{{__('db.Featured')}}</span>
+                                    </label>
+
+                                    <label class="zolo-toggle-pill @if($lims_product_data->is_embeded) is-active @endif" data-role="emerald" for="chk_embeded" title="{{ __('db.Check this if this product will be used in weight scale machine') }}">
+                                        <input type="checkbox" name="is_embeded" id="chk_embeded" value="1" @checked($lims_product_data->is_embeded)>
+                                        <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
+                                        <span>{{__('db.Embedded Barcode')}}</span>
+                                    </label>
+
+                                    @if($ecommerce || $restaurant)
+                                    <label class="zolo-toggle-pill @if($lims_product_data->is_online == 1) is-active @endif" data-role="purple" for="is_online" title="{{ __('db.Sell Online') }}">
+                                        <input name="is_online" type="checkbox" id="is_online" value="1" @checked($lims_product_data->is_online == 1)>
+                                        <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
+                                        <span>{{__('db.Sell Online')}}</span>
+                                    </label>
+                                    @endif
+
+                                    @if($ecommerce)
+                                    <label class="zolo-toggle-pill @if($lims_product_data->in_stock == 1) is-active @endif" data-role="emerald" for="in_stock" title="{{ __('db.In Stock') }}">
+                                        <input name="in_stock" type="checkbox" id="in_stock" value="1" @checked($lims_product_data->in_stock == 1)>
+                                        <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
+                                        <span>{{__('db.In Stock')}}</span>
+                                    </label>
+                                    @endif
+
+                                    @if (\Schema::hasColumn('products', 'woocommerce_product_id'))
+                                    <label class="zolo-toggle-pill @if($lims_product_data->is_sync_disable == 1) is-active @endif" data-role="rose" for="is_sync_disable" title="{{__('db.Disable Woocommerce Sync')}}">
+                                        <input name="is_sync_disable" type="checkbox" id="is_sync_disable" value="1" @checked($lims_product_data->is_sync_disable == 1)>
+                                        <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
+                                        <span>Disable WooCommerce</span>
+                                    </label>
+                                    @endif
+
+                                    <label id="water-logistics-pill" class="zolo-toggle-pill @if(!empty($lims_product_data->is_water_logistics)) is-active @endif" data-role="blue" for="is_water_logistics" title="Water Logistics & Custom Sizing (20L, 25L, 1L, Tanker Compartments)">
+                                        <input name="is_water_logistics" type="checkbox" id="is_water_logistics" value="1" @checked(!empty($lims_product_data->is_water_logistics))>
+                                        <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
+                                        <span>💧 Water Logistics</span>
+                                    </label>
+
+                                    @if($restaurant && $lims_product_data->extras == null)
+                                    <label class="zolo-toggle-pill @if($lims_product_data->is_addon == 1) is-active @endif" data-role="blue" for="is_addon" title="{{__('db.Check this if the item is a topping or extra or add-on only to be served with a main course')}}">
+                                        <input name="is_addon" type="checkbox" id="is_addon" value="1" @checked($lims_product_data->is_addon == 1)>
+                                        <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
+                                        <span>{{__('db.This is topping')}}</span>
+                                    </label>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Extended Conditional Details Container (4-column grid mirroring top primary boxes) -->
+                            <div class="product-extended-details-container mt-2">
+                                <!-- Warehouse Differential Price Section -->
+                                <div id="diffPrice-section">
+                                    <x-ui.section-box variant="emerald" title="{{__('db.Different Warehouse Price')}}" icon="pricing">
+                                        <div class="table-responsive">
+                                            <table id="diffPrice-table" class="table table-hover table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>{{__('db.Warehouse')}}</th>
+                                                        <th>{{__('db.Price')}}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($lims_warehouse_list as $warehouse)
+                                                    @php $product_warehouse = \App\Models\Product_Warehouse::FindProductWithoutVariant($lims_product_data->id, $warehouse->id)->first(); @endphp
+                                                    <tr>
+                                                        <td>
+                                                            <input type="hidden" name="warehouse_id[]" value="{{$warehouse->id}}">
+                                                            {{$warehouse->name}}
+                                                        </td>
+                                                        <td><input type="number" name="diff_price[]" class="form-control form-control-sm" value="{{$product_warehouse?->price}}" placeholder="0.00"></td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </x-ui.section-box>
+                                </div>
+
+                                <!-- Product Variants Section -->
+                                <div id="variant-section">
+                                    <x-ui.section-box variant="purple" title="{{__('db.Product Variants')}}" icon="tag">
+                                        <div id="variant-input-section">
+                                            @forelse($lims_product_data->variant_option ?: [] as $key => $variant_option)
+                                            <?php $noOfVariantValue += count(explode(",", $lims_product_data->variant_value[$key])); ?>
+                                            <div class="row align-items-end">
+                                                <div class="col-md-4 form-group mb-2">
+                                                    <label class="font-weight-bold">{{__('db.Option')}} *</label>
+                                                    <input type="text" name="variant_option[]" class="form-control form-control-sm variant-field" value="{{$variant_option}}">
+                                                </div>
+                                                <div class="col-md-7 form-group mb-2">
+                                                    <label class="font-weight-bold">{{__('db.Value')}} *</label>
+                                                    <input type="text" name="variant_value[]" class="type-variant form-control form-control-sm variant-field" value="{{$lims_product_data->variant_value[$key]}}">
+                                                </div>
+                                                <div class="col-md-1 form-group mb-2 text-center">
+                                                    <button type="button" class="delVarOption btn btn-danger btn-sm" title="{{__('db.delete')}}"><i class="dripicons-cross"></i></button>
+                                                </div>
+                                            </div>
+                                            @empty
+                                            <div class="row align-items-end">
+                                                <div class="col-md-4 form-group mb-2">
+                                                    <label class="font-weight-bold">{{__('db.Option')}} *</label>
+                                                    <input type="text" name="variant_option[]" class="form-control form-control-sm variant-field" placeholder="{{__('db.Size, Color etc')}}">
+                                                </div>
+                                                <div class="col-md-7 form-group mb-2">
+                                                    <label class="font-weight-bold">{{__('db.Value')}} *</label>
+                                                    <input type="text" name="variant_value[]" class="type-variant form-control form-control-sm variant-field">
+                                                </div>
+                                                <div class="col-md-1 form-group mb-2 text-center">
+                                                    <button type="button" class="delVarOption btn btn-danger btn-sm" title="{{__('db.delete')}}"><i class="dripicons-cross"></i></button>
+                                                </div>
+                                            </div>
+                                            @endforelse
+                                        </div>
+                                        <div class="my-2">
+                                            <button type="button" class="btn btn-info btn-xs add-more-variant"><i class="dripicons-plus"></i> {{__('db.Add More Variant')}}</button>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table id="variant-table" class="table table-hover table-sm variant-list mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>{{__('db.name')}}</th>
+                                                        <th>{{__('db.Item Code')}}</th>
+                                                        <th>{{__('db.Additional Cost')}}</th>
+                                                        <th>{{__('db.Additional Price')}}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($lims_product_variant_data as $variant)
+                                                    <tr>
+                                                        <td>{{$variant->name}}
+                                                            <input type="hidden" class="form-control variant-name" name="variant_name[]" value="{{$variant->name}}" />
+                                                        </td>
+                                                        <td><input type="text" class="form-control form-control-sm item-code" name="item_code[]" value="{{$variant->pivot['item_code']}}" /></td>
+                                                        <td><input type="number" class="form-control form-control-sm additional-cost" name="additional_cost[]" value="{{$variant->pivot['additional_cost']}}" step="any" /></td>
+                                                        <td><input type="number" class="form-control form-control-sm additional-price" name="additional_price[]" value="{{$variant->pivot['additional_price']}}" step="any" /></td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </x-ui.section-box>
+                                </div>
+
+                                <!-- Promotional Price Section -->
+                                <div id="promo-container">
+                                    <x-ui.section-box variant="blue" title="{{__('db.Promotional Price')}}" icon="pricing">
+                                        <div class="zolo-promo-vertical-form">
+                                            <div class="form-group mb-2" id="promotion_price">
+                                                <label class="font-weight-bold">{{__('db.Promotional Price')}}</label>
+                                                <input type="number" name="promotion_price" value="{{$lims_product_data->promotion_price}}" class="form-control form-control-sm" step="any" placeholder="0.00" />
+                                            </div>
+                                            <div class="form-group mb-2" id="start_date">
+                                                <label class="font-weight-bold">{{__('db.Promotion Starts')}}</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text"><i class="dripicons-calendar"></i></div>
+                                                    </div>
+                                                    <input type="text" name="starting_date" value="{{$lims_product_data->starting_date}}" id="starting_date" class="form-control form-control-sm" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group mb-0" id="last_date">
+                                                <label class="font-weight-bold">{{__('db.Promotion Ends')}}</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text"><i class="dripicons-calendar"></i></div>
+                                                    </div>
+                                                    <input type="text" name="last_date" value="{{$lims_product_data->last_date}}" id="ending_date" class="form-control form-control-sm" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </x-ui.section-box>
+                                </div>
+
+                                <!-- Combo Products Section -->
+                                <div id="combo">
+                                    <x-ui.section-box variant="blue" title="{{__('db.Combo Products')}}" icon="box">
+                                        <div class="search-box input-group mb-2">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-barcode"></i></span>
+                                            </div>
+                                            <input type="text" name="product_code_name" id="lims_productcodeSearch" placeholder="{{ __('db.Please type product code and select') }}" class="form-control form-control-sm" />
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table id="myTable" class="table table-hover order-list mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>{{__('db.product')}}</th>
+                                                        <th>{{__('db.Wastage Percent')}}</th>
+                                                        <th>{{__('db.Quantity')}}</th>
+                                                        <th>{{__('db.Unit Cost')}}</th>
+                                                        <th>{{__('db.Unit Price')}}</th>
+                                                        <th>{{__('db.Sub total')}}</th>
+                                                        <th class="text-center"><i class="dripicons-trash"></i></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="combo_product_list_table">
+                                                    @if($lims_product_data->type == 'combo')
+                                                    <?php
+                                                        $product_list = explode(",", $lims_product_data->product_list);
+                                                        $wastage_percent = explode(",", $lims_product_data->wastage_percent);
+                                                        $qty_list = explode(",", $lims_product_data->qty_list);
+                                                        $variant_list = explode(",", $lims_product_data->variant_list);
+                                                        $price_list = explode(",", $lims_product_data->price_list);
+                                                    ?>
+                                                    @foreach($product_list as $key=>$id)
+                                                    <tr>
+                                                        <?php
+                                                            $product = App\Models\Product::find($id);
+                                                            $combo_unit = App\Models\Unit::query()->where('id',$product->unit_id)->orWhere('base_unit',$product->unit_id)->get()->unique('id');
+
+                                                            if($lims_product_data->variant_list && $variant_list[$key]) {
+                                                                $product_variant_data = App\Models\ProductVariant::select('item_code')->FindExactProduct($id, $variant_list[$key])->first();
+                                                                $product->code = $product_variant_data->item_code;
+                                                            }
+                                                            else
+                                                                $variant_list[$key] = "";
+                                                        ?>
+                                                        <td>{{$product->name}} [{{$product->code}}]</td>
+                                                        <td>
+                                                            <div class="input-group">
+                                                                <input type="number" class="form-control form-control-sm wastage_percent" name="wastage_percent[]" value="{{@$wastage_percent[$key] ?? 0 }}" min="0" step="any"/>
+                                                                <div class="input-group-append">
+                                                                    <span class="input-group-text">%</span>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="input-group u-maxw-unset">
+                                                                <input type="number" class="form-control form-control-sm qty" min="1" name="product_qty[]" value="{{ $qty_list[$key] ?? 1 }}" step="any" placeholder="Qty" aria-label="Quantity">
+                                                                <div class="input-group-append">
+                                                                    <select name="combo_unit_id[]" class="btn btn-outline-secondary form-control combo_unit_id u-w-112px" onchange="calculate_price()">
+                                                                        @foreach ($combo_unit as $row)
+                                                                            <option value="{{ $row->id }}" data-operation_value="{{ $row->operation_value }}" data-operator="{{ $row->operator }}">{{ $row->unit_name }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td><input type="number" class="form-control form-control-sm unit_cost" name="product_unit_cost[]" value="{{$product->cost}}" step="any"/></td>
+                                                        <td><input type="number" class="form-control form-control-sm unit_price" name="unit_price[]" value="{{$price_list[$key]}}" step="any"/></td>
+                                                        <td><input type="number" class="form-control form-control-sm subtotal" name="subtotal[]" value="0.00" step="any"/></td>
+                                                        <td class="text-center"><button type="button" class="ibtnDel btn btn-danger btn-sm"><i class="dripicons-cross"></i></button></td>
+                                                        <input type="hidden" class="product-id" name="product_id[]" value="{{$id}}"/>
+                                                        <input type="hidden" class="variant-id" name="variant_id[]" value="{{$variant_list[$key]}}"/>
+                                                        <input type="hidden" class="product_unit_cost" name="" value="{{$product->cost}}"/>
+                                                        <input type="hidden" class="product_unit_price" name="" value="{{$price_list[$key]}}"/>
+                                                    </tr>
+                                                    @endforeach
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </x-ui.section-box>
+                                </div>
+
+                                <!-- Water Logistics & Custom Sizing Section -->
+                                <div id="water-logistics-section" style="@if(empty($lims_product_data->is_water_logistics)) display: none; @endif">
+                                    <x-ui.section-box variant="blue" title="💧 Water Logistics & Custom Package Sizing" icon="box">
+                                        <div class="row">
+                                            <div class="col-md-6 form-group">
+                                                <label class="font-weight-bold">Water Vertical Type *</label>
+                                                <select name="water_vertical_type" id="water_vertical_type" class="form-control form-control-sm selectpicker">
+                                                    <option value="packaged_water" @selected(($lims_product_data->water_vertical_type ?? 'packaged_water') === 'packaged_water')>Packaged Drinking Water (Cans & Bottles)</option>
+                                                    <option value="bulk_water" @selected(($lims_product_data->water_vertical_type ?? '') === 'bulk_water')>Commercial Bulk Water Supply (Heavy Tankers)</option>
+                                                </select>
+                                                <small class="text-muted d-block mt-1">Packaged water handles customizable can & bottle sizes (20L, 25L, 10L, 1L). Bulk water handles tanker compartments & logistics costs.</small>
+                                            </div>
+
+                                            <div class="col-md-6 form-group">
+                                                <label class="font-weight-bold">Custom Capacity / Package Spec *</label>
+                                                <input type="text" name="water_capacity_spec" id="water_capacity_spec" class="form-control form-control-sm" placeholder="e.g. 20L, 25L, 10L, 1L, 20KL, 10KL" value="{{ $lims_product_data->water_capacity_spec ?? '20L' }}">
+                                                <small class="text-muted d-block mt-1">Specify package or vehicle size (e.g. 20L, 25L, 10L, 1L Bottle Box, 20KL Tanker).</small>
+                                            </div>
+
+                                            <div class="col-md-12 form-group" id="tanker_compartment_group" style="@if(($lims_product_data->water_vertical_type ?? '') !== 'bulk_water') display: none; @endif">
+                                                <label class="font-weight-bold">Tanker Compartment / Segment Configuration</label>
+                                                <input type="text" name="water_compartment_config" id="water_compartment_config" class="form-control form-control-sm" placeholder="e.g. Single Tank, 2 Chambers (10KL + 10KL), 3 Chambers (10KL + 5KL + 5KL)" value="{{ $lims_product_data->water_compartment_config ?? '' }}">
+                                                <small class="text-muted d-block mt-1">Configures internal tank chambers for multi-customer split deliveries (e.g. 10KL + 10KL or 10KL + 5KL + 5KL) & remaining tank water tracking.</small>
+                                            </div>
+
+                                            <div class="col-md-3 form-group tanker-metric-field" id="base_km_group" style="@if(($lims_product_data->water_vertical_type ?? '') !== 'bulk_water') display: none; @endif">
+                                                <label class="font-weight-bold">Base Free Distance (KM)</label>
+                                                <input type="number" step="0.1" name="base_km_limit" id="base_km_limit" class="form-control form-control-sm" value="{{ $lims_product_data->base_km_limit ?? 10.0 }}" placeholder="10.0">
+                                            </div>
+
+                                            <div class="col-md-3 form-group tanker-metric-field" id="excess_km_group" style="@if(($lims_product_data->water_vertical_type ?? '') !== 'bulk_water') display: none; @endif">
+                                                <label class="font-weight-bold">Excess Distance Rate (₹/KM)</label>
+                                                <input type="number" step="0.5" name="excess_km_rate" id="excess_km_rate" class="form-control form-control-sm" value="{{ $lims_product_data->excess_km_rate ?? 45.0 }}" placeholder="45.0">
+                                            </div>
+
+                                            <div class="col-md-3 form-group tanker-metric-field" id="motor_pump_group" style="@if(($lims_product_data->water_vertical_type ?? '') !== 'bulk_water') display: none; @endif">
+                                                <label class="font-weight-bold">Motor Pumping Rate (₹/min)</label>
+                                                <input type="number" step="0.5" name="motor_pump_rate" id="motor_pump_rate" class="form-control form-control-sm" value="{{ $lims_product_data->motor_pump_rate ?? 10.0 }}" placeholder="10.0">
+                                            </div>
+
+                                            <div class="col-md-3 form-group tanker-metric-field" id="waiting_charge_group" style="@if(($lims_product_data->water_vertical_type ?? '') !== 'bulk_water') display: none; @endif">
+                                                <label class="font-weight-bold">Site Waiting Charge (₹/min)</label>
+                                                <input type="number" step="0.5" name="waiting_charge_rate" id="waiting_charge_rate" class="form-control form-control-sm" value="{{ $lims_product_data->waiting_charge_rate ?? 15.0 }}" placeholder="15.0">
+                                            </div>
+                                        </div>
+                                    </x-ui.section-box>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@endsection
+
+@push('scripts')
+<script type="text/javascript">
+
+    calculate_price();
+
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    @if(in_array('restaurant',explode(',',$general_setting->modules)))
+    $("#is_addon").on('click', function(){
+        if($("#is_addon").prop('checked') == false){
+            $('.extra-section,.related-section').css('display','block');
+        }else{
+            $('.extra-section,.related-section').css('display','none');
+        }
+    })
+
+    if($("#is_addon").prop('checked') == false || {{$lims_product_data->is_addon}} == 0){
+        $('.extra-section,.related-section').css('display','block');
+    }else{
+        $('.extra-section,.related-section').css('display','none');
+    }
+    @endif
+
+    // $("#in_stock").on('click', function(){
+    //     if($("#in_stock").prop('checked') == false){
+    //         $('.track_inventory').css('display','block');
+    //     }else{
+    //         $('.track_inventory').css('display','none');
+    //         $("#track_inventory").prop('checked') == false
+    //     }
+    // })
+
+    @if(in_array('ecommerce',explode(',',$general_setting->modules)) || in_array('restaurant',explode(',',$general_setting->modules)))
+    $('#search_products').on('input', function() {
+        var item = $(this).val();
+        $('.search_result').html('<div class="d-block text-center"><div class="spinner-border text-secondary" role="status"><span class="sr-only">Loading...</span></div></div>');
+
+        if(item.length >= 3){
+            $.ajax({
+                type: "get",
+                url: "{{url('search')}}/" + item,
+                success: function(data) {
+                    $('.search_result').html('').css('height','200px');
+                    $.each(data,function(key, value){
+                        var image = value.image.split(',');
+                        $('.search_result').append('<div data-id="'+value.id+'"><img src="{{asset("images/product/small/")}}/'+image[0]+'"><h4>'+value.name+'</h4><i class="dripicons-checkmark d-none"></i></div>')
+                    })
+                }
+            })
+        } else if (item.length < 3) {
+            $('.search_result').html('');
+        }
+    });
+
+    $(document).on('click','.search_result div',function(){
+        $(this).find('i').removeClass('d-none');
+        var selected_item = '<div data-id="'+$(this).data('id')+'">'+$(this).html()+'<span class="remove_item"><i class="dripicons-cross"></i></span></div>';
+        if ($('.selected_ids').html().indexOf($(this).data('id')) === -1){
+            $('.selected_items').prepend(selected_item);
+            $('.selected_ids').append($(this).data('id')+',');
+            $('.selected_items .dripicons-checkmark').addClass('d-none');
+        }
+    });
+
+    $(document).on('click','.remove_item',function(){
+        var item = $(this).parent().remove();
+        var remove_id = $(this).parent().data('id');
+        var selected_ids = $('.selected_ids').html().replace(remove_id+',','');
+        $('.selected_ids').html(selected_ids);
+
+    });
+    @endif
+
+    @if(in_array('restaurant',explode(',',$general_setting->modules)))
+    $('#search_addons').on('input', function() {
+        var item = $(this).val();
+        $('.search_result_addon').html('<div class="d-block text-center"><div class="spinner-border text-secondary" role="status"><span class="sr-only">Loading...</span></div></div>');
+
+        if(item.length >= 3){
+            $.ajax({
+                type: "get",
+                url: "{{url('search')}}/" + item,
+                success: function(data) {
+                    $('.search_result_addon').html('').css('height','200px');
+                    $.each(data,function(key, value){
+                        var image = value.image.split(',');
+                        $('.search_result_addon').append('<div data-id="'+value.id+'"><img src="{{asset("images/product/small/")}}/'+image[0]+'"><h4>'+value.name+'</h4><i class="dripicons-checkmark d-none"></i></div>')
+                    })
+                }
+            })
+        } else if (item.length < 3) {
+            $('.search_result_addon').html('');
+        }
+    });
+
+    $(document).on('click','.search_result_addon div',function(){
+        $(this).find('i').removeClass('d-none');
+        var selected_addon = '<div data-id="'+$(this).data('id')+'">'+$(this).html()+'<span class="remove_item"><i class="dripicons-cross"></i></span></div>';
+        if ($('.selected_addon_ids').html().indexOf($(this).data('id')) === -1){
+            $('.selected_addons').prepend(selected_addon);
+            $('.selected_addon_ids').append($(this).data('id')+',');
+            $('.selected_addons .dripicons-checkmark').addClass('d-none');
+        }
+    });
+
+    $(document).on('click','.remove_item',function(){
+        var item = $(this).parent().remove();
+        var remove_addon_id = $(this).parent().data('id');
+        var selected_addon_ids = $('.selected_addon_ids').html().replace(remove_addon_id +',','');
+        $('.selected_addon_ids').html(selected_addon_ids);
+
+    });
+
+    var kitchen = $("input[name='kitchen']").val();
+    $('select[name=kitchen_id]').val(kitchen);
+
+    @endif
+
+    $("ul#product").siblings('a').attr('aria-expanded','true');
+    $("ul#product").addClass("show");
+    var product_id = <?php echo json_encode($lims_product_data->id) ?>;
+    var is_batch = <?php echo json_encode($lims_product_data->is_batch) ?>;
+    var is_variant = <?php echo json_encode($lims_product_data->is_variant) ?>;
+    var redirectUrl = <?php echo json_encode(url('products')); ?>;
+    var variantPlaceholder = <?php echo json_encode(__('db.Enter variant value seperated by comma')); ?>;
+    var variantIds = [];
+    var combinations = [];
+    var oldCombinations = [];
+    var step;
+    var count = 1;
+    var customizedVariantCode = 1;
+    var noOfVariantValue = <?php echo json_encode($noOfVariantValue); ?>;
+
+    $('[data-toggle="tooltip"]').tooltip();
+
+    $(".remove-img").on("click", function () {
+        $(this).closest("tr").remove();
+    });
+
+    $("#digital").hide();
+    $("#combo").hide();
+    $("select[name='type']").val($("input[name='type_hidden']").val());
+    variantShowHide();
+    diffPriceShowHide();
+    if(is_batch)
+        $("#variant-option").hide();
+    if(is_variant) {
+        var customizedVariantCode = 0;
+        $("#batch-option").hide();
+    }
+
+    if($("input[name='type_hidden']").val() == "digital"){
+        $("input[name='cost']").prop('required',false);
+        $("select[name='unit_id']").prop('required',false);
+        hide();
+        $("#digital").show();
+    }
+    else if($("input[name='type_hidden']").val() == "service"){
+        // A service keeps its unit and cost (billed per metre, per trip ...); only stock-only options hide.
+        $("input[name='cost']").prop('required',false);
+        $("#alert-qty").hide();
+        $("#variant-section, #variant-option").hide();
+    }
+    else if($("input[name='type_hidden']").val() == "combo"){
+        //$("input[name='cost']").prop('required', false);
+        //$("input[name='price']").prop('disabled', true);
+        //$("select[name='unit_id']").prop('required', false);
+        hide();
+        $("#cost").show();
+        $("#unit").show();
+        $("#combo").show();
+    }
+
+    $("#promo-container").toggle($("#promotion").is(':checked'));
+    applyDynamicGridSpans();
+
+    $('#genbutton').on("click", function(){
+      $.get('../gencode', function(data){
+        $("input[name='code']").val(data);
+      });
+    });
+
+    $('.selectpicker').selectpicker({
+      style: 'btn-link',
+    });
+
+    // $('.type-variant').on('input', function() {
+    //     alert('dadffff');
+    // });
+
+    $('.add-more-variant').on("click", function() {
+        var htmlText = '<div class="row"><div class="col-md-4 form-group mt-2"><label>Option *</label><input type="text" name="variant_option[]" class="form-control variant-field" placeholder="Size, Color etc..."></div><div class="col-md-7 form-group mt-2"><label>Value *</label><input type="text" name="variant_value[]" class="type-variant form-control variant-field"></div><div class="col-sm-1 form-group mt-2 u-d-flex u-dir-column u-items-center u-justify-end"><button type="button" class="delVarOption btn btn-danger btn-sm mr-3"><i class="dripicons-cross"></i></button></div></div>';
+        $("#variant-input-section").append(htmlText);
+        $('.type-variant').tagsInput();
+    });
+
+    $(document).on("click", '.delVarOption', function() {
+        $(this).parent().parent().remove();
+        $('.type-variant').tagsInput();
+    });
+
+    //start variant related js
+    window.isLoadingVariants = true;
+
+    $(function() {
+        $('.type-variant').tagsInput();
+        window.isLoadingVariants = false;
+    });
+
+    (function($) {
+        var delimiter = [];
+        var inputSettings = [];
+        var callbacks = [];
+
+        $.fn.addTag = function(value, options) {
+            if(count == noOfVariantValue)
+                customizedVariantCode = 1;
+            options = jQuery.extend({
+                focus: false,
+                callback: true
+            }, options);
+
+            this.each(function() {
+                var id = $(this).attr('id');
+                var tagslist = $(this).val().split(_getDelimiter(delimiter[id]));
+                if (tagslist[0] === '') tagslist = [];
+
+                value = jQuery.trim(value);
+
+                if ((inputSettings[id].unique && $(this).tagExist(value)) || !_validateTag(value, inputSettings[id], tagslist, delimiter[id])) {
+                    $('#' + id + '_tag').addClass('error');
+                    return false;
+                }
+
+                $('<span>', {class: 'tag'}).append(
+                    $('<span>', {class: 'tag-text'}).text(value),
+                    $('<button>', {class: 'tag-remove'}).click(function() {
+                        return $('#' + id).removeTag(encodeURI(value));
+                    })
+                ).insertBefore('#' + id + '_addTag');
+
+                tagslist.push(value);
+
+                $('#' + id + '_tag').val('');
+                if (options.focus) {
+                    $('#' + id + '_tag').focus();
+                } else {
+                    $('#' + id + '_tag').blur();
+                }
+
+                $.fn.tagsInput.updateTagsField(this, tagslist);
+
+                if (options.callback && callbacks[id] && callbacks[id]['onAddTag']) {
+                    var f = callbacks[id]['onAddTag'];
+                    f.call(this, this, value);
+                }
+
+                if (callbacks[id] && callbacks[id]['onChange']) {
+                    var i = tagslist.length;
+                    var f = callbacks[id]['onChange'];
+                    f.call(this, this, value);
+                }
+
+                $(".type-variant").each(function(index) {
+                    variantIds.splice(index, 1, $(this).attr('id'));
+                });
+                count++;
+                // prevent running on page load
+                if (customizedVariantCode && !window.isLoadingVariants) {
+                    first_variant_values = $('#'+variantIds[0]).val().split(_getDelimiter(delimiter[variantIds[0] ]));
+                    combinations = first_variant_values;
+                    step = 1;
+                    while (step < variantIds.length) {
+                        var newCombinations = [];
+                        for (var i = 0; i < combinations.length; i++) {
+                            new_variant_values = $('#'+variantIds[step]).val().split(_getDelimiter(delimiter[variantIds[step]]));
+                            for (var j = 0; j < new_variant_values.length; j++) {
+                                newCombinations.push(combinations[i] + '/' + new_variant_values[j]);
+                            }
+                        }
+                        combinations = newCombinations;
+                        step++;
+                    }
+
+                    var rownumber = $('table.variant-list tbody tr:last').index();
+                    if (rownumber > -1) {
+                        oldCombinations = [];
+                        oldAdditionalCost = [];
+                        oldAdditionalPrice = [];
+                        oldProductVariantId = [];
+                        $(".variant-name").each(function(i) {
+                            oldCombinations.push($(this).val());
+                            oldProductVariantId.push($('table.variant-list tbody tr:nth-child(' + (i + 1) + ')').find('.product-variant-id').val());
+                            oldAdditionalCost.push($('table.variant-list tbody tr:nth-child(' + (i + 1) + ')').find('.additional-cost').val());
+                            oldAdditionalPrice.push($('table.variant-list tbody tr:nth-child(' + (i + 1) + ')').find('.additional-price').val());
+                        });
+                    }
+
+                    // Collect existing data BEFORE removing the tbody
+                    var oldData = [];
+                    $('table.variant-list tbody tr').each(function() {
+                        oldData.push({
+                            name: $(this).find('.variant-name').val(),
+                            code: $(this).find('.item-code').val(),
+                            cost: $(this).find('.additional-cost').val(),
+                            price: $(this).find('.additional-price').val(),
+                        });
+                    });
+
+                    $("table.variant-list tbody").remove();
+                    var newBody = $("<tbody>");
+                    for (var i = 0; i < combinations.length; i++) {
+                        var variant_name = combinations[i];
+                        var newRow = $("<tr>");
+                        var cols = '';
+
+                        // Match existing variant (if any)
+                        var existing = oldData.find(function(item) {
+                            return item.name === variant_name;
+                        });
+
+                        // Keep variant name
+                        cols += '<td>' + variant_name +
+                            '<input type="hidden" class="variant-name" name="variant_name[]" value="' + variant_name + '" /></td>';
+
+                        // Preserve or auto-generate item_code
+                        var item_code = existing ? existing.code : (variant_name + '-' + $("#code").val());
+                        cols += '<td><input type="text" class="form-control item-code" name="item_code[]" value="' + (item_code ?? '') + '" /></td>';
+
+                        // Preserve or initialize cost/price
+                        var cost = existing ? existing.cost : '';
+                        var price = existing ? existing.price : '';
+                        cols += '<td><input type="number" class="form-control additional-cost" name="additional_cost[]" value="' + (cost ?? '') + '" step="any" /></td>';
+                        cols += '<td><input type="number" class="form-control additional-price" name="additional_price[]" value="' + (price ?? '') + '" step="any" /></td>';
+
+                        newRow.append(cols);
+                        newBody.append(newRow);
+                    }
+
+                    $("table.variant-list").append(newBody);
+                }
+            });
+
+            return false;
+        };
+
+        $.fn.removeTag = function(value) {
+            value = decodeURI(value);
+
+            this.each(function() {
+                var id = $(this).attr('id');
+
+                var old = $(this).val().split(_getDelimiter(delimiter[id]));
+
+                $('#' + id + '_tagsinput .tag').remove();
+
+                var str = '';
+                for (i = 0; i < old.length; ++i) {
+                    if (old[i] != value) {
+                        str = str + _getDelimiter(delimiter[id]) + old[i];
+                    }
+                }
+
+                $.fn.tagsInput.importTags(this, str);
+
+                if (callbacks[id] && callbacks[id]['onRemoveTag']) {
+                    var f = callbacks[id]['onRemoveTag'];
+                    f.call(this, this, value);
+                }
+            });
+
+            return false;
+        };
+
+        $.fn.tagExist = function(val) {
+            var id = $(this).attr('id');
+            var tagslist = $(this).val().split(_getDelimiter(delimiter[id]));
+            return (jQuery.inArray(val, tagslist) >= 0);
+        };
+
+        $.fn.importTags = function(str) {
+            var id = $(this).attr('id');
+            $('#' + id + '_tagsinput .tag').remove();
+            $.fn.tagsInput.importTags(this, str);
+        };
+
+        $.fn.tagsInput = function(options) {
+            var settings = jQuery.extend({
+                interactive: true,
+                placeholder: variantPlaceholder,
+                minChars: 0,
+                maxChars: null,
+                limit: null,
+                validationPattern: null,
+                width: 'auto',
+                height: 'auto',
+                autocomplete: null,
+                hide: true,
+                delimiter: ',',
+                unique: true,
+                removeWithBackspace: true
+            }, options);
+
+            var uniqueIdCounter = 0;
+
+            this.each(function() {
+                if (typeof $(this).data('tagsinput-init') !== 'undefined') return;
+
+                $(this).data('tagsinput-init', true);
+
+                if (settings.hide) $(this).hide();
+
+                var id = $(this).attr('id');
+                if (!id || _getDelimiter(delimiter[$(this).attr('id')])) {
+                    id = $(this).attr('id', 'tags' + new Date().getTime() + (++uniqueIdCounter)).attr('id');
+                }
+
+                var data = jQuery.extend({
+                    pid: id,
+                    real_input: '#' + id,
+                    holder: '#' + id + '_tagsinput',
+                    input_wrapper: '#' + id + '_addTag',
+                    fake_input: '#' + id + '_tag'
+                }, settings);
+
+                delimiter[id] = data.delimiter;
+                inputSettings[id] = {
+                    minChars: settings.minChars,
+                    maxChars: settings.maxChars,
+                    limit: settings.limit,
+                    validationPattern: settings.validationPattern,
+                    unique: settings.unique
+                };
+
+                if (settings.onAddTag || settings.onRemoveTag || settings.onChange) {
+                    callbacks[id] = [];
+                    callbacks[id]['onAddTag'] = settings.onAddTag;
+                    callbacks[id]['onRemoveTag'] = settings.onRemoveTag;
+                    callbacks[id]['onChange'] = settings.onChange;
+                }
+
+                var markup = $('<div>', {id: id + '_tagsinput', class: 'tagsinput'}).append(
+                    $('<div>', {id: id + '_addTag'}).append(
+                        settings.interactive ? $('<input>', {id: id + '_tag', class: 'tag-input', value: '', placeholder: settings.placeholder}) : null
+                    )
+                );
+
+                $(markup).insertAfter(this);
+
+                $(data.holder).css('width', settings.width);
+                $(data.holder).css('min-height', settings.height);
+                $(data.holder).css('height', settings.height);
+
+                if ($(data.real_input).val() !== '') {
+                    $.fn.tagsInput.importTags($(data.real_input), $(data.real_input).val());
+                }
+
+                // Stop here if interactive option is not chosen
+                if (!settings.interactive) return;
+
+                $(data.fake_input).val('');
+                $(data.fake_input).data('pasted', false);
+
+                $(data.fake_input).on('focus', data, function(event) {
+                    $(data.holder).addClass('focus');
+
+                    if ($(this).val() === '') {
+                        $(this).removeClass('error');
+                    }
+                });
+
+                $(data.fake_input).on('blur', data, function(event) {
+                    $(data.holder).removeClass('focus');
+                });
+
+                if (settings.autocomplete !== null && jQuery.ui.autocomplete !== undefined) {
+                    $(data.fake_input).autocomplete(settings.autocomplete);
+                    $(data.fake_input).on('autocompleteselect', data, function(event, ui) {
+                        $(event.data.real_input).addTag(ui.item.value, {
+                            focus: true,
+                            unique: settings.unique
+                        });
+
+                        return false;
+                    });
+
+                    $(data.fake_input).on('keypress', data, function(event) {
+                        if (_checkDelimiter(event)) {
+                            $(this).autocomplete("close");
+                        }
+                    });
+                } else {
+                    $(data.fake_input).on('blur', data, function(event) {
+                        $(event.data.real_input).addTag($(event.data.fake_input).val(), {
+                            focus: true,
+                            unique: settings.unique
+                        });
+
+                        return false;
+                    });
+                }
+
+                // If a user types a delimiter create a new tag
+                $(data.fake_input).on('keypress', data, function(event) {
+                    if (_checkDelimiter(event)) {
+                        event.preventDefault();
+
+                        $(event.data.real_input).addTag($(event.data.fake_input).val(), {
+                            focus: true,
+                            unique: settings.unique
+                        });
+
+                        return false;
+                    }
+                });
+
+                $(data.fake_input).on('paste', function () {
+                    $(this).data('pasted', true);
+                });
+
+                // If a user pastes the text check if it shouldn't be splitted into tags
+                $(data.fake_input).on('input', data, function(event) {
+                    if (!$(this).data('pasted')) return;
+
+                    $(this).data('pasted', false);
+
+                    var value = $(event.data.fake_input).val();
+
+                    value = value.replace(/\n/g, '');
+                    value = value.replace(/\s/g, '');
+
+                    var tags = _splitIntoTags(event.data.delimiter, value);
+
+                    if (tags.length > 1) {
+                        for (var i = 0; i < tags.length; ++i) {
+                            $(event.data.real_input).addTag(tags[i], {
+                                focus: true,
+                                unique: settings.unique
+                            });
+                        }
+
+                        return false;
+                    }
+                });
+
+                // Deletes last tag on backspace
+                data.removeWithBackspace && $(data.fake_input).on('keydown', function(event) {
+                    if (event.keyCode == 8 && $(this).val() === '') {
+                         event.preventDefault();
+                         var lastTag = $(this).closest('.tagsinput').find('.tag:last > span').text();
+                         var id = $(this).attr('id').replace(/_tag$/, '');
+                         $('#' + id).removeTag(encodeURI(lastTag));
+                         $(this).trigger('focus');
+                    }
+                });
+
+                // Removes the error class when user changes the value of the fake input
+                $(data.fake_input).keydown(function(event) {
+                    // enter, alt, shift, esc, ctrl and arrows keys are ignored
+                    if (jQuery.inArray(event.keyCode, [13, 37, 38, 39, 40, 27, 16, 17, 18, 225]) === -1) {
+                        $(this).removeClass('error');
+                    }
+                });
+            });
+
+            return this;
+        };
+
+        $.fn.tagsInput.updateTagsField = function(obj, tagslist) {
+            var id = $(obj).attr('id');
+            $(obj).val(tagslist.join(_getDelimiter(delimiter[id])));
+        };
+
+        $.fn.tagsInput.importTags = function(obj, val) {
+            $(obj).val('');
+
+            var id = $(obj).attr('id');
+            var tags = _splitIntoTags(delimiter[id], val);
+
+            for (i = 0; i < tags.length; ++i) {
+                $(obj).addTag(tags[i], {
+                    focus: false,
+                    callback: false
+                });
+            }
+
+            if (callbacks[id] && callbacks[id]['onChange']) {
+                var f = callbacks[id]['onChange'];
+                f.call(obj, obj, tags);
+            }
+        };
+
+        var _getDelimiter = function(delimiter) {
+            if (typeof delimiter === 'undefined') {
+                return delimiter;
+            } else if (typeof delimiter === 'string') {
+                return delimiter;
+            } else {
+                return delimiter[0];
+            }
+        };
+
+        var _validateTag = function(value, inputSettings, tagslist, delimiter) {
+            var result = true;
+
+            if (value === '') result = false;
+            if (value.length < inputSettings.minChars) result = false;
+            if (inputSettings.maxChars !== null && value.length > inputSettings.maxChars) result = false;
+            if (inputSettings.limit !== null && tagslist.length >= inputSettings.limit) result = false;
+            if (inputSettings.validationPattern !== null && !inputSettings.validationPattern.test(value)) result = false;
+
+            if (typeof delimiter === 'string') {
+                if (value.indexOf(delimiter) > -1) result = false;
+            } else {
+                $.each(delimiter, function(index, _delimiter) {
+                    if (value.indexOf(_delimiter) > -1) result = false;
+                    return false;
+                });
+            }
+
+            return result;
+        };
+
+        var _checkDelimiter = function(event) {
+            var found = false;
+
+            if (event.which === 13) {
+                return true;
+            }
+
+            if (typeof event.data.delimiter === 'string') {
+                if (event.which === event.data.delimiter.charCodeAt(0)) {
+                    found = true;
+                }
+            } else {
+                $.each(event.data.delimiter, function(index, delimiter) {
+                    if (event.which === delimiter.charCodeAt(0)) {
+                        found = true;
+                    }
+                });
+            }
+
+            return found;
+         };
+
+         var _splitIntoTags = function(delimiter, value) {
+             if (value === '') return [];
+
+             if (typeof delimiter === 'string') {
+                 return value.split(delimiter);
+             } else {
+                 var tmpDelimiter = '∞';
+                 var text = value;
+
+                 $.each(delimiter, function(index, _delimiter) {
+                     text = text.split(_delimiter).join(tmpDelimiter);
+                 });
+
+                 return text.split(tmpDelimiter);
+             }
+
+             return [];
+         };
+    })(jQuery);
+    //end of variant related js
+
+    tinymce.init({
+      selector: 'textarea:not(.no-tiny)',
+      height: 130,
+      plugins: [
+        'advlist autolink lists link image charmap print preview anchor textcolor',
+        'searchreplace visualblocks code fullscreen',
+        'insertdatetime media table contextmenu paste code wordcount'
+      ],
+      toolbar: 'insert | undo redo |  formatselect | bold italic backcolor  | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat',
+      branding:false
+    });
+
+    var barcode_symbology = $("input[name='barcode_symbology_hidden']").val();
+    $('select[name=barcode_symbology]').val(barcode_symbology);
+
+    var brand = $("input[name='brand']").val();
+    $('select[name=brand_id]').val(brand);
+
+    var cat = $("input[name='category']").val();
+    $('select[name=category_id]').val(cat);
+
+    if($("input[name='unit']").val()) {
+        $('select[name=unit_id]').val($("input[name='unit']").val());
+        populate_unit($("input[name='unit']").val());
+    }
+
+    var tax = $("input[name='tax']").val();
+    if(tax)
+        $('select[name=tax_id]').val(tax);
+
+    var tax_method = $("input[name='tax_method_id']").val();
+    $('select[name=tax_method]').val(tax_method);
+    $('.selectpicker').selectpicker('refresh');
+
+    $('select[name="type"]').on('change', function() {
+        if($(this).val() == 'combo'){
+            $("input[name='cost']").prop('required',false);
+            $("select[name='unit_id']").prop('required',false);
+            hide();
+            $("#cost").show(300);
+            $("#unit").show(300);
+            $("#digital").hide();
+            $("#variant-section, #variant-option, #diffPrice-option, #diffPrice-section").hide(300);
+            $("#combo").show();
+            $("input[name='price']").prop('disabled',true);
+        }
+        else if($(this).val() == 'digital'){
+            $("input[name='cost']").prop('required',false);
+            $("select[name='unit_id']").prop('required',false);
+            $("input[name='file']").prop('required',true);
+            hide();
+            $("#combo").hide();
+            $("#digital").show();
+            $("#variant-section, #variant-option, #diffPrice-option, #diffPrice-section").hide(300);
+            $("input[name='price']").prop('disabled',false);
+        }
+        else if($(this).val() == 'service') {
+            // A service is still bought and billed per unit (job work per metre, freight per trip), so unit and cost stay.
+            $("input[name='cost']").prop('required',false);
+            $("select[name='unit_id']").prop('required',true);
+            $("input[name='file']").prop('required',false);
+            $("#cost, #unit").show(300);
+            $("#alert-qty").hide(300);
+            $("#combo").hide(300);
+            $("#digital").hide(300);
+            $("input[name='price']").prop('disabled',false);
+            $("#is-variant").prop("checked", false);
+            $("#variant-section, #variant-option").hide(300);
+        }
+        else if($(this).val() == 'standard'){
+            $("input[name='cost']").prop('required',true);
+            $("select[name='unit_id']").prop('required',true);
+            $("input[name='file']").prop('required',false);
+            $("#cost").show();
+            $("#unit").show();
+            $("#alert-qty").show();
+            $("#variant-option").show(300);
+            $("#diffPrice-option").show(300);
+            $("#digital").hide();
+            $("#combo").hide();
+            $("input[name='price']").prop('disabled',false);
+        }
+        applyDynamicGridSpans();
+    });
+
+    $('select[name="unit_id"]').on('change', function() {
+        unitID = $(this).val();
+        if(unitID) {
+            populate_unit_second(unitID);
+        }else{
+            $('select[name="sale_unit_id"]').empty();
+            $('select[name="purchase_unit_id"]').empty();
+        }
+    });
+
+    <?php $productArray = []; ?>
+    var lims_product_code = [
+        @foreach($lims_product_list_without_variant as $product)
+        <?php
+            $productArray[] = htmlspecialchars($product->code) . '(' . preg_replace('/[\n\r]/', "<br>", htmlspecialchars($product->name)). ')';
+        ?>
+        @endforeach
+        @foreach($lims_product_list_with_variant as $product)
+            <?php
+                $productArray[] = htmlspecialchars($product->item_code) . '|' . preg_replace('/[\n\r]/', "<br>", htmlspecialchars($product->name));
+            ?>
+        @endforeach
+            <?php
+                echo  '"'.implode('","', $productArray).'"';
+            ?> ];
+
+    var lims_productcodeSearch = $('#lims_productcodeSearch');
+
+    lims_productcodeSearch.autocomplete({
+        source: function(request, response) {
+            var matcher = new RegExp(".?" + $.ui.autocomplete.escapeRegex(request.term), "i");
+            response($.grep(lims_product_code, function(item) {
+                return matcher.test(item);
+            }));
+        },
+        select: function(event, ui) {
+            var data = ui.item.value;
+            $.ajax({
+                type: 'GET',
+                url: '../lims_product_search',
+                data: {
+                    data: data
+                },
+                success: function(responseData) {
+                    data = responseData[0];
+                    var flag = 1;
+                    $(".product-id").each(function() {
+                        if ($(this).val() == data[8]) {
+                            alert('Duplicate input is not allowed!')
+                            flag = 0;
+                        }
+                    });
+                    $("input[name='product_code_name']").val('');
+                    if(flag){
+                        var newRow = $("<tr>");
+                        var cols = '';
+                        cols += '<td>' + data[0] +' [' + data[1] + ']</td>';
+                        cols += `<td>
+                                <div class="input-group">
+                                    <input type="number" name="wastage_percent[]" class="form-control wastage_percent" value="0"/>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                            </td>`;
+                        cols += `<td>
+                                    <div class="input-group u-maxw-unset">
+                                        <input type="number"
+                                            class="form-control qty"
+                                            min="1"
+                                            name="product_qty[]"
+                                            value="1"
+                                            step="any"
+                                            placeholder="Qty"
+                                            aria-label="Quantity">
+                                        <div class="input-group-append">
+                                            `+data[13]+`
+                                        </div>
+                                    </div>
+                                </td>`;
+
+                        cols += '<td><input type="number" class="form-control unit_cost" name="product_unit_cost[]" value="' + data[10] + '"/></td>';
+                        cols += '<td><input type="number" class="form-control unit_price" name="unit_price[]" value="' + data[2] + '" step="any"/></td>';
+                         cols += '<td><input type="number" class="form-control subtotal" name="subtotal[]" value="' + data[2] + '" step="any"/></td>';
+                        cols += '<td><button type="button" class="ibtnDel btn btn-sm btn-danger">X</button></td>';
+                        cols += '<input type="hidden" class="product-id" name="product_id[]" value="' + data[8] + '"/>';
+                        cols += '<input type="hidden" class="" name="variant_id[]" value="' + data[9] + '"/>';
+                        cols += '<input type="hidden" class="product_unit_cost" name="" value="' + data[10] + '"/>';
+                        cols += '<input type="hidden" class="product_unit_price" name="" value="' + data[2] + '"/>';
+
+                        newRow.append(cols);
+                        $("table.order-list tbody").append(newRow);
+                        calculate_price();
+                    }
+                }
+            });
+        }
+    });
+
+    //Change quantity or unit price
+    $("#myTable").on('input', '.qty , .unit_cost, .unit_price', function() {
+        calculate_price();
+    });
+
+    //Delete product
+    $("table.order-list tbody").on("click", ".ibtnDel", function(event) {
+        $(this).closest("tr").remove();
+        calculate_price();
+    });
+
+    function calculate_price() {
+        var price = 0;
+        var cost = 0
+        $(".qty").each(function() {
+            rowindex = $(this).closest('tr').index();
+            quantity =  $(this).val();
+            unit_price = $('table.order-list tbody tr:nth-child(' + (rowindex + 1) + ') .product_unit_price').val();
+            product_unit_cost = $('table.order-list tbody tr:nth-child(' + (rowindex + 1) + ') .product_unit_cost').val();
+            unit_cost = $('table.order-list tbody tr:nth-child(' + (rowindex + 1) + ') .unit_cost').val();
+            cost += quantity * unit_cost;
+
+            // subtotal calculation
+            let $row = $(this).closest('tr');
+            let qty = parseFloat($(this).val()) || 0;
+
+            // Get selected option and its data attributes
+            let $selectedOption = $row.find('.combo_unit_id option:selected');
+            let operator = $selectedOption.data('operator');
+            let operationValue = parseFloat($selectedOption.data('operation_value')) || 1;
+
+            // Convert quantity based on operator
+            let convertedQty = quantity;
+            if (operator === '*') {
+                convertedQty = quantity * operationValue;
+            } else if (operator === '/') {
+                convertedQty = quantity / operationValue;
+            }
+
+            // Calculate subtotal using convertedQty
+            let subtotal = convertedQty * unit_price;
+            cost += convertedQty * unit_cost;
+            price += subtotal;
+            // Update subtotal field
+            $row.find('.subtotal').val(subtotal.toFixed(2));
+            $row.find('.unit_price').val(subtotal.toFixed(2));
+            $row.find('.unit_cost').val((convertedQty * product_unit_cost).toFixed(2));
+        });
+        if (price > 0)
+            $('input[name="price"]').val(price.toFixed(2));
+
+        let total_cost = 0;
+        $('input[name="product_unit_cost[]"]').each(function() {
+            let value = parseFloat($(this).val()) || 0;
+            total_cost += value;
+        });
+        if (total_cost > 0)
+            $('input[name="cost"]').val(total_cost.toFixed(2));
+
+    }
+
+    function hide() {
+        $("#cost").hide();
+        $("#unit").hide();
+        $("#alert-qty").hide();
+    }
+
+    function populate_unit(unitID){
+        $.ajax({
+            url: '../saleunit/'+unitID,
+            type: "GET",
+            dataType: "json",
+
+            success:function(data) {
+                  $('select[name="sale_unit_id"]').empty();
+                  $('select[name="purchase_unit_id"]').empty();
+                  $.each(data, function(key, value) {
+                      $('select[name="sale_unit_id"]').append('<option value="'+ key +'">'+ value +'</option>');
+                      $('select[name="purchase_unit_id"]').append('<option value="'+ key +'">'+ value +'</option>');
+                  });
+                  $('.selectpicker').selectpicker('refresh');
+                  var sale_unit = $("input[name='sale_unit']").val();
+                  var purchase_unit = $("input[name='purchase_unit']").val();
+                $('#sale-unit').val(sale_unit);
+                $('select[name=purchase_unit_id]').val(purchase_unit);
+                $('.selectpicker').selectpicker('refresh');
+            },
+        });
+    }
+
+    function populate_unit_second(unitID){
+        $.ajax({
+            url: '../saleunit/'+unitID,
+            type: "GET",
+            dataType: "json",
+            success:function(data) {
+                  $('select[name="sale_unit_id"]').empty();
+                  $('select[name="purchase_unit_id"]').empty();
+                  $.each(data, function(key, value) {
+                      $('select[name="sale_unit_id"]').append('<option value="'+ key +'">'+ value +'</option>');
+                      $('select[name="purchase_unit_id"]').append('<option value="'+ key +'">'+ value +'</option>');
+                  });
+                  $('.selectpicker').selectpicker('refresh');
+            },
+        });
+    };
+
+    let marginType = $('select[name="profit_margin_type"]').val();
+
+    // When margin type changes
+    $('select[name="profit_margin_type"]').on("change", function () {
+        marginType = $(this).val();
+
+        // Update placeholder dynamically
+        $('input[name="profit_margin"]').attr(
+            "placeholder",
+            marginType === "percentage" ? "% value" : "Flat amount"
+        );
+
+        // Opening the page or switching % / flat keeps the saved price and restates the margin in the new terms.
+        if (parseFloat($('input[name="price"]').val()) > 0) recalcMargin(); else recalcPrice();
+    }).trigger("change");
+
+    // Recalculate price based on cost & margin
+    function recalcPrice() {
+        let cost = parseFloat($('input[name="cost"]').val()) || 0;
+        let margin = parseFloat($('input[name="profit_margin"]').val()) || 0;
+
+        let price =
+            marginType === "percentage"
+                ? cost + (cost * margin / 100)
+                : cost + margin;
+
+        $('input[name="price"]').val(price.toFixed(2)).trigger("change");
+    }
+
+    // Recalculate margin when price changes manually
+    function recalcMargin() {
+        let cost = parseFloat($('input[name="cost"]').val()) || 0;
+        let price = parseFloat($('input[name="price"]').val()) || 0;
+        // Without a cost a percentage margin has no meaning (it would be Infinity and blank the field): keep it as is.
+        if (marginType === "percentage" && cost <= 0) return;
+
+        let margin =
+            marginType === "percentage"
+                ? ((price - cost) / cost * 100).toFixed(2)
+                : (price - cost).toFixed(2);
+
+        $('input[name="profit_margin"]').val(margin);
+    }
+
+    // When cost changes
+    $('input[name="cost"]').on("input", function () {
+        recalcPrice();
+    });
+
+    // When profit margin changes
+    $('input[name="profit_margin"]').on("input", function () {
+        recalcPrice();
+    });
+
+    // When price changes → update margin
+    $('input[name="price"]').on("input", function () {
+        recalcMargin();
+    });
+
+    // Warning UI for cost/price
+    $('input[name="price"], input[name="cost"]').on("change keyup", function () {
+        let curCost = parseFloat($('input[name="cost"]').val()) || 0;
+        let curPrice = parseFloat($('input[name="price"]').val()) || 0;
+
+        if (curCost <= 0) {
+            $('#product-cost-warning').removeClass('d-none');
+        } else {
+            $('#product-cost-warning').addClass('d-none');
+        }
+
+        if (curPrice <= curCost) {
+            $('#product-price-warning').removeClass('d-none');
+        } else {
+            $('#product-price-warning').addClass('d-none');
+        }
+    });
+
+    $("input[name='is_batch']").on("change", function () {
+        if ($(this).is(':checked')) {
+            $("#variant-option").hide(300);
+        }
+        else
+            $("#variant-option").show(300);
+    });
+
+    $("input[name='is_variant']").on("change", function () {
+        variantShowHide();
+    });
+
+    $("input[name='is_diffPrice']").on("change", function () {
+        diffPriceShowHide();
+    });
+
+    $("input[name='is_water_logistics']").on("change", function () {
+        if ($(this).is(':checked')) {
+            $("#water-logistics-section").show(300);
+            updateWaterLogisticsFields();
+        } else {
+            $("#water-logistics-section").hide(300);
+        }
+        applyDynamicGridSpans();
+    });
+
+    function updateWaterLogisticsFields() {
+        var vType = $('#water_vertical_type').val();
+        if (vType === 'bulk_water') {
+            $('#tanker_compartment_group, .tanker-metric-field').show(200);
+            if (!$('#water_capacity_spec').val() || $('#water_capacity_spec').val() === '20L') {
+                $('#water_capacity_spec').val('20KL');
+            }
+        } else {
+            $('#tanker_compartment_group, .tanker-metric-field').hide(200);
+            if (!$('#water_capacity_spec').val() || $('#water_capacity_spec').val() === '20KL') {
+                $('#water_capacity_spec').val('20L');
+            }
+        }
+    }
+
+    $('#water_vertical_type').on('change', function() {
+        updateWaterLogisticsFields();
+    });
+
+    function variantShowHide() {
+         if ($("#is-variant").is(':checked')) {
+            $("#variant-section").show(300);
+            $("#batch-option").hide(300);
+            $(".variant-field").prop("required", true);
+        }
+        else {
+            $("#variant-section").hide(300);
+            $("#batch-option").show(300);
+            $(".variant-field").prop("required", false);
+        }
+        applyDynamicGridSpans();
+    };
+
+    function diffPriceShowHide() {
+         if ($("#is-diffPrice").is(':checked')) {
+            $("#diffPrice-section").show(300);
+        }
+        else {
+            $("#diffPrice-section").hide(300);
+        }
+        applyDynamicGridSpans();
+    };
+
+    $( "#promotion" ).on( "change", function() {
+        $("#promo-container").toggle($(this).is(':checked'));
+        applyDynamicGridSpans();
+    });
+
+    $('.zolo-toggle-pill input[type="checkbox"]').on("change", function () {
+        $(this).closest('.zolo-toggle-pill').toggleClass('is-active', $(this).is(':checked'));
+    });
+
+    // Same packing as Add Product: visible sections share the 4-column row, a single one takes the full width.
+    function applyDynamicGridSpans() {
+        var isCombo = $('select[name="type"]').val() === 'combo';
+        var sections = [
+            {$el: $('#diffPrice-section'), isWide: false, active: !isCombo && $("#is-diffPrice").is(':checked')},
+            {$el: $('#promo-container'), isWide: false, active: $("#promotion").is(':checked')},
+            {$el: $('#variant-section'), isWide: true, active: !isCombo && $("#is-variant").is(':checked')},
+            {$el: $('#combo'), isWide: true, active: isCombo}
+        ];
+        var spanClasses = 'zolo-grid-span-1 zolo-grid-span-2 zolo-grid-span-3 zolo-grid-span-4';
+        sections.forEach(function (s) { s.$el.removeClass(spanClasses); });
+        var active = sections.filter(function (s) { return s.active && s.$el.length; });
+        if (active.length === 1) {
+            active[0].$el.addClass('zolo-grid-span-4');
+            return;
+        }
+        if (active.length === 2 && !active[0].isWide && !active[1].isWide) {
+            active.forEach(function (s) { s.$el.addClass('zolo-grid-span-2'); });
+            return;
+        }
+        var rowRem = 4, last = null;
+        active.forEach(function (s) {
+            var need = s.isWide ? 2 : 1;
+            if (need > rowRem && last) {
+                last.$el.removeClass(spanClasses).addClass('zolo-grid-span-' + (last.span + rowRem));
+                rowRem = 4;
+            }
+            s.span = need;
+            s.$el.addClass('zolo-grid-span-' + need);
+            rowRem -= need;
+            last = s;
+        });
+        if (last && rowRem > 0) last.$el.removeClass(spanClasses).addClass('zolo-grid-span-' + (last.span + rowRem));
+    }
+
+    var starting_date = $('#starting_date');
+    starting_date.datepicker({
+     format: "dd-mm-yyyy",
+     startDate: "<?php echo date('d-m-Y'); ?>",
+     autoclose: true,
+     todayHighlight: true
+     });
+
+    var ending_date = $('#ending_date');
+    ending_date.datepicker({
+     format: "dd-mm-yyyy",
+     startDate: "<?php echo date('d-m-Y'); ?>",
+     autoclose: true,
+     todayHighlight: true
+     });
+
+    //dropzone portion
+    Dropzone.autoDiscover = false;
+
+    jQuery.validator.setDefaults({
+        errorPlacement: function (error, element) {
+            if(error.html() == 'Select Category...')
+                error.html('This field is required.');
+            $(element).closest('div.form-group').find('.validation-msg').html(error.html());
+        },
+        highlight: function (element) {
+            $(element).closest('div.form-group').removeClass('has-success').addClass('has-error');
+        },
+        unhighlight: function (element, errorClass, validClass) {
+            $(element).closest('div.form-group').removeClass('has-error').addClass('has-success');
+            $(element).closest('div.form-group').find('.validation-msg').html('');
+        }
+    });
+
+    function validate() {
+        var product_code = $("input[name='code']").val();
+        var barcode_symbology = $('select[name="barcode_symbology"]').val();
+        var exp = /^\d+$/;
+
+        if(!(product_code.match(exp)) && (barcode_symbology == 'UPCA' || barcode_symbology == 'UPCE' || barcode_symbology == 'EAN8' || barcode_symbology == 'EAN13') ) {
+            alert('Product code must be numeric.');
+            return false;
+        }
+        else if(product_code.match(exp)) {
+            if(barcode_symbology == 'UPCA' && product_code.length > 11){
+                alert('Product code length must be less than 12');
+                return false;
+            }
+            else if(barcode_symbology == 'EAN8' && product_code.length > 7){
+                alert('Product code length must be less than 8');
+                return false;
+            }
+            /*else if(barcode_symbology == 'EAN13' && product_code.length > 12){
+                alert('Product code length must be less than 13');
+                return false;
+            }*/
+        }
+
+        if( $("#type").val() == 'combo' ) {
+            var rownumber = $('table.order-list tbody tr:last').index();
+            if (rownumber < 0) {
+                alert("Please insert product to table!")
+                return false;
+            }
+        }
+        $("input[name='price']").prop('disabled',false);
+        return true;
+    }
+
+    var submitLabel;
+    // A failed save must hand the button back, or the page sits on "Saving..." forever.
+    function restoreSubmit() {
+        if (submitLabel) $('#submit-btn').prop('disabled', false).html(submitLabel);
+    }
+
+    $(".dropzone").sortable({
+        items:'.dz-preview',
+        cursor: 'grab',
+        opacity: 0.5,
+        containment: '.dropzone',
+        distance: 20,
+        tolerance: 'pointer',
+        stop: function () {
+          var queue = myDropzone.getAcceptedFiles();
+          newQueue = [];
+          $('#imageUpload .dz-preview .dz-filename [data-dz-name]').each(function (count, el) {
+                var name = el.innerHTML;
+                queue.forEach(function(file) {
+                    if (file.name === name) {
+                        newQueue.push(file);
+                    }
+                });
+          });
+          myDropzone.files = newQueue;
+        }
+    });
+
+    myDropzone = new Dropzone('div#imageUpload', {
+        addRemoveLinks: true,
+        autoProcessQueue: false,
+        uploadMultiple: true,
+        parallelUploads: 100,
+        maxFilesize: 12,
+        paramName: 'image',
+        clickable: true,
+        method: 'POST',
+        url:'../update',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        renameFile: function(file) {
+            var dt = new Date();
+            var time = dt.getTime();
+            return time + file.name;
+        },
+        acceptedFiles: ".jpeg,.jpg,.png,.gif",
+        init: function () {
+            var myDropzone = this;
+            $('#submit-btn').on("click", function (e) {
+                e.preventDefault();
+                if ( $("#product-form").valid() && validate() ) {
+                    tinyMCE.triggerSave();
+                    submitLabel = $(this).html();
+                    $(this).attr('disabled','true').html('<span class="spinner-border text-light" role="status"></span> {{__("db.Saving")}}...');
+                    if(myDropzone.getAcceptedFiles().length) {
+                        myDropzone.processQueue();
+                    }
+                    else {
+                        var formData = new FormData();
+                        //$("#product-form").serialize();
+                        var data = $("#product-form").serializeArray();
+                        $.each(data, function (key, el) {
+                            formData.append(el.name, el.value);
+                        });
+                        var file = $('#file')[0].files;
+                        if(file.length > 0)
+                            formData.append('file',file[0]);
+                        $.ajax({
+                            type:'POST',
+                            url:'../update',
+                            data: formData,
+                            contentType: false,
+                            processData: false,
+                            success:function(response) {
+                                window.location.reload(true);
+                            },
+                            error:function(response) {
+                              var json = response.responseJSON || {};
+                              var errors = json.errors || {};
+                              if(errors.name) {
+                                  $("#name-error").text(errors.name);
+                              }
+                              else if(errors.code) {
+                                  $("#code-error").text(errors.code);
+                              }
+                              else {
+                                  alert(json.message || 'Product could not be saved.');
+                              }
+                              restoreSubmit();
+                            },
+                        });
+                    }
+                }
+            });
+
+            this.on('sending', function (file, xhr, formData) {
+                // Append all form inputs to the formData Dropzone will POST
+                var data = $("#product-form").serializeArray();
+                $.each(data, function (key, el) {
+                    formData.append(el.name, el.value);
+                });
+                var file = $('#file')[0].files;
+                if(file.length > 0)
+                    formData.append('file',file[0]);
+            });
+        },
+        error: function (file, response) {
+            restoreSubmit();
+            alert((response && response.message) || (typeof response === 'string' ? response : 'Product could not be saved.'));
+            this.removeAllFiles(true);
+            /*if(response.errors.name) {
+              $("#name-error").text(response.errors.name);
+              this.removeAllFiles(true);
+            }
+            else if(response.errors.code) {
+              $("#code-error").text(response.errors.code);
+              this.removeAllFiles(true);
+            }
+            else {
+              try {
+                  var res = JSON.parse(response);
+                  if (typeof res.message !== 'undefined' && !$modal.hasClass('in')) {
+                      $("#success-icon").attr("class", "fas fa-thumbs-down");
+                      $("#success-text").html(res.message);
+                      $modal.modal("show");
+                  } else {
+                      if ($.type(response) === "string")
+                          var message = response; //dropzone sends it's own error messages in string
+                      else
+                          var message = response.message;
+                      file.previewElement.classList.add("dz-error");
+                      _ref = file.previewElement.querySelectorAll("[data-dz-errormessage]");
+                      _results = [];
+                      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                          node = _ref[_i];
+                          _results.push(node.textContent = message);
+                      }
+                      return _results;
+                  }
+              } catch (error) {
+                  console.log(error);
+              }
+            }*/
+        },
+        successmultiple: function (file, response) {
+                window.location.reload();
+            // location.href = redirectUrl;
+            //console.log('sss: '+ response);
+        },
+        completemultiple: function (file, response) {
+            console.log(file, response, "completemultiple");
+        },
+        reset: function () {
+            console.log("resetFiles");
+            this.removeAllFiles(true);
+        }
+    });
+
+
+</script>
+@endpush

@@ -1,0 +1,65 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\Concerns\ScopesCompanyQueries;
+use App\Models\Concerns\StampsBranchAndYear;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class DeliveryChallan extends Model
+{
+    use ScopesCompanyQueries, StampsBranchAndYear;
+
+    protected $table = 'delivery_challans';
+
+    protected $guarded = ['id'];
+
+    protected $casts = [
+        // Plain dates in JSON: a UTC timestamp loaded the form one day early in IST.
+        'challan_date' => 'date:Y-m-d',
+        'lr_date' => 'date:Y-m-d',
+        'sundries_json' => 'array',
+        'total_qty' => 'float',
+        'total_amount' => 'float',
+        'total_tax' => 'float',
+        'grand_total' => 'float',
+        'posted_at' => 'datetime',
+    ];
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(DeliveryChallanItem::class, 'delivery_challan_id');
+    }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class, 'customer_id');
+    }
+
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class, 'warehouse_id');
+    }
+
+    public function saleType(): BelongsTo
+    {
+        return $this->belongsTo(SaleType::class, 'sale_type_id');
+    }
+
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(Agent::class, 'agent_id');
+    }
+
+    public function area(): BelongsTo
+    {
+        return $this->belongsTo(Area::class, 'area_id');
+    }
+
+    public function sale(): BelongsTo
+    {
+        return $this->belongsTo(Sale::class, 'sale_id');
+    }
+}

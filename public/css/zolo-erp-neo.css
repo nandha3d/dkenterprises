@@ -1,0 +1,5021 @@
+/**
+ * ====================================================================
+ * zoloERP Pro Neo - Next-Generation Modern ERP Design System
+ * Modern Typography, Slate Palette, Glassmorphism, Micro-interactions
+ * ====================================================================
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* Colours come from zolo-tokens.css (brand). These --neo-* names are kept as aliases
+   for existing rules; declared on body too so dark mode re-resolves them. */
+:root, body {
+  /* Core Color Tokens */
+  --neo-font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --neo-mono: 'JetBrains Mono', monospace;
+
+  --neo-primary: var(--z-primary);
+  --neo-primary-hover: var(--z-primary-hover);
+  --neo-primary-light: var(--z-primary-soft);
+  --neo-primary-gradient: linear-gradient(var(--z-primary), var(--z-primary));
+
+  --neo-success: #10b981;
+  --neo-success-light: var(--z-success-soft);
+  --neo-warning: #f59e0b;
+  --neo-warning-light: var(--z-warning-soft);
+  --neo-danger: #ef4444;
+  --neo-danger-light: var(--z-danger-soft);
+  --neo-info: #0ea5e9;
+  --neo-info-light: var(--z-info-soft);
+
+  /* Neutrals */
+  --neo-bg: var(--z-bg);
+  --neo-surface: var(--z-surface);
+  --neo-surface-card: var(--z-surface);
+  --neo-border: var(--z-border);
+  --neo-border-light: var(--z-surface-3);
+  --neo-text-primary: var(--z-text);
+  --neo-text-secondary: var(--z-text-2);
+  --neo-text-muted: var(--z-text-muted);
+
+  /* Side panel */
+  --neo-sidebar-bg: var(--z-sidebar-bg);
+  --neo-sidebar-surface: var(--z-sidebar-surface);
+  --neo-sidebar-border: rgba(255, 255, 255, 0.08);
+  --neo-sidebar-text: var(--z-sidebar-text);
+  --neo-sidebar-text-active: var(--z-sidebar-text-active);
+  --neo-sidebar-text-muted: #94a3b8;
+  --neo-sidebar-hover-bg: rgba(255, 255, 255, 0.06);
+  --neo-sidebar-active-bg: var(--z-sidebar-active-bg);
+  --neo-sidebar-active-border: var(--z-sidebar-active-border);
+
+  /* Shadows & Radius */
+  --neo-radius-sm: 6px;
+  --neo-radius-md: 10px;
+  --neo-radius-lg: 14px;
+  --neo-radius-xl: 18px;
+  --neo-shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  --neo-shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.08), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
+  --neo-shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+  --neo-shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --neo-shadow-glow: 0 0 15px rgb(var(--z-primary-rgb) / 0.25);
+}
+
+/* Dark mode: only values without a semantic token; the rest follow zolo-tokens.css */
+body.dark-mode {
+  --neo-sidebar-border: #1e293b;
+  --neo-sidebar-text-muted: #64748b;
+  --neo-sidebar-hover-bg: rgba(255, 255, 255, 0.04);
+}
+
+/* ====================================================================
+   GLOBAL TYPOGRAPHY & RESET
+   ==================================================================== */
+body {
+  font-family: var(--neo-font) !important;
+  background-color: var(--neo-bg) !important;
+  color: var(--neo-text-primary) !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.011em;
+}
+
+.font-monospace {
+  font-family: var(--neo-mono) !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--neo-font);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--neo-text-primary);
+}
+
+/* ====================================================================
+   3-STATE SIDEBAR CONTROLLER: Expanded (256px), Icon-Only (72px), Full-Hide (0px)
+   ==================================================================== */
+
+/* Interactive Toggle Button (#toggle-btn) */
+#toggle-btn.zolo-sidebar-toggle,
+nav.navbar a#toggle-btn.menu-btn {
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  line-height: normal !important;
+  padding: 0 !important;
+  border-radius: 11px !important;
+  background: var(--neo-surface-card) !important;
+  border: 1px solid var(--neo-border) !important;
+  color: var(--neo-text-primary) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  position: relative !important;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  gap: 3px !important;
+  user-select: none !important;
+}
+
+#toggle-btn.zolo-sidebar-toggle:hover,
+nav.navbar a#toggle-btn.menu-btn:hover {
+  background: var(--neo-bg) !important;
+  border-color: var(--neo-primary) !important;
+  color: var(--neo-primary) !important;
+  box-shadow: 0 4px 14px rgb(var(--z-primary-rgb) / 0.22) !important;
+  transform: translateY(-1px) !important;
+}
+
+#toggle-btn.zolo-sidebar-toggle:active,
+nav.navbar a#toggle-btn.menu-btn:active {
+  transform: scale(0.92) !important;
+}
+
+/* Three Animated Hamburger Bars */
+#toggle-btn .toggle-icon-bars {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  width: 20px !important;
+  height: 14px !important;
+}
+
+#toggle-btn .toggle-icon-bars .bar {
+  display: block !important;
+  height: 2px !important;
+  background-color: currentColor !important;
+  border-radius: 2px !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* State 0: Expanded / Full Visible (3 layered bars) */
+#toggle-btn[data-state="expanded"] .bar-1 { width: 18px !important; }
+#toggle-btn[data-state="expanded"] .bar-2 { width: 12px !important; }
+#toggle-btn[data-state="expanded"] .bar-3 { width: 18px !important; }
+
+/* State 1: Icon Only (Compact 3 small dots/pills) */
+#toggle-btn[data-state="icon-only"] .bar-1 { width: 6px !important; border-radius: 50% !important; }
+#toggle-btn[data-state="icon-only"] .bar-2 { width: 6px !important; border-radius: 50% !important; }
+#toggle-btn[data-state="icon-only"] .bar-3 { width: 6px !important; border-radius: 50% !important; }
+
+/* State 2: Full Hide (Morphs into an arrow/cross) */
+#toggle-btn[data-state="full-hide"] .bar-1 {
+  width: 14px !important;
+  transform: rotate(45deg) translate(3px, 3px) !important;
+}
+#toggle-btn[data-state="full-hide"] .bar-2 {
+  opacity: 0 !important;
+  transform: scaleX(0) !important;
+  width: 0 !important;
+}
+#toggle-btn[data-state="full-hide"] .bar-3 {
+  width: 14px !important;
+  transform: rotate(-45deg) translate(3px, -3px) !important;
+}
+
+/* Interactive 3-State Indicator Dots */
+#toggle-btn .toggle-state-indicator {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3.5px !important;
+  height: 4px !important;
+}
+
+#toggle-btn .toggle-state-indicator .dot {
+  width: 4px !important;
+  height: 4px !important;
+  border-radius: 50% !important;
+  background: var(--neo-text-secondary) !important;
+  opacity: 0.3 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+#toggle-btn[data-state="expanded"] .dot-1,
+#toggle-btn .toggle-state-indicator .dot-1.active {
+  background: var(--neo-primary) !important;
+  opacity: 1 !important;
+  transform: scale(1.3) !important;
+  box-shadow: 0 0 6px var(--neo-primary) !important;
+}
+
+#toggle-btn[data-state="icon-only"] .dot-2,
+#toggle-btn .toggle-state-indicator .dot-2.active {
+  background: var(--neo-primary) !important;
+  opacity: 1 !important;
+  transform: scale(1.3) !important;
+  box-shadow: 0 0 6px var(--neo-primary) !important;
+}
+
+#toggle-btn[data-state="full-hide"] .dot-3,
+#toggle-btn .toggle-state-indicator .dot-3.active {
+  background: var(--neo-primary) !important;
+  opacity: 1 !important;
+  transform: scale(1.3) !important;
+  box-shadow: 0 0 6px var(--neo-primary) !important;
+}
+
+/* Sidebar States */
+.side-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--neo-sidebar-bg) !important;
+  background-color: var(--neo-sidebar-bg) !important;
+  border-right: 1px solid var(--neo-sidebar-border) !important;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12) !important;
+  width: 256px !important;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), margin 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease !important;
+  z-index: 999;
+}
+
+html[dir="rtl"] .side-navbar { left: auto; right: 0; }
+
+.page {
+  position: relative;
+  margin-left: 256px !important;
+  width: calc(100% - 256px) !important;
+  min-height: 100vh;
+  padding-bottom: 60px;
+  transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+html[dir="rtl"] .page { margin-left: 0 !important; margin-right: 256px !important; }
+
+/* State 1: Icon-Only (Compact 72px) */
+nav.side-navbar.icon-only {
+  width: 72px !important;
+  min-width: 72px !important;
+  transform: translateX(0) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  overflow-x: visible !important;
+}
+
+.side-navbar.icon-only .brand-big {
+  padding: 16px 8px !important;
+  justify-content: center !important;
+}
+
+.side-navbar.icon-only .brand-big .zolo-brand-container {
+  justify-content: center !important;
+  gap: 0 !important;
+}
+
+.side-navbar.icon-only .brand-big .zolo-brand-badge {
+  display: none !important;
+}
+
+.side-navbar.icon-only li.sidebar-heading {
+  height: 1px !important;
+  margin: 12px 14px !important;
+  padding: 0 !important;
+  background: var(--neo-sidebar-border, rgba(255, 255, 255, 0.08)) !important;
+  overflow: hidden !important;
+  text-indent: -9999px !important;
+}
+
+.side-navbar.icon-only li a {
+  padding: 12px 0 !important;
+  margin: 2px 8px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+  position: relative !important;
+}
+
+.side-navbar.icon-only li a span {
+  display: none !important;
+}
+
+.side-navbar.icon-only li a i {
+  margin: 0 !important;
+  font-size: 19px !important;
+  width: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.side-navbar.icon-only li a[data-toggle="collapse"]::before,
+.side-navbar.icon-only li a[data-toggle="collapse"]::after {
+  display: none !important;
+}
+
+/* Floating Submenus on Hover in Icon-Only Mode */
+.side-navbar.icon-only li {
+  position: relative !important;
+}
+
+.side-navbar.icon-only li > ul.collapse {
+  display: none !important;
+}
+
+.side-navbar.icon-only li:hover > ul.collapse {
+  display: block !important;
+  position: absolute !important;
+  left: 72px !important;
+  top: 0 !important;
+  width: 230px !important;
+  background: var(--neo-sidebar-bg) !important;
+  border: 1px solid var(--neo-sidebar-border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.28) !important;
+  padding: 8px !important;
+  z-index: 1050 !important;
+}
+
+html[dir="rtl"] .side-navbar.icon-only li:hover > ul.collapse {
+  left: auto !important;
+  right: 72px !important;
+}
+
+.side-navbar.icon-only li:hover > ul.collapse li a {
+  padding: 8px 14px !important;
+  display: block !important;
+  text-align: left !important;
+}
+
+html[dir="rtl"] .side-navbar.icon-only li:hover > ul.collapse li a {
+  text-align: right !important;
+}
+
+.side-navbar.icon-only li:hover > ul.collapse li a span {
+  display: inline !important;
+}
+
+.side-navbar.icon-only .mCustomScrollBox,
+.side-navbar.icon-only .mCSB_container {
+  overflow: visible !important;
+}
+
+.page.sidebar-icon-only,
+.side-navbar.icon-only ~ .page {
+  margin-left: 72px !important;
+  width: calc(100% - 72px) !important;
+}
+
+html[dir="rtl"] .page.sidebar-icon-only,
+html[dir="rtl"] .side-navbar.icon-only ~ .page {
+  margin-left: 0 !important;
+  margin-right: 72px !important;
+  width: calc(100% - 72px) !important;
+}
+
+/* State 2: Full-Hide */
+nav.side-navbar.full-hide,
+nav.side-navbar.shrink {
+  transform: translateX(-100%) !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+html[dir="rtl"] nav.side-navbar.full-hide,
+html[dir="rtl"] nav.side-navbar.shrink {
+  transform: translateX(100%) !important;
+}
+
+.page.sidebar-full-hide,
+.page.active,
+.side-navbar.full-hide ~ .page,
+.side-navbar.shrink ~ .page,
+.side-navbar.hide ~ .page {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+}
+
+html[dir="rtl"] .page.sidebar-full-hide,
+html[dir="rtl"] .page.active,
+html[dir="rtl"] .side-navbar.full-hide ~ .page,
+html[dir="rtl"] .side-navbar.shrink ~ .page,
+html[dir="rtl"] .side-navbar.hide ~ .page { margin-right: 0 !important; }
+
+@media (max-width: 1199px) {
+  nav.side-navbar:not(.icon-only):not(.full-visible) {
+    transform: translateX(-100%) !important;
+  }
+  html[dir="rtl"] nav.side-navbar:not(.icon-only):not(.full-visible) {
+    transform: translateX(100%) !important;
+  }
+  .page {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+  html[dir="rtl"] .page { margin-right: 0 !important; }
+}
+
+.side-navbar .brand-big {
+  padding: 18px 20px !important;
+  border-bottom: 1px solid var(--neo-sidebar-border) !important;
+  display: flex !important;
+  align-items: center !important;
+  background: transparent !important;
+}
+
+.zolo-brand-link {
+  text-decoration: none !important;
+  display: flex;
+  align-items: center;
+}
+
+.zolo-brand-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.zolo-brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--z-primary) 0%, var(--z-primary) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgb(var(--z-primary-rgb) / 0.35);
+  flex-shrink: 0;
+}
+
+.zolo-brand-badge {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #ffffff !important;
+  display: inline-flex;
+  align-items: center;
+}
+
+.zolo-brand-badge .zolo-accent,
+.zolo-brand-badge span {
+  color: var(--z-primary-text);
+  margin-left: 1px;
+}
+
+/* Sidebar Section Headers */
+.sidebar-heading {
+  font-size: 10.5px !important;
+  text-transform: uppercase !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.09em !important;
+  color: var(--neo-sidebar-text-muted) !important;
+  padding: 16px 18px 6px !important;
+  margin: 0 !important;
+  display: block !important;
+  user-select: none;
+}
+
+/* Sidebar Navigation Links */
+.side-navbar li a {
+  padding: 8px 14px !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  color: var(--neo-sidebar-text) !important;
+  border-radius: 10px !important;
+  margin: 3px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative;
+  text-decoration: none !important;
+}
+
+.side-navbar li a:hover {
+  background: var(--neo-sidebar-hover-bg) !important;
+  color: #ffffff !important;
+  transform: translateX(2px);
+}
+
+.side-navbar li.active > a,
+.side-navbar li a[aria-expanded="true"] {
+  background: var(--neo-sidebar-active-bg) !important;
+  color: var(--neo-sidebar-text-active) !important;
+  font-weight: 600 !important;
+}
+
+/* Module-Specific Colorful Theme Icon Badges with Proper Padding & Alignment */
+.side-navbar li a i {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 8px !important;
+  margin-right: 12px !important;
+  font-size: 15px !important;
+  text-align: center !important;
+  transition: all 0.2s ease !important;
+}
+
+.side-navbar li a:hover i {
+  transform: scale(1.08);
+}
+
+/* Colorful Theme Mapping for Modules */
+#side-main-menu li#dashboard-menu a i,
+#side-main-menu a[href*="dashboard"] i,
+#side-main-menu i.dripicons-meter {
+  background: rgb(var(--z-primary-rgb) / 0.18) !important;
+  color: var(--z-primary-text) !important;
+}
+
+#side-main-menu a[href="#product"] i,
+#side-main-menu i.dripicons-list {
+  background: rgba(16, 185, 129, 0.18) !important;
+  color: #34d399 !important;
+}
+
+#side-main-menu a[href="#purchase"] i,
+#side-main-menu i.dripicons-card {
+  background: rgba(14, 165, 233, 0.18) !important;
+  color: #38bdf8 !important;
+}
+
+#side-main-menu a[href="#sale"] i,
+#side-main-menu i.dripicons-cart {
+  background: rgba(245, 158, 11, 0.18) !important;
+  color: #fbbf24 !important;
+}
+
+#side-main-menu a[href="#quotation"] i,
+#side-main-menu i.dripicons-document {
+  background: rgba(244, 63, 94, 0.18) !important;
+  color: #fb7185 !important;
+}
+
+#side-main-menu a[href="#transfer"] i,
+#side-main-menu i.dripicons-export {
+  background: rgb(var(--z-primary-rgb) / 0.18) !important;
+  color: var(--z-primary-text) !important;
+}
+
+#side-main-menu a[href="#accounting"] i,
+#side-main-menu a[href*="accounting"] i,
+#side-main-menu i.dripicons-briefcase {
+  background: rgba(59, 130, 246, 0.20) !important;
+  color: #60a5fa !important;
+}
+
+#side-main-menu a[href="#expense"] i,
+#side-main-menu i.dripicons-wallet {
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #f87171 !important;
+}
+
+#side-main-menu a[href="#income"] i,
+#side-main-menu i.dripicons-trophy {
+  background: rgba(34, 197, 94, 0.18) !important;
+  color: #4ade80 !important;
+}
+
+#side-main-menu a[href="#people"] i,
+#side-main-menu i.dripicons-user {
+  background: rgb(var(--z-primary-rgb) / 0.18) !important;
+  color: var(--z-primary-text) !important;
+}
+
+#side-main-menu a[href="#hrm"] i,
+#side-main-menu i.dripicons-user-group {
+  background: rgba(20, 184, 166, 0.18) !important;
+  color: #2dd4bf !important;
+}
+
+#side-main-menu a[href="#report"] i,
+#side-main-menu i.dripicons-graph-bar {
+  background: rgba(251, 146, 60, 0.18) !important;
+  color: #fdba74 !important;
+}
+
+#side-main-menu a[href="#setting"] i,
+#side-main-menu i.dripicons-gear {
+  background: rgba(148, 163, 184, 0.18) !important;
+  color: #cbd5e1 !important;
+}
+
+/* Silence legacy FontAwesome pseudo-element from style.default.css */
+.side-navbar li a[data-toggle="collapse"]::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* Pure CSS clean rotating Chevron arrow - no font dependency, no square boxes */
+.side-navbar li a[data-toggle="collapse"]::after {
+  content: "" !important;
+  display: inline-block !important;
+  width: 6.5px !important;
+  height: 6.5px !important;
+  border-right: 2px solid currentColor !important;
+  border-bottom: 2px solid currentColor !important;
+  transform: rotate(-45deg) !important;
+  margin-left: auto !important;
+  margin-right: 6px !important;
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease !important;
+  opacity: 0.65 !important;
+}
+
+.side-navbar li a[data-toggle="collapse"][aria-expanded="true"]::after {
+  transform: rotate(45deg) !important;
+  color: var(--neo-primary, var(--z-primary)) !important;
+  opacity: 1 !important;
+}
+
+/* Submenu Hierarchy & Guide Lines */
+.side-navbar ul.collapse {
+  padding: 4px 0 6px 0 !important;
+  margin-left: 28px !important;
+  border-left: 1.5px solid rgba(255, 255, 255, 0.1) !important;
+  background: transparent !important;
+}
+
+.side-navbar ul.collapse li a {
+  padding: 6px 12px 6px 14px !important;
+  font-size: 12.8px !important;
+  margin: 2px 8px !important;
+  color: var(--neo-sidebar-text-muted) !important;
+  border-radius: 6px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.side-navbar ul.collapse li a::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  margin-right: 8px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.side-navbar ul.collapse li a:hover,
+.side-navbar ul.collapse li.active a {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.side-navbar ul.collapse li a:hover::before,
+.side-navbar ul.collapse li.active a::before {
+  background: var(--z-primary);
+  box-shadow: 0 0 6px var(--z-primary);
+}
+
+/* ====================================================================
+   TOP NAVBAR
+   ==================================================================== */
+nav.navbar {
+  background: var(--neo-surface) !important;
+  border-bottom: 1px solid var(--neo-border) !important;
+  padding: 10px 24px !important;
+  box-shadow: var(--neo-shadow-xs) !important;
+  min-height: 64px;
+}
+
+nav.navbar a.menu-btn {
+  background: var(--neo-bg) !important;
+  border: 1px solid var(--neo-border) !important;
+  border-radius: 10px !important;
+  color: var(--neo-text-secondary) !important;
+  width: 38px !important;
+  height: 38px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+}
+
+nav.navbar a.menu-btn:hover {
+  background: var(--neo-primary-light) !important;
+  border-color: var(--neo-primary) !important;
+  color: var(--neo-primary) !important;
+}
+
+nav.navbar .nav-menu {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-bottom: 0 !important;
+}
+
+nav.navbar .nav-item {
+  display: inline-flex !important;
+  align-items: center !important;
+  margin-left: 6px !important;
+}
+
+nav.navbar .nav-item > a:not(.btn-pos),
+nav.navbar .nav-item a.nav-link:not(.btn-pos),
+nav.navbar .nav-menu > li > a:not(.btn-pos),
+nav.navbar .nav-menu .dropdown > a:not(.btn-pos) {
+  border-radius: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--neo-text-secondary, #64748b) !important;
+  padding: 7px 10px !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  cursor: pointer;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+}
+
+nav.navbar .nav-item > a:not(.btn-pos):hover,
+nav.navbar .nav-item a.nav-link:not(.btn-pos):hover,
+nav.navbar .nav-menu > li > a:not(.btn-pos):hover {
+  background: var(--neo-primary-light, var(--z-primary-soft)) !important;
+  border-color: rgb(var(--z-primary-rgb) / 0.2) !important;
+  color: var(--neo-primary, var(--z-primary)) !important;
+}
+
+nav.navbar .nav-item a:not(.btn-pos) i,
+nav.navbar .nav-item > a:not(.btn-pos) i,
+nav.navbar .nav-item li.notifications a i,
+nav.navbar .nav-item a[data-toggle="tooltip"]:not(.btn-pos) i {
+  color: var(--neo-text-secondary, #64748b) !important;
+  font-size: 16px !important;
+  transition: color 0.2s ease !important;
+  margin-right: 0 !important;
+}
+
+nav.navbar .nav-item > a:not(.btn-pos):hover i,
+nav.navbar .nav-item a.nav-link:not(.btn-pos):hover i {
+  color: var(--neo-primary, var(--z-primary)) !important;
+}
+
+nav.navbar .nav-item > a span:not(.notification-number),
+nav.navbar .nav-item a.nav-link span:not(.notification-number),
+nav.navbar .nav-item a.dropdown-item span:not(.notification-number) {
+  color: var(--neo-text-primary, #0f172a) !important;
+  font-weight: 600 !important;
+  font-size: 13.5px !important;
+  transition: color 0.15s ease !important;
+  margin-left: 4px !important;
+}
+
+nav.navbar .nav-item > a:hover span:not(.notification-number),
+nav.navbar .nav-item a.nav-link:hover span:not(.notification-number) {
+  color: var(--neo-primary, var(--z-primary)) !important;
+}
+
+/* Specific button: '+' Quick Add Button in Navbar */
+nav.navbar .btn-pos[data-toggle="dropdown"],
+nav.navbar a.btn-pos[data-toggle="dropdown"],
+.btn-pos.dropdown-toggle {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 10px !important;
+  background: var(--zb-bg) !important;
+  background: var(--zb-bg) !important;
+  border: none !important;
+  color: var(--zb-fg) !important;
+  box-shadow: 0 2px 8px rgb(var(--z-primary-rgb) / 0.28) !important;
+}
+
+nav.navbar .btn-pos[data-toggle="dropdown"] i,
+nav.navbar a.btn-pos[data-toggle="dropdown"] i,
+.btn-pos.dropdown-toggle i {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-size: 16px !important;
+}
+
+/* POS Terminal Button - Ultra-High Specificity Crisp White on Indigo Gradient */
+nav.navbar .nav-item a.btn-pos,
+nav.navbar a.btn-pos,
+.navbar a.btn-pos,
+.navbar .btn-pos,
+.btn-pos,
+a.btn-pos,
+li.nav-item .btn-pos {
+  background: var(--zb-bg) !important;
+  background: var(--zb-bg) !important;
+  border: 1px solid var(--zb-border) !important;
+  border-radius: var(--neo-radius-md, 10px) !important;
+  color: var(--zb-fg) !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgb(var(--z-primary-rgb) / 0.3) !important;
+  padding: 7px 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  text-decoration: none !important;
+  line-height: normal !important;
+  cursor: pointer !important;
+}
+
+nav.navbar .nav-item a.btn-pos:hover,
+nav.navbar a.btn-pos:hover,
+.navbar a.btn-pos:hover,
+.navbar .btn-pos:hover,
+.btn-pos:hover,
+a.btn-pos:hover,
+li.nav-item .btn-pos:hover {
+  box-shadow: 0 4px 14px rgb(var(--z-primary-rgb) / 0.45) !important;
+  transform: translateY(-1px) !important;
+  color: var(--zb-fg) !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background: var(--zb-bg) !important;
+}
+
+nav.navbar .nav-item a.btn-pos span,
+nav.navbar a.btn-pos span,
+.navbar a.btn-pos span,
+.navbar .btn-pos span,
+.btn-pos span,
+a.btn-pos span,
+li.nav-item .btn-pos span {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 13.5px !important;
+  display: inline-block !important;
+  letter-spacing: 0.02em !important;
+}
+
+nav.navbar .nav-item a.btn-pos i,
+nav.navbar a.btn-pos i,
+.navbar a.btn-pos i,
+.navbar .btn-pos i,
+.btn-pos i,
+a.btn-pos i,
+li.nav-item .btn-pos i {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-size: 15px !important;
+  display: inline-block !important;
+  margin-right: 0 !important;
+}
+
+/* Notification Badge Pill */
+#notification-icon {
+  position: relative !important;
+}
+
+.notification-number,
+.badge-danger.notification-number {
+  position: absolute !important;
+  top: 1px !important;
+  right: 1px !important;
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  padding: 2px 6px !important;
+  border-radius: 9999px !important;
+  border: 2px solid var(--neo-surface) !important;
+  box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4) !important;
+  line-height: 1 !important;
+}
+
+/* ====================================================================
+   MODERN CARDS & CONTAINERS
+   ==================================================================== */
+.card, .neo-card {
+  background-color: var(--neo-surface-card) !important;
+  border: 1px solid var(--neo-border) !important;
+  border-radius: var(--neo-radius-lg) !important;
+  box-shadow: var(--neo-shadow-sm) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.card-header {
+  background: transparent !important;
+  border-bottom: 1px solid var(--neo-border) !important;
+  padding: 16px 20px !important;
+}
+
+/* Metric Count Cards */
+.count-title {
+  border: 1px solid var(--neo-border) !important;
+  border-radius: var(--neo-radius-lg) !important;
+  background: var(--neo-surface-card) !important;
+  box-shadow: var(--neo-shadow-sm) !important;
+  padding: 22px 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  transition: all 0.2s ease !important;
+}
+
+.count-title:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--neo-shadow-md) !important;
+  border-color: var(--neo-primary) !important;
+}
+
+.count-title .icon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  background: var(--neo-primary-light);
+}
+
+.count-title .icon i {
+  font-size: 22px !important;
+  width: auto !important;
+}
+
+.count-title .count-number {
+  font-size: 1.65rem !important;
+  font-weight: 800 !important;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2 !important;
+  color: var(--neo-text-primary) !important;
+}
+
+.count-title .name strong {
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--neo-text-secondary) !important;
+}
+
+/* Date filter buttons */
+.filter-toggle .date-btn {
+  background: var(--neo-surface) !important;
+  border: 1px solid var(--neo-border) !important;
+  color: var(--neo-text-secondary) !important;
+  font-weight: 600 !important;
+  border-radius: var(--neo-radius-md) !important;
+  padding: 6px 14px !important;
+  font-size: 13px !important;
+  margin-left: 4px !important;
+  transition: all 0.15s ease !important;
+}
+
+/* ====================================================================
+   COMMAND CENTER HERO HEADER & CONTROLS
+   ==================================================================== */
+.zolo-dashboard-header {
+  background: var(--neo-surface-card) !important;
+  border: 1px solid var(--neo-border) !important;
+  border-radius: var(--neo-radius-lg) !important;
+  padding: 20px 24px !important;
+  box-shadow: var(--neo-shadow-sm) !important;
+  position: relative;
+  overflow: visible !important;
+  z-index: 100 !important;
+  margin-bottom: 12px;
+}
+
+.zolo-dashboard-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--neo-primary-gradient);
+  border-top-left-radius: var(--neo-radius-lg);
+  border-bottom-left-radius: var(--neo-radius-lg);
+}
+
+.zolo-greeting-title {
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.4px !important;
+  color: var(--neo-text-primary) !important;
+  margin-bottom: 4px !important;
+}
+
+.zolo-accent-name {
+  background: var(--neo-primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.zolo-greeting-subtitle {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--neo-text-secondary) !important;
+  margin-bottom: 0 !important;
+}
+
+.zolo-filter-bar {
+  gap: 10px;
+  overflow: visible !important;
+  position: relative;
+  z-index: 105;
+}
+
+.zolo-warehouse-picker {
+  display: inline-flex;
+  align-items: center;
+  background: var(--neo-bg);
+  border: 1px solid var(--neo-border);
+  border-radius: 10px;
+  padding: 2px 10px;
+  position: relative;
+  z-index: 110;
+  overflow: visible !important;
+}
+
+.zolo-warehouse-picker .bootstrap-select {
+  width: auto !important;
+  position: relative !important;
+}
+
+.zolo-warehouse-picker .bootstrap-select > .btn {
+  background: transparent !important;
+  border: none !important;
+  padding: 4px 8px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: var(--neo-text-primary) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.zolo-warehouse-picker .bootstrap-select .dropdown-menu {
+  background: var(--neo-surface-card) !important;
+  border: 1px solid var(--neo-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--neo-shadow-lg) !important;
+  padding: 6px !important;
+  min-width: 220px !important;
+  z-index: 1050 !important;
+}
+
+.zolo-warehouse-picker .bootstrap-select .dropdown-menu .bs-searchbox {
+  padding: 6px 8px !important;
+}
+
+.zolo-warehouse-picker .bootstrap-select .dropdown-menu .bs-searchbox input {
+  border-radius: 8px !important;
+  border: 1px solid var(--neo-border) !important;
+  background: var(--neo-bg) !important;
+  color: var(--neo-text-primary) !important;
+  font-size: 13px !important;
+  padding: 6px 10px !important;
+}
+
+.zolo-warehouse-picker .bootstrap-select .dropdown-menu li a {
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+  color: var(--neo-text-secondary) !important;
+}
+
+.zolo-warehouse-picker .bootstrap-select .dropdown-menu li.selected a,
+.zolo-warehouse-picker .bootstrap-select .dropdown-menu li a:hover {
+  background: var(--neo-primary-light) !important;
+  color: var(--neo-primary) !important;
+  font-weight: 600 !important;
+}
+
+.zolo-date-filter-btn {
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  padding: 7px 16px !important;
+  background: var(--neo-bg) !important;
+  border: 1px solid var(--neo-border) !important;
+  color: var(--neo-text-primary) !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.zolo-dropdown-menu {
+  background: var(--neo-surface-card) !important;
+  border: 1px solid var(--neo-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--neo-shadow-lg) !important;
+  padding: 6px !important;
+}
+
+.zolo-dropdown-menu .dropdown-item {
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--neo-text-secondary) !important;
+  padding: 8px 14px !important;
+  transition: all 0.2s ease;
+}
+
+.zolo-dropdown-menu .dropdown-item:hover,
+.zolo-dropdown-menu .dropdown-item.active {
+  background: var(--neo-primary-light) !important;
+  color: var(--neo-primary) !important;
+  font-weight: 600 !important;
+}
+
+/* ====================================================================
+   BUTTONS & INPUTS
+   ==================================================================== */
+/* ====================================================================
+   UNIFIED BUTTON TEMPLATE & PALETTE
+   Harmonious color system across all screens, modals and command centers
+   ==================================================================== */
+.btn,
+.zolo-btn,
+.cp-btn {
+  font-family: var(--neo-font) !important;
+  font-weight: 600 !important;
+  border-radius: var(--neo-radius-md, 8px) !important;
+  padding: 7px 16px !important;
+  font-size: 13px !important;
+  letter-spacing: -0.01em;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-sizing: border-box !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  line-height: normal !important;
+}
+
+/* 1. Primary Action Button Template */
+.btn-primary,
+.neo-btn-primary,
+.zolo-btn-primary,
+.cp-btn-primary,
+.comm-items-btn-primary,
+.comm-bottom-btn-primary {
+  background: var(--neo-primary, var(--z-primary)) !important;
+  border: 1px solid var(--neo-primary, var(--z-primary)) !important;
+  color: #ffffff !important;
+  box-shadow: 0 1px 3px rgb(var(--z-primary-rgb) / 0.25) !important;
+}
+
+.btn-primary:hover,
+.neo-btn-primary:hover,
+.zolo-btn-primary:hover,
+.cp-btn-primary:hover,
+.comm-items-btn-primary:hover,
+.comm-bottom-btn-primary:hover {
+  background: var(--neo-primary-hover, var(--z-primary)) !important;
+  border-color: var(--neo-primary-hover, var(--z-primary)) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgb(var(--z-primary-rgb) / 0.35) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 2. Secondary & Utility Action Button Template (Clean Crisp Border & Surface) */
+.btn-secondary,
+.btn-outline-primary,
+.btn-outline-secondary,
+.btn-default,
+.btn-light,
+.zolo-btn-secondary,
+.comm-items-btn:not(.comm-items-btn-primary),
+.cp-btn:not(.cp-btn-primary):not(.cp-btn-danger) {
+  background: var(--neo-surface-card, #ffffff) !important;
+  border: 1px solid var(--neo-border, #cbd5e1) !important;
+  color: var(--neo-text-primary, #1e293b) !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+}
+
+.btn-secondary i,
+.btn-outline-primary i,
+.btn-outline-secondary i,
+.btn-default i,
+.btn-light i,
+.zolo-btn-secondary i,
+.comm-items-btn:not(.comm-items-btn-primary) i {
+  color: var(--neo-primary, var(--z-primary)) !important;
+}
+
+.btn-secondary:hover,
+.btn-outline-primary:hover,
+.btn-outline-secondary:hover,
+.btn-default:hover,
+.btn-light:hover,
+.zolo-btn-secondary:hover,
+.comm-items-btn:not(.comm-items-btn-primary):hover,
+.cp-btn:not(.cp-btn-primary):not(.cp-btn-danger):hover {
+  background: var(--neo-primary-light, var(--z-primary-soft)) !important;
+  border-color: var(--neo-primary, var(--z-primary)) !important;
+  color: var(--neo-primary, var(--z-primary)) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 8px rgb(var(--z-primary-rgb) / 0.15) !important;
+}
+
+/* Dark Mode Secondary & Utility Buttons */
+body.dark-mode .btn-secondary,
+body.dark-mode .btn-outline-primary,
+body.dark-mode .btn-outline-secondary,
+body.dark-mode .btn-default,
+body.dark-mode .btn-light,
+body.dark-mode .zolo-btn-secondary,
+body.dark-mode .comm-items-btn:not(.comm-items-btn-primary),
+body.dark-mode .cp-btn:not(.cp-btn-primary):not(.cp-btn-danger) {
+  background: var(--neo-surface-card, #1e293b) !important;
+  border-color: var(--neo-border, #334155) !important;
+  color: var(--neo-text-primary, #f8fafc) !important;
+}
+
+body.dark-mode .btn-secondary i,
+body.dark-mode .btn-outline-primary i,
+body.dark-mode .btn-outline-secondary i,
+body.dark-mode .btn-default i,
+body.dark-mode .btn-light i,
+body.dark-mode .zolo-btn-secondary i,
+body.dark-mode .comm-items-btn:not(.comm-items-btn-primary) i {
+  color: var(--z-primary-text) !important;
+}
+
+body.dark-mode .btn-secondary:hover,
+body.dark-mode .btn-outline-primary:hover,
+body.dark-mode .btn-outline-secondary:hover,
+body.dark-mode .btn-default:hover,
+body.dark-mode .btn-light:hover,
+body.dark-mode .zolo-btn-secondary:hover,
+body.dark-mode .comm-items-btn:not(.comm-items-btn-primary):hover,
+body.dark-mode .cp-btn:not(.cp-btn-primary):not(.cp-btn-danger):hover {
+  background: rgb(var(--z-primary-rgb) / 0.18) !important;
+  border-color: var(--z-primary-text) !important;
+  color: #ffffff !important;
+}
+
+/* 3. Danger Action Button Template */
+.btn-danger,
+.cp-btn-danger {
+  background: var(--neo-danger, #ef4444) !important;
+  border-color: var(--neo-danger, #ef4444) !important;
+  color: #ffffff !important;
+}
+
+.btn-danger:hover,
+.cp-btn-danger:hover {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important;
+}
+
+/* Input group appended buttons (+ next to Brand, Category, Unit, ↻ next to code) */
+.input-group {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+  width: 100% !important;
+}
+
+.input-group > .bootstrap-select,
+.input-group > div.bootstrap-select {
+  flex: 1 1 auto !important;
+  width: 1% !important;
+  min-width: 0 !important;
+}
+
+.input-group > .bootstrap-select:not(:last-child) > .btn.dropdown-toggle,
+.input-group > .form-control:not(:last-child) {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.input-group > .input-group-append {
+  display: flex !important;
+  flex: 0 0 auto !important;
+}
+
+.input-group > .input-group-append > .btn,
+.input-group > .btn:not(:first-child) {
+  flex: 0 0 auto !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-left: none !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 13px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: var(--neo-surface-card, #ffffff) !important;
+  border: 1px solid var(--neo-border, #cbd5e1) !important;
+  color: var(--neo-text-primary, #1e293b) !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+  transition: all 0.18s ease !important;
+}
+
+.input-group > .input-group-append > .btn i,
+.input-group > .btn:not(:first-child) i {
+  color: var(--neo-primary, var(--z-primary)) !important;
+  font-size: 14px !important;
+}
+
+.input-group > .input-group-append > .btn:hover,
+.input-group > .btn:not(:first-child):hover {
+  background: var(--neo-primary-light, var(--z-primary-soft)) !important;
+  border-color: var(--neo-primary, var(--z-primary)) !important;
+  color: var(--neo-primary, var(--z-primary)) !important;
+}
+
+body.dark-mode .input-group > .input-group-append > .btn,
+body.dark-mode .input-group > .btn:not(:first-child) {
+  background: var(--neo-surface-card, #1e293b) !important;
+  border-color: var(--neo-border, #334155) !important;
+  color: #f8fafc !important;
+}
+
+body.dark-mode .input-group > .input-group-append > .btn i,
+body.dark-mode .input-group > .btn:not(:first-child) i {
+  color: var(--z-primary-text) !important;
+}
+
+body.dark-mode .input-group > .input-group-append > .btn:hover,
+body.dark-mode .input-group > .btn:not(:first-child):hover {
+  background: rgb(var(--z-primary-rgb) / 0.2) !important;
+  border-color: var(--z-primary-text) !important;
+}
+
+/* Form Controls & Inputs Uniformity */
+.form-control,
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="date"] {
+  font-family: var(--neo-font) !important;
+  background-color: var(--neo-surface-card, #ffffff) !important;
+  border: 1px solid var(--neo-border, #cbd5e1) !important;
+  border-radius: var(--neo-radius-md, 8px) !important;
+  color: var(--neo-text-primary, #0f172a) !important;
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  min-height: 36px !important;
+  height: 36px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+  box-sizing: border-box !important;
+}
+
+.form-control:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus {
+  background-color: var(--neo-surface-card, #ffffff) !important;
+  border-color: var(--z-primary) !important;
+  box-shadow: 0 0 0 3px rgb(var(--z-primary-rgb) / 0.15) !important;
+  outline: none !important;
+}
+
+body.dark-mode .form-control,
+body.dark-mode input[type="text"],
+body.dark-mode input[type="password"],
+body.dark-mode input[type="email"],
+body.dark-mode input[type="number"],
+body.dark-mode input[type="date"] {
+  background-color: var(--neo-surface, #0f172a) !important;
+  border-color: var(--neo-border, #1e293b) !important;
+  color: var(--neo-text-primary, #f8fafc) !important;
+}
+
+/* Form group labels uniformity */
+.form-group label,
+label {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: var(--neo-text-secondary, #475569) !important;
+  margin-bottom: 5px !important;
+  letter-spacing: -0.01em;
+}
+
+body.dark-mode .form-group label,
+body.dark-mode label {
+  color: #94a3b8 !important;
+}
+
+/* ====================================================================
+   UNIFIED DROPDOWN TEMPLATE
+   Consistent across all native <select>, .form-control, .bootstrap-select
+   Width and position can be overridden freely per container
+   ==================================================================== */
+.zolo-dropdown,
+select.form-control,
+select.zolo-select,
+.cp-dialog select,
+.bootstrap-select > .btn.dropdown-toggle {
+  font-family: var(--neo-font) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--neo-text-primary, #0f172a) !important;
+  background-color: var(--neo-surface-card, #ffffff) !important;
+  border: 1px solid var(--neo-border, #cbd5e1) !important;
+  border-radius: var(--neo-radius-md, 8px) !important;
+  padding: 0 30px 0 12px !important;
+  min-height: 36px !important;
+  height: 36px !important;
+  line-height: 34px !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 10px center !important;
+  background-size: 14px 14px !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease !important;
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  text-overflow: ellipsis !important;
+  cursor: pointer;
+}
+
+/* Compact variant for dense command center bars */
+.dropdown-compact,
+.field-compact-item select.form-control,
+.doc-primary-fields select.form-control {
+  min-height: 24px !important;
+  height: 24px !important;
+  line-height: 22px !important;
+  font-size: 11px !important;
+  padding: 0 24px 0 8px !important;
+  border-radius: 4px !important;
+  background-size: 12px 12px !important;
+  background-position: right 6px center !important;
+}
+
+/* Hover & Focus States for Dropdowns */
+.zolo-dropdown:hover,
+select.form-control:hover,
+select.zolo-select:hover,
+.cp-dialog select:hover,
+.bootstrap-select > .btn.dropdown-toggle:hover {
+  border-color: #94a3b8 !important;
+}
+
+.zolo-dropdown:focus,
+select.form-control:focus,
+select.zolo-select:focus,
+.cp-dialog select:focus,
+.bootstrap-select > .btn.dropdown-toggle:focus,
+.bootstrap-select.show > .btn.dropdown-toggle {
+  border-color: var(--z-primary) !important;
+  box-shadow: 0 0 0 3px rgb(var(--z-primary-rgb) / 0.15) !important;
+  outline: none !important;
+}
+
+/* Dark Mode Dropdown Styling */
+body.dark-mode .zolo-dropdown,
+body.dark-mode select.form-control,
+body.dark-mode select.zolo-select,
+body.dark-mode .cp-dialog select,
+body.dark-mode .bootstrap-select > .btn.dropdown-toggle {
+  background-color: var(--neo-surface, #0f172a) !important;
+  border-color: var(--neo-border, #1e293b) !important;
+  color: var(--neo-text-primary, #f8fafc) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 10px center !important;
+  background-size: 14px 14px !important;
+}
+
+body.dark-mode .zolo-dropdown:hover,
+body.dark-mode select.form-control:hover,
+body.dark-mode select.zolo-select:hover,
+body.dark-mode .cp-dialog select:hover,
+body.dark-mode .bootstrap-select > .btn.dropdown-toggle:hover {
+  border-color: #475569 !important;
+}
+
+body.dark-mode .zolo-dropdown:focus,
+body.dark-mode select.form-control:focus,
+body.dark-mode select.zolo-select:focus,
+body.dark-mode .cp-dialog select:focus,
+body.dark-mode .bootstrap-select > .btn.dropdown-toggle:focus,
+body.dark-mode .bootstrap-select.show > .btn.dropdown-toggle {
+  border-color: var(--z-primary-text) !important;
+  box-shadow: 0 0 0 3px rgb(var(--z-primary-rgb) / 0.25) !important;
+}
+
+/* Selectpicker Outer Wrapper Normalization */
+.bootstrap-select,
+.bootstrap-select.form-control,
+div.bootstrap-select {
+  border: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  outline: none !important;
+  width: 100% !important;
+}
+
+.bootstrap-select .dropdown-toggle .filter-option {
+  font-family: inherit !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  color: inherit !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.bootstrap-select .dropdown-toggle::after,
+.bootstrap-select .dropdown-toggle .caret,
+.bootstrap-select .dropdown-toggle .bs-caret {
+  display: none !important;
+}
+
+/* Unified Dropdown Menu */
+.dropdown-menu,
+.bootstrap-select .dropdown-menu {
+  background-color: var(--neo-surface-card, #ffffff) !important;
+  border: 1px solid var(--neo-border, #cbd5e1) !important;
+  border-radius: var(--neo-radius-md, 10px) !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08) !important;
+  padding: 6px !important;
+  z-index: 99999 !important;
+}
+
+.dropdown-menu .dropdown-item,
+.bootstrap-select .dropdown-menu li a {
+  border-radius: 6px !important;
+  padding: 7px 12px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--neo-text-primary, #0f172a) !important;
+  transition: all 0.15s ease !important;
+}
+
+.dropdown-menu .dropdown-item:hover,
+.bootstrap-select .dropdown-menu li a:hover {
+  background-color: var(--neo-primary-light, var(--z-primary-soft)) !important;
+  color: var(--neo-primary, var(--z-primary)) !important;
+}
+
+body.dark-mode .dropdown-menu,
+body.dark-mode .bootstrap-select .dropdown-menu {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+body.dark-mode .dropdown-menu .dropdown-item,
+body.dark-mode .bootstrap-select .dropdown-menu li a {
+  color: #f8fafc !important;
+}
+
+body.dark-mode .dropdown-menu .dropdown-item:hover,
+body.dark-mode .bootstrap-select .dropdown-menu li a:hover {
+  background-color: rgb(var(--z-primary-rgb) / 0.2) !important;
+  color: #ffffff !important;
+}
+
+/* ====================================================================
+   UNIFIED SECTION BOX TEMPLATE
+   Light background color for section boxes across popups & forms
+   ==================================================================== */
+.zolo-section-box,
+.cp-col,
+.template-box {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  background-color: var(--neo-bg, #f8fafc) !important;
+  border: 1px solid var(--neo-border, #e2e8f0) !important;
+  border-radius: var(--neo-radius-lg, 12px) !important;
+  padding: 13px 15px !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+  transition: all 0.2s ease !important;
+}
+
+body.dark-mode .zolo-section-box,
+body.dark-mode .cp-col,
+body.dark-mode .template-box {
+  background-color: var(--neo-surface-card, #141c2e) !important;
+  border-color: var(--neo-border, #1e293b) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+.zolo-section-box:hover,
+.cp-col:hover,
+.template-box:hover {
+  border-color: #cbd5e1 !important;
+}
+
+body.dark-mode .zolo-section-box:hover,
+body.dark-mode .cp-col:hover,
+body.dark-mode .template-box:hover {
+  border-color: #334155 !important;
+}
+
+.zolo-section-box-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 8px !important;
+  padding-bottom: 6px !important;
+  border-bottom: 1px solid var(--neo-border, #e2e8f0) !important;
+}
+
+.cp-col-title {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  margin-bottom: 6px !important;
+  padding-bottom: 6px !important;
+  border-bottom: 1px solid var(--neo-border, #e2e8f0) !important;
+}
+
+.cp-col-title svg {
+  margin-right: 8px !important;
+  width: 15px !important;
+  height: 15px !important;
+  flex-shrink: 0 !important;
+}
+
+.zolo-section-box-heading {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.zolo-section-box-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  border-radius: 7px !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+  margin-right: 10px !important;
+  line-height: 1 !important;
+  flex-shrink: 0 !important;
+  transition: all 0.2s ease !important;
+}
+
+body.dark-mode .zolo-section-box-icon {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.zolo-section-box-icon svg {
+  width: 16px !important;
+  height: 16px !important;
+  stroke: currentColor !important;
+  display: block !important;
+}
+
+.zolo-section-box-icon i {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  display: block !important;
+}
+
+.zolo-section-box-title {
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  line-height: 1.2 !important;
+}
+
+body.dark-mode .zolo-section-box-header,
+body.dark-mode .cp-col-title {
+  border-bottom-color: var(--neo-border, #1e293b) !important;
+}
+
+/* Color Differentiated Variants for Section Boxes */
+.zolo-section-box-blue,
+.cp-col-identity {
+  background-color: #f1f6fe !important;
+  border: 1px solid #cce0fc !important;
+}
+
+.zolo-section-box-blue .zolo-section-box-header,
+.cp-col-identity .cp-col-title {
+  color: #2563eb !important;
+  border-bottom-color: #dbe8fd !important;
+}
+
+.zolo-section-box-blue .zolo-section-box-icon {
+  background: rgba(37, 99, 235, 0.12) !important;
+  color: #2563eb !important;
+}
+
+body.dark-mode .zolo-section-box-blue,
+body.dark-mode .cp-col-identity {
+  background-color: #0f1c3a !important;
+  border-color: rgba(59, 130, 246, 0.32) !important;
+  box-shadow: 0 2px 10px rgba(15, 29, 56, 0.5) !important;
+}
+
+body.dark-mode .zolo-section-box-blue .zolo-section-box-header,
+body.dark-mode .cp-col-identity .cp-col-title {
+  color: #60a5fa !important;
+  border-bottom-color: rgba(59, 130, 246, 0.25) !important;
+}
+
+body.dark-mode .zolo-section-box-blue .zolo-section-box-icon {
+  background: rgba(96, 165, 250, 0.18) !important;
+  color: #60a5fa !important;
+}
+
+.zolo-section-box-emerald,
+.cp-col-address {
+  background-color: #f0faf5 !important;
+  border: 1px solid #bfead4 !important;
+}
+
+.zolo-section-box-emerald .zolo-section-box-header,
+.cp-col-address .cp-col-title {
+  color: #059669 !important;
+  border-bottom-color: #d0f3e3 !important;
+}
+
+.zolo-section-box-emerald .zolo-section-box-icon {
+  background: rgba(5, 150, 105, 0.12) !important;
+  color: #059669 !important;
+}
+
+body.dark-mode .zolo-section-box-emerald,
+body.dark-mode .cp-col-address {
+  background-color: #0b2622 !important;
+  border-color: rgba(16, 185, 129, 0.32) !important;
+  box-shadow: 0 2px 10px rgba(12, 38, 34, 0.5) !important;
+}
+
+body.dark-mode .zolo-section-box-emerald .zolo-section-box-header,
+body.dark-mode .cp-col-address .cp-col-title {
+  color: #34d399 !important;
+  border-bottom-color: rgba(16, 185, 129, 0.25) !important;
+}
+
+body.dark-mode .zolo-section-box-emerald .zolo-section-box-icon {
+  background: rgba(52, 211, 153, 0.18) !important;
+  color: #34d399 !important;
+}
+
+.zolo-section-box-purple,
+.cp-col-compliance {
+  background-color: var(--z-tint-violet-bg) !important;
+  border: 1px solid var(--z-tint-violet-border) !important;
+}
+
+.zolo-section-box-purple .zolo-section-box-header,
+.cp-col-compliance .cp-col-title {
+  color: var(--z-tint-violet-ink) !important;
+  border-bottom-color: #eedcff !important;
+}
+
+.zolo-section-box-purple .zolo-section-box-icon {
+  background: var(--z-tint-violet-soft) !important;
+  color: var(--z-tint-violet-ink) !important;
+}
+
+body.dark-mode .zolo-section-box-purple,
+body.dark-mode .cp-col-compliance {
+  background-color: var(--z-tint-violet-bg-dark) !important;
+  border-color: var(--z-tint-violet-border-dark) !important;
+  box-shadow: 0 2px 10px rgba(33, 22, 58, 0.5) !important;
+}
+
+body.dark-mode .zolo-section-box-purple .zolo-section-box-header,
+body.dark-mode .cp-col-compliance .cp-col-title {
+  color: var(--z-tint-violet-ink-dark) !important;
+  border-bottom-color: var(--z-tint-violet-line-dark) !important;
+}
+
+body.dark-mode .zolo-section-box-purple .zolo-section-box-icon {
+  background: rgba(192, 132, 252, 0.18) !important;
+  color: var(--z-tint-violet-ink-dark) !important;
+}
+
+.zolo-section-box-amber,
+.cp-col-inventory {
+  background-color: #fffdf5 !important;
+  border: 1px solid #fde68a !important;
+}
+
+.zolo-section-box-amber .zolo-section-box-header,
+.cp-col-inventory .cp-col-title {
+  color: #b45309 !important;
+  border-bottom-color: #fef3c7 !important;
+}
+
+.zolo-section-box-amber .zolo-section-box-icon {
+  background: rgba(217, 119, 6, 0.14) !important;
+  color: #b45309 !important;
+}
+
+body.dark-mode .zolo-section-box-amber,
+body.dark-mode .cp-col-inventory {
+  background-color: #241a06 !important;
+  border-color: rgba(245, 158, 11, 0.32) !important;
+  box-shadow: 0 2px 10px rgba(36, 26, 6, 0.5) !important;
+}
+
+body.dark-mode .zolo-section-box-amber .zolo-section-box-header,
+body.dark-mode .cp-col-inventory .cp-col-title {
+  color: #fbbf24 !important;
+  border-bottom-color: rgba(245, 158, 11, 0.25) !important;
+}
+
+body.dark-mode .zolo-section-box-amber .zolo-section-box-icon {
+  background: rgba(251, 191, 36, 0.18) !important;
+  color: #fbbf24 !important;
+}
+
+/* ====================================================================
+   UNIFIED SINGLE-PAGE PRODUCT FORM (Zero Scroll, Sectionized Grid)
+   ==================================================================== */
+section.forms:has(.product-single-screen-card) {
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+
+section.forms:has(.product-single-screen-card) .container-fluid {
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+
+.product-single-screen-card {
+  margin-bottom: 0 !important;
+  border-radius: var(--neo-radius-lg, 12px) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+.product-single-screen-card .card-header {
+  padding: 8px 16px !important;
+  min-height: 44px !important;
+  background: var(--neo-surface-card) !important;
+  border-bottom: 1px solid var(--neo-border) !important;
+}
+
+.product-single-screen-card .card-body {
+  padding: 10px 14px !important;
+}
+
+.zolo-product-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  align-items: stretch !important;
+}
+
+@media (max-width: 1200px) {
+  .zolo-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .zolo-product-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+/* ==========================================================================
+   SEAMLESS INPUT GROUPS & INTEGRATED ICONS
+   ========================================================================== */
+.zolo-product-grid .input-group,
+.product-extended-details-container .input-group,
+.zolo-inventory-stripe .input-group {
+  display: flex !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  position: relative !important;
+}
+
+.zolo-product-grid .input-group-prepend,
+.product-extended-details-container .input-group-prepend,
+.zolo-product-grid .input-group-append,
+.product-extended-details-container .input-group-append {
+  display: flex !important;
+  align-items: stretch !important;
+  margin: 0 !important;
+}
+
+.zolo-product-grid .input-group-prepend .input-group-text,
+.product-extended-details-container .input-group-prepend .input-group-text {
+  height: 31px !important;
+  min-height: 31px !important;
+  padding: 0 9px !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: var(--z-field-bg, #ffffff) !important;
+  border: 1px solid var(--z-field-border, #cbd5e1) !important;
+  border-right: none !important;
+  border-radius: 6px 0 0 6px !important;
+  color: var(--neo-text-secondary, #64748b) !important;
+  transition: border-color 0.15s ease, color 0.15s ease !important;
+  cursor: pointer !important;
+}
+
+body.dark-mode .zolo-product-grid .input-group-prepend .input-group-text,
+body.dark-mode .product-extended-details-container .input-group-prepend .input-group-text {
+  background-color: #1e2640 !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+.zolo-product-grid .input-group-prepend + .form-control,
+.product-extended-details-container .input-group-prepend + .form-control {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-left: 1px solid var(--z-field-border, #cbd5e1) !important;
+}
+
+body.dark-mode .zolo-product-grid .input-group-prepend + .form-control,
+body.dark-mode .product-extended-details-container .input-group-prepend + .form-control {
+  border-left-color: #334155 !important;
+}
+
+.input-group:focus-within .input-group-text {
+  border-color: var(--z-primary) !important;
+  color: var(--z-primary) !important;
+}
+
+.input-group:focus-within .form-control {
+  border-color: var(--z-primary) !important;
+}
+
+.zolo-product-grid .input-group-append .btn,
+.product-extended-details-container .input-group-append .btn,
+.zolo-product-grid .input-group-append .input-group-text,
+.product-extended-details-container .input-group-append .input-group-text {
+  height: 31px !important;
+  min-height: 31px !important;
+  padding: 0 10px !important;
+  font-size: 11.5px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid var(--z-field-border, #cbd5e1) !important;
+  border-left: none !important;
+  border-radius: 0 6px 6px 0 !important;
+  background-color: var(--z-surface-2, #f8fafc) !important;
+  color: var(--neo-text-secondary, #64748b) !important;
+  margin: 0 !important;
+}
+
+body.dark-mode .zolo-product-grid .input-group-append .btn,
+body.dark-mode .product-extended-details-container .input-group-append .btn,
+body.dark-mode .zolo-product-grid .input-group-append .input-group-text,
+body.dark-mode .product-extended-details-container .input-group-append .input-group-text {
+  background-color: #1e2640 !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+.input-group > .form-control:not(:last-child) {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.input-group > .bootstrap-select:not(:last-child) > .btn {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-right: none !important;
+}
+
+.zolo-product-grid .zolo-section-box {
+  padding: 10px 12px !important;
+  gap: 6px !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.zolo-product-grid .zolo-section-box-content {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  flex: 1 1 auto !important;
+}
+
+.zolo-product-grid .form-group {
+  margin-bottom: 5px !important;
+}
+
+.zolo-product-grid label {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  margin-bottom: 2px !important;
+  color: var(--neo-text-secondary, #64748b) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+body.dark-mode .zolo-product-grid label {
+  color: #94a3b8 !important;
+}
+
+.zolo-product-grid .form-control,
+.product-extended-details-container .form-control {
+  height: 31px !important;
+  min-height: 31px !important;
+  padding: 2px 8px !important;
+  font-size: 11.5px !important;
+  border-radius: 6px !important;
+}
+
+.zolo-product-grid .bootstrap-select > .btn {
+  height: 31px !important;
+  min-height: 31px !important;
+  padding: 2px 24px 2px 8px !important;
+  font-size: 11.5px !important;
+  border-radius: 6px !important;
+}
+
+.zolo-product-grid .input-group-append .btn {
+  height: 31px !important;
+  padding: 0 8px !important;
+  border-radius: 0 6px 6px 0 !important;
+}
+
+.zolo-product-grid .zolo-toggle-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 4px 6px !important;
+}
+
+.zolo-product-grid .zolo-toggle-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 4px 6px !important;
+  background: rgba(0, 0, 0, 0.02) !important;
+  border: 1px solid rgba(0, 0, 0, 0.04) !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  margin-bottom: 0 !important;
+}
+
+body.dark-mode .zolo-product-grid .zolo-toggle-item {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.zolo-product-grid .zolo-toggle-item input[type="checkbox"] {
+  margin: 0 !important;
+  cursor: pointer !important;
+}
+
+.zolo-product-grid .dropzone {
+  min-height: 65px !important;
+  max-height: 85px !important;
+  padding: 4px !important;
+  border: 1.5px dashed var(--neo-border) !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(0, 0, 0, 0.01) !important;
+}
+
+body.dark-mode .zolo-product-grid .dropzone {
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.zolo-product-grid .dropzone .dz-message {
+  margin: 0 !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: var(--neo-text-secondary) !important;
+}
+
+.zolo-product-grid textarea.form-control {
+  height: 48px !important;
+  min-height: 48px !important;
+  font-size: 11px !important;
+  line-height: 1.3 !important;
+  resize: vertical !important;
+}
+
+.zolo-product-grid .table-responsive {
+  max-height: 140px !important;
+  overflow-y: auto !important;
+  border: 1px solid var(--neo-border) !important;
+  border-radius: 6px !important;
+  margin-top: 4px !important;
+}
+
+.zolo-product-grid .table-responsive table {
+  margin: 0 !important;
+  font-size: 10.5px !important;
+}
+
+.zolo-product-grid .table-responsive th,
+.zolo-product-grid .table-responsive td {
+  padding: 3px 6px !important;
+}
+
+.zolo-product-grid .col-md-4 {
+  flex: 0 0 50% !important;
+  max-width: 50% !important;
+}
+
+.zolo-product-grid small.text-muted,
+.zolo-product-grid small.text-warning {
+  display: block !important;
+  font-size: 9.5px !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+  margin-top: 1px !important;
+}
+
+.zolo-product-grid .input-group .bootstrap-select {
+  flex: 1 1 50% !important;
+  width: 50% !important;
+  min-width: 0 !important;
+}
+
+/* ==========================================================================
+   INVENTORY & STOCK CONTROL HORIZONTAL STRIPE
+   Full-width control bar placed under top 3 primary boxes with toggle buttons
+   ========================================================================== */
+.zolo-inventory-stripe {
+  width: 100% !important;
+  margin-top: 10px !important;
+  margin-bottom: 8px !important;
+  padding: 8px 14px !important;
+  background: var(--neo-surface-card, #ffffff) !important;
+  border: 1px solid var(--neo-border, #e2e8f0) !important;
+  border-left: 4px solid #f59e0b !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex-wrap: wrap !important;
+  gap: 6px 10px !important;
+}
+
+body.dark-mode .zolo-inventory-stripe {
+  background: #182035 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  border-left-color: #f59e0b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+.zolo-inventory-stripe-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+.zolo-inventory-stripe-icon {
+  width: 24px !important;
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 5px !important;
+  background: rgba(245, 158, 11, 0.12) !important;
+  color: #d97706 !important;
+}
+
+.zolo-inventory-stripe-title {
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  color: #b45309 !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+
+body.dark-mode .zolo-inventory-stripe-title {
+  color: #fbbf24 !important;
+}
+
+.zolo-inventory-stripe-alert {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+}
+
+.zolo-inventory-stripe-alert label {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: var(--neo-text-secondary, #64748b) !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+
+.zolo-inventory-stripe-alert input {
+  width: 130px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  padding: 2px 8px !important;
+  font-size: 11.5px !important;
+  border-radius: 6px !important;
+}
+
+/* The pills flow on the same rows as the title and alert quantity (no separate row, no stray divider when they wrap). */
+.zolo-inventory-stripe-divider {
+  display: none !important;
+}
+
+.zolo-inventory-stripe-toggles {
+  display: contents !important;
+}
+
+/* Individual Toggle Switch Button (matches iOS/Material modern toggle buttons) */
+.zolo-toggle-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  padding: 4px 10px 4px 5px !important;
+  border-radius: 20px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  border: 1px solid var(--neo-border, #e2e8f0) !important;
+  background: var(--z-field-bg, #ffffff) !important;
+  color: var(--neo-text-secondary, #64748b) !important;
+  margin: 0 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  white-space: nowrap !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Product type hides options that do not apply (jQuery .hide() writes display:none inline). */
+.zolo-toggle-pill[style*="display: none"] {
+  display: none !important;
+}
+
+body.dark-mode .zolo-toggle-pill {
+  background: #151c2e !important;
+  border-color: #27334d !important;
+  color: #94a3b8 !important;
+}
+
+.zolo-toggle-pill:hover {
+  border-color: var(--z-primary) !important;
+  color: var(--neo-text-primary, #1e293b) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+body.dark-mode .zolo-toggle-pill:hover {
+  color: #f1f5f9 !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.zolo-toggle-pill input[type="checkbox"] {
+  display: none !important;
+}
+
+/* Toggle Switch Track & Thumb (matching native toggle button image) */
+.zolo-switch-track {
+  width: 28px !important;
+  height: 16px !important;
+  border-radius: 999px !important;
+  background-color: #cbd5e1 !important;
+  position: relative !important;
+  display: inline-block !important;
+  flex-shrink: 0 !important;
+  transition: background-color 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+body.dark-mode .zolo-switch-track {
+  background-color: #334155 !important;
+}
+
+.zolo-switch-thumb {
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50% !important;
+  background-color: #ffffff !important;
+  position: absolute !important;
+  top: 2px !important;
+  left: 2px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Active / Checked States: Knob slides to right, Track fills with color */
+.zolo-toggle-pill.is-active .zolo-switch-thumb,
+.zolo-toggle-pill:has(input:checked) .zolo-switch-thumb {
+  transform: translateX(12px) !important;
+}
+
+/* Fallback dot support if present */
+.zolo-toggle-pill .pill-dot {
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #94a3b8 !important;
+  transition: background-color 0.15s ease, transform 0.15s ease !important;
+}
+
+/* Default / Purple theme */
+.zolo-toggle-pill.is-active .zolo-switch-track,
+.zolo-toggle-pill:has(input:checked) .zolo-switch-track {
+  background-color: var(--z-primary) !important;
+}
+.zolo-toggle-pill.is-active,
+.zolo-toggle-pill:has(input:checked) {
+  background: var(--z-primary-soft, #f5e6f5) !important;
+  border-color: var(--z-primary) !important;
+  color: var(--z-primary) !important;
+  font-weight: 600 !important;
+}
+body.dark-mode .zolo-toggle-pill.is-active,
+body.dark-mode .zolo-toggle-pill:has(input:checked) {
+  background: rgba(125, 40, 126, 0.2) !important;
+  border-color: var(--zp-400, #c37ac4) !important;
+  color: var(--zp-200, #ebcdeb) !important;
+}
+.zolo-toggle-pill.is-active .pill-dot,
+.zolo-toggle-pill:has(input:checked) .pill-dot {
+  background: var(--z-primary) !important;
+  transform: scale(1.3) !important;
+}
+
+/* Amber role (Initial Stock, Batch) */
+.zolo-toggle-pill[data-role="amber"].is-active .zolo-switch-track,
+.zolo-toggle-pill[data-role="amber"]:has(input:checked) .zolo-switch-track {
+  background-color: #f59e0b !important;
+}
+.zolo-toggle-pill[data-role="amber"].is-active,
+.zolo-toggle-pill[data-role="amber"]:has(input:checked) {
+  background: rgba(245, 158, 11, 0.1) !important;
+  border-color: #f59e0b !important;
+  color: #b45309 !important;
+  font-weight: 600 !important;
+}
+body.dark-mode .zolo-toggle-pill[data-role="amber"].is-active,
+body.dark-mode .zolo-toggle-pill[data-role="amber"]:has(input:checked) {
+  background: rgba(245, 158, 11, 0.2) !important;
+  border-color: #fbbf24 !important;
+  color: #fde68a !important;
+}
+.zolo-toggle-pill[data-role="amber"].is-active .pill-dot,
+.zolo-toggle-pill[data-role="amber"]:has(input:checked) .pill-dot {
+  background: #f59e0b !important;
+}
+
+/* Emerald role (Diff Price, Embedded Barcode, In Stock) */
+.zolo-toggle-pill[data-role="emerald"].is-active .zolo-switch-track,
+.zolo-toggle-pill[data-role="emerald"]:has(input:checked) .zolo-switch-track {
+  background-color: #10b981 !important;
+}
+.zolo-toggle-pill[data-role="emerald"].is-active,
+.zolo-toggle-pill[data-role="emerald"]:has(input:checked) {
+  background: rgba(16, 185, 129, 0.1) !important;
+  border-color: #10b981 !important;
+  color: #047857 !important;
+  font-weight: 600 !important;
+}
+body.dark-mode .zolo-toggle-pill[data-role="emerald"].is-active,
+body.dark-mode .zolo-toggle-pill[data-role="emerald"]:has(input:checked) {
+  background: rgba(16, 185, 129, 0.2) !important;
+  border-color: #34d399 !important;
+  color: #a7f3d0 !important;
+}
+.zolo-toggle-pill[data-role="emerald"].is-active .pill-dot,
+.zolo-toggle-pill[data-role="emerald"]:has(input:checked) .pill-dot {
+  background: #10b981 !important;
+}
+
+/* Blue role (IMEI, Promo Price, Addon) */
+.zolo-toggle-pill[data-role="blue"].is-active .zolo-switch-track,
+.zolo-toggle-pill[data-role="blue"]:has(input:checked) .zolo-switch-track {
+  background-color: #2563eb !important;
+}
+.zolo-toggle-pill[data-role="blue"].is-active,
+.zolo-toggle-pill[data-role="blue"]:has(input:checked) {
+  background: rgba(37, 99, 235, 0.1) !important;
+  border-color: #2563eb !important;
+  color: #1d4ed8 !important;
+  font-weight: 600 !important;
+}
+body.dark-mode .zolo-toggle-pill[data-role="blue"].is-active,
+body.dark-mode .zolo-toggle-pill[data-role="blue"]:has(input:checked) {
+  background: rgba(37, 99, 235, 0.2) !important;
+  border-color: #60a5fa !important;
+  color: #bfdbfe !important;
+}
+.zolo-toggle-pill[data-role="blue"].is-active .pill-dot,
+.zolo-toggle-pill[data-role="blue"]:has(input:checked) .pill-dot {
+  background: #2563eb !important;
+}
+
+/* Rose role (Sync disable) */
+.zolo-toggle-pill[data-role="rose"].is-active .zolo-switch-track,
+.zolo-toggle-pill[data-role="rose"]:has(input:checked) .zolo-switch-track {
+  background-color: #e11d48 !important;
+}
+.zolo-toggle-pill[data-role="rose"].is-active,
+.zolo-toggle-pill[data-role="rose"]:has(input:checked) {
+  background: rgba(225, 29, 72, 0.1) !important;
+  border-color: #e11d48 !important;
+  color: #be123c !important;
+  font-weight: 600 !important;
+}
+body.dark-mode .zolo-toggle-pill[data-role="rose"].is-active,
+body.dark-mode .zolo-toggle-pill[data-role="rose"]:has(input:checked) {
+  background: rgba(225, 29, 72, 0.2) !important;
+  border-color: #fb7185 !important;
+  color: #fecdd3 !important;
+}
+.zolo-toggle-pill[data-role="rose"].is-active .pill-dot,
+.zolo-toggle-pill[data-role="rose"]:has(input:checked) .pill-dot {
+  background: #e11d48 !important;
+}
+
+/* Extended conditional sections below the top primary grid:
+   Arranges conditional boxes dynamically in a balanced row with NO gaps. */
+.product-extended-details-container {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  align-items: stretch !important;
+}
+
+/* Dynamic Responsive Spans: never leave an empty gap in any row */
+.product-extended-details-container > .zolo-grid-span-1 {
+  grid-column: span 1 !important;
+  min-width: 0 !important;
+}
+.product-extended-details-container > .zolo-grid-span-2 {
+  grid-column: span 2 !important;
+  min-width: 0 !important;
+}
+.product-extended-details-container > .zolo-grid-span-3 {
+  grid-column: span 3 !important;
+  min-width: 0 !important;
+}
+.product-extended-details-container > .zolo-grid-span-4 {
+  grid-column: span 4 !important;
+  min-width: 0 !important;
+}
+
+/* Default fallback grid spans if dynamic class not yet applied */
+.product-extended-details-container > #initial-stock-section,
+.product-extended-details-container > #diffPrice-section,
+.product-extended-details-container > #imei-section,
+.product-extended-details-container > #promo-container {
+  grid-column: span 1;
+  min-width: 0;
+}
+
+.product-extended-details-container > #variant-section,
+.product-extended-details-container > #batch-section {
+  grid-column: span 2;
+  min-width: 0;
+}
+
+.product-extended-details-container > #combo {
+  grid-column: span 4 !important;
+  min-width: 0 !important;
+}
+
+/* Promotional Price in Single Grid - Vertically Arranged */
+.zolo-promo-vertical-form {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+@media (max-width: 1400px) {
+  .product-extended-details-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .product-extended-details-container > .zolo-grid-span-2,
+  .product-extended-details-container > .zolo-grid-span-3,
+  .product-extended-details-container > .zolo-grid-span-4,
+  .product-extended-details-container > #variant-section,
+  .product-extended-details-container > #batch-section,
+  .product-extended-details-container > #combo {
+    grid-column: span 2 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-extended-details-container {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .product-extended-details-container > div,
+  .product-extended-details-container > .zolo-grid-span-1,
+  .product-extended-details-container > .zolo-grid-span-2,
+  .product-extended-details-container > .zolo-grid-span-3,
+  .product-extended-details-container > .zolo-grid-span-4 {
+    grid-column: span 1 !important;
+  }
+}
+
+.product-extended-details-container .zolo-section-box {
+  margin-bottom: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.product-extended-details-container .zolo-section-box-content {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+}
+
+.product-extended-details-container .table-responsive {
+  border: 1px solid var(--neo-border, #e2e8f0);
+  border-radius: var(--neo-radius-md, 8px);
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.product-extended-details-container .table {
+  margin: 0 !important;
+}
+
+/* Tags Input (Variant values, Product tags) */
+.tagsinput {
+  background: var(--neo-input-bg, #ffffff) !important;
+  border: 1px solid var(--neo-border, #cbd5e1) !important;
+  border-radius: 6px !important;
+  min-height: 33px !important;
+  padding: 3px 6px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+body.dark-mode .tagsinput {
+  background: var(--neo-input-bg, #141c2e) !important;
+  border-color: var(--neo-border, #1e293b) !important;
+}
+
+.tagsinput .tag {
+  background: var(--z-primary) !important;
+  color: var(--z-primary-contrast, #ffffff) !important;
+  border-radius: 4px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  padding: 2px 22px 2px 8px !important;
+  margin: 0 !important;
+  line-height: 20px !important;
+  position: relative !important;
+}
+
+.tagsinput .tag .tag-remove {
+  color: #ffffff !important;
+  line-height: 24px !important;
+  width: 20px !important;
+  height: 20px !important;
+  top: 0 !important;
+  right: 2px !important;
+}
+
+.tagsinput .tag .tag-remove:after,
+.tagsinput .tag .tag-remove:before {
+  background: #ffffff !important;
+  width: 8px !important;
+  height: 2px !important;
+  top: 11px !important;
+  left: 6px !important;
+}
+
+.tagsinput div input {
+  color: var(--neo-text-primary, #0f172a) !important;
+  font-size: 11.5px !important;
+  height: 26px !important;
+  padding: 2px 4px !important;
+  margin: 0 !important;
+}
+
+body.dark-mode .tagsinput div input {
+  color: var(--neo-text-primary, #f1f5f9) !important;
+}
+
+/* ====================================================================
+   TABLES & DATATABLES - MODERN INTELLIGENT ALIGNMENT
+   ==================================================================== */
+.table, .neo-table, table.dataTable {
+  color: var(--neo-text-primary) !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100% !important;
+  border: 1px solid var(--neo-border) !important;
+  border-radius: var(--neo-radius-md) !important;
+  overflow: visible !important;
+  margin-top: 10px !important;
+  margin-bottom: 16px !important;
+}
+
+.table thead tr:first-child th:first-child,
+.neo-table thead tr:first-child th:first-child,
+table.dataTable thead tr:first-child th:first-child {
+  border-top-left-radius: var(--neo-radius-md) !important;
+}
+
+.table thead tr:first-child th:last-child,
+.neo-table thead tr:first-child th:last-child,
+table.dataTable thead tr:first-child th:last-child {
+  border-top-right-radius: var(--neo-radius-md) !important;
+}
+
+.table thead th, .neo-table thead th, table.dataTable thead th {
+  background-color: var(--z-table-head-bg) !important;
+  border-top: none !important;
+  border-bottom: 2px solid var(--z-table-head-bg) !important;
+  color: var(--z-table-head-text) !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  padding: 11px 16px !important;
+  vertical-align: middle !important;
+  white-space: nowrap !important;
+}
+
+body.dark-mode .table thead th,
+body.dark-mode .neo-table thead th,
+body.dark-mode table.dataTable thead th {
+  background-color: var(--z-table-head-bg) !important;
+  color: var(--z-table-head-text) !important;
+  border-bottom-color: #1e293b !important;
+}
+
+.table tbody td, .neo-table tbody td, table.dataTable tbody td {
+  border-bottom: 1px solid var(--neo-border-light) !important;
+  border-top: none !important;
+  padding: 13px 18px !important;
+  font-size: 13.5px !important;
+  vertical-align: middle !important;
+  color: var(--neo-text-primary) !important;
+  transition: background-color 0.15s ease !important;
+}
+
+body.dark-mode .table tbody td,
+body.dark-mode .neo-table tbody td,
+body.dark-mode table.dataTable tbody td {
+  border-bottom-color: #1e293b !important;
+  color: var(--neo-text-primary) !important;
+}
+
+.table-hover tbody tr:hover td,
+table.dataTable.table-hover tbody tr:hover td {
+  background-color: rgb(var(--z-primary-rgb) / 0.04) !important;
+}
+
+body.dark-mode .table-hover tbody tr:hover td {
+  background-color: rgb(var(--z-primary-rgb) / 0.08) !important;
+}
+
+/* DataTables Controls: Length Select & Filter Search */
+.dataTables_wrapper {
+  padding: 6px 0 !important;
+  font-size: 13px !important;
+}
+
+.dataTables_wrapper .dataTables_length {
+  margin-bottom: 14px !important;
+}
+
+.dataTables_wrapper .dataTables_length select {
+  height: 36px !important;
+  padding: 4px 28px 4px 12px !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--neo-border) !important;
+  background-color: var(--neo-surface) !important;
+  color: var(--neo-text-primary) !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  outline: none !important;
+  box-shadow: var(--neo-shadow-xs) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.dataTables_wrapper .dataTables_length select:focus {
+  border-color: var(--neo-primary) !important;
+  box-shadow: 0 0 0 3px rgb(var(--z-primary-rgb) / 0.15) !important;
+}
+
+.dataTables_wrapper .dataTables_filter {
+  margin-bottom: 14px !important;
+}
+
+.dataTables_wrapper .dataTables_filter label {
+  font-weight: 500 !important;
+  color: var(--neo-text-secondary) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+  height: 38px !important;
+  padding: 6px 16px !important;
+  border-radius: 20px !important;
+  border: 1px solid var(--neo-border) !important;
+  background-color: var(--neo-surface) !important;
+  color: var(--neo-text-primary) !important;
+  font-size: 13px !important;
+  outline: none !important;
+  width: 220px !important;
+  box-shadow: var(--neo-shadow-xs) !important;
+  transition: all 0.2s ease !important;
+}
+
+.dataTables_wrapper .dataTables_filter input:focus {
+  width: 260px !important;
+  border-color: var(--neo-primary) !important;
+  box-shadow: 0 0 0 3px rgb(var(--z-primary-rgb) / 0.15) !important;
+}
+
+/* DataTables Pagination & Info - Single Compact Box Normalization */
+.dataTables_wrapper .dataTables_info {
+  font-size: 12.5px !important;
+  color: var(--neo-text-muted) !important;
+  padding-top: 8px !important;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+  padding-top: 6px !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+/* Strip outer borders and padding from the li/container */
+.dataTables_wrapper .dataTables_paginate li.paginate_button,
+.dataTables_wrapper .dataTables_paginate .page-item,
+.dataTables_wrapper .dataTables_paginate ul.pagination li {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 1px !important;
+}
+
+/* Single compact box for the page link */
+.dataTables_wrapper .dataTables_paginate .page-link,
+.dataTables_wrapper .dataTables_paginate a.paginate_button,
+.dataTables_wrapper .dataTables_paginate span.paginate_button:not(.page-item) {
+  padding: 3px 8px !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 1px !important;
+  border-radius: 6px !important;
+  border: 1px solid var(--neo-border, #cbd5e1) !important;
+  background: var(--neo-surface, #ffffff) !important;
+  color: var(--neo-text-secondary, #475569) !important;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .page-link:hover,
+.dataTables_wrapper .dataTables_paginate a.paginate_button:hover {
+  background: var(--neo-primary-light, var(--z-primary-soft)) !important;
+  color: var(--neo-primary, var(--z-primary)) !important;
+  border-color: var(--neo-primary, var(--z-primary)) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .page-item.active .page-link,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+  background: var(--neo-primary, var(--z-primary)) !important;
+  color: #ffffff !important;
+  border-color: var(--neo-primary, var(--z-primary)) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 6px rgb(var(--z-primary-rgb) / 0.3) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .page-item.disabled .page-link,
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+  opacity: 0.45 !important;
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #94a3b8 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+}
+
+/* Table Action Buttons with Clean Proper Alignment */
+.table td .btn-outline-primary,
+.table td .btn-action,
+.table td a.btn.btn-sm.btn-outline-primary {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 8px !important;
+  border: 1px solid rgb(var(--z-primary-rgb) / 0.25) !important;
+  background: rgb(var(--z-primary-rgb) / 0.08) !important;
+  color: var(--z-primary) !important;
+  font-size: 14px !important;
+  transition: all 0.2s ease !important;
+}
+
+.table td .btn-outline-primary:hover,
+.table td .btn-action:hover,
+.table td a.btn.btn-sm.btn-outline-primary:hover {
+  background: var(--z-primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgb(var(--z-primary-rgb) / 0.35) !important;
+  transform: translateY(-1px);
+}
+
+/* ====================================================================
+   DATATABLE EXPORT BUTTONS & TOOLBAR
+   Clean, compact single box styling without nested borders
+   ==================================================================== */
+.dt-buttons,
+div.dt-buttons {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  margin-bottom: 8px !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.dt-buttons.btn-group,
+.dt-buttons .btn-group {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  gap: 4px !important;
+  padding: 0 !important;
+}
+
+.dt-buttons.btn-group > .btn:first-child,
+.dt-buttons.btn-group > .btn:last-child,
+.dt-buttons.btn-group > .btn:not(:first-child):not(:last-child):not(.dropdown-toggle) {
+  border-radius: 6px !important;
+}
+
+.dt-buttons .btn,
+.dt-buttons button.dt-button,
+.dt-buttons .btn-default,
+div.dt-buttons button,
+div.dt-buttons a.btn {
+  background-color: var(--neo-surface, #ffffff) !important;
+  border: 1px solid var(--neo-border, #cbd5e1) !important;
+  border-radius: 6px !important;
+  padding: 4px 10px !important;
+  color: var(--neo-text-primary, #0f172a) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  transition: all 0.15s ease !important;
+  min-height: 28px !important;
+  height: 28px !important;
+  text-decoration: none !important;
+}
+
+/* Force visible high-contrast icons & text inside buttons, no nested borders */
+.dt-buttons .btn span,
+.dt-buttons button.dt-button span,
+.dt-buttons .btn-default span,
+div.dt-buttons button span,
+div.dt-buttons a.btn span,
+.dt-buttons button span i,
+.dt-buttons .btn i,
+div.dt-buttons button i,
+div.dt-buttons a.btn i {
+  color: var(--neo-text-secondary, #475569) !important;
+  font-size: 13px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  transition: color 0.15s ease !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.dt-buttons .btn:hover,
+.dt-buttons button.dt-button:hover,
+.dt-buttons .btn-default:hover,
+div.dt-buttons button:hover,
+div.dt-buttons a.btn:hover {
+  background-color: #f8fafc !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+  transform: none !important;
+}
+
+.dt-buttons .btn:hover span,
+.dt-buttons .btn:hover i,
+.dt-buttons button.dt-button:hover span,
+.dt-buttons button.dt-button:hover i,
+div.dt-buttons button:hover span,
+div.dt-buttons button:hover i {
+  color: var(--neo-primary, var(--z-primary)) !important;
+}
+
+/* Distinct Vibrant Modern Accents for Export Types */
+.dt-buttons .buttons-pdf i,
+.dt-buttons button.buttons-pdf i {
+  color: #ef4444 !important; /* Rose Red */
+}
+
+.dt-buttons .buttons-excel i,
+.dt-buttons button.buttons-excel i,
+.dt-buttons .buttons-csv i,
+.dt-buttons button.buttons-csv i {
+  color: #10b981 !important; /* Emerald Green */
+}
+
+.dt-buttons .buttons-print i,
+.dt-buttons button.buttons-print i {
+  color: #0ea5e9 !important; /* Sky Blue */
+}
+
+.dt-buttons .buttons-delete i,
+.dt-buttons button.buttons-delete i {
+  color: #f43f5e !important; /* Crimson Delete */
+}
+
+.dt-buttons .buttons-collection i,
+.dt-buttons button.buttons-collection i,
+.dt-buttons .buttons-colvis i,
+.dt-buttons button.buttons-colvis i {
+  color: var(--z-primary) !important; /* Indigo ColVis */
+}
+
+/* Caret on column collection button */
+.dt-buttons .buttons-collection::after {
+  content: '';
+  display: inline-block;
+  margin-left: 6px;
+  vertical-align: middle;
+  border-top: 4px solid var(--neo-text-secondary, #64748b);
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+}
+
+/* ====================================================================
+   DATATABLE COLUMN VISIBILITY COLLECTION DROPDOWN
+   Fixes the blank white box popover
+   ==================================================================== */
+div.dt-button-collection,
+ul.dt-button-collection.dropdown-menu,
+.dt-button-collection {
+  position: absolute !important;
+  background-color: var(--neo-surface-card, #ffffff) !important;
+  border: 1px solid var(--neo-border, #e2e8f0) !important;
+  border-radius: var(--neo-radius-lg, 12px) !important;
+  box-shadow: 0 20px 45px -4px rgba(15, 23, 42, 0.22), 0 8px 16px -2px rgba(15, 23, 42, 0.1) !important;
+  padding: 8px !important;
+  min-width: 220px !important;
+  max-height: min(480px, calc(100vh - 160px)) !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  z-index: 99999 !important;
+  margin-top: 6px !important;
+}
+
+div.dt-button-collection::-webkit-scrollbar {
+  width: 5px;
+}
+div.dt-button-collection::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+div.dt-button-collection::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+div.dt-button-collection .dt-button,
+ul.dt-button-collection.dropdown-menu a,
+ul.dt-button-collection.dropdown-menu button,
+.dt-button-collection button.dropdown-item,
+.dt-button-collection a.dropdown-item {
+  background: transparent !important;
+  color: var(--neo-text-primary, #0f172a) !important;
+  border-radius: var(--neo-radius-sm, 6px) !important;
+  padding: 8px 14px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  transition: all 0.15s ease !important;
+  border: none !important;
+  text-decoration: none !important;
+  width: 100% !important;
+  cursor: pointer !important;
+}
+
+div.dt-button-collection .dt-button span,
+ul.dt-button-collection.dropdown-menu a span,
+ul.dt-button-collection.dropdown-menu button span,
+.dt-button-collection button.dropdown-item span,
+.dt-button-collection a.dropdown-item span {
+  color: var(--neo-text-primary, #0f172a) !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  text-align: left !important;
+  display: block !important;
+  width: 100% !important;
+}
+
+div.dt-button-collection .dt-button:hover,
+ul.dt-button-collection.dropdown-menu a:hover,
+ul.dt-button-collection.dropdown-menu button:hover,
+.dt-button-collection button.dropdown-item:hover,
+.dt-button-collection a.dropdown-item:hover {
+  background-color: var(--neo-primary-light, var(--z-primary-soft)) !important;
+  color: var(--neo-primary, var(--z-primary)) !important;
+}
+
+div.dt-button-collection .dt-button:hover span,
+ul.dt-button-collection.dropdown-menu a:hover span,
+ul.dt-button-collection.dropdown-menu button:hover span,
+.dt-button-collection button.dropdown-item:hover span,
+.dt-button-collection a.dropdown-item:hover span {
+  color: var(--neo-primary, var(--z-primary)) !important;
+  font-weight: 600 !important;
+}
+
+/* Active State for Visible Columns */
+div.dt-button-collection .dt-button.active,
+.dt-button-collection .buttons-columnVisibility.active {
+  background-color: rgb(var(--z-primary-rgb) / 0.1) !important;
+  color: var(--neo-primary, var(--z-primary)) !important;
+  font-weight: 600 !important;
+}
+
+div.dt-button-collection .dt-button.active span,
+.dt-button-collection .buttons-columnVisibility.active span {
+  color: var(--neo-primary, var(--z-primary)) !important;
+  font-weight: 600 !important;
+}
+
+div.dt-button-collection .dt-button.active::after,
+.dt-button-collection .buttons-columnVisibility.active::after {
+  content: '✓';
+  color: var(--neo-primary, var(--z-primary));
+  font-weight: bold;
+  margin-left: auto;
+  padding-left: 8px;
+}
+
+/* Badges with Soft Tint & Vibrant Pill Style */
+.badge-pill {
+  border-radius: 20px !important;
+  padding: 4px 10px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+}
+
+.badge-soft-primary {
+  background-color: var(--neo-primary-light) !important;
+  color: var(--neo-primary) !important;
+  font-weight: 600 !important;
+  padding: 4px 10px !important;
+}
+
+.badge-soft-success, .badge-success-soft {
+  background-color: var(--neo-success-light) !important;
+  color: var(--neo-success) !important;
+  font-weight: 600 !important;
+  padding: 4px 10px !important;
+}
+
+.badge-soft-warning {
+  background-color: var(--neo-warning-light) !important;
+  color: var(--neo-warning) !important;
+  font-weight: 600 !important;
+  padding: 4px 10px !important;
+}
+
+.badge-soft-danger {
+  background-color: var(--neo-danger-light) !important;
+  color: var(--neo-danger) !important;
+  font-weight: 600 !important;
+  padding: 4px 10px !important;
+}
+
+.badge-soft-info {
+  background-color: var(--neo-info-light) !important;
+  color: var(--neo-info) !important;
+  font-weight: 600 !important;
+  padding: 4px 10px !important;
+}
+
+.bg-soft-primary {
+  background-color: var(--neo-primary-light) !important;
+}
+
+.bg-soft-success {
+  background-color: var(--neo-success-light) !important;
+}
+
+.bg-soft-danger {
+  background-color: var(--neo-danger-light) !important;
+}
+
+/* ====================================================================
+   UNIFIED MODALS & DIALOGS DESIGN SYSTEM
+   ==================================================================== */
+.modal-backdrop, .modal-backdrop.show {
+  background-color: #0b0f19 !important;
+  opacity: 0.72 !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+.modal-dialog {
+  margin: 1.75rem auto;
+  max-width: 600px;
+}
+
+.modal-content, .neo-modal .modal-content {
+  background: var(--neo-surface-card) !important;
+  border: 1px solid var(--neo-border) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+  overflow: hidden !important;
+  position: relative !important;
+  color: var(--neo-text-primary) !important;
+}
+
+.modal-content::before,
+.modal-content::after,
+.modal-dialog::before,
+.modal-dialog::after,
+.modal-header::before,
+.modal-header::after {
+  display: none !important;
+  content: none !important;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--neo-border) !important;
+  padding: 20px 26px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: transparent !important;
+}
+
+.modal-title, .modal-header h5 {
+  font-family: var(--neo-font) !important;
+  font-size: 17.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--neo-text-primary) !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.modal-header .close {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid var(--neo-border) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--neo-text-secondary) !important;
+  font-size: 15px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  opacity: 0.85 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.modal-header .close:hover {
+  background: var(--neo-danger-light) !important;
+  color: var(--neo-danger) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  opacity: 1 !important;
+  transform: rotate(90deg);
+}
+
+.modal-body {
+  padding: 24px 28px !important;
+  color: var(--neo-text-primary) !important;
+}
+
+.modal-body p.italic small {
+  color: var(--neo-text-muted) !important;
+  font-size: 12px !important;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--neo-border) !important;
+  padding: 16px 26px !important;
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Unified Form Groups & Inputs Across Modals & Pages */
+.form-group {
+  margin-bottom: 20px !important;
+}
+
+.form-group label {
+  font-family: var(--neo-font) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--neo-text-secondary) !important;
+  margin-bottom: 7px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.form-control,
+input[type="text"].form-control,
+input[type="number"].form-control,
+input[type="email"].form-control,
+input[type="password"].form-control,
+textarea.form-control {
+  background: var(--neo-surface) !important;
+  border: 1.5px solid var(--neo-border) !important;
+  border-radius: 10px !important;
+  color: var(--neo-text-primary) !important;
+  padding: 9px 14px !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.form-control:focus,
+input[type="text"].form-control:focus,
+input[type="number"].form-control:focus,
+input[type="email"].form-control:focus,
+input[type="password"].form-control:focus,
+textarea.form-control:focus {
+  border-color: var(--neo-primary) !important;
+  box-shadow: 0 0 0 3px rgb(var(--z-primary-rgb) / 0.18) !important;
+  background: var(--neo-surface) !important;
+  outline: none !important;
+}
+
+.form-control::placeholder {
+  color: var(--neo-text-muted) !important;
+  font-size: 13px !important;
+}
+
+/* Compact & Seamless Form Controls for Product Page */
+.zolo-product-grid .form-control,
+.zolo-product-grid input[type="text"].form-control,
+.zolo-product-grid input[type="number"].form-control,
+.product-extended-details-container .form-control,
+.product-extended-details-container input[type="text"].form-control,
+.product-extended-details-container input[type="number"].form-control,
+.zolo-inventory-stripe .form-control,
+.zolo-inventory-stripe input[type="number"].form-control {
+  height: 31px !important;
+  min-height: 31px !important;
+  padding: 2px 8px !important;
+  font-size: 11.5px !important;
+  border-radius: 6px !important;
+}
+
+.zolo-product-grid .input-group-prepend + .form-control,
+.zolo-product-grid .input-group-prepend + input[type="text"].form-control,
+.product-extended-details-container .input-group-prepend + .form-control,
+.product-extended-details-container .input-group-prepend + input[type="text"].form-control {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-left: 1px solid var(--z-field-border, #cbd5e1) !important;
+}
+
+body.dark-mode .zolo-product-grid .input-group-prepend + .form-control,
+body.dark-mode .zolo-product-grid .input-group-prepend + input[type="text"].form-control,
+body.dark-mode .product-extended-details-container .input-group-prepend + .form-control,
+body.dark-mode .product-extended-details-container .input-group-prepend + input[type="text"].form-control {
+  border-left-color: #334155 !important;
+}
+
+.zolo-product-grid .input-group-append > .btn,
+.product-extended-details-container .input-group-append > .btn,
+.zolo-product-grid .input-group-append > .input-group-text,
+.product-extended-details-container .input-group-append > .input-group-text {
+  height: 31px !important;
+  min-height: 31px !important;
+  padding: 0 8px !important;
+  border-radius: 0 6px 6px 0 !important;
+}
+
+/* Unified Buttons Across Platform */
+.btn-primary,
+input[type="submit"].btn.btn-primary,
+.modal-body input[type="submit"],
+.modal-footer .btn-primary {
+  background: var(--neo-primary-gradient) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 9px 22px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 10px rgb(var(--z-primary-rgb) / 0.35) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  cursor: pointer !important;
+}
+
+.btn-primary:hover,
+input[type="submit"].btn.btn-primary:hover,
+.modal-body input[type="submit"]:hover,
+.modal-footer .btn-primary:hover {
+  background: linear-gradient(135deg, var(--z-primary) 0%, var(--z-primary-hover) 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgb(var(--z-primary-rgb) / 0.45) !important;
+  color: #ffffff !important;
+}
+
+.btn-secondary,
+.modal-footer .btn-secondary,
+.modal-footer .btn-default {
+  background: var(--neo-surface) !important;
+  border: 1px solid var(--neo-border) !important;
+  border-radius: 10px !important;
+  color: var(--neo-text-secondary) !important;
+  padding: 8px 18px !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-secondary:hover,
+.modal-footer .btn-secondary:hover,
+.modal-footer .btn-default:hover {
+  background: var(--neo-border-light) !important;
+  color: var(--neo-text-primary) !important;
+  border-color: var(--neo-border) !important;
+}
+
+.btn-info {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 10px rgba(14, 165, 233, 0.3) !important;
+}
+
+.btn-info:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4) !important;
+  color: #ffffff !important;
+}
+
+/* Unified Bootstrap Select & Dropdowns - Single Compact Box */
+.bootstrap-select,
+.bootstrap-select.form-control,
+div.bootstrap-select {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.bootstrap-select > .dropdown-toggle,
+.bootstrap-select > .btn.dropdown-toggle {
+  background: var(--neo-surface, #ffffff) !important;
+  border: 1px solid var(--neo-border, #cbd5e1) !important;
+  border-radius: 6px !important;
+  color: var(--neo-text-primary, #0f172a) !important;
+  padding: 6px 12px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  outline: none !important;
+}
+
+.bootstrap-select > .dropdown-toggle:focus,
+.bootstrap-select > .dropdown-toggle:active,
+.bootstrap-select.show > .dropdown-toggle,
+.bootstrap-select.show > .btn.dropdown-toggle {
+  border-color: var(--neo-primary, var(--z-primary)) !important;
+  box-shadow: 0 0 0 2px rgb(var(--z-primary-rgb) / 0.18) !important;
+  outline: none !important;
+}
+
+.bootstrap-select .dropdown-menu,
+.dropdown-menu {
+  background: var(--neo-surface-card, #ffffff) !important;
+  border: 1px solid var(--neo-border, #cbd5e1) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08) !important;
+  padding: 4px !important;
+  z-index: 1060 !important;
+}
+
+/* Eliminate nested double containers inside dropdown-menu */
+.bootstrap-select .dropdown-menu .inner,
+.bootstrap-select .inner,
+.dropdown-menu .inner,
+div.dropdown-menu > ul.dropdown-menu,
+ul.dropdown-menu.inner {
+  border: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  outline: none !important;
+}
+
+.bootstrap-select .dropdown-menu li,
+.dropdown-menu li {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.bootstrap-select .dropdown-menu li a,
+.dropdown-menu .dropdown-item {
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 5px !important;
+  color: var(--neo-text-primary, #0f172a) !important;
+  padding: 6px 10px !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  transition: all 0.12s ease !important;
+}
+
+.bootstrap-select .dropdown-menu li a:hover,
+.bootstrap-select .dropdown-menu li.selected a,
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus,
+.dropdown-menu .dropdown-item.active {
+  background: var(--neo-primary-light, var(--z-primary-soft)) !important;
+  color: var(--neo-primary, var(--z-primary)) !important;
+  font-weight: 600 !important;
+}
+
+.bootstrap-select .bs-searchbox input.form-control {
+  border-radius: 6px !important;
+  margin-bottom: 4px !important;
+  height: 32px !important;
+  border: 1px solid var(--neo-border, #cbd5e1) !important;
+}
+
+.dropdown-header {
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  font-weight: 700 !important;
+  color: var(--neo-text-muted) !important;
+  padding: 6px 12px !important;
+}
+
+/* ====================================================================
+   POS INTERFACE REFINEMENT
+   ==================================================================== */
+.pos-page {
+  background-color: var(--neo-bg) !important;
+}
+
+.pos-page #product-table td {
+  border: 1px solid var(--neo-border) !important;
+  border-radius: var(--neo-radius-md) !important;
+  background: var(--neo-surface) !important;
+  transition: all 0.2s ease !important;
+}
+
+.pos-page #product-table td:hover {
+  transform: translateY(-2px);
+  border-color: var(--neo-primary) !important;
+  box-shadow: var(--neo-shadow-md) !important;
+}
+
+/* ====================================================================
+   GOOGLE STITCH / zoloERP REFINEMENTS
+   ==================================================================== */
+
+/* Sidebar Category Headings */
+.sidebar-heading {
+  font-size: 10.5px !important;
+  text-transform: uppercase !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  color: #94a3b8 !important;
+  padding: 16px 20px 6px !important;
+  margin: 0 !important;
+  display: block !important;
+  user-select: none;
+}
+
+body.dark-mode .sidebar-heading {
+  color: #64748b !important;
+}
+
+/* Brand Badge in Navigation */
+.zolo-brand-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none !important;
+}
+
+.zolo-brand-badge {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--z-primary) 0%, var(--z-primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.zolo-brand-sub {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  letter-spacing: -0.01em;
+  padding-left: 2px;
+}
+
+/* Modern Stitch KPI Cards */
+.zolo-kpi-card {
+  background: var(--neo-surface);
+  border: 1px solid var(--neo-border);
+  border-radius: var(--neo-radius-lg);
+  padding: 20px 22px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--neo-shadow-xs);
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+
+.zolo-kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--neo-shadow-md);
+  border-color: #cbd5e1;
+}
+
+body.dark-mode .zolo-kpi-card:hover {
+  border-color: #334155;
+}
+
+.zolo-kpi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.zolo-kpi-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: transform 0.2s ease;
+}
+
+.zolo-kpi-card:hover .zolo-kpi-icon {
+  transform: scale(1.08);
+}
+
+.icon-purple {
+  background: rgb(var(--z-primary-rgb) / 0.12);
+  color: var(--z-primary);
+}
+
+.icon-orange {
+  background: rgba(249, 115, 22, 0.12);
+  color: #ea580c;
+}
+
+.icon-emerald {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+}
+
+.icon-blue {
+  background: rgba(59, 130, 246, 0.12);
+  color: #2563eb;
+}
+
+.zolo-kpi-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.01em;
+}
+
+.badge-purple {
+  background: rgb(var(--z-primary-rgb) / 0.1);
+  color: var(--z-primary-hover);
+}
+
+.badge-orange {
+  background: rgba(249, 115, 22, 0.1);
+  color: #c2410c;
+}
+
+.badge-emerald {
+  background: rgba(16, 185, 129, 0.1);
+  color: #047857;
+}
+
+.badge-blue {
+  background: rgba(59, 130, 246, 0.1);
+  color: #1d4ed8;
+}
+
+.zolo-kpi-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.zolo-kpi-value {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: var(--neo-font);
+  color: var(--neo-text-primary);
+  line-height: 1.2;
+  margin-bottom: 4px;
+  letter-spacing: -0.03em;
+}
+
+.zolo-kpi-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--neo-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.zolo-kpi-label svg,
+.zolo-kpi-label i {
+  font-size: 14px;
+  color: var(--neo-text-muted);
+}
+
+/* Modern Welcome Banner Card */
+.zolo-banner-card {
+  background: linear-gradient(135deg, var(--z-primary-soft) 0%, var(--z-primary-hover) 40%, var(--z-primary-hover) 100%);
+  border-radius: var(--neo-radius-lg);
+  padding: 24px 28px;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgb(var(--z-primary-rgb) / 0.3);
+  margin-bottom: 24px;
+}
+
+.zolo-banner-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.zolo-banner-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.zolo-banner-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+
+.zolo-banner-subtitle {
+  font-size: 13.5px;
+  color: var(--z-primary-border);
+  margin-bottom: 0;
+  font-weight: 400;
+}
+
+/* POS Radiant Top Action Button */
+.pos-top-btn {
+  background: var(--zb-bg) !important;
+  color: var(--zb-fg) !important;
+  font-weight: 600 !important;
+  font-size: 12.5px !important;
+  border-radius: 20px !important;
+  padding: 6px 16px !important;
+  box-shadow: 0 2px 10px rgb(var(--z-primary-rgb) / 0.35) !important;
+  border: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  transition: all 0.2s ease !important;
+}
+
+.pos-top-btn:hover {
+  box-shadow: 0 4px 14px rgb(var(--z-primary-rgb) / 0.5) !important;
+  transform: translateY(-1px) !important;
+  color: var(--zb-fg) !important;
+}
+
+/* ==========================================================================
+   UNIFIED DATATABLES CONTROLS (SEARCH, LENGTH DROPDOWN, BUTTONS)
+   ========================================================================== */
+.dataTables_wrapper .dataTables_length {
+  margin-bottom: 1rem;
+}
+
+.dataTables_wrapper .dataTables_length label {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  color: var(--neo-text-secondary) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  margin-bottom: 0 !important;
+}
+
+.dataTables_wrapper .dataTables_length select {
+  min-width: 78px !important;
+  height: 38px !important;
+  line-height: 28px !important;
+  padding: 4px 30px 4px 14px !important;
+  border-radius: 10px !important;
+  background-color: var(--neo-surface-card) !important;
+  color: var(--neo-text-primary) !important;
+  border: 1.5px solid var(--neo-border) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  cursor: pointer !important;
+  outline: none !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 10px center !important;
+  background-size: 12px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+}
+
+.dataTables_wrapper .dataTables_length select:hover {
+  border-color: var(--z-primary-text) !important;
+  box-shadow: 0 2px 6px rgb(var(--z-primary-rgb) / 0.1) !important;
+}
+
+.dataTables_wrapper .dataTables_length select:focus {
+  border-color: var(--z-primary) !important;
+  box-shadow: 0 0 0 3px rgb(var(--z-primary-rgb) / 0.2) !important;
+}
+
+
+.dataTables_wrapper .dataTables_filter {
+  margin-bottom: 1rem;
+}
+
+.dataTables_wrapper .dataTables_filter label {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  color: var(--neo-text-secondary) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  margin-bottom: 0 !important;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+  min-width: 220px !important;
+  height: 36px !important;
+  padding: 6px 14px !important;
+  border-radius: 10px !important;
+  background: var(--neo-surface-card) !important;
+  color: var(--neo-text-primary) !important;
+  border: 1px solid var(--neo-border) !important;
+  font-size: 13px !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.dataTables_wrapper .dataTables_filter input:focus {
+  border-color: var(--neo-primary) !important;
+  box-shadow: 0 0 0 3px rgb(var(--z-primary-rgb) / 0.2) !important;
+}
+
+/* ====================================================================
+   COMPACT EXECUTIVE DASHBOARD STYLES (zoloERP Command Center)
+   ==================================================================== */
+.dashboard-counts .count-number,
+.compact-kpi .count-number,
+.zolo-kpi-value .count-number {
+  font-size: 1.45rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  color: var(--neo-text-primary) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.zolo-kpi-card {
+  padding: 13px 15px !important;
+  border-radius: var(--neo-radius-md) !important;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--neo-surface-card) !important;
+  border: 1px solid var(--neo-border) !important;
+  box-shadow: var(--neo-shadow-xs) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.zolo-kpi-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--neo-shadow-sm) !important;
+  border-color: var(--neo-border-focus) !important;
+}
+
+.zolo-kpi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px !important;
+}
+
+.zolo-kpi-icon {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  border-radius: 8px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px !important;
+}
+
+.zolo-kpi-badge {
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  padding: 2px 7px !important;
+  border-radius: 12px !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.zolo-kpi-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.zolo-kpi-value {
+  font-size: 1.45rem !important;
+  font-weight: 750 !important;
+  font-family: var(--neo-font) !important;
+  color: var(--neo-text-primary) !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.02em !important;
+  margin-bottom: 2px !important;
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 2px !important;
+}
+
+.zolo-kpi-currency {
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  opacity: 0.8 !important;
+  margin-right: 1px !important;
+}
+
+.zolo-kpi-label {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: var(--neo-text-secondary) !important;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+}
+
+.zolo-kpi-subtext {
+  font-size: 11px !important;
+  color: var(--neo-text-muted) !important;
+  margin-top: 4px !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Color Accents for KPI cards */
+.kpi-purple .zolo-kpi-icon { background: rgb(var(--z-primary-rgb) / 0.12); color: var(--z-primary); }
+.kpi-purple .zolo-kpi-badge { background: rgb(var(--z-primary-rgb) / 0.12); color: var(--z-primary); }
+
+.kpi-blue .zolo-kpi-icon { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
+.kpi-blue .zolo-kpi-badge { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
+
+.kpi-cyan .zolo-kpi-icon { background: rgba(6, 182, 212, 0.12); color: #06b6d4; }
+.kpi-cyan .zolo-kpi-badge { background: rgba(6, 182, 212, 0.12); color: #06b6d4; }
+
+.kpi-emerald .zolo-kpi-icon { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+.kpi-emerald .zolo-kpi-badge { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+
+.kpi-orange .zolo-kpi-icon { background: rgba(249, 115, 22, 0.12); color: #f97316; }
+.kpi-orange .zolo-kpi-badge { background: rgba(249, 115, 22, 0.12); color: #f97316; }
+
+.kpi-rose .zolo-kpi-icon { background: rgba(244, 63, 94, 0.12); color: #f43f5e; }
+.kpi-rose .zolo-kpi-badge { background: rgba(244, 63, 94, 0.12); color: #f43f5e; }
+
+.kpi-amber .zolo-kpi-icon { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+.kpi-amber .zolo-kpi-badge { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+
+.kpi-teal .zolo-kpi-icon { background: rgba(20, 184, 166, 0.12); color: #14b8a6; }
+.kpi-teal .zolo-kpi-badge { background: rgba(20, 184, 166, 0.12); color: #14b8a6; }
+
+/* Constrained Chart Canvas Heights */
+.zolo-chart-box {
+  position: relative;
+  height: 250px !important;
+  max-height: 250px !important;
+  width: 100%;
+}
+
+.zolo-donut-box {
+  position: relative;
+  height: 230px !important;
+  max-height: 230px !important;
+  width: 100%;
+}
+
+/* Quick Action Toolbar */
+.zolo-quick-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.zolo-quick-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border: 1px solid var(--zb-border) !important;
+  background: var(--zb-bg) !important;
+  color: var(--zb-fg) !important;
+  text-decoration: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.zolo-quick-btn:hover {
+  background: var(--zb-bg) !important;
+  color: var(--zb-fg) !important;
+  border-color: var(--zb-border) !important;
+  transform: translateY(-1px);
+}
+
+.zolo-quick-btn.primary {
+  background: var(--zb-bg) !important;
+  color: var(--zb-fg) !important;
+  border: none !important;
+  box-shadow: var(--neo-shadow-sm) !important;
+}
+
+.zolo-quick-btn.primary:hover {
+  box-shadow: var(--neo-shadow-glow) !important;
+  color: var(--zb-fg) !important;
+}
+
+/* Addon Pulse Cards */
+.zolo-addon-pulse-card {
+  background: var(--neo-surface-card);
+  border: 1px solid var(--neo-border);
+  border-radius: var(--neo-radius-md);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+  height: 100%;
+}
+
+.zolo-addon-pulse-card:hover {
+  border-color: var(--neo-primary);
+  transform: translateY(-1px);
+}
+
+.zolo-pulse-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+/* ====================================================================
+   TABLES & GLOBAL ANTI-CLIPPING SYSTEM
+   ==================================================================== */
+.table-responsive {
+  min-height: 320px !important;
+  position: relative;
+}
+
+/* Ensure dropdowns inside tables sit cleanly above all container bounds */
+.table-responsive .dropdown-menu,
+.table .dropdown-menu,
+.dropdown-menu.edit-options {
+  z-index: 99999 !important;
+  border-radius: var(--neo-radius-md, 12px) !important;
+  box-shadow: 0 14px 35px -4px rgba(15, 23, 42, 0.18), 0 6px 14px -2px rgba(15, 23, 42, 0.08) !important;
+  border: 1px solid var(--neo-border, #e2e8f0) !important;
+  background-color: var(--neo-surface-card, #ffffff) !important;
+  padding: 6px !important;
+  min-width: 160px !important;
+}
+
+.dropdown-menu.edit-options li {
+  margin: 0 !important;
+  list-style: none !important;
+}
+
+.dropdown-menu.edit-options li .btn-link,
+.dropdown-menu.edit-options li a {
+  padding: 8px 14px !important;
+  border-radius: var(--neo-radius-sm, 6px) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--neo-text-primary, #0f172a) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  text-decoration: none !important;
+  transition: all 0.15s ease !important;
+  width: 100% !important;
+  text-align: left !important;
+}
+
+.dropdown-menu.edit-options li .btn-link:hover,
+.dropdown-menu.edit-options li a:hover {
+  background-color: var(--neo-primary-light, var(--z-primary-soft)) !important;
+  color: var(--neo-primary, var(--z-primary)) !important;
+}
+
+.dropdown-menu.edit-options li .btn-link i,
+.dropdown-menu.edit-options li a i {
+  font-size: 14px !important;
+  width: 18px !important;
+  text-align: center !important;
+  margin-right: 2px !important;
+  color: var(--neo-text-secondary, #64748b) !important;
+}
+
+.dropdown-menu.edit-options li .btn-link:hover i,
+.dropdown-menu.edit-options li a:hover i {
+  color: var(--neo-primary, var(--z-primary)) !important;
+}
+
+/* Dropup positioning for static menus only: Popper-placed menus ([x-placement]) already sit above the toggle via
+   their transform, so anchoring them to bottom: 100% as well pushed selectpicker menus far above the field. */
+.btn-group.dropup .dropdown-menu:not([x-placement]),
+.dropdown.dropup .dropdown-menu:not([x-placement]) {
+  top: auto !important;
+  bottom: 100% !important;
+  margin-top: 0 !important;
+  margin-bottom: 6px !important;
+}
+
+/* With the 'viewport' dropdown boundary Bootstrap marks the toggle's parent .position-static.
+   Never allow dropdown wrappers or selectpickers to lose position: relative, otherwise their
+   .dropdown-menu attaches to the outer page/card and blows up across the entire screen width.
+   Similarly, any body-level .bs-container must stay position: absolute with high z-index. */
+.bootstrap-select,
+.bootstrap-select.position-static,
+div.bootstrap-select.position-static,
+.btn-group.position-static,
+.dropdown.position-static,
+.dropup.position-static,
+.input-group-prepend.position-static,
+.input-group-append.position-static,
+.input-group-btn.position-static,
+.form-group.position-static {
+  position: relative !important;
+}
+
+body > .bs-container,
+body > .bs-container.position-static,
+.bs-container,
+.bs-container.position-static,
+div.bs-container,
+div.bs-container.position-static,
+.bootstrap-select.bs-container,
+.bootstrap-select.bs-container.position-static,
+.bootstrap-select.bs-container.form-control {
+  position: absolute !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: min(100vw - 32px, 480px) !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  z-index: 99999 !important;
+}
+
+/* Release overflow across ALL screen widths when any dropdown or collection is active */
+.table-responsive.dropdown-active,
+.table-responsive.dt-collection-active,
+.table-responsive.select-active {
+  overflow: visible !important;
+}
+
+/* Prevent clipping inside cards or sections containing tables */
+.card, .card-body {
+  overflow: visible !important;
+}
+
+/* ====================================================================
+   UNIVERSAL DROPDOWN ANTI-CLIPPING SYSTEM
+   Ensures dropdowns, selectpickers & action menus are NEVER clipped
+   ==================================================================== */
+/* Selectpicker container & dropdown menu high z-index & positioning */
+.bs-container,
+body > .bs-container {
+  z-index: 99999 !important;
+}
+
+.bs-container .dropdown-menu,
+.bootstrap-select .dropdown-menu {
+  z-index: 99999 !important;
+  box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(15, 23, 42, 0.08) !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--neo-border, #e2e8f0) !important;
+  max-height: min(420px, calc(100vh - 160px)) !important;
+  max-width: min(100vw - 32px, 480px) !important;
+}
+
+/* The installed selectpicker uses Bootstrap 3's open state with Bootstrap 4's menu CSS. */
+.bs-container.open > .dropdown-menu,
+.bootstrap-select.open > .dropdown-menu {
+  display: block;
+}
+
+.bootstrap-select .dropdown-menu .dropdown-item {
+  color: var(--neo-text-primary);
+}
+
+/* Table actions escape clipping without releasing the table's horizontal scroll. */
+.table-responsive .dropdown-menu.zolo-table-dropdown {
+  position: fixed !important;
+  left: var(--zolo-dropdown-left) !important;
+  top: var(--zolo-dropdown-top) !important;
+  transform: none !important;
+  bottom: auto !important;
+  margin: 0 !important;
+  max-width: calc(100vw - 16px) !important;
+  max-height: calc(100vh - 16px) !important;
+  overflow-y: auto !important;
+}
+
+.dark-mode .table tfoot th,
+.dark-mode .table tfoot td {
+  background: var(--neo-surface-card) !important;
+  color: var(--neo-text-primary) !important;
+}
+
+/* When any collection or select is open inside a container, release overflow universally */
+.table-responsive:has(.dt-button-collection),
+.table-responsive:has(div.dt-button-collection),
+.table-responsive.dt-collection-active,
+.dataTables_wrapper:has(.dt-button-collection),
+.dataTables_wrapper.dt-collection-active,
+.card:has(.dt-button-collection),
+.card.dt-collection-active,
+.card-body:has(.dt-button-collection),
+.card-body.dt-collection-active,
+section:has(.dt-button-collection),
+section.dt-collection-active {
+  overflow: visible !important;
+}
+
+.dataTables_wrapper,
+.dataTables_wrapper .row,
+.dataTables_wrapper div[class*="col-"] {
+  overflow: visible !important;
+}
+
+/* Table rows & cells hosting dropdown menus */
+.dataTable td,
+.table td {
+  position: static !important;
+}
+
+.dataTable td .btn-group,
+.dataTable td .dropdown,
+.table td .btn-group,
+.table td .dropdown {
+  position: relative !important;
+}
+
+/* Modal overflow handling for selectpickers & datepickers */
+.modal {
+  overflow-y: auto !important;
+}
+
+.modal-dialog {
+  overflow: visible !important;
+}
+
+.modal-content {
+  overflow: visible !important;
+}
+
+.modal-body {
+  overflow: visible !important;
+}
+
+/* ====================================================================
+   AUTHORITATIVE ZOLO-ERP SIDEBAR & SUBMENU STYLES
+   Permanently eliminates white/light fallbacks in side navigation
+   ==================================================================== */
+.side-navbar,
+nav.side-navbar {
+  background-color: var(--z-sidebar-bg) !important;
+  background: var(--z-sidebar-bg) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #cbd5e1 !important;
+}
+
+.side-navbar:not(.icon-only):not(.full-hide):not(.shrink),
+nav.side-navbar:not(.icon-only):not(.full-hide):not(.shrink) {
+  width: 256px !important;
+  opacity: 1 !important;
+}
+
+.side-navbar .side-menu,
+.side-navbar ul,
+.side-navbar li {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+.side-navbar li a {
+  color: #cbd5e1 !important;
+  font-weight: 500 !important;
+  font-size: 13.5px !important;
+  padding: 8px 14px !important;
+  border-radius: 8px !important;
+  margin: 2px 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  transition: all 0.15s ease !important;
+}
+
+.side-navbar li a i {
+  color: var(--z-primary-text) !important;
+  font-size: 16px !important;
+  margin-right: 12px !important;
+  width: 20px !important;
+  text-align: center !important;
+}
+
+.side-navbar li a:hover,
+.side-navbar li a:focus {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
+.side-navbar li.active > a,
+.side-navbar li a[aria-expanded="true"] {
+  background: rgb(var(--z-primary-rgb) / 0.15) !important;
+  color: var(--z-primary-text) !important;
+  font-weight: 600 !important;
+}
+
+/* Sidebar Submenus (Accordion Collapse) */
+.side-navbar li ul,
+.side-navbar ul.collapse,
+.side-navbar .collapse {
+  background-color: var(--z-sidebar-sub-bg) !important;
+  background: var(--z-sidebar-sub-bg) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 10px !important;
+  padding: 6px !important;
+  margin: 4px 10px 8px 10px !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+  list-style: none !important;
+}
+
+.side-navbar li ul li {
+  background: transparent !important;
+  margin: 0 !important;
+  list-style: none !important;
+}
+
+.side-navbar li ul li a {
+  color: #94a3b8 !important;
+  font-size: 12.5px !important;
+  padding: 6px 12px !important;
+  border-radius: 6px !important;
+  margin: 1px 0 !important;
+  display: block !important;
+  line-height: 1.6 !important;
+}
+
+.side-navbar li ul li a:hover,
+.side-navbar li ul li.active > a {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
+.side-navbar .sidebar-heading {
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: #64748b !important;
+  padding: 14px 16px 6px !important;
+  margin: 0 !important;
+  display: block !important;
+}
+
+/* Scrollbar container inside dark sidebar */
+.side-navbar .mCustomScrollBox,
+.side-navbar .mCSB_container {
+  background: transparent !important;
+}
+
+
+
+@media print {
+  .document-lines {
+    overflow: visible !important;
+  }
+}
+
+/* Keep document totals visible without widening mobile forms. */
+@media (max-width: 767px) {
+  table.totals,
+  table.totals > tbody {
+    display: block;
+    width: 100%;
+  }
+  table.totals > tbody > tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  table.totals > tbody > tr > td {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  table.totals .pull-right {
+    float: none;
+  }
+}
+
+/* Shared manufacturing, subcontracting and profile workspaces. */
+.erp-operations{margin:0;background:var(--neo-bg,#f1f5f9);color:var(--neo-text-primary,#172033);font-family:var(--neo-font,system-ui,sans-serif)}
+.erp-operations *{box-sizing:border-box}.ops-topbar{height:64px;background:var(--neo-surface,#fff);border-bottom:1px solid var(--neo-border,#dbe3ed);display:flex;align-items:center;justify-content:space-between;padding:0 28px;gap:20px}.ops-topbar>a{font-size:22px;font-weight:800}.erp-operations a{color:var(--neo-primary,#315ae8)}.ops-topbar span,.ops-eyebrow{color:var(--neo-text-secondary,#66758a);font-size:12px}.ops-eyebrow{font-weight:700;letter-spacing:.08em}.ops-shell{display:grid;grid-template-columns:220px minmax(0,1fr)}.ops-nav{padding:30px 20px;background:var(--neo-surface,#fff);border-right:1px solid var(--neo-border,#dbe3ed);min-height:calc(100vh - 64px)}.ops-nav a{display:block;margin-top:12px;padding:10px 8px;font-size:14px;text-decoration:none;border-radius:8px}.ops-nav a:hover{background:var(--neo-bg,#f1f5f9)}.ops-main{max-width:1360px;width:100%;padding:30px}.ops-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}.ops-heading h1{margin:4px 0;font-size:30px}.ops-panel{background:var(--neo-surface,#fff);border:1px solid var(--neo-border,#dbe3ed);border-radius:12px;padding:24px;margin-bottom:24px}.ops-panel h2{font-size:19px;margin:0 0 16px}.ops-panel h3{font-size:16px;margin:20px 0 12px}.ops-panel p{font-size:14px;line-height:1.6;color:var(--neo-text-secondary,#526174)}.ops-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;margin:18px 0}.erp-operations label{display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:600;margin:6px 0}.erp-operations input,.erp-operations select,.erp-operations textarea{width:100%;min-height:40px;border:1px solid var(--neo-border,#cbd5e1);border-radius:6px;padding:8px;background:var(--neo-surface,#fff);color:inherit;font:inherit;font-size:14px}.erp-operations input[type=checkbox]{width:auto;min-height:0}.erp-operations button,.ops-link-button{border:1px solid var(--neo-border,#cbd5e1);border-radius:6px;padding:10px 16px;background:var(--neo-surface,#fff);cursor:pointer;font-weight:600;margin-top:12px;margin-right:8px}.erp-operations .ops-primary{background:var(--neo-primary,#315ae8);color:white;border-color:transparent}.erp-operations :focus-visible{outline:3px solid var(--neo-primary,#315ae8);outline-offset:3px}.erp-operations button:disabled{opacity:.55;cursor:wait}.ops-table-wrap{overflow:auto;margin:16px 0}.erp-operations table{border-collapse:collapse;width:100%;font-size:13px}.erp-operations th{text-align:left;color:var(--neo-text-secondary,#66758a);background:var(--neo-bg,#f8fafc);font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:12px}.erp-operations td{padding:12px;border-bottom:1px solid var(--neo-border,#e2e8f0);vertical-align:top;min-width:100px}.erp-operations td select{min-width:170px}.ops-badge{display:inline-block;border-radius:6px;background:var(--neo-bg,#eef2f7);padding:6px 10px;font-size:12px;white-space:nowrap}.ops-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:24px}.ops-metrics span{display:block;font-size:12px;color:var(--neo-text-secondary,#66758a);margin-bottom:8px}.ops-metrics strong{font-size:20px}.ops-errors{border-left:4px solid var(--neo-danger,#dc2626);padding:16px;background:#fff1f2;margin-bottom:20px}.ops-status{padding:12px;background:#ecfdf5;border-left:4px solid var(--neo-success,#16a34a)}.ops-profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.ops-profile-card{border:1px solid var(--neo-border,#dbe3ed);padding:18px;border-radius:10px}.ops-profile-card.is-current{border:2px solid var(--neo-primary,#315ae8)}.ops-reverse{border-top:1px solid var(--neo-border,#e2e8f0);padding-top:16px;margin-top:20px}.erp-operations summary{cursor:pointer;font-size:14px;font-weight:600}.ops-print{padding:40px;max-width:900px;margin:auto;background:#fff}.ops-print h1{font-size:24px}
+@media(max-width:800px){.ops-shell{grid-template-columns:minmax(0,1fr)}.ops-nav{min-height:0;display:flex;flex-wrap:wrap;gap:6px;padding:12px;border-right:0;border-bottom:1px solid var(--neo-border,#dbe3ed)}.ops-nav .ops-eyebrow{display:none}.ops-nav a{margin:0;padding:8px}.ops-main{padding:18px 12px}.ops-panel{padding:18px 14px}.ops-topbar{height:auto;min-height:60px;padding:14px;flex-wrap:wrap;gap:8px}.ops-heading h1{font-size:24px}.ops-fields{grid-template-columns:1fr}.ops-metrics{grid-template-columns:1fr 1fr}}
+@media print{.ops-print-button{display:none}.ops-print{padding:0;max-width:none}.erp-operations{background:#fff}}
+
+/* Shared workspace navigation and accessible skip link. */
+.workspace-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}.workspace-card{display:flex;flex-direction:column;gap:12px;padding:20px;border:1px solid var(--neo-border,#dbe3ed);border-radius:8px;text-decoration:none;font-size:18px;font-weight:700}.workspace-card span{font-size:13px;font-weight:400}.workspace-skip{position:absolute;left:12px;top:-80px;background:var(--neo-surface,#fff);padding:12px;z-index:100}.workspace-skip:focus{top:8px}
+
+/* Top-bar company switch: group › company · year, opens the company picker. `html body` outranks the
+   compact icon-button rules (fixed 28px width) that commercial screens apply to every nav anchor. */
+html body nav.navbar .nav-item.company-switch{flex-shrink:0;margin:0 6px 0 0 !important;height:auto !important}
+html body nav.navbar .nav-item.company-switch > a.company-switch-link{display:inline-flex !important;align-items:center !important;gap:8px;width:auto !important;min-width:0 !important;max-width:460px;height:32px !important;padding:0 12px 0 4px !important;border:1px solid var(--neo-border) !important;border-radius:10px !important;background:var(--neo-surface) !important;color:var(--neo-text-primary) !important;font-size:13px !important;line-height:1 !important;text-decoration:none !important;white-space:nowrap;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.05)}
+html body nav.navbar .nav-item.company-switch > a.company-switch-link:hover{border-color:var(--neo-primary) !important;box-shadow:0 0 0 3px var(--neo-primary-light)}
+html body nav.navbar .company-switch-link .company-switch-mark{display:grid !important;place-items:center;flex-shrink:0;width:24px;height:24px;border-radius:7px;background:var(--neo-primary-gradient) !important;color:#fff !important;font-size:10.5px !important;font-weight:800 !important;letter-spacing:.02em}
+nav.navbar .company-switch-group{color:var(--neo-text-muted);font-weight:500}
+nav.navbar .company-switch-group::after{content:"\203A";margin-left:6px}
+nav.navbar .company-switch-name{font-weight:700;overflow:hidden;text-overflow:ellipsis}
+nav.navbar .company-switch-year{flex-shrink:0;padding:3px 7px;border-radius:999px;background:var(--neo-primary-light);color:var(--neo-primary);font-family:var(--neo-mono);font-size:11px}
+nav.navbar .company-switch-caret{flex-shrink:0;color:var(--neo-text-muted);font-size:12px}
+@media(max-width:1100px){nav.navbar .company-switch-group{display:none}}
+@media(max-width:768px){nav.navbar .company-switch-year{display:none}html body nav.navbar .nav-item.company-switch > a.company-switch-link{max-width:170px}}
+
+/* Global keyboard-shortcut help button (every page; "?" opens the same list). */
+nav.navbar .topbar-shortcuts{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 8px 0 10px;border:1px solid var(--neo-border);border-radius:9px;background:var(--neo-surface);color:var(--neo-text-secondary);font:inherit;font-size:12.5px;font-weight:600;line-height:1;cursor:pointer;white-space:nowrap}
+nav.navbar .topbar-shortcuts:hover,nav.navbar .topbar-shortcuts:focus-visible{border-color:var(--neo-primary);color:var(--neo-primary);outline:none}
+nav.navbar .topbar-shortcuts i{font-size:13px;line-height:1}
+nav.navbar .topbar-shortcuts kbd{padding:2px 5px;border:1px solid var(--neo-border);border-radius:4px;background:var(--neo-bg);color:var(--neo-text-muted);font-family:var(--neo-mono);font-size:10.5px;box-shadow:none}
+@media(max-width:1100px){nav.navbar .topbar-shortcuts span{display:none}}
+
+/* bootstrap-select 1.13 (Bootstrap 4): the option list inside an open picker is always shown; its outer menu controls
+   visibility. Several pages strip `.show` from every dropdown menu to close the others, which hid the open list. */
+.bootstrap-select .dropdown-menu.inner{display:block !important}
+
+/* Dark mode: floating field labels and register filter bars kept light backgrounds, leaving light text unreadable (matrix B40). */
+body.dark-mode .top-fields label { background: #111827; color: #e2e8f0; }
+body.dark-mode .comm-table-filter-bar, body.dark-mode #filter-card { background: #111827; color: #e2e8f0; }
+body.dark-mode .comm-table-filter-bar label, body.dark-mode #filter-card label { color: #cbd5e1; }
+body.dark-mode .side-dropdown-filters { background: #111827; border-color: #334155; }
+body.dark-mode .side-dropdown-filters label { color: #cbd5e1; }
+
+/* Top-bar reveal strip exists in every main-layout page but is styled (and shown) only by the commercial screens. */
+.reveal-topbar-strip { display: none; }
+
+/* ====================================================================
+ * Finance, Accounting, Expense & Income Zero-Scroll Modern Workspaces
+ * ==================================================================== */
+html:has(.settings-workspace-view),
+body:has(.settings-workspace-view),
+html:has(.finance-desk-view),
+body:has(.finance-desk-view),
+html:has(.expense-workspace-view),
+body:has(.expense-workspace-view),
+html:has(.expense-cat-workspace-view),
+body:has(.expense-cat-workspace-view),
+html:has(.income-workspace-view),
+body:has(.income-workspace-view),
+html:has(.income-cat-workspace-view),
+body:has(.income-cat-workspace-view),
+html:has(.transfer-workspace-view),
+body:has(.transfer-workspace-view),
+html:has(.account-workspace-view),
+body:has(.account-workspace-view),
+html:has(.coa-workspace-view),
+body:has(.coa-workspace-view),
+html:has(.journal-workspace-view),
+body:has(.journal-workspace-view),
+html:has(.ledger-workspace-view),
+body:has(.ledger-workspace-view),
+html:has(.tb-workspace-view),
+body:has(.tb-workspace-view),
+html:has(.pl-workspace-view),
+body:has(.pl-workspace-view),
+html:has(.bs-workspace-view),
+body:has(.bs-workspace-view) {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+}
+
+body:has(.settings-workspace-view) #content,
+body:has(.expense-workspace-view) #content,
+body:has(.expense-cat-workspace-view) #content,
+body:has(.income-workspace-view) #content,
+body:has(.income-cat-workspace-view) #content,
+body:has(.transfer-workspace-view) #content,
+body:has(.account-workspace-view) #content,
+body:has(.coa-workspace-view) #content,
+body:has(.journal-workspace-view) #content,
+body:has(.ledger-workspace-view) #content,
+body:has(.tb-workspace-view) #content,
+body:has(.pl-workspace-view) #content,
+body:has(.bs-workspace-view) #content,
+body:has(.finance-desk-view) #content {
+    height: calc(100vh - 40px) !important;
+    max-height: calc(100vh - 40px) !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+body:has(.settings-workspace-view) footer.main-footer,
+body:has(.expense-workspace-view) footer.main-footer,
+body:has(.expense-cat-workspace-view) footer.main-footer,
+body:has(.income-workspace-view) footer.main-footer,
+body:has(.income-cat-workspace-view) footer.main-footer,
+body:has(.transfer-workspace-view) footer.main-footer,
+body:has(.account-workspace-view) footer.main-footer,
+body:has(.coa-workspace-view) footer.main-footer,
+body:has(.journal-workspace-view) footer.main-footer,
+body:has(.ledger-workspace-view) footer.main-footer,
+body:has(.tb-workspace-view) footer.main-footer,
+body:has(.pl-workspace-view) footer.main-footer,
+body:has(.bs-workspace-view) footer.main-footer,
+body:has(.finance-desk-view) footer.main-footer {
+    display: none !important;
+}
+
+.settings-workspace-view,
+.expense-workspace-view,
+.expense-cat-workspace-view,
+.income-workspace-view,
+.income-cat-workspace-view,
+.transfer-workspace-view,
+.account-workspace-view,
+.coa-workspace-view,
+.journal-workspace-view,
+.ledger-workspace-view,
+.tb-workspace-view,
+.pl-workspace-view,
+.bs-workspace-view,
+.finance-desk-view {
+    height: 100% !important;
+    max-height: 100% !important;
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    padding: 6px 14px 6px !important;
+    background: #f8fafc;
+}
+
+body.dark-mode .settings-workspace-view,
+body.dark-mode .expense-workspace-view,
+body.dark-mode .expense-cat-workspace-view,
+body.dark-mode .income-workspace-view,
+body.dark-mode .income-cat-workspace-view,
+body.dark-mode .transfer-workspace-view,
+body.dark-mode .account-workspace-view,
+body.dark-mode .coa-workspace-view,
+body.dark-mode .journal-workspace-view,
+body.dark-mode .ledger-workspace-view,
+body.dark-mode .tb-workspace-view,
+body.dark-mode .pl-workspace-view,
+body.dark-mode .bs-workspace-view,
+body.dark-mode .finance-desk-view {
+    background: #0b0f19 !important;
+}
+
+/* Compact KPI Strip */
+.expense-workspace-view .kpi-summary-strip,
+.expense-cat-workspace-view .kpi-summary-strip,
+.income-workspace-view .kpi-summary-strip,
+.income-cat-workspace-view .kpi-summary-strip,
+.transfer-workspace-view .kpi-summary-strip,
+.account-workspace-view .kpi-summary-strip,
+.coa-workspace-view .kpi-summary-strip,
+.journal-workspace-view .kpi-summary-strip,
+.ledger-workspace-view .kpi-summary-strip,
+.tb-workspace-view .kpi-summary-strip,
+.pl-workspace-view .kpi-summary-strip,
+.bs-workspace-view .kpi-summary-strip {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+    gap: 8px !important;
+    margin-bottom: 6px !important;
+    flex-shrink: 0 !important;
+}
+
+.expense-workspace-view .kpi-card,
+.expense-cat-workspace-view .kpi-card,
+.income-workspace-view .kpi-card,
+.income-cat-workspace-view .kpi-card,
+.transfer-workspace-view .kpi-card,
+.account-workspace-view .kpi-card,
+.coa-workspace-view .kpi-card,
+.journal-workspace-view .kpi-card,
+.ledger-workspace-view .kpi-card,
+.tb-workspace-view .kpi-card,
+.pl-workspace-view .kpi-card,
+.bs-workspace-view .kpi-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 6px 12px !important;
+    min-height: 46px !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+}
+
+body.dark-mode .expense-workspace-view .kpi-card,
+body.dark-mode .expense-cat-workspace-view .kpi-card,
+body.dark-mode .income-workspace-view .kpi-card,
+body.dark-mode .income-cat-workspace-view .kpi-card,
+body.dark-mode .transfer-workspace-view .kpi-card,
+body.dark-mode .account-workspace-view .kpi-card,
+body.dark-mode .coa-workspace-view .kpi-card,
+body.dark-mode .journal-workspace-view .kpi-card,
+body.dark-mode .ledger-workspace-view .kpi-card,
+body.dark-mode .tb-workspace-view .kpi-card,
+body.dark-mode .pl-workspace-view .kpi-card,
+body.dark-mode .bs-workspace-view .kpi-card {
+    background: #141c2e !important;
+    border-color: #334155 !important;
+}
+
+.expense-workspace-view .kpi-card .kpi-label,
+.expense-cat-workspace-view .kpi-card .kpi-label,
+.income-workspace-view .kpi-card .kpi-label,
+.income-cat-workspace-view .kpi-card .kpi-label,
+.transfer-workspace-view .kpi-card .kpi-label,
+.account-workspace-view .kpi-card .kpi-label,
+.coa-workspace-view .kpi-card .kpi-label,
+.journal-workspace-view .kpi-card .kpi-label,
+.ledger-workspace-view .kpi-card .kpi-label,
+.tb-workspace-view .kpi-card .kpi-label,
+.pl-workspace-view .kpi-card .kpi-label,
+.bs-workspace-view .kpi-card .kpi-label {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    color: #64748b !important;
+    margin-bottom: 1px !important;
+}
+
+.expense-workspace-view .kpi-card .kpi-number,
+.expense-cat-workspace-view .kpi-card .kpi-number,
+.income-workspace-view .kpi-card .kpi-number,
+.income-cat-workspace-view .kpi-card .kpi-number,
+.transfer-workspace-view .kpi-card .kpi-number,
+.account-workspace-view .kpi-card .kpi-number,
+.coa-workspace-view .kpi-card .kpi-number,
+.journal-workspace-view .kpi-card .kpi-number,
+.ledger-workspace-view .kpi-card .kpi-number,
+.tb-workspace-view .kpi-card .kpi-number,
+.pl-workspace-view .kpi-card .kpi-number,
+.bs-workspace-view .kpi-card .kpi-number {
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    line-height: 1.1 !important;
+}
+
+body.dark-mode .expense-workspace-view .kpi-card .kpi-number,
+body.dark-mode .expense-cat-workspace-view .kpi-card .kpi-number,
+body.dark-mode .income-workspace-view .kpi-card .kpi-number,
+body.dark-mode .income-cat-workspace-view .kpi-card .kpi-number,
+body.dark-mode .transfer-workspace-view .kpi-card .kpi-number,
+body.dark-mode .account-workspace-view .kpi-card .kpi-number,
+body.dark-mode .coa-workspace-view .kpi-card .kpi-number,
+body.dark-mode .journal-workspace-view .kpi-card .kpi-number,
+body.dark-mode .ledger-workspace-view .kpi-card .kpi-number,
+body.dark-mode .tb-workspace-view .kpi-card .kpi-number,
+body.dark-mode .pl-workspace-view .kpi-card .kpi-number,
+body.dark-mode .bs-workspace-view .kpi-card .kpi-number {
+    color: #f8fafc !important;
+}
+
+/* Compact Filter Card */
+.desk-filter-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 4px 10px !important;
+    margin-bottom: 6px !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    flex-shrink: 0;
+}
+
+body.dark-mode .desk-filter-card {
+    background: #141c2e !important;
+    border-color: #334155 !important;
+}
+
+.desk-filter-card .form-group {
+    margin-bottom: 0 !important;
+}
+
+.desk-filter-card label {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    margin-bottom: 1px !important;
+    color: #64748b !important;
+}
+
+body.dark-mode .desk-filter-card label {
+    color: #94a3b8 !important;
+}
+
+.desk-filter-card .form-control,
+.desk-filter-card .bootstrap-select > .btn {
+    height: 28px !important;
+    min-height: 28px !important;
+    max-height: 28px !important;
+    font-size: 12px !important;
+    padding: 2px 8px !important;
+    line-height: normal !important;
+}
+
+/* Data Table Card Wrapper & DataTables Container */
+.desk-card-wrapper {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    padding: 8px 12px !important;
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    margin-bottom: 0 !important;
+}
+
+body.dark-mode .desk-card-wrapper {
+    background: #141c2e !important;
+    border-color: #334155 !important;
+}
+
+.desk-card-wrapper > .table-responsive {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+}
+
+.desk-card-wrapper .dataTables_wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    height: 100% !important;
+}
+
+.desk-card-wrapper .dataTables_wrapper > .row:first-child {
+    flex: 0 0 auto !important;
+    margin-bottom: 4px !important;
+    margin-top: 0 !important;
+    align-items: center;
+}
+
+.desk-card-wrapper .dataTables_wrapper > .row:nth-child(2) {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    margin: 0 !important;
+}
+
+.desk-card-wrapper .dataTables_wrapper > .row:nth-child(2) > .col-sm-12 {
+    padding: 0 !important;
+}
+
+.desk-card-wrapper table.dataTable {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+}
+
+.desk-card-wrapper table.dataTable thead th {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 5 !important;
+    background: var(--z-table-head-bg) !important;
+    color: var(--z-table-head-text) !important;
+    font-size: 10.5px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    padding: 7px 10px !important;
+    border: none !important;
+    white-space: nowrap;
+}
+
+body.dark-mode .desk-card-wrapper table.dataTable thead th {
+    background: var(--z-table-head-bg) !important;
+    color: var(--z-table-head-text) !important;
+}
+
+.desk-card-wrapper table.dataTable tbody td {
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+body.dark-mode .desk-card-wrapper table.dataTable tbody td {
+    border-bottom-color: #1e293b !important;
+    color: #e2e8f0 !important;
+}
+
+.desk-card-wrapper table.dataTable tbody tr:nth-child(even) {
+    background-color: var(--z-table-stripe);
+}
+
+.desk-card-wrapper table.dataTable tbody tr:nth-child(odd) {
+    background-color: var(--z-surface);
+}
+
+body.dark-mode .desk-card-wrapper table.dataTable tbody tr:nth-child(even) {
+    background-color: #1e293b !important;
+}
+
+body.dark-mode .desk-card-wrapper table.dataTable tbody tr:nth-child(odd) {
+    background-color: #141c2c !important;
+}
+
+.desk-card-wrapper table.dataTable tbody tr:hover {
+    background-color: var(--z-primary-soft) !important;
+}
+
+body.dark-mode .desk-card-wrapper table.dataTable tbody tr:hover {
+    background-color: #27354f !important;
+}
+
+.desk-card-wrapper .dataTables_wrapper > .row:last-child {
+    flex: 0 0 auto !important;
+    margin-top: auto !important;
+    padding-top: 4px !important;
+    margin-bottom: 0 !important;
+    align-items: center;
+}
+
+.desk-card-wrapper .dataTables_info {
+    font-size: 11px !important;
+    color: #64748b !important;
+    padding-top: 4px !important;
+}
+
+.desk-card-wrapper .dataTables_paginate {
+    padding-top: 2px !important;
+}
+
+.desk-card-wrapper .dataTables_paginate .pagination {
+    margin: 0 !important;
+}
+
+.desk-card-wrapper .dataTables_paginate .page-link {
+    height: 24px !important;
+    min-height: 24px !important;
+    line-height: 22px !important;
+    padding: 0 7px !important;
+    font-size: 11px !important;
+    border-radius: 4px !important;
+}
+
+/* ====================================================================
+   Sidebar responsiveness: native scrolling (no JS scrollbar), quick submenu
+   open/close and instant hover feedback.
+   ==================================================================== */
+nav.side-navbar {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+nav.side-navbar:hover { scrollbar-color: rgba(148, 163, 184, 0.45) transparent; }
+nav.side-navbar::-webkit-scrollbar { width: 6px; }
+nav.side-navbar::-webkit-scrollbar-thumb { background: transparent; border-radius: 6px; }
+nav.side-navbar:hover::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.45); }
+nav.side-navbar.icon-only { overflow: visible !important; }
+.side-navbar .collapsing { transition: height 0.12s ease-out !important; }
+.side-navbar li a,
+.side-navbar li a i { transition: background-color 0.1s ease, color 0.1s ease !important; }
+.side-navbar li a:hover { transform: none !important; }
+
+/* POS (own layout, no app-shell class): right column is one screen high, product grid fills the rest. */
+@media (min-width: 768px) {
+    body.pos-page #pos-layout .col-md-5.order-first { height: calc(100vh - 10px); display: flex; flex-direction: column; }
+    body.pos-page #pos-layout .col-md-5.order-first > .row:last-child { flex: 1 1 0; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+}
+
+/* ====================================================================
+   SIDEBAR MENU SEARCH + SUB-LABELS (sidebar IA plan, Oct 2026)
+   ==================================================================== */
+.side-navbar .side-search {
+  padding: 4px 12px 6px;
+}
+
+.side-navbar .side-search input {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--neo-sidebar-border);
+  border-radius: 8px;
+  background: var(--neo-sidebar-surface);
+  color: var(--neo-sidebar-text-active);
+  font-size: 12.5px;
+}
+
+.side-navbar .side-search input::placeholder {
+  color: var(--neo-sidebar-text-muted);
+}
+
+.side-navbar .side-search input:focus {
+  outline: none;
+  border-color: var(--neo-sidebar-active-border);
+  box-shadow: var(--z-focus-ring);
+}
+
+#side-search-results li a {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+
+#side-search-results li a small {
+  color: var(--neo-sidebar-text-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+#side-search-results li a:focus {
+  outline: none;
+  background: var(--neo-sidebar-active-bg) !important;
+  color: var(--neo-sidebar-text-active) !important;
+}
+
+#side-search-results .side-search-empty {
+  padding: 8px 26px;
+  color: var(--neo-sidebar-text-muted);
+  font-size: 12.5px;
+}
+
+/* A non-clickable label grouping links inside one submenu (e.g. Selling › Sales Tools). */
+.side-navbar ul.collapse li.sidebar-sublabel {
+  padding: 8px 14px 2px !important;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--neo-sidebar-text-muted);
+  user-select: none;
+}
+
+.side-navbar.icon-only .side-search,
+.side-navbar.icon-only #side-search-results {
+  display: none !important;
+}

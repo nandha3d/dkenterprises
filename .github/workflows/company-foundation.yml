@@ -1,0 +1,69 @@
+name: ERP completion acceptance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mysql:
+    name: MySQL / ${{ matrix.suite }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [company, commercial, concurrency, compliance, operations, delivery, legacy-mysql]
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: fixture-root-only
+          # The concurrency suite refuses any database but its own.
+          MYSQL_DATABASE: ${{ matrix.suite == 'concurrency' && 'zolo_test_textile_concurrency' || 'zolo_test_foundation' }}
+          MYSQL_USER: zolo_test
+          MYSQL_PASSWORD: fixture-only
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -pfixture-root-only"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    env:
+      APP_ENV: testing
+      APP_KEY: base64:dGVzdC1vbmx5LWF1ZGl0LWZpeHR1cmUta2V5LTEyMzQ=
+      ERP_TEST_MYSQL: '1'
+      ERP_TEST_MYSQL_DATABASE: ${{ matrix.suite == 'concurrency' && 'zolo_test_textile_concurrency' || 'zolo_test_foundation' }}
+      ERP_TEST_MYSQL_USER: zolo_test
+      ERP_TEST_MYSQL_PASSWORD: fixture-only
+      CACHE_DRIVER: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql, pdo_sqlite, zip, gd, bcmath
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
+      - name: Create an empty restricted backup rehearsal target
+        if: matrix.suite == 'delivery'
+        env:
+          MYSQL_PWD: fixture-root-only
+        run: |
+          mysql --host=127.0.0.1 --port=3306 --user=root <<'SQL'
+          CREATE DATABASE zolo_test_restore_delivery CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+          CREATE USER 'zolo_restore'@'%' IDENTIFIED BY 'fixture-only';
+          GRANT ALL PRIVILEGES ON zolo_test_restore_delivery.* TO 'zolo_restore'@'%';
+          SQL
+      - name: Acceptance suite against disposable MySQL
+        env:
+          ERP_DELIVERY_MYSQL_BACKUP: '1'
+          ERP_RESTORE_DB_HOST: 127.0.0.1
+          ERP_RESTORE_DB_PORT: '3306'
+          ERP_RESTORE_DB_DATABASE: zolo_test_restore_delivery
+          ERP_RESTORE_DB_USERNAME: zolo_restore
+          ERP_RESTORE_DB_PASSWORD: fixture-only
+        run: php vendor/bin/phpunit -c phpunit.${{ matrix.suite }}.xml
