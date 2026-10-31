@@ -2681,4 +2681,25 @@ User: People, HRM and Settings did not follow the modern UI; add a developer rol
   - Feature test suite: 12/12 passing (87 assertions, 100% green).
   - Production server on MilesWeb updated and synchronized with `origin/main` (commit `40626d2`).
 
+---
+
+## 127. Front-End Vendor Asset Tracking, Font Icon Restoration & Modal Visibility Resolution (2026-10-31)
+
+- **Root Cause Analysis of "styles are off"**:
+  1. *Missing `public/vendor` Directory*: `.gitignore` previously contained `/public/vendor`, which caused all front-end UI libraries (Bootstrap 4 CSS/JS, FontAwesome, Dripicons, DataTables, Bootstrap-Select, Popper.js, Chart.js, TinyMCE) to be ignored from git.
+  2. *Cascade of Broken UI Elements*:
+     - Without `bootstrap.min.css`, `.modal { display: none; }` was absent, causing `#category-modal` (defined globally in `main.blade.php`) to render inline on `/workspace` and display an unstyled purple "submit" button at the bottom of the dashboard.
+     - Without FontAwesome and Dripicons font files (`.woff`, `.woff2`, `.ttf`), sidebar icons and workspace cards rendered as empty squares or dots.
+     - Without Bootstrap table and card grids, dashboard data tables stacked vertically with raw unstyled headers.
+  3. *Unreferenced Script Cleanup*: `main.blade.php` contained `<script src="{{ versioned_asset('js/barcode-qrcode-scanner_plugin.js') }}">`, a non-existent asset that threw a 404 console error on every page load.
+  4. *Multi-Branch Company Switcher Card Layout*: On `/workspace`, companies with multiple branches (such as Aran Cafe having "Express Counter & Takeaway" and "Main Kitchen") rendered the branch `<select>` side-by-side with the company heading in a constrained flex row, causing the legal trade name to squish into vertical single-character lines.
+
+- **Fixes Applied**:
+  1. *Unignored & Tracked `public/vendor` in Git*: Removed `/public/vendor` from `.gitignore`. Staged and committed all 314 front-end vendor files into git history.
+  2. *Live Server Asset Synchronization*: Synced all vendor assets (`bootstrap`, `font-awesome`, `dripicons`, `datatable`, `chart.js`, etc.) to `/var/www/2928957e-908a-4326-a64d-a58ad5b99ca0/dkenterprises.animazon.in/public/vendor/`.
+  3. *Commented Out Non-Existent Scanner Script*: Aligned `main.blade.php` with `app.blade.php` and `top-head-rtl.blade.php`.
+  4. *Responsive Multi-Branch Switch Card*: Updated `public/css/workspace-home.css` so `.zw-company` uses `flex-wrap: wrap` and `.zw-company-fields` spans 100% width cleanly below the company mark and title when branch dropdowns exist.
+  5. *Live Verification*: Tested 70 asset URLs across the site via automated script (100% HTTP 200 OK). Captured browser snapshots `dashboard_page_1793433147025.png` and `workspace_reloaded_1793433270907.png` confirming pristine zoloERP Pro dark sidebar, glassmorphic metric cards, correctly hidden modals, crisp vector icons, and beautifully formatted company switch panels.
+
+
 
