@@ -2943,3 +2943,4 @@ Addressed user feedback: *"dont make a specific name, replace the '20l can' as '
   - `tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php`: Added Test 18 (`test_mobile_role_login_and_erp_directory_endpoints`).
   - Automated Tests: **18 passed (156 assertions, 100% GREEN)**.
   - Dart Code Analysis: `flutter analyze` -> **No issues found! (100% clean)**.
+  - Windows Desktop Runner: Configured native Windows desktop and Web platforms (`mobile/windows/`, `mobile/web/`). Verified debug desktop build (`flutter build windows --debug` -> `build/windows/x64/runner/Debug/dk_track_mobile.exe` created in 56s). Ready to run via `flutter run -d windows` from `mobile/`.
