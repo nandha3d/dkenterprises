@@ -2847,3 +2847,9 @@ Addressed user feedback: *"dont make a specific name, replace the '20l can' as '
        - Added Test 16: `test_mobile_driver_surrender_and_admin_settlement_reconciliation`
        - Added Test 17: `test_mobile_web_simulator_route_and_role_views`
        - **17/17 tests passing (141 assertions, 100% GREEN)**.
+
+  5. **Android APK Compilation & Distribution**:
+     - **Production Release APK**: `mobile/build/app/outputs/flutter-apk/app-release.apk` (49.3 MB, optimized, tree-shaken Material icons).
+     - **Debug APK**: `mobile/build/app/outputs/flutter-apk/app-debug.apk` (141.1 MB).
+     - **Web Direct Download Mirror**: Copied to `public/downloads/dk-track-field-erp.apk` (`/downloads/dk-track-field-erp.apk`).
+     - Pointed by default to live production API: `https://dkenterprises.animazon.in/api/v1`.
