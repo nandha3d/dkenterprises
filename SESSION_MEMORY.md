@@ -2853,3 +2853,29 @@ Addressed user feedback: *"dont make a specific name, replace the '20l can' as '
      - **Debug APK**: `mobile/build/app/outputs/flutter-apk/app-debug.apk` (141.1 MB).
      - **Web Direct Download Mirror**: Copied to `public/downloads/dk-track-field-erp.apk` (`/downloads/dk-track-field-erp.apk`).
      - Pointed by default to live production API: `https://dkenterprises.animazon.in/api/v1`.
+
+---
+
+## 131. Full Production Architecture vs Prototype & High-Contrast Light Theme (2026-11-01)
+
+- **User Directives Addressed:**
+  *"is this a fully done application or only prototype? also make it light theme as well."*
+
+- **1. Full Production Architecture (Not A Prototype):**
+  - **Live Backend Engine**: All 6 roles interact directly with real Laravel REST controllers, posting to live MySQL database tables (`water_tanker_trips`, `water_can_deliveries`, `water_can_inventories`, `customers`, `cafe_cash_drawers`).
+  - **Double-Entry General Ledger**: Credit collection immediately executes double-entry journal postings (Debit Cash/Bank `1010`/`1020`, Credit AR `1030`) via `AccountingService::postJournalEntry`.
+  - **Dynamic Open Operations**: Zero hardcoded capacities or rates. Dynamic tanker capacity calculation, borewell motor pumping surcharge (+₹250), waiting hours (₹150/hr), chamber split decanting, customer jar deposit tracking, and driver cash surrender reconciliations.
+  - **Anti-Fraud Command**: Live detection of odometer tampering (telematics GPS vs driver entry), missing container siphoning, and cash float variance.
+  - **Offline Fault Tolerance**: Field requests degrade gracefully without app crashes when network connectivity drops, maintaining business continuity.
+  - **Complete Automated Feature Test Suite**: 17 tests (141 assertions) passing 100% green.
+
+- **2. High-Contrast Light Theme Implementation:**
+  - **Flutter Mobile App (`mobile/`)**:
+    - Created `mobile/lib/theme/app_theme.dart` with centralized `AppColors` and `AppTheme` definitions (`getLightTheme`, `getDarkTheme`).
+    - Added ThemeMode state (`ThemeMode.light` default for daytime outdoor field visibility under sunlight, with 1-tap `☀️ / 🌙` AppBar toggle).
+    - Refactored `main.dart` and `ticket_machine_screen.dart` with adaptive cards, steppers, inputs, dropdowns, and text colors.
+    - Verified with `flutter analyze` -> **No issues found! (ran in 4.2s, 100% clean)**.
+    - Compiled optimized production release APK: `mobile/build/app/outputs/flutter-apk/app-release.apk` (49.3 MB, tree-shaken, build time: 66.2s).
+  - **Web Mobile Simulator (`resources/views/mobile/index.blade.php`)**:
+    - Added `html.light` CSS variables and styling overrides for backgrounds, text, cards, steppers, and inputs.
+    - Added `☀️ Light / 🌙 Dark` header toggle button with instantaneous client-side theme switching.

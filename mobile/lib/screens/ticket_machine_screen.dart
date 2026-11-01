@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../services/api_service.dart';
+import '../theme/app_theme.dart';
 
 class TicketMachineScreen extends StatefulWidget {
   final bool isTamil;
@@ -216,7 +217,7 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
+              color: AppColors.cardSubtle(context),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: const Color(0xFF0284C7)),
             ),
@@ -232,11 +233,11 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
                       children: [
                         Text(
                           widget.isTamil ? 'வண்டியில் உள்ள இருப்பு:' : 'Stock on Tata Ace:',
-                          style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                          style: TextStyle(fontSize: 11, color: AppColors.textMuted(context)),
                         ),
                         Text(
                           '$_truckStock Units (${_selectedPackage.code})',
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.text(context)),
                         ),
                       ],
                     ),
@@ -273,15 +274,15 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFF111827),
+              color: AppColors.card(context),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFF334155)),
+              border: Border.all(color: AppColors.border(context)),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<WaterPackageItem>(
                 value: _selectedPackage,
                 isExpanded: true,
-                dropdownColor: const Color(0xFF1E293B),
+                dropdownColor: AppColors.card(context),
                 items: _packages.map((pkg) {
                   return DropdownMenuItem(
                     value: pkg,
@@ -290,7 +291,7 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
                       children: [
                         Text(
                           widget.isTamil ? pkg.nameTa : pkg.nameEn,
-                          style: const TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.w600),
+                          style: TextStyle(fontSize: 13, color: AppColors.text(context), fontWeight: FontWeight.w600),
                         ),
                         Text(
                           '₹${pkg.unitPrice.toStringAsFixed(0)}',
@@ -322,19 +323,19 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFF111827),
+              color: AppColors.card(context),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFF334155)),
+              border: Border.all(color: AppColors.border(context)),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<CustomerItem>(
                 value: _selectedCustomer,
                 isExpanded: true,
-                dropdownColor: const Color(0xFF1E293B),
+                dropdownColor: AppColors.card(context),
                 items: _customers.map((c) {
                   return DropdownMenuItem(
                     value: c,
-                    child: Text(c.name, style: const TextStyle(fontSize: 13, color: Colors.white), overflow: TextOverflow.ellipsis),
+                    child: Text(c.name, style: TextStyle(fontSize: 13, color: AppColors.text(context)), overflow: TextOverflow.ellipsis),
                   );
                 }).toList(),
                 onChanged: (val) {
@@ -353,15 +354,15 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF111827),
+                    color: AppColors.card(context),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFF334155)),
+                    border: Border.all(color: AppColors.border(context)),
                   ),
                   child: Column(
                     children: [
                       Text(
                         widget.isTamil ? 'டெலிவரி எண்ணிக்கை' : 'Units Delivered',
-                        style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 11, color: Color(0xFF38BDF8), fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -392,9 +393,9 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF111827),
+                    color: AppColors.card(context),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: _selectedPackage.isJar ? const Color(0xFF334155) : Colors.transparent),
+                    border: Border.all(color: _selectedPackage.isJar ? AppColors.border(context) : Colors.transparent),
                   ),
                   child: Column(
                     children: [
@@ -529,10 +530,17 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
         onPressed: onTap,
         style: TextButton.styleFrom(
           padding: EdgeInsets.zero,
-          backgroundColor: const Color(0xFF1E293B),
+          backgroundColor: AppColors.isDark(context) ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         ),
-        child: Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white)),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: AppColors.isDark(context) ? Colors.white : const Color(0xFF0F172A),
+          ),
+        ),
       ),
     );
   }
@@ -545,9 +553,9 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: isSelected ? activeColor : const Color(0xFF111827),
+            color: isSelected ? activeColor : AppColors.card(context),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: isSelected ? activeColor : const Color(0xFF334155)),
+            border: Border.all(color: isSelected ? activeColor : AppColors.border(context)),
           ),
           alignment: Alignment.center,
           child: Text(
@@ -555,7 +563,7 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.bold,
-              color: isSelected ? Colors.white : const Color(0xFF94A3B8),
+              color: isSelected ? Colors.white : AppColors.textMuted(context),
             ),
           ),
         ),

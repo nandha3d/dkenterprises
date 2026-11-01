@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'models/models.dart';
 import 'services/api_service.dart';
+import 'theme/app_theme.dart';
 import 'screens/super_admin_screen.dart';
 import 'screens/admin_screen.dart';
 import 'screens/field_agent_screen.dart';
@@ -25,11 +26,16 @@ class DKTrackApp extends StatefulWidget {
 
 class _DKTrackAppState extends State<DKTrackApp> {
   bool _isTamil = true; // Default Tamil for field ground operators
+  bool _isDarkMode = false; // Default to crisp sunlight-optimized Light Theme!
   CompanyVertical _activeVertical = CompanyVertical.dkWaters;
   UserRole _activeRole = UserRole.superAdmin; // Default to Super Admin for full client visibility
 
   void _toggleLanguage() {
     setState(() => _isTamil = !_isTamil);
+  }
+
+  void _toggleTheme() {
+    setState(() => _isDarkMode = !_isDarkMode);
   }
 
   void _selectVertical(CompanyVertical vertical) {
@@ -55,22 +61,16 @@ class _DKTrackAppState extends State<DKTrackApp> {
     return MaterialApp(
       title: 'DK Track — Field ERP Mobile',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0B0F17),
-        cardColor: const Color(0xFF111827),
-        colorScheme: ColorScheme.dark(
-          primary: _activeRole.color,
-          secondary: const Color(0xFF10B981),
-          surface: const Color(0xFF111827),
-        ),
-        fontFamily: 'Roboto',
-      ),
+      theme: AppTheme.getLightTheme(_activeRole.color),
+      darkTheme: AppTheme.getDarkTheme(_activeRole.color),
+      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
       home: MainNavigationShell(
         isTamil: _isTamil,
+        isDarkMode: _isDarkMode,
         activeVertical: _activeVertical,
         activeRole: _activeRole,
         onToggleLanguage: _toggleLanguage,
+        onToggleTheme: _toggleTheme,
         onSelectVertical: _selectVertical,
         onSelectRole: _selectRole,
       ),
@@ -80,18 +80,22 @@ class _DKTrackAppState extends State<DKTrackApp> {
 
 class MainNavigationShell extends StatefulWidget {
   final bool isTamil;
+  final bool isDarkMode;
   final CompanyVertical activeVertical;
   final UserRole activeRole;
   final VoidCallback onToggleLanguage;
+  final VoidCallback onToggleTheme;
   final ValueChanged<CompanyVertical> onSelectVertical;
   final ValueChanged<UserRole> onSelectRole;
 
   const MainNavigationShell({
     super.key,
     required this.isTamil,
+    required this.isDarkMode,
     required this.activeVertical,
     required this.activeRole,
     required this.onToggleLanguage,
+    required this.onToggleTheme,
     required this.onSelectVertical,
     required this.onSelectRole,
   });
@@ -317,24 +321,34 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 children: [
                   Icon(Icons.circle, color: Color(0xFF10B981), size: 7),
                   SizedBox(width: 4),
-                  Text('API LIVE', style: TextStyle(color: Color(0xFF34D399), fontSize: 9, fontWeight: FontWeight.bold)),
+                  Text('API LIVE', style: TextStyle(color: Color(0xFF10B981), fontSize: 9, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 4),
+          // Theme Toggle Button (☀️ Light / 🌙 Dark)
+          IconButton(
+            tooltip: widget.isDarkMode ? 'Light Mode (பகற்பொழுது)' : 'Dark Mode (இருண்ட திரை)',
+            icon: Icon(
+              widget.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+              color: widget.isDarkMode ? Colors.amber : const Color(0xFF0F172A),
+              size: 20,
+            ),
+            onPressed: widget.onToggleTheme,
+          ),
           // Language toggle
           IconButton(
             tooltip: t ? 'Switch to English' : 'தமிழுக்கு மாறுக',
             icon: Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.white38),
+                border: Border.all(color: AppColors.border(context)),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 t ? 'EN' : 'தமிழ்',
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.text(context)),
               ),
             ),
             onPressed: widget.onToggleLanguage,
@@ -344,14 +358,14 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       ),
 
       drawer: Drawer(
-        backgroundColor: const Color(0xFF0F172A),
+        backgroundColor: AppColors.card(context),
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF0284C7), Color(0xFF0F172A)],
+                  colors: [r.color, const Color(0xFF0F172A)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -402,17 +416,17 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
                 t ? 'பயனர் பாத்திரங்கள் (Roles):' : 'Switch Operational Role:',
-                style: const TextStyle(color: Colors.white54, fontSize: 11, fontWeight: FontWeight.bold),
+                style: TextStyle(color: AppColors.textMuted(context), fontSize: 11, fontWeight: FontWeight.bold),
               ),
             ),
             ...UserRole.values.map((role) {
               final isSel = r == role;
               return ListTile(
                 dense: true,
-                leading: Icon(role.icon, color: isSel ? role.color : Colors.white60, size: 20),
+                leading: Icon(role.icon, color: isSel ? role.color : AppColors.textMuted(context), size: 20),
                 title: Text(
                   role.title(t),
-                  style: TextStyle(color: isSel ? role.color : Colors.white, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, fontSize: 13),
+                  style: TextStyle(color: isSel ? role.color : AppColors.text(context), fontWeight: isSel ? FontWeight.bold : FontWeight.normal, fontSize: 13),
                 ),
                 trailing: isSel ? Icon(Icons.check, color: role.color, size: 16) : null,
                 onTap: () {
@@ -422,26 +436,26 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               );
             }),
 
-            const Divider(color: Color(0xFF1E293B)),
+            Divider(color: AppColors.border(context)),
 
             // Enterprise Vertical selector in drawer
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
                 t ? 'நிறுவனப் பிரிவு (Enterprises):' : 'Switch Enterprise Profile:',
-                style: const TextStyle(color: Colors.white54, fontSize: 11, fontWeight: FontWeight.bold),
+                style: TextStyle(color: AppColors.textMuted(context), fontSize: 11, fontWeight: FontWeight.bold),
               ),
             ),
             ...CompanyVertical.values.map((vert) {
               final isSel = v == vert;
               return ListTile(
                 dense: true,
-                leading: Icon(vert.icon, color: isSel ? vert.primaryColor : Colors.white60, size: 20),
+                leading: Icon(vert.icon, color: isSel ? vert.primaryColor : AppColors.textMuted(context), size: 20),
                 title: Text(
                   vert.name(t),
-                  style: TextStyle(color: isSel ? vert.primaryColor : Colors.white, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, fontSize: 13),
+                  style: TextStyle(color: isSel ? vert.primaryColor : AppColors.text(context), fontWeight: isSel ? FontWeight.bold : FontWeight.normal, fontSize: 13),
                 ),
-                subtitle: Text(vert.tagline(t), style: const TextStyle(color: Colors.white38, fontSize: 10)),
+                subtitle: Text(vert.tagline(t), style: TextStyle(color: AppColors.textDim(context), fontSize: 10)),
                 trailing: isSel ? Icon(Icons.check, color: vert.primaryColor, size: 16) : null,
                 onTap: () {
                   Navigator.pop(context);
@@ -461,9 +475,9 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex < navItems.length ? _currentIndex : 0,
         onTap: (index) => setState(() => _currentIndex = index),
-        backgroundColor: const Color(0xFF0F172A),
+        backgroundColor: AppColors.bottomNavBg(context),
         selectedItemColor: r.color,
-        unselectedItemColor: Colors.white38,
+        unselectedItemColor: AppColors.textDim(context),
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
         unselectedLabelStyle: const TextStyle(fontSize: 10),
         type: BottomNavigationBarType.fixed,

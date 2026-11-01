@@ -141,9 +141,140 @@
             transition: all 0.2s ease;
         }
 
-        .btn-lang-toggle:hover {
-            background: #38BDF8;
+        .btn-theme-toggle {
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            color: #F59E0B;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 5px 9px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-theme-toggle:hover {
+            background: #F59E0B;
             color: #0F172A;
+        }
+
+        /* Light Theme Complete Overrides */
+        html.light {
+            --bg-canvas: #FFFFFF;
+            --bg-card: #FFFFFF;
+            --bg-card-subtle: #F8FAFC;
+            --border-card: #E2E8F0;
+            --border-focus: #0284C7;
+            --text-primary: #0F172A;
+            --text-muted: #475569;
+            --text-dim: #64748B;
+        }
+
+        html.light body {
+            background-color: #F1F5F9;
+            color: #0F172A;
+        }
+
+        html.light .mobile-header {
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        html.light .header-titles h1 {
+            color: #0F172A;
+        }
+
+        html.light .header-titles span {
+            color: #64748B;
+        }
+
+        html.light .role-selector-ribbon {
+            background-color: #F8FAFC;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        html.light .role-pill {
+            background-color: #FFFFFF;
+            border: 1px solid #CBD5E1;
+        }
+
+        html.light .role-pill .pill-meta strong {
+            color: #0F172A;
+        }
+
+        html.light .role-subnav {
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        html.light .subnav-btn {
+            color: #64748B;
+        }
+
+        html.light .subnav-btn.active {
+            color: #0F172A;
+            border-bottom-color: #0284C7;
+        }
+
+        html.light .form-section-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        html.light .kpi-card {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+        }
+
+        html.light .kpi-value {
+            color: #0F172A;
+        }
+
+        html.light .custom-select, html.light .custom-input {
+            background: #F8FAFC;
+            border: 1px solid #CBD5E1;
+            color: #0F172A;
+        }
+
+        html.light .stepper-box {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+        }
+
+        html.light .stepper-box.highlight {
+            background: linear-gradient(180deg, rgba(2, 132, 199, 0.06) 0%, #FFFFFF 100%);
+            border-color: rgba(2, 132, 199, 0.4);
+        }
+
+        html.light .btn-step {
+            background: #E2E8F0;
+            border: 1px solid #CBD5E1;
+            color: #0F172A;
+        }
+
+        html.light .btn-payment-pill {
+            background: #F8FAFC;
+            border: 1px solid #CBD5E1;
+            color: #475569;
+        }
+
+        html.light .total-action-bar {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+        }
+
+        html.light .mobile-bottom-nav {
+            background-color: #FFFFFF;
+            border-top: 1px solid #E2E8F0;
+        }
+
+        html.light .fraud-desc {
+            color: #334155;
+        }
+
+        html.light .fraud-title {
+            color: #DC2626;
         }
 
         /* API Target Status Banner */
@@ -666,6 +797,7 @@
             </div>
         </div>
         <div class="header-controls">
+            <button class="btn-theme-toggle" id="btn-theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark Theme">☀️ Light</button>
             <button class="btn-lang-toggle" onclick="toggleLanguage()">தமிழ் / EN</button>
         </div>
     </header>
@@ -1721,6 +1853,22 @@
         cafeCart = {};
         document.querySelectorAll('[id^="badge-qty-"]').forEach(el => el.innerText = '0');
         updateCafeCartDisp();
+    }
+
+    let isLightMode = false;
+    function toggleTheme() {
+        isLightMode = !isLightMode;
+        const html = document.documentElement;
+        const btn = document.getElementById('btn-theme-toggle');
+        if (isLightMode) {
+            html.classList.remove('dark');
+            html.classList.add('light');
+            btn.innerText = '🌙 Dark';
+        } else {
+            html.classList.remove('light');
+            html.classList.add('dark');
+            btn.innerText = '☀️ Light';
+        }
     }
 
     function closeThermalModal() {

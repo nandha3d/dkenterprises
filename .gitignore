@@ -26,6 +26,9 @@
 !/bootstrap/cache/.gitignore
 /vendor
 *.zip
+*.apk
+/public/downloads/*
+!/public/downloads/.gitkeep
 .env
 .env.backup
 .phpunit.result.cache
