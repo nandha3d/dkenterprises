@@ -128,7 +128,11 @@
     <div class="d-flex align-items-center justify-content-between mb-1">
         <div class="d-flex align-items-center gap-2">
             <h4 class="mb-0 font-weight-bold text-dark" style="font-size: 18px;">
-                <i class="fa fa-map-marker text-primary mr-1"></i> Live Fleet GPS Tracking &amp; Customer Geofencing
+                @if(($industry ?? '') === 'bulk_water')
+                    <i class="dripicons-truck text-primary mr-1"></i> Live Commercial Tanker GPS Tracking &amp; Customer Geofencing
+                @else
+                    <i class="dripicons-drop text-info mr-1"></i> Live Packaged Drinking Water Route GPS Tracking &amp; Customer Geofencing
+                @endif
             </h4>
             <span class="badge badge-primary px-2 py-1 ml-2" style="font-size: 11px;">
                 <span class="spinner-grow spinner-grow-sm text-light mr-1" style="width: 8px; height: 8px;"></span> Live Telematics Active
@@ -197,16 +201,20 @@
         <div class="fleet-sidebar-panel">
             <div class="p-2 border-bottom bg-light">
                 <ul class="nav nav-pills nav-justified" id="fleet-tabs" role="tablist">
+                    @if($tankers->count() > 0)
                     <li class="nav-item">
                         <a class="nav-link active py-1 px-2 font-weight-bold" style="font-size: 11px;" id="tab-tankers-btn" data-toggle="pill" href="#tab-tankers">
                             Tankers ({{ $tankers->count() }})
                         </a>
                     </li>
+                    @endif
+                    @if($canRoutes->count() > 0)
                     <li class="nav-item">
-                        <a class="nav-link py-1 px-2 font-weight-bold" style="font-size: 11px;" id="tab-routes-btn" data-toggle="pill" href="#tab-routes">
-                            20L Cans ({{ $canRoutes->count() }})
+                        <a class="nav-link {{ $tankers->count() == 0 ? 'active' : '' }} py-1 px-2 font-weight-bold" style="font-size: 11px;" id="tab-routes-btn" data-toggle="pill" href="#tab-routes">
+                            Packaged Water ({{ $canRoutes->count() }})
                         </a>
                     </li>
+                    @endif
                     <li class="nav-item">
                         <a class="nav-link py-1 px-2 font-weight-bold" style="font-size: 11px;" id="tab-sites-btn" data-toggle="pill" href="#tab-sites">
                             Sites ({{ $customers->count() }})
@@ -216,6 +224,7 @@
             </div>
 
             <div class="tab-content flex-grow-1 overflow-auto" id="fleet-tab-content">
+                @if($tankers->count() > 0)
                 <!-- Tankers Tab -->
                 <div class="tab-pane fade show active" id="tab-tankers" role="tabpanel">
                     @foreach($tankers as $tanker)
@@ -236,9 +245,11 @@
                     </div>
                     @endforeach
                 </div>
+                @endif
 
-                <!-- 20L Can Routes Tab -->
-                <div class="tab-pane fade" id="tab-routes" role="tabpanel">
+                @if($canRoutes->count() > 0)
+                <!-- Packaged Water Routes Tab -->
+                <div class="tab-pane fade {{ $tankers->count() == 0 ? 'show active' : '' }}" id="tab-routes" role="tabpanel">
                     @foreach($canRoutes as $route)
                     <div class="vehicle-card" onclick="focusVehicle({{ $route->latitude ?? 11.02 }}, {{ $route->longitude ?? 76.96 }}, '{{ $route->route_name }}')">
                         <div class="d-flex justify-content-between align-items-center mb-1">
@@ -257,6 +268,7 @@
                     </div>
                     @endforeach
                 </div>
+                @endif
 
                 <!-- Geofenced Sites Tab -->
                 <div class="tab-pane fade" id="tab-sites" role="tabpanel">

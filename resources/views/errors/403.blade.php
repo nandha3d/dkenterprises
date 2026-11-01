@@ -18,7 +18,7 @@
             'title' => 'Water Logistics, Tanker Fleet & Can Distribution',
             'icon' => '💧',
             'badge' => 'Water Logistics Engine',
-            'description' => 'Bulk water tanker logistics (trip logging, multi-chamber split deliveries, decanting audit), 20L water can distribution routes (Tata Ace beats, customer ledger), and container security deposits.',
+            'description' => 'Bulk water tanker logistics (trip logging, multi-chamber split deliveries, decanting audit), Packaged drinking water distribution routes (Tata Ace beats, customer ledger), and container security deposits.',
             'industry_target' => 'Commercial Bulk Water Supply & Packaged Drinking Water',
         ],
         'operations.cafe_bakery' => [

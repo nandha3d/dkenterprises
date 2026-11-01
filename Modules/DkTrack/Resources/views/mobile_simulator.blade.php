@@ -72,7 +72,7 @@
     <div class="mobile-header">
         <div>
             <div style="font-size: 0.75rem; opacity: 0.9;">Driver: Vignesh (Tata Ace)</div>
-            <strong style="font-size: 1rem;">DK Track &bull; Can Delivery</strong>
+            <strong style="font-size: 1rem;">DK Waters &bull; Packaged Water Delivery</strong>
         </div>
         <span class="badge badge-success px-2 py-1">&bull; GPS Active</span>
     </div>
@@ -88,7 +88,7 @@
                 <div class="progress-bar bg-success" style="width: 87.5%;"></div>
             </div>
             <div class="d-flex justify-content-between small text-muted mt-2">
-                <span>Loaded: 70 Cans</span>
+                <span>Loaded: 70 Units</span>
                 <span>Delivered: 58</span>
                 <span>Empties: 54</span>
             </div>
@@ -105,18 +105,18 @@
 
             <div class="form-row mb-2">
                 <div class="col-6">
-                    <label class="small font-weight-bold mb-1">Cans Drop</label>
+                    <label class="small font-weight-bold mb-1">Delivered (Units)</label>
                     <input type="number" class="form-control font-weight-bold text-primary" value="15" id="dropCount">
                 </div>
                 <div class="col-6">
-                    <label class="small font-weight-bold mb-1">Empties Recd</label>
+                    <label class="small font-weight-bold mb-1">Empties Returned</label>
                     <input type="number" class="form-control font-weight-bold text-success" value="15" id="emptyCount">
                 </div>
             </div>
 
             <div class="form-row mb-3">
                 <div class="col-6">
-                    <label class="small font-weight-bold mb-1">Rate / Can</label>
+                    <label class="small font-weight-bold mb-1">Rate / Unit</label>
                     <input type="text" class="form-control" value="₹20.00" readonly>
                 </div>
                 <div class="col-6">
@@ -139,7 +139,7 @@
 
 <script>
 function confirmDrop() {
-    alert("Drop Confirmed!\n- 15 Cans Delivered\n- 15 Empty Jars Received\n- ₹300 Cash Collected\n- GPS Coordinates Verified!\nLedger and customer balance updated in real-time.");
+    alert("Drop Confirmed!\n- 15 Units Delivered\n- 15 Empty Containers Received\n- ₹300 Cash Collected\n- GPS Coordinates Verified!\nLedger and customer balance updated in real-time.");
 }
 </script>
 

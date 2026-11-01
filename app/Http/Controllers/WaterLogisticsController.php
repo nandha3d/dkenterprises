@@ -34,36 +34,69 @@ class WaterLogisticsController extends Controller
                 : 'packaged_water';
         }
 
-        $tankers = WaterTanker::where('is_active', true)->get();
-        $trips = WaterTankerTrip::with(['tanker', 'customer'])->latest()->take(50)->get();
-        $routes = WaterCanRoute::where('is_active', true)->get();
-        $deliveries = WaterCanDelivery::with(['route', 'customer'])->latest()->take(50)->get();
-        $customers = Customer::where('is_active', true)
-            ->where(function ($q) use ($companyId) {
-                if ($companyId) {
-                    $q->where('company_id', $companyId)->orWhereNull('company_id');
-                }
-            })
-            ->select('id', 'name', 'phone_number')
-            ->get();
+        if ($industry === 'packaged_water') {
+            // Strict DK Waters isolation: Packaged drinking water only. Never query or compute bulk tankers.
+            $tankers = collect([]);
+            $trips = collect([]);
+            $totalTankerTrips = 0;
+            $totalWaterDispatchedKl = 0.0;
+            $totalTankerRevenue = 0.0;
+            $totalTankerExpenses = 0.0;
 
-        $canInventories = DB::table('water_can_inventories')
-            ->leftJoin('customers', 'water_can_inventories.customer_id', '=', 'customers.id')
-            ->select('water_can_inventories.*', 'customers.name as customer_name', 'customers.phone_number')
-            ->get();
+            $routes = WaterCanRoute::where('is_active', true)->get();
+            $deliveries = WaterCanDelivery::with(['route', 'customer'])->latest()->take(50)->get();
+            $customers = Customer::where('is_active', true)
+                ->where(function ($q) use ($activeCompany) {
+                    $targetId = $activeCompany ? $activeCompany->id : 3;
+                    $q->where('company_id', $targetId);
+                })
+                ->select('id', 'name', 'phone_number')
+                ->get();
 
-        // Metrics for Bulk Water Vertical
-        $totalTankerTrips = WaterTankerTrip::count();
-        $totalWaterDispatchedKl = (float) WaterTankerTrip::sum('water_quantity_kl');
-        $totalTankerRevenue = (float) WaterTankerTrip::sum('trip_rate');
-        $totalTankerExpenses = (float) WaterTankerTrip::sum(DB::raw('COALESCE(diesel_expense, 0) + COALESCE(driver_batta, 0) + COALESCE(toll_expense, 0)'));
+            if ($customers->isEmpty()) {
+                $customers = Customer::where('is_active', true)->select('id', 'name', 'phone_number')->get();
+            }
 
-        // Metrics for 20L Can Vertical
-        $totalCanDeliveries = (int) WaterCanDelivery::sum('cans_delivered');
-        $totalCanRevenue = (float) WaterCanDelivery::sum('total_amount');
-        $totalCansHeld = (int) DB::table('water_can_inventories')->sum('total_cans_held');
-        $totalDepositHeld = (float) DB::table('water_can_inventories')->sum('deposit_held');
-        $activeRoutesCount = $routes->count();
+            $canInventories = DB::table('water_can_inventories')
+                ->leftJoin('customers', 'water_can_inventories.customer_id', '=', 'customers.id')
+                ->select('water_can_inventories.*', 'customers.name as customer_name', 'customers.phone_number')
+                ->get();
+
+            $totalCanDeliveries = (int) WaterCanDelivery::sum('cans_delivered');
+            $totalCanRevenue = (float) WaterCanDelivery::sum('total_amount');
+            $totalCansHeld = (int) DB::table('water_can_inventories')->sum('total_cans_held');
+            $totalDepositHeld = (float) DB::table('water_can_inventories')->sum('deposit_held');
+            $activeRoutesCount = $routes->count();
+        } else {
+            // Strict TMWS isolation: Bulk commercial water tankers only. Never query or compute packaged water routes.
+            $routes = collect([]);
+            $deliveries = collect([]);
+            $canInventories = collect([]);
+            $totalCanDeliveries = 0;
+            $totalCanRevenue = 0.0;
+            $totalCansHeld = 0;
+            $totalDepositHeld = 0.0;
+            $activeRoutesCount = 0;
+
+            $tankers = WaterTanker::where('is_active', true)->get();
+            $trips = WaterTankerTrip::with(['tanker', 'customer'])->latest()->take(50)->get();
+            $customers = Customer::where('is_active', true)
+                ->where(function ($q) use ($activeCompany) {
+                    $targetId = $activeCompany ? $activeCompany->id : 2;
+                    $q->where('company_id', $targetId);
+                })
+                ->select('id', 'name', 'phone_number')
+                ->get();
+
+            if ($customers->isEmpty()) {
+                $customers = Customer::where('is_active', true)->select('id', 'name', 'phone_number')->get();
+            }
+
+            $totalTankerTrips = WaterTankerTrip::count();
+            $totalWaterDispatchedKl = (float) WaterTankerTrip::sum('water_quantity_kl');
+            $totalTankerRevenue = (float) WaterTankerTrip::sum('trip_rate');
+            $totalTankerExpenses = (float) WaterTankerTrip::sum(DB::raw('COALESCE(diesel_expense, 0) + COALESCE(driver_batta, 0) + COALESCE(toll_expense, 0)'));
+        }
 
         return view('backend.water_logistics.index', compact(
             'tankers', 'trips', 'routes', 'deliveries', 'customers', 'canInventories',
@@ -185,26 +218,26 @@ class WaterLogisticsController extends Controller
                 try {
                     $items = [];
                     if ($paidAmount > 0) {
-                        $items[] = ['account_code' => '1010', 'debit' => $paidAmount, 'credit' => 0, 'memo' => '20L Can Cash/UPI collection'];
+                        $items[] = ['account_code' => '1010', 'debit' => $paidAmount, 'credit' => 0, 'memo' => 'Packaged Drinking Water Cash/UPI collection'];
                     }
                     $due = $totalAmount - $paidAmount;
                     if ($due > 0) {
-                        $items[] = ['account_code' => '1030', 'debit' => $due, 'credit' => 0, 'memo' => '20L Can Customer Due balance'];
+                        $items[] = ['account_code' => '1030', 'debit' => $due, 'credit' => 0, 'memo' => 'Packaged Drinking Water Customer Due balance'];
                     }
-                    $items[] = ['account_code' => '4010', 'debit' => 0, 'credit' => $totalAmount, 'memo' => '20L Water Can Sales Revenue'];
+                    $items[] = ['account_code' => '4010', 'debit' => 0, 'credit' => $totalAmount, 'memo' => 'Packaged Drinking Water Sales Revenue'];
 
                     $this->accountingService->postJournalEntry([
                         'entry_date' => $request->delivery_date ?? now()->toDateString(),
                         'reference_type' => 'WaterCanDelivery',
                         'reference_id' => $delNumber,
-                        'narration' => "20L Can Delivery [{$delNumber}] {$request->cans_delivered} cans",
+                        'narration' => "Packaged Drinking Water Delivery [{$delNumber}] {$request->cans_delivered} units",
                         'items' => $items
                     ]);
                 } catch (\Exception $e) {}
             }
         });
 
-        return redirect()->back()->with('message', "20L Can Delivery {$delNumber} recorded. Customer can balance updated.");
+        return redirect()->back()->with('message', "Packaged Drinking Water Delivery {$delNumber} recorded. Customer container balance updated.");
     }
 
     public function creditAgingBoard()
@@ -242,13 +275,49 @@ class WaterLogisticsController extends Controller
 
     public function fleetTracking()
     {
-        $tankers = WaterTanker::where('is_active', true)->get();
-        $canRoutes = WaterCanRoute::where('is_active', true)->get();
-        $customers = Customer::where('is_active', true)
-            ->whereNotNull('latitude')
-            ->select('id', 'name', 'company_name', 'phone_number', 'address', 'city', 'latitude', 'longitude', 'geofence_radius')
-            ->get();
-        $recentTrips = WaterTankerTrip::with(['tanker', 'customer'])->latest()->take(10)->get();
+        $companyContext = request()->attributes->get(\App\Services\Platform\CompanyContext::class);
+        $company = $companyContext?->company ?? \App\Models\Company::find(session('company_id'));
+        $industry = request('vertical') ?? $company?->industry;
+
+        if (!in_array($industry, ['bulk_water', 'packaged_water'])) {
+            $industry = ($company && ($company->code === 'TMWS' || str_contains(strtolower($company->trade_name ?? ''), 'tanker') || str_contains(strtolower($company->trade_name ?? ''), 'murugan')))
+                ? 'bulk_water'
+                : 'packaged_water';
+        }
+
+        if ($industry === 'packaged_water') {
+            // Strict DK Waters isolation: Packaged drinking water delivery only
+            $tankers = collect([]);
+            $canRoutes = WaterCanRoute::where('is_active', true)->get();
+            $recentTrips = collect([]);
+            $customers = Customer::where('is_active', true)
+                ->where('company_id', $company?->id ?? 3)
+                ->whereNotNull('latitude')
+                ->select('id', 'name', 'company_name', 'phone_number', 'address', 'city', 'latitude', 'longitude', 'geofence_radius')
+                ->get();
+            if ($customers->isEmpty()) {
+                $customers = Customer::where('is_active', true)
+                    ->whereNotNull('latitude')
+                    ->select('id', 'name', 'company_name', 'phone_number', 'address', 'city', 'latitude', 'longitude', 'geofence_radius')
+                    ->get();
+            }
+        } else {
+            // Strict TMWS isolation: Bulk commercial water tankers only
+            $tankers = WaterTanker::where('is_active', true)->get();
+            $canRoutes = collect([]);
+            $recentTrips = WaterTankerTrip::with(['tanker', 'customer'])->latest()->take(10)->get();
+            $customers = Customer::where('is_active', true)
+                ->where('company_id', $company?->id ?? 2)
+                ->whereNotNull('latitude')
+                ->select('id', 'name', 'company_name', 'phone_number', 'address', 'city', 'latitude', 'longitude', 'geofence_radius')
+                ->get();
+            if ($customers->isEmpty()) {
+                $customers = Customer::where('is_active', true)
+                    ->whereNotNull('latitude')
+                    ->select('id', 'name', 'company_name', 'phone_number', 'address', 'city', 'latitude', 'longitude', 'geofence_radius')
+                    ->get();
+            }
+        }
 
         $totalVehicles = $tankers->count() + $canRoutes->count();
         $movingVehicles = $tankers->where('current_speed', '>', 0)->count() + $canRoutes->where('current_speed', '>', 0)->count();
@@ -256,18 +325,41 @@ class WaterLogisticsController extends Controller
 
         return view('backend.water_logistics.fleet_tracking', compact(
             'tankers', 'canRoutes', 'customers', 'recentTrips',
-            'totalVehicles', 'movingVehicles', 'geofencedSites'
+            'totalVehicles', 'movingVehicles', 'geofencedSites', 'industry'
         ));
     }
 
     public function fleetTelematicsLive()
     {
-        $tankers = WaterTanker::where('is_active', true)->get();
-        $canRoutes = WaterCanRoute::where('is_active', true)->get();
-        $customers = Customer::where('is_active', true)->whereNotNull('latitude')->get();
+        $companyContext = request()->attributes->get(\App\Services\Platform\CompanyContext::class);
+        $company = $companyContext?->company ?? \App\Models\Company::find(session('company_id'));
+        $industry = request('vertical') ?? $company?->industry;
+
+        if (!in_array($industry, ['bulk_water', 'packaged_water'])) {
+            $industry = ($company && ($company->code === 'TMWS' || str_contains(strtolower($company->trade_name ?? ''), 'tanker') || str_contains(strtolower($company->trade_name ?? ''), 'murugan')))
+                ? 'bulk_water'
+                : 'packaged_water';
+        }
+
+        if ($industry === 'packaged_water') {
+            $tankers = collect([]);
+            $canRoutes = WaterCanRoute::where('is_active', true)->get();
+            $customers = Customer::where('is_active', true)->where('company_id', $company?->id ?? 3)->whereNotNull('latitude')->get();
+            if ($customers->isEmpty()) {
+                $customers = Customer::where('is_active', true)->whereNotNull('latitude')->get();
+            }
+        } else {
+            $tankers = WaterTanker::where('is_active', true)->get();
+            $canRoutes = collect([]);
+            $customers = Customer::where('is_active', true)->where('company_id', $company?->id ?? 2)->whereNotNull('latitude')->get();
+            if ($customers->isEmpty()) {
+                $customers = Customer::where('is_active', true)->whereNotNull('latitude')->get();
+            }
+        }
 
         return response()->json([
             'success' => true,
+            'industry' => $industry,
             'tankers' => $tankers,
             'can_routes' => $canRoutes,
             'customers' => $customers,

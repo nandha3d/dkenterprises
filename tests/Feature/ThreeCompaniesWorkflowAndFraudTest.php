@@ -459,7 +459,7 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
     }
 
     /**
-     * Test 13: Water Logistics Screen Vertical Isolation (Bulk Water vs 20L Can Routes).
+     * Test 13: Water Logistics Screen Vertical Isolation (Bulk Water vs Packaged Drinking Water Routes).
      */
     public function test_water_logistics_vertical_screen_isolation(): void
     {
@@ -480,8 +480,9 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
         $responseTmws->assertStatus(200);
         $responseTmws->assertSee('Commercial Bulk Water &amp; Fleet Logistics', false);
         $responseTmws->assertSee('Log Tanker Trip');
-        $responseTmws->assertDontSee('20L Can Delivery');
-        $responseTmws->assertDontSee('Customer Cans in Custody');
+        $responseTmws->assertDontSee('Packaged Water Delivery');
+        $responseTmws->assertDontSee('Packaged Drinking Water');
+        $responseTmws->assertDontSee('Customer Containers in Custody');
         $responseTmws->assertDontSee('9KL/16KL/24KL');
         $responseTmws->assertDontSee('10KL/20KL/40KL');
 
@@ -499,10 +500,11 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
 
         $responseDkWaters = $this->get('/water-logistics');
         $responseDkWaters->assertStatus(200);
-        $responseDkWaters->assertSee('20L Can Route Distribution &amp; Logistics', false);
-        $responseDkWaters->assertSee('20L Can Delivery');
+        $responseDkWaters->assertSee('Packaged Drinking Water Distribution &amp; Logistics', false);
+        $responseDkWaters->assertSee('Packaged Water Delivery');
         $responseDkWaters->assertDontSee('Log Tanker Trip');
         $responseDkWaters->assertDontSee('Total Bulk Water Delivered');
+        $responseDkWaters->assertDontSee('Commercial Bulk Water');
         $responseDkWaters->assertDontSee('9KL/16KL/24KL');
 
         $responseDkWatersSale = $this->get('/sales');
@@ -510,4 +512,128 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
         $responseDkWatersSale->assertSee('Packaged Water Delivery');
         $responseDkWatersSale->assertDontSee('Tanker Trip Calc');
     }
+
+    /**
+     * Test 14: Mobile API Bootstrap & Role Dashboard Endpoints for Live App Testing.
+     */
+    public function test_mobile_api_bootstrap_and_role_dashboard_endpoints(): void
+    {
+        // 1. Mobile bootstrap data
+        $response = $this->getJson('/api/v1/mobile/bootstrap');
+        $response->assertStatus(200);
+        $response->assertJsonPath('success', true);
+        $response->assertJsonStructure([
+            'data' => [
+                'companies',
+                'routes',
+                'tankers',
+                'customers',
+                'packages',
+            ]
+        ]);
+
+        // 2. Role dashboard for super_admin
+        $responseRole = $this->getJson('/api/v1/mobile/dashboard/super_admin');
+        $responseRole->assertStatus(200);
+        $responseRole->assertJsonPath('success', true);
+        $responseRole->assertJsonPath('data.role', 'super_admin');
+    }
+
+    /**
+     * Test 15: Field Agent Customer KYC Onboarding & Credit Collection Flow.
+     */
+    public function test_field_agent_customer_kyc_and_collection_flow(): void
+    {
+        // 1. Onboard new customer with opening container deposit
+        $onboardPayload = [
+            'name' => 'Sri Annapoorna Restaurant',
+            'phone_number' => '9842199887',
+            'address' => '77 Cross Cut Road, Gandhipuram',
+            'city' => 'Coimbatore',
+            'company_id' => 3,
+            'opening_cans_held' => 10,
+            'deposit_held' => 1500.0,
+        ];
+
+        $responseOnboard = $this->postJson('/api/v1/mobile/customer-onboard', $onboardPayload);
+        $responseOnboard->assertStatus(201);
+        $responseOnboard->assertJsonPath('success', true);
+        $newCustomerId = $responseOnboard->json('data.customer.id');
+
+        $this->assertDatabaseHas('customers', [
+            'id' => $newCustomerId,
+            'name' => 'Sri Annapoorna Restaurant',
+            'phone_number' => '9842199887',
+        ]);
+
+        $this->assertDatabaseHas('water_can_inventories', [
+            'customer_id' => $newCustomerId,
+            'total_cans_held' => 10,
+            'deposit_held' => 1500.0,
+        ]);
+
+        // 2. Collect outstanding payment & verify receipt
+        $collectPayload = [
+            'customer_id' => $newCustomerId,
+            'amount_collected' => 750.0,
+            'payment_mode' => 'UPI',
+            'receipt_number' => 'REC-TEST-20261101-01',
+        ];
+
+        $responseCollect = $this->postJson('/api/v1/mobile/collect-payment', $collectPayload);
+        $responseCollect->assertStatus(201);
+        $responseCollect->assertJsonPath('success', true);
+        $responseCollect->assertJsonPath('data.receipt_number', 'REC-TEST-20261101-01');
+    }
+
+    /**
+     * Test 16: Mobile Driver Surrender & Spot Audit Logging.
+     */
+    public function test_mobile_driver_surrender_and_admin_settlement_reconciliation(): void
+    {
+        // 1. Driver surrenders shift cash and empty return cans
+        $surrenderPayload = [
+            'route_id' => 1,
+            'surrender_date' => date('Y-m-d'),
+            'cash_surrendered' => 2800.0,
+            'empty_cans_returned' => 80,
+        ];
+
+        $responseSurrender = $this->postJson('/api/v1/mobile/driver-surrender', $surrenderPayload);
+        $responseSurrender->assertStatus(200);
+        $responseSurrender->assertJsonPath('success', true);
+        $responseSurrender->assertJsonPath('data.cash_surrendered', 2800);
+
+        // 2. Physical spot audit verification
+        $auditPayload = [
+            'vehicle_number' => 'TN-59-WA-1011',
+            'driver_name' => 'Murugan',
+            'expected_units' => 80,
+            'physical_units' => 78,
+            'is_fraud_suspected' => true,
+        ];
+
+        $responseAudit = $this->postJson('/api/v1/mobile/spot-audit', $auditPayload);
+        $responseAudit->assertStatus(201);
+        $responseAudit->assertJsonPath('success', true);
+        $responseAudit->assertJsonPath('data.unit_difference', -2);
+    }
+
+    /**
+     * Test 17: Mobile Web App Simulator route & all 6 roles.
+     */
+    public function test_mobile_web_simulator_route_and_role_views(): void
+    {
+        $response = $this->get('/mobile');
+        $response->assertStatus(200);
+        $response->assertSee('DK Track — Multi-Role Enterprise Field Mobile ERP');
+        $response->assertSee('Super Admin');
+        $response->assertSee('Company Admin');
+        $response->assertSee('Field Agent');
+        $response->assertSee('Route Driver');
+        $response->assertSee('Tanker Driver');
+        $response->assertSee('Cafe Cashier');
+        $response->assertSee('https://dkenterprises.animazon.in/api/v1');
+    }
 }
+

@@ -1,3 +1,9 @@
+@php
+    $sbCompanyId = session('company_id');
+    $sbCompany = $sbCompanyId ? \App\Models\Company::find($sbCompanyId) : null;
+    $sbIndustry = $sbCompany?->industry;
+@endphp
+
 @extends('backend.layout.main')
 @section('content')
 
@@ -15,18 +21,22 @@
             <h3 class="font-weight-bold text-dark m-0">
                 <i class="dripicons-direction text-primary mr-2"></i> DK Track &mdash; Executive Command Dashboard
             </h3>
-            <p class="text-muted small m-0 mt-1">Single-Tenant Operations Engine for Bulk Water Tankers, 20L Cans, Cafe Operations &amp; GPS Telematics</p>
+            <p class="text-muted small m-0 mt-1">Operations Engine for Bulk Water Tankers, Packaged Drinking Water Distribution, Cafe Operations &amp; GPS Telematics</p>
         </div>
         <div class="col-md-5 text-right">
             <a href="{{ route('dktrack.mobile_simulator') }}" target="_blank" class="btn btn-outline-primary btn-sm mr-2 shadow-sm">
                 <i class="dripicons-phone"></i> Mobile Driver App
             </a>
+            @if($sbIndustry !== 'packaged_water')
             <a href="{{ route('dktrack.tankers') }}" class="btn btn-primary btn-sm mr-2 shadow-sm">
                 <i class="dripicons-plus"></i> + Tanker Trip Sheet
             </a>
+            @endif
+            @if($sbIndustry !== 'bulk_water')
             <a href="{{ route('dktrack.water_cans') }}" class="btn btn-success btn-sm shadow-sm">
-                <i class="dripicons-drop"></i> + Can Refill &amp; Drop
+                <i class="dripicons-drop"></i> + Packaged Water Delivery
             </a>
+            @endif
         </div>
     </div>
 
@@ -154,27 +164,31 @@
                     </h6>
                 </div>
                 <div class="card-body p-3">
+                    @if($sbIndustry !== 'packaged_water')
                     <a href="{{ route('dktrack.tankers') }}" class="d-flex align-items-center justify-content-between p-2 mb-2 rounded border text-decoration-none text-dark hover-bg-light">
                         <div class="d-flex align-items-center">
                             <i class="dripicons-to-do fa-lg text-primary mr-3"></i>
                             <div>
                                 <strong class="d-block">Bulk Water Tankers</strong>
-                                <small class="text-muted">40KL, 24KL, Surcharges &amp; Trip Sheets</small>
+                                <small class="text-muted">Dynamic KL Capacities, Surcharges &amp; Trip Sheets</small>
                             </div>
                         </div>
                         <i class="dripicons-chevron-right text-muted"></i>
                     </a>
+                    @endif
 
+                    @if($sbIndustry !== 'bulk_water')
                     <a href="{{ route('dktrack.water_cans') }}" class="d-flex align-items-center justify-content-between p-2 mb-2 rounded border text-decoration-none text-dark hover-bg-light">
                         <div class="d-flex align-items-center">
                             <i class="dripicons-drop fa-lg text-success mr-3"></i>
                             <div>
-                                <strong class="d-block">20L Water Cans</strong>
-                                <small class="text-muted">Multi-Refills, Route Drops &amp; Can Ledger</small>
+                                <strong class="d-block">Packaged Drinking Water</strong>
+                                <small class="text-muted">Plant Refills, Beat Route Drops &amp; Container Custody</small>
                             </div>
                         </div>
                         <i class="dripicons-chevron-right text-muted"></i>
                     </a>
+                    @endif
 
                     <a href="{{ route('dktrack.bakery') }}" class="d-flex align-items-center justify-content-between p-2 mb-2 rounded border text-decoration-none text-dark hover-bg-light">
                         <div class="d-flex align-items-center">

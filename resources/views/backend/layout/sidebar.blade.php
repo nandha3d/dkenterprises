@@ -265,7 +265,7 @@
                         </li>
                     @elseif($sidebarIndustry === 'packaged_water')
                         <li class="{{ request()->is('water-logistics') ? 'active' : '' }}">
-                            <a href="{{route('water-logistics.index')}}"><i class="dripicons-drop mr-1 text-info"></i> 20L Can Delivery Routes</a>
+                            <a href="{{route('water-logistics.index')}}"><i class="dripicons-drop mr-1 text-info"></i> Packaged Drinking Water Routes</a>
                         </li>
                         <li class="{{ request()->is('fleet/tracking*') ? 'active' : '' }}">
                             <a href="{{route('fleet.tracking')}}"><i class="fa fa-map-marker mr-1 text-info"></i> Live Route GPS Tracking</a>
@@ -275,7 +275,7 @@
                         </li>
                     @else
                         <li class="{{ request()->is('water-logistics') ? 'active' : '' }}">
-                            <a href="{{route('water-logistics.index')}}"><i class="dripicons-map mr-1 text-primary"></i> Fleet Trips &amp; Can Routes</a>
+                            <a href="{{route('water-logistics.index')}}"><i class="dripicons-map mr-1 text-primary"></i> Fleet Logistics &amp; Routes</a>
                         </li>
                         <li class="{{ request()->is('fleet/tracking*') ? 'active' : '' }}">
                             <a href="{{route('fleet.tracking')}}"><i class="fa fa-map-marker mr-1 text-primary"></i> Live Fleet GPS Tracking</a>
@@ -285,6 +285,9 @@
                         </li>
                     @endif
                 @endif
+                <li class="{{ request()->is('mobile*') ? 'active' : '' }}">
+                    <a href="{{ route('mobile.index') }}" target="_blank"><i class="dripicons-device-mobile mr-1 text-success"></i> <strong>Mobile Field App (All Roles)</strong> <span class="badge badge-success ml-1">PWA</span></a>
+                </li>
             </ul>
         </li>
     @endif

@@ -1,3 +1,9 @@
+@php
+    $sbCompanyId = session('company_id');
+    $sbCompany = $sbCompanyId ? \App\Models\Company::find($sbCompanyId) : null;
+    $sbIndustry = $sbCompany?->industry;
+@endphp
+
 @extends('backend.layout.main')
 @section('content')
 
@@ -8,7 +14,7 @@
             <h3 class="font-weight-bold text-dark m-0">
                 <i class="dripicons-user-group text-info mr-2"></i> Staff, Drivers &amp; Payroll Management
             </h3>
-            <p class="text-muted small m-0 mt-1">Multi-vertical human capital: Tanker heavy drivers (trip batta), 20L can delivery boys (daily wages), cafe staff (Paati daily payout) &amp; advance recovery.</p>
+            <p class="text-muted small m-0 mt-1">Multi-vertical human capital: Tanker heavy drivers (trip batta), packaged drinking water delivery staff (daily wages), cafe staff (Paati daily payout) &amp; advance recovery.</p>
         </div>
         <div class="col-md-5 text-right">
             <button type="button" class="btn btn-outline-primary btn-sm mr-2 shadow-sm" data-toggle="modal" data-target="#recordAttendanceModal">
@@ -120,10 +126,11 @@
                             <td><span class="badge badge-warning text-dark font-weight-bold">₹800.00</span></td>
                             <td><span class="badge badge-success">&check; Badge Exp: 2027-05</span></td>
                         </tr>
+                        @if($sbIndustry !== 'bulk_water')
                         <tr>
                             <td><strong>Vignesh (Vicky)</strong></td>
-                            <td>Can Delivery Route Lead</td>
-                            <td><span class="badge badge-success">20L Water Cans</span></td>
+                            <td>Route Distribution Lead</td>
+                            <td><span class="badge badge-success">Packaged Drinking Water</span></td>
                             <td>97871 44120</td>
                             <td>TN 38 BX 4412 (Tata Ace)</td>
                             <td>Fixed Daily Wage</td>
@@ -133,8 +140,8 @@
                         </tr>
                         <tr>
                             <td><strong>Raja Sundaram</strong></td>
-                            <td>Can Loader &amp; Helper</td>
-                            <td><span class="badge badge-success">20L Water Cans</span></td>
+                            <td>Route Loader &amp; Helper</td>
+                            <td><span class="badge badge-success">Packaged Drinking Water</span></td>
                             <td>97871 44122</td>
                             <td>TN 38 BX 4412 (Tata Ace)</td>
                             <td>Fixed Daily Wage</td>
@@ -142,6 +149,7 @@
                             <td><span class="badge badge-warning text-dark font-weight-bold">₹500.00</span></td>
                             <td><span class="badge badge-light border">Helper Badge</span></td>
                         </tr>
+                        @endif
                         <tr>
                             <td><strong>Kavin Anna</strong></td>
                             <td>Store Counter &amp; Closing</td>

@@ -1869,20 +1869,20 @@
             </div>
             <div class="modal-body p-3 bg-light">
                 <div class="form-group mb-2">
-                    <label class="small text-muted font-weight-bold mb-1">Water Can / Package Product (20L, 25L, 10L, 1L, etc.) *</label>
+                    <label class="small text-muted font-weight-bold mb-1">Packaged Drinking Water Product *</label>
                     <select id="can_product_id" class="form-control form-control-sm font-weight-bold text-dark">
                         @if(isset($packaged_water_products) && $packaged_water_products->count() > 0)
                             @foreach($packaged_water_products as $wp)
-                                <option value="{{ $wp->id }}" data-code="{{ $wp->code }}" data-price="{{ (float)$wp->price }}" data-name="{{ $wp->name }}" data-unit="{{ $wp->unit->unit_code ?? 'CAN' }}" {{ str_contains($wp->code, '20L') ? 'selected' : '' }}>
+                                <option value="{{ $wp->id }}" data-code="{{ $wp->code }}" data-price="{{ (float)$wp->price }}" data-name="{{ $wp->name }}" data-unit="{{ $wp->unit->unit_code ?? 'CAN' }}" {{ $loop->first ? 'selected' : '' }}>
                                     {{ $wp->name }} ({{ $wp->code }}) — ₹{{ number_format($wp->price, 2) }}
                                 </option>
                             @endforeach
                         @else
-                            <option value="CAN-20L" data-code="CAN-20L" data-price="35" data-name="20L Packaged Drinking Water Can" data-unit="CAN" selected>20L Packaged Drinking Water Can (CAN-20L) — ₹35.00</option>
-                            <option value="CAN-25L" data-code="CAN-25L" data-price="42" data-name="25L Packaged Drinking Water Can" data-unit="CAN">25L Packaged Drinking Water Can (CAN-25L) — ₹42.00</option>
-                            <option value="CAN-10L" data-code="CAN-10L" data-price="25" data-name="10L Easy-Dispense Water Can" data-unit="CAN">10L Easy-Dispense Water Can (CAN-10L) — ₹25.00</option>
-                            <option value="BTL-1L" data-code="BTL-1L" data-price="140" data-name="1 Litre Mineral Water Bottle (Box of 12)" data-unit="BOX">1 Litre Mineral Water Bottle Box of 12 (BTL-1L) — ₹140.00</option>
-                            <option value="BTL-2L" data-code="BTL-2L" data-price="160" data-name="2 Litre Mineral Water Bottle (Box of 9)" data-unit="BOX">2 Litre Mineral Water Bottle Box of 9 (BTL-2L) — ₹160.00</option>
+                            <option value="CAN-20L" data-code="CAN-20L" data-price="35" data-name="Packaged Drinking Water (20L Jar)" data-unit="CAN" selected>Packaged Drinking Water 20L Jar (CAN-20L) — ₹35.00</option>
+                            <option value="CAN-25L" data-code="CAN-25L" data-price="42" data-name="Packaged Drinking Water (25L Jar)" data-unit="CAN">Packaged Drinking Water 25L Jar (CAN-25L) — ₹42.00</option>
+                            <option value="CAN-10L" data-code="CAN-10L" data-price="25" data-name="Packaged Drinking Water (10L Jar)" data-unit="CAN">Packaged Drinking Water 10L Jar (CAN-10L) — ₹25.00</option>
+                            <option value="BTL-1L" data-code="BTL-1L" data-price="140" data-name="1 Litre Packaged Drinking Water Bottle (Box of 12)" data-unit="BOX">1 Litre Packaged Drinking Water Box of 12 (BTL-1L) — ₹140.00</option>
+                            <option value="BTL-2L" data-code="BTL-2L" data-price="160" data-name="2 Litre Packaged Drinking Water Bottle (Box of 9)" data-unit="BOX">2 Litre Packaged Drinking Water Box of 9 (BTL-2L) — ₹160.00</option>
                         @endif
                     </select>
                 </div>
@@ -2257,7 +2257,7 @@
             var selOpt = $('#can_product_id').find('option:selected');
             var prodId = $('#can_product_id').val();
             var prodCode = selOpt.data('code') || 'CAN-20L';
-            var prodName = selOpt.data('name') || '20L Packaged Drinking Water Can';
+            var prodName = selOpt.data('name') || 'Packaged Drinking Water Jar';
             var prodUnit = selOpt.data('unit') || 'CAN';
 
             $('#hidden_route_id').val(routeId);

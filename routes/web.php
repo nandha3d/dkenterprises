@@ -947,6 +947,10 @@ Route::group(['middleware' => ['common', 'auth', 'active', 'legacy.company']], f
         Route::post('cafe/raw-material', 'storeRawMaterial')->name('cafe.raw-material.store');
     });
 
+    // Module: Interactive Multi-Role Mobile Application Suite
+    Route::get('mobile', [\App\Http\Controllers\MobileAppController::class, 'index'])->name('mobile.index');
+    Route::get('mobile-app', [\App\Http\Controllers\MobileAppController::class, 'index'])->name('mobile.app');
+
     // Module: Dynamic Catalogue QR
     Route::controller(\App\Http\Controllers\CatalogueQrController::class)->group(function () {
         Route::get('qr', 'index')->name('qr.index');
@@ -1004,5 +1008,8 @@ Route::group(['middleware' => ['common', 'auth', 'active', 'legacy.company']], f
     }
 
 });
+
+// Mobile Application (PWA / Field Driver Suite)
+Route::get('mobile', [\App\Http\Controllers\MobileAppController::class, 'index'])->name('mobile.index');
 
 require __DIR__.'/product-imports.php';

@@ -6,9 +6,9 @@
     <div class="row align-items-center mb-4">
         <div class="col-md-7">
             <h3 class="font-weight-bold text-dark m-0">
-                <i class="dripicons-drop text-success mr-2"></i> 20L Water Can Anti-Theft Distribution
+                <i class="dripicons-drop text-success mr-2"></i> Packaged Drinking Water Distribution &amp; Logistics
             </h3>
-            <p class="text-muted small m-0 mt-1">Multi-plant refill trips (3 loads/day), route odometer audits, photo verification &amp; customer can balance security.</p>
+            <p class="text-muted small m-0 mt-1">Multi-plant refill trips (3 loads/day), route odometer audits, photo verification &amp; customer container balance security.</p>
         </div>
         <div class="col-md-5 text-right">
             <button type="button" class="btn btn-outline-success btn-sm mr-2 shadow-sm" data-toggle="modal" data-target="#plantRefillModal">

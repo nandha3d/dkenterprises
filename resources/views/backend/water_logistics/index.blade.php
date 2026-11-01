@@ -12,7 +12,7 @@
     <div class="container-fluid">
         @if($industry === 'packaged_water')
             {{-- ========================================================================= --}}
-            {{-- VERTICAL: PACKAGED DRINKING WATER & 20L CAN DISTRIBUTION (DK WATERS)      --}}
+            {{-- VERTICAL: PACKAGED DRINKING WATER DISTRIBUTION (DK WATERS)                --}}
             {{-- ========================================================================= --}}
             <!-- Header -->
             <div class="row align-items-center mb-4">
@@ -22,10 +22,10 @@
                     @endif
                     <div>
                         <div class="d-flex align-items-center gap-2 mb-1">
-                            <h3 class="font-weight-bold text-dark m-0">20L Can Route Distribution &amp; Logistics</h3>
+                            <h3 class="font-weight-bold text-dark m-0">Packaged Drinking Water Distribution &amp; Logistics</h3>
                             <span class="badge badge-success px-2 py-1 ml-2"><i class="dripicons-drop"></i> Packaged Water Vertical</span>
                         </div>
-                        <p class="text-muted small m-0">Tata Ace daily beat route distribution, morning loaded stock, can deliveries, empty container return ledger, and anti-theft security deposits.</p>
+                        <p class="text-muted small m-0">Tata Ace daily beat route distribution, morning loaded stock, packaged deliveries, empty container return ledger, and anti-theft security deposits.</p>
                     </div>
                 </div>
                 <div class="col-md-5 text-right">
@@ -36,7 +36,7 @@
                         <i class="dripicons-time-reverse"></i> Customer Credit Aging
                     </a>
                     <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#canDeliveryModal">
-                        <i class="dripicons-plus"></i> 20L Can Delivery
+                        <i class="dripicons-plus"></i> Packaged Water Delivery
                     </button>
                 </div>
             </div>
@@ -45,8 +45,8 @@
             <div class="row mb-4">
                 <div class="col-md-3">
                     <div class="card border-0 shadow-sm rounded-lg p-3 bg-white">
-                        <span class="small text-muted font-weight-600">20L Cans Distributed</span>
-                        <h3 class="font-weight-bold text-success m-0 mt-1">{{ number_format($totalCanDeliveries) }} Cans</h3>
+                        <span class="small text-muted font-weight-600">Packaged Drinking Water Distributed</span>
+                        <h3 class="font-weight-bold text-success m-0 mt-1">{{ number_format($totalCanDeliveries) }} Units</h3>
                         <small class="text-muted">Tata Ace daily beat deliveries</small>
                     </div>
                 </div>
@@ -73,13 +73,13 @@
                 </div>
             </div>
 
-            <!-- Tabs: 20L Can Specific Workspaces -->
+            <!-- Tabs: Packaged Drinking Water Specific Workspaces -->
             <div class="card border-0 shadow-sm rounded-lg">
                 <div class="card-header bg-white border-0 py-3">
                     <ul class="nav nav-tabs card-header-tabs" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link active font-weight-bold" data-toggle="tab" href="#tab-can-deliveries" role="tab">
-                                <i class="dripicons-drop text-success mr-1"></i> Daily Can Route Deliveries &amp; Manifests
+                                <i class="dripicons-drop text-success mr-1"></i> Daily Packaged Water Deliveries &amp; Manifests
                             </a>
                         </li>
                         <li class="nav-item">
@@ -137,7 +137,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="12" class="text-center text-muted py-4">No 20L can route deliveries recorded yet. Click "+ 20L Can Delivery" to log a beat delivery.</td>
+                                                <td colspan="12" class="text-center text-muted py-4">No packaged water deliveries recorded yet. Click "Packaged Water Delivery" to log a beat delivery.</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -236,14 +236,14 @@
                 </div>
             </div>
 
-            <!-- Modal: 20L Can Delivery Modal -->
+            <!-- Modal: Packaged Water Delivery Modal -->
             <div id="canDeliveryModal" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade text-left">
                 <div role="document" class="modal-dialog modal-dialog-centered">
                     <div class="modal-content border-0 shadow-lg">
                         <form action="{{ route('water-logistics.can.store') }}" method="POST">
                             @csrf
                             <div class="modal-header bg-dark text-white border-0 py-3">
-                                <h5 class="modal-title font-weight-bold">Log 20L Can Route Delivery</h5>
+                                <h5 class="modal-title font-weight-bold">Log Packaged Drinking Water Delivery</h5>
                                 <button type="button" data-dismiss="modal" class="close text-white opacity-75"><span>&times;</span></button>
                             </div>
                             <div class="modal-body p-4">
@@ -298,7 +298,7 @@
                             </div>
                             <div class="modal-footer border-0 p-3 bg-light">
                                 <button type="button" class="btn btn-secondary px-4" data-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-success px-4 font-weight-bold">Confirm Can Delivery</button>
+                                <button type="submit" class="btn btn-success px-4 font-weight-bold">Confirm Packaged Water Delivery</button>
                             </div>
                         </form>
                     </div>
@@ -635,25 +635,25 @@
                     </div>
                 </div>
 
-                <!-- Vertical 2: 20L Can Route Distribution & Logistics -->
+                <!-- Vertical 2: Packaged Drinking Water Distribution & Logistics -->
                 <div class="col-md-6 mb-4">
                     <div class="card border-0 shadow-sm rounded-lg p-4 bg-white h-100 d-flex flex-column justify-content-between">
                         <div>
                             <div class="d-flex align-items-center mb-3">
-                                <span class="badge badge-success px-3 py-2 mr-2"><i class="dripicons-drop"></i> 20L Cans</span>
+                                <span class="badge badge-success px-3 py-2 mr-2"><i class="dripicons-drop"></i> Packaged Water</span>
                                 <h4 class="font-weight-bold m-0 text-dark">Packaged Drinking Water Distribution</h4>
                             </div>
                             <p class="text-muted small">Process flow tailored for <strong>DK Waters (DKWATERS)</strong>:</p>
                             <ul class="text-muted small pl-3 mb-4">
                                 <li>Tata Ace daily beat route manifests &amp; morning loaded stock</li>
-                                <li>Filled can deliveries and empty container collection</li>
-                                <li>Customer empty can custody ledger &amp; anti-theft variance audit</li>
+                                <li>Bottled &amp; jar water deliveries and empty container collection</li>
+                                <li>Customer empty container custody ledger &amp; anti-theft variance audit</li>
                                 <li>Refundable security deposit balance management</li>
                                 <li>Beat route van GPS tracking</li>
                             </ul>
                         </div>
                         <a href="{{ route('water-logistics.index', ['vertical' => 'packaged_water']) }}" class="btn btn-success btn-block font-weight-bold py-2">
-                            <i class="dripicons-arrow-right mr-1"></i> Open 20L Can Distribution Operations
+                            <i class="dripicons-arrow-right mr-1"></i> Open Packaged Drinking Water Operations
                         </a>
                     </div>
                 </div>

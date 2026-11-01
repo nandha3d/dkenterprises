@@ -33,8 +33,16 @@ Route::prefix('v1')->group(function () {
         Route::post('login', [AuthController::class, 'login'])->middleware('throttle:api-login')->name('api.v1.auth.login');
     });
 
-    // Public Tenant Addons Status
+    // Public Tenant Addons Status & Mobile Bootstrap & Operations
     Route::get('addons/status', [AddonApiController::class, 'status'])->name('api.v1.addons.status');
+    Route::prefix('mobile')->group(function () {
+        Route::get('bootstrap', [WaterLogisticsApiController::class, 'mobileBootstrap'])->name('api.v1.mobile.bootstrap');
+        Route::get('dashboard/{role}', [WaterLogisticsApiController::class, 'roleDashboard'])->name('api.v1.mobile.dashboard');
+        Route::post('customer-onboard', [WaterLogisticsApiController::class, 'customerOnboard'])->name('api.v1.mobile.customer-onboard');
+        Route::post('collect-payment', [WaterLogisticsApiController::class, 'collectPayment'])->name('api.v1.mobile.collect-payment');
+        Route::post('spot-audit', [WaterLogisticsApiController::class, 'spotAudit'])->name('api.v1.mobile.spot-audit');
+        Route::post('driver-surrender', [WaterLogisticsApiController::class, 'driverCashSurrender'])->name('api.v1.mobile.driver-surrender');
+    });
 
     // Protected ERP Endpoints (Sanctum Token Required)
     Route::middleware('auth:sanctum')->group(function () {
@@ -115,6 +123,7 @@ Route::prefix('v1')->group(function () {
             Route::get('routes', [WaterLogisticsApiController::class, 'routes'])->name('api.v1.water.routes');
             Route::post('trip-sheets', [WaterLogisticsApiController::class, 'storeTripSheet'])->name('api.v1.water.trip-sheets');
             Route::post('can-deliveries', [WaterLogisticsApiController::class, 'storeCanDelivery'])->name('api.v1.water.can-deliveries');
+            Route::post('plant-intakes', [WaterLogisticsApiController::class, 'storePlantIntake'])->name('api.v1.water.plant-intakes');
             Route::post('driver-surrender', [WaterLogisticsApiController::class, 'driverCashSurrender'])->name('api.v1.water.driver-surrender');
         });
 

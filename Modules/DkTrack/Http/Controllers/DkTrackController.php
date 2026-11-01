@@ -43,7 +43,7 @@ class DkTrackController extends Controller
     }
 
     /**
-     * 2. 20L Water Can Anti-Theft Distribution Portal
+     * 2. Packaged Drinking Water Distribution Portal
      */
     public function waterCans()
     {

@@ -1,3 +1,9 @@
+@php
+    $sbCompanyId = session('company_id');
+    $sbCompany = $sbCompanyId ? \App\Models\Company::find($sbCompanyId) : null;
+    $sbIndustry = $sbCompany?->industry;
+@endphp
+
 {{-- DK Track Fleet Logistics & Operations Sidebar Group --}}
 <li class="sidebar-heading"><span>DK Enterprises</span></li>
 <li>
@@ -11,16 +17,20 @@
                 <i class="dripicons-meter"></i> Command Dashboard
             </a>
         </li>
+        @if($sbIndustry !== 'packaged_water')
         <li>
             <a href="{{ route('dktrack.tankers') }}">
-                <i class="dripicons-to-do"></i> Bulk Water Tankers (40KL+)
+                <i class="dripicons-to-do"></i> Bulk Water Tankers
             </a>
         </li>
+        @endif
+        @if($sbIndustry !== 'bulk_water')
         <li>
             <a href="{{ route('dktrack.water_cans') }}">
-                <i class="dripicons-drop"></i> 20L Water Cans &amp; Routes
+                <i class="dripicons-drop"></i> Packaged Drinking Water &amp; Routes
             </a>
         </li>
+        @endif
         <li>
             <a href="{{ route('dktrack.bakery') }}">
                 <i class="dripicons-store"></i> Bakery &amp; Cafe Operations
