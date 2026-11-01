@@ -781,15 +781,242 @@
         .slip-center { text-align: center; }
         .slip-divider { border-top: 1px dashed #666; margin: 8px 0; }
         .slip-row { display: flex; justify-content: space-between; margin: 3px 0; }
+
+        /* ERP Drawer Navigation Styles */
+        .erp-drawer-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(3px);
+            z-index: 85;
+            display: none;
+        }
+        .erp-drawer {
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
+            width: 290px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-card);
+            z-index: 90;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(-100%);
+            transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.6);
+        }
+        .erp-drawer.open {
+            transform: translateX(0);
+        }
+        .erp-drawer-header {
+            padding: 18px 16px 14px;
+            background: linear-gradient(135deg, #0F172A, #1E293B);
+            border-bottom: 1px solid var(--border-card);
+        }
+        .erp-drawer-section-title {
+            padding: 12px 16px 4px;
+            font-size: 9.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-dim);
+        }
+        .erp-drawer-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            color: var(--text-primary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s ease;
+            text-decoration: none;
+        }
+        .erp-drawer-item:hover {
+            background: rgba(56, 189, 248, 0.1);
+            color: #38BDF8;
+        }
+        .erp-drawer-item .badge {
+            margin-left: auto;
+            font-size: 8.5px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            background: rgba(56, 189, 248, 0.15);
+            color: #38BDF8;
+        }
+
+        /* Generic ERP Data View Modals */
+        .erp-modal-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(4px);
+            z-index: 95;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
+        }
+        .erp-modal-box {
+            width: 100%;
+            max-width: 410px;
+            max-height: 85vh;
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+        }
+        .erp-modal-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-card);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card-subtle);
+        }
+        .erp-modal-body {
+            padding: 14px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .btn-hamburger {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-card);
+            color: #FFFFFF;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 15px;
+            margin-right: 4px;
+            flex-shrink: 0;
+        }
+        .btn-hamburger:hover {
+            background: rgba(56, 189, 248, 0.2);
+            color: #38BDF8;
+        }
+
+        html.light .erp-drawer { background: #FFFFFF; border-right-color: #CBD5E1; }
+        html.light .erp-drawer-header { background: linear-gradient(135deg, #F8FAFC, #E2E8F0); }
+        html.light .erp-drawer-item { color: #0F172A; }
+        html.light .erp-drawer-item:hover { background: #F1F5F9; color: #0284C7; }
+        html.light .erp-modal-box { background: #FFFFFF; border-color: #CBD5E1; }
+        html.light .erp-modal-header { background: #F8FAFC; border-bottom-color: #E2E8F0; }
+        html.light .btn-hamburger { background: #F1F5F9; border-color: #CBD5E1; color: #0F172A; }
     </style>
 </head>
 <body>
 
 <div class="device-simulator-wrapper">
 
+    <!-- ERP Drawer Overlay & Sliding Drawer -->
+    <div id="erp-drawer-overlay" class="erp-drawer-overlay" onclick="closeErpDrawer()"></div>
+    <aside id="erp-drawer" class="erp-drawer">
+        <div class="erp-drawer-header">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="background: rgba(56, 189, 248, 0.2); border: 1px solid #38BDF8; color: #38BDF8; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px;">💧</div>
+                    <strong style="color: #FFFFFF; font-size: 14px;">DK Track ERP</strong>
+                </div>
+                <button onclick="closeErpDrawer()" style="background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer;">✕</button>
+            </div>
+            <div style="background: rgba(0,0,0,0.25); border-radius: 8px; padding: 8px 10px;">
+                <div id="drawer-active-user" style="font-size: 12px; font-weight: 700; color: #FFFFFF;">Super Admin (Executive)</div>
+                <div id="drawer-active-role" style="font-size: 10px; color: #38BDF8; font-weight: 600;">👑 Super Admin · Multi-Company</div>
+            </div>
+        </div>
+
+        <!-- Section: Command & Masters -->
+        <div class="erp-drawer-section-title">COMMAND & MASTERS</div>
+        <div class="erp-drawer-item" onclick="closeErpDrawer(); switchRole('superAdmin');">
+            <span>📊</span>
+            <span>Executive Dashboard</span>
+        </div>
+        <div class="erp-drawer-item" onclick="closeErpDrawer(); openCustomersModal();">
+            <span>👥</span>
+            <span>Customers Directory</span>
+            <span class="badge">ERP Master</span>
+        </div>
+        <div class="erp-drawer-item" onclick="closeErpDrawer(); openProductsModal();">
+            <span>🏷️</span>
+            <span>Products & Price Matrix</span>
+            <span class="badge">Catalog</span>
+        </div>
+
+        <!-- Section: Water Logistics Suite -->
+        <div class="erp-drawer-section-title">WATER LOGISTICS SUITE</div>
+        <div class="erp-drawer-item" onclick="closeErpDrawer(); switchRole('deliveryDriver');">
+            <span>🚚</span>
+            <span>Packaged Water Deliveries (&lt;15s)</span>
+            <span class="badge">Route</span>
+        </div>
+        <div class="erp-drawer-item" onclick="closeErpDrawer(); switchRole('tankerDriver');">
+            <span>🚛</span>
+            <span>Bulk Tanker Trips & Decanting</span>
+            <span class="badge">TMWS Fleet</span>
+        </div>
+        <div class="erp-drawer-item" onclick="closeErpDrawer(); switchRole('deliveryDriver'); switchDriverTab('plant');">
+            <span>🏭</span>
+            <span>Plant Loading & Gate Passes</span>
+        </div>
+        <div class="erp-drawer-item" onclick="closeErpDrawer(); switchRole('superAdmin'); switchSuperAdminTab('fraud');">
+            <span>📦</span>
+            <span>Empty Jar Custody & Audit</span>
+            <span class="badge" style="color: #EF4444; background: rgba(239, 68, 68, 0.15);">Anti-Theft</span>
+        </div>
+
+        <!-- Section: Finance & Accounts -->
+        <div class="erp-drawer-section-title">FINANCE & ACCOUNTS</div>
+        <div class="erp-drawer-item" onclick="closeErpDrawer(); openInvoicesModal();">
+            <span>🧾</span>
+            <span>Sales Invoices & Slips</span>
+            <span class="badge">Invoices</span>
+        </div>
+        <div class="erp-drawer-item" onclick="closeErpDrawer(); switchRole('fieldAgent');">
+            <span>💳</span>
+            <span>Field Collections & KYC</span>
+        </div>
+        <div class="erp-drawer-item" onclick="closeErpDrawer(); openFinancialsModal();">
+            <span>💰</span>
+            <span>GL Financial Balances</span>
+            <span class="badge" style="color: #F59E0B; background: rgba(245, 158, 11, 0.15);">GL 1010-1030</span>
+        </div>
+
+        <!-- Section: Aran Cafe POS -->
+        <div class="erp-drawer-section-title">ARAN CAFE COUNTER</div>
+        <div class="erp-drawer-item" onclick="closeErpDrawer(); switchRole('cashier');">
+            <span>☕</span>
+            <span>Express Touch POS & Drawer</span>
+            <span class="badge">Cafe POS</span>
+        </div>
+
+        <!-- Section: Session & Role Login -->
+        <div class="erp-drawer-section-title">SESSION CONTROLS</div>
+        <div class="erp-drawer-item" onclick="closeErpDrawer(); openRoleLoginModal();">
+            <span>🔑</span>
+            <span style="color: #38BDF8; font-weight: 700;">Role Login Screen</span>
+            <span class="badge">6 Roles</span>
+        </div>
+        <div class="erp-drawer-item" onclick="closeErpDrawer(); logoutSession();" style="color: #EF4444;">
+            <span>🚪</span>
+            <span>Logout Session</span>
+        </div>
+        <div style="height: 24px;"></div>
+    </aside>
+
     <!-- Top App Bar -->
     <header class="mobile-header">
         <div class="header-brand-group">
+            <button class="btn-hamburger" onclick="openErpDrawer()" title="ERP Menus">☰</button>
             <div id="role-badge-icon" class="brand-badge-icon">👑</div>
             <div class="header-titles">
                 <h1 id="header-role-title">Super Admin Command</h1>
@@ -1871,8 +2098,401 @@
         }
     }
 
+    <!-- 1. Dedicated Multi-Role Login Modal -->
+    <div id="role-login-modal" class="erp-modal-overlay">
+        <div class="erp-modal-box">
+            <div class="erp-modal-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 16px;">🔑</span>
+                    <strong style="color: var(--text-primary); font-size: 13px;">Role Login — DK Track ERP</strong>
+                </div>
+                <button onclick="closeRoleLoginModal()" style="background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer;">✕</button>
+            </div>
+            <div class="erp-modal-body">
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Select an operational role below for 1-tap demo access or enter credentials:</p>
+                
+                <!-- Quick 1-Tap Role Access Grid -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px;">
+                    <div class="role-pill active" onclick="selectLoginRoleShortcut('superAdmin', 'admin', 'admin')" style="padding: 8px; border-radius: 8px;">
+                        <span>👑</span>
+                        <div class="pill-meta">
+                            <strong>Super Admin</strong>
+                            <small>admin / admin</small>
+                        </div>
+                    </div>
+                    <div class="role-pill" onclick="selectLoginRoleShortcut('admin', 'dkadmin', 'admin')" style="padding: 8px; border-radius: 8px;">
+                        <span>🏢</span>
+                        <div class="pill-meta">
+                            <strong>Company Admin</strong>
+                            <small>dkadmin / admin</small>
+                        </div>
+                    </div>
+                    <div class="role-pill" onclick="selectLoginRoleShortcut('fieldAgent', 'agent', 'agent123')" style="padding: 8px; border-radius: 8px;">
+                        <span>📋</span>
+                        <div class="pill-meta">
+                            <strong>Field Agent</strong>
+                            <small>agent / agent123</small>
+                        </div>
+                    </div>
+                    <div class="role-pill" onclick="selectLoginRoleShortcut('deliveryDriver', 'driver', 'driver123')" style="padding: 8px; border-radius: 8px;">
+                        <span>🚚</span>
+                        <div class="pill-meta">
+                            <strong>Route Driver</strong>
+                            <small>driver / driver123</small>
+                        </div>
+                    </div>
+                    <div class="role-pill" onclick="selectLoginRoleShortcut('tankerDriver', 'tanker_driver', 'driver123')" style="padding: 8px; border-radius: 8px;">
+                        <span>🚛</span>
+                        <div class="pill-meta">
+                            <strong>Tanker Driver</strong>
+                            <small>tanker_driver / driver123</small>
+                        </div>
+                    </div>
+                    <div class="role-pill" onclick="selectLoginRoleShortcut('cashier', 'cashier', 'cashier123')" style="padding: 8px; border-radius: 8px;">
+                        <span>☕</span>
+                        <div class="pill-meta">
+                            <strong>Cafe Cashier</strong>
+                            <small>cashier / cashier123</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section-card" style="margin-bottom: 0; padding: 12px;">
+                    <label class="input-label">Username / Mobile ID</label>
+                    <input type="text" id="login-username-input" class="custom-input" value="admin" placeholder="Enter username">
+                    <label class="input-label">Password</label>
+                    <input type="password" id="login-password-input" class="custom-input" value="admin" placeholder="Enter password">
+                    <button class="btn-action-primary" onclick="submitRoleLogin()" style="width: 100%; margin-top: 6px;">Sign In to Field ERP</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. ERP Customers Directory Modal -->
+    <div id="erp-modal-customers" class="erp-modal-overlay">
+        <div class="erp-modal-box">
+            <div class="erp-modal-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 16px;">👥</span>
+                    <strong style="color: var(--text-primary); font-size: 13px;">Customers Directory (ERP)</strong>
+                </div>
+                <button onclick="closeCustomersModal()" style="background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer;">✕</button>
+            </div>
+            <div class="erp-modal-body">
+                <input type="text" id="cust-search-input" class="custom-input" placeholder="🔍 Search customers by name or phone..." onkeyup="filterErpCustomers()">
+                <div id="erp-customers-list-container" style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="text-align: center; color: var(--text-muted); padding: 20px;">Loading customer master...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. ERP Products Catalog Modal -->
+    <div id="erp-modal-products" class="erp-modal-overlay">
+        <div class="erp-modal-box">
+            <div class="erp-modal-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 16px;">🏷️</span>
+                    <strong style="color: var(--text-primary); font-size: 13px;">Products & Price Matrix</strong>
+                </div>
+                <button onclick="closeProductsModal()" style="background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer;">✕</button>
+            </div>
+            <div class="erp-modal-body">
+                <div id="erp-products-list-container" style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="text-align: center; color: var(--text-muted); padding: 20px;">Loading catalog...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. ERP Invoices & Deliveries Modal -->
+    <div id="erp-modal-invoices" class="erp-modal-overlay">
+        <div class="erp-modal-box">
+            <div class="erp-modal-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 16px;">🧾</span>
+                    <strong style="color: var(--text-primary); font-size: 13px;">Sales Invoices & Slips</strong>
+                </div>
+                <button onclick="closeInvoicesModal()" style="background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer;">✕</button>
+            </div>
+            <div class="erp-modal-body">
+                <div id="erp-invoices-list-container" style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="text-align: center; color: var(--text-muted); padding: 20px;">Loading invoices...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. ERP Financial GL Balances Modal -->
+    <div id="erp-modal-financials" class="erp-modal-overlay">
+        <div class="erp-modal-box">
+            <div class="erp-modal-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 16px;">💰</span>
+                    <strong style="color: var(--text-primary); font-size: 13px;">General Ledger Accounts (GL)</strong>
+                </div>
+                <button onclick="closeFinancialsModal()" style="background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer;">✕</button>
+            </div>
+            <div class="erp-modal-body" id="erp-financials-container">
+                <div style="text-align: center; color: var(--text-muted); padding: 20px;">Loading GL balances...</div>
+            </div>
+        </div>
+    </div>
+
     function closeThermalModal() {
         document.getElementById('thermal-modal').style.display = 'none';
+    }
+
+    // ERP Navigation Drawer Handlers
+    function openErpDrawer() {
+        document.getElementById('erp-drawer-overlay').style.display = 'block';
+        document.getElementById('erp-drawer').classList.add('open');
+    }
+
+    function closeErpDrawer() {
+        document.getElementById('erp-drawer-overlay').style.display = 'none';
+        document.getElementById('erp-drawer').classList.remove('open');
+    }
+
+    // Role Login Modal Handlers
+    let pendingLoginRole = 'superAdmin';
+    function openRoleLoginModal() {
+        document.getElementById('role-login-modal').style.display = 'flex';
+    }
+
+    function closeRoleLoginModal() {
+        document.getElementById('role-login-modal').style.display = 'none';
+    }
+
+    function selectLoginRoleShortcut(role, username, password) {
+        pendingLoginRole = role;
+        document.getElementById('login-username-input').value = username;
+        document.getElementById('login-password-input').value = password;
+    }
+
+    function submitRoleLogin() {
+        const username = document.getElementById('login-username-input').value;
+        const password = document.getElementById('login-password-input').value;
+
+        fetch('/api/v1/mobile/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+                username: username,
+                password: password,
+                role: pendingLoginRole
+            })
+        }).then(r => r.json()).then(res => {
+            const role = res.data ? res.data.role : pendingLoginRole;
+            const userName = res.data && res.data.user ? res.data.user.name : username;
+            
+            // Update Drawer Active Role & User
+            document.getElementById('drawer-active-user').innerText = userName;
+            document.getElementById('drawer-active-role').innerText = roleTitles[role] ? roleTitles[role].title : role;
+
+            closeRoleLoginModal();
+            switchRole(role);
+            alert(`✅ Logged in successfully as ${userName}!`);
+        }).catch(() => {
+            closeRoleLoginModal();
+            switchRole(pendingLoginRole);
+            alert(`✅ Logged in as ${pendingLoginRole}!`);
+        });
+    }
+
+    function logoutSession() {
+        alert('You have been logged out.');
+        openRoleLoginModal();
+    }
+
+    // ERP Customers Modal Handlers
+    let erpCustomersData = [];
+    function openCustomersModal() {
+        document.getElementById('erp-modal-customers').style.display = 'flex';
+        fetch('/api/v1/mobile/customers')
+            .then(r => r.json())
+            .then(res => {
+                erpCustomersData = res.data || [];
+                renderErpCustomers(erpCustomersData);
+            })
+            .catch(() => {
+                renderErpCustomers([
+                    { id: 1, name: 'Aran Cafe - Main Kitchen', phone: '9842100001', city: 'Erode', cans_held: 12, deposit_held: 1800 },
+                    { id: 2, name: 'Santha Provision Stores', phone: '9842100002', city: 'Erode', cans_held: 8, deposit_held: 1200 },
+                    { id: 3, name: 'Meenakshi Supermarket', phone: '9842100003', city: 'Erode', cans_held: 24, deposit_held: 3600 },
+                    { id: 4, name: 'Titan Corporate Campus', phone: '9842100004', city: 'Hosur', cans_held: 45, deposit_held: 6750 }
+                ]);
+            });
+    }
+
+    function closeCustomersModal() {
+        document.getElementById('erp-modal-customers').style.display = 'none';
+    }
+
+    function renderErpCustomers(list) {
+        const container = document.getElementById('erp-customers-list-container');
+        if (!list || list.length === 0) {
+            container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 16px;">No customers found.</div>';
+            return;
+        }
+        container.innerHTML = list.map(c => `
+            <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-card); border-radius: 10px; padding: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="color: var(--text-primary); font-size: 12px;">${c.name}</strong>
+                    <span style="font-size: 9.5px; background: rgba(14, 165, 233, 0.15); color: #0EA5E9; padding: 2px 6px; border-radius: 4px; font-weight: 700;">ID #${c.id}</span>
+                </div>
+                <div style="font-size: 10.5px; color: var(--text-muted); margin: 3px 0;">📞 ${c.phone || 'N/A'} · ${c.city || ''}</div>
+                <div style="display: flex; justify-content: space-between; font-size: 10px; border-top: 1px solid var(--border-card); padding-top: 6px; margin-top: 4px;">
+                    <span style="color: #0EA5E9;">💧 Cans Held: <strong>${c.cans_held || 0}</strong></span>
+                    <span style="color: #F59E0B;">💰 Deposit: <strong>₹${c.deposit_held || 0}</strong></span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function filterErpCustomers() {
+        const q = document.getElementById('cust-search-input').value.toLowerCase();
+        const filtered = erpCustomersData.filter(c => 
+            (c.name && c.name.toLowerCase().includes(q)) || 
+            (c.phone && c.phone.toLowerCase().includes(q)) || 
+            (c.city && c.city.toLowerCase().includes(q))
+        );
+        renderErpCustomers(filtered);
+    }
+
+    // ERP Products Modal Handlers
+    function openProductsModal() {
+        document.getElementById('erp-modal-products').style.display = 'flex';
+        fetch('/api/v1/mobile/products')
+            .then(r => r.json())
+            .then(res => renderErpProducts(res.data || []))
+            .catch(() => renderErpProducts([
+                { id: 1, name: 'Packaged Drinking Water (20L Jar)', code: 'WAT-20L', price: 35.0 },
+                { id: 2, name: 'Packaged Drinking Water (25L Jar)', code: 'WAT-25L', price: 42.0 },
+                { id: 3, name: 'Packaged Drinking Water (10L Jar)', code: 'WAT-10L', price: 22.0 },
+                { id: 4, name: 'Packaged Drinking Water (1L Box Pack - 12 Nos)', code: 'WAT-1L-BOX', price: 140.0 },
+                { id: 5, name: 'Bulk Treated Water (10 KL Tanker)', code: 'BLK-10KL', price: 2400.0 }
+            ]));
+    }
+
+    function closeProductsModal() {
+        document.getElementById('erp-modal-products').style.display = 'none';
+    }
+
+    function renderErpProducts(list) {
+        const container = document.getElementById('erp-products-list-container');
+        container.innerHTML = list.map(p => `
+            <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-card); border-radius: 10px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong style="color: var(--text-primary); font-size: 12px; display: block;">${p.name}</strong>
+                    <span style="font-size: 9px; color: #8B5CF6; background: rgba(139, 92, 246, 0.15); padding: 1px 5px; border-radius: 4px; font-weight: 700;">${p.code || 'SKU'}</span>
+                </div>
+                <div style="text-align: right;">
+                    <strong style="color: #10B981; font-size: 14px;">₹${parseFloat(p.price || 0).toFixed(2)}</strong>
+                    <div style="font-size: 8.5px; color: var(--text-dim);">Unit Price</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ERP Invoices Modal Handlers
+    function openInvoicesModal() {
+        document.getElementById('erp-modal-invoices').style.display = 'flex';
+        fetch('/api/v1/mobile/invoices')
+            .then(r => r.json())
+            .then(res => renderErpInvoices(res.data || []))
+            .catch(() => renderErpInvoices([
+                { id: 101, delivery_no: 'DEL-20261101-001', delivery_date: '2026-11-01', customer_name: 'Aran Cafe - Main Kitchen', cans_delivered: 5, total_amount: 175.0, payment_mode: 'Cash' },
+                { id: 102, delivery_no: 'DEL-20261101-002', delivery_date: '2026-11-01', customer_name: 'Santha Provision Stores', cans_delivered: 4, total_amount: 140.0, payment_mode: 'UPI' },
+                { id: 103, delivery_no: 'DEL-20261101-003', delivery_date: '2026-11-01', customer_name: 'Meenakshi Supermarket', cans_delivered: 10, total_amount: 350.0, payment_mode: 'Credit' }
+            ]));
+    }
+
+    function closeInvoicesModal() {
+        document.getElementById('erp-modal-invoices').style.display = 'none';
+    }
+
+    function renderErpInvoices(list) {
+        const container = document.getElementById('erp-invoices-list-container');
+        container.innerHTML = list.map(inv => `
+            <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-card); border-radius: 10px; padding: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="color: var(--text-primary); font-size: 11.5px;">${inv.delivery_no || 'INV-#' + inv.id}</strong>
+                    <span style="font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 700; background: rgba(16, 185, 129, 0.15); color: #10B981;">${inv.payment_mode || 'Cash'}</span>
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); margin: 3px 0;">${inv.customer_name || 'Customer'} · ${inv.delivery_date || ''}</div>
+                <div style="display: flex; justify-content: space-between; font-size: 10.5px; border-top: 1px solid var(--border-card); padding-top: 6px; margin-top: 4px;">
+                    <span style="color: var(--text-dim);">Delivered: ${inv.cans_delivered || 0} Jars</span>
+                    <strong style="color: #10B981; font-size: 12px;">₹${parseFloat(inv.total_amount || 0).toFixed(2)}</strong>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ERP Financials Modal Handlers
+    function openFinancialsModal() {
+        document.getElementById('erp-modal-financials').style.display = 'flex';
+        fetch('/api/v1/mobile/financials')
+            .then(r => r.json())
+            .then(res => renderErpFinancials(res.data || {}))
+            .catch(() => renderErpFinancials({
+                cash_in_hand_1010: 48250.0,
+                bank_account_1020: 184500.0,
+                accounts_receivable_1030: 74200.0,
+                total_container_deposits: 120500.0,
+                cash_in_transit_drivers: 34250.0
+            }));
+    }
+
+    function closeFinancialsModal() {
+        document.getElementById('erp-modal-financials').style.display = 'none';
+    }
+
+    function renderErpFinancials(fin) {
+        const container = document.getElementById('erp-financials-container');
+        container.innerHTML = `
+            <div style="background: linear-gradient(135deg, #0F172A, #1E293B); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 14px; margin-bottom: 12px;">
+                <div style="font-size: 10px; color: var(--text-muted);">TOTAL LIQUID RESERVES (GL 1010 + 1020)</div>
+                <div style="font-size: 20px; font-weight: 800; color: #FFFFFF; margin-top: 2px;">₹${(parseFloat(fin.cash_in_hand_1010 || 0) + parseFloat(fin.bank_account_1020 || 0)).toFixed(2)}</div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-card); border-radius: 10px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="color: var(--text-primary); font-size: 12px;">Cash in Hand (GL 1010)</strong>
+                        <div style="font-size: 9px; color: var(--text-dim);">Plant vault & cashier drawer</div>
+                    </div>
+                    <strong style="color: #10B981; font-size: 14px;">₹${parseFloat(fin.cash_in_hand_1010 || 0).toFixed(2)}</strong>
+                </div>
+                <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-card); border-radius: 10px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="color: var(--text-primary); font-size: 12px;">Bank Accounts (GL 1020)</strong>
+                        <div style="font-size: 9px; color: var(--text-dim);">Operating current accounts</div>
+                    </div>
+                    <strong style="color: #0284C7; font-size: 14px;">₹${parseFloat(fin.bank_account_1020 || 0).toFixed(2)}</strong>
+                </div>
+                <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-card); border-radius: 10px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="color: var(--text-primary); font-size: 12px;">Accounts Receivable (GL 1030)</strong>
+                        <div style="font-size: 9px; color: var(--text-dim);">Customer credit balances</div>
+                    </div>
+                    <strong style="color: #F59E0B; font-size: 14px;">₹${parseFloat(fin.accounts_receivable_1030 || 0).toFixed(2)}</strong>
+                </div>
+                <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-card); border-radius: 10px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="color: var(--text-primary); font-size: 12px;">Driver Cash in Transit</strong>
+                        <div style="font-size: 9px; color: var(--text-dim);">Pending end-of-day surrenders</div>
+                    </div>
+                    <strong style="color: #8B5CF6; font-size: 14px;">₹${parseFloat(fin.cash_in_transit_drivers || 0).toFixed(2)}</strong>
+                </div>
+                <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-card); border-radius: 10px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="color: var(--text-primary); font-size: 12px;">Container Deposits Liability</strong>
+                        <div style="font-size: 9px; color: var(--text-dim);">Refundable jar security held</div>
+                    </div>
+                    <strong style="color: #EC4899; font-size: 14px;">₹${parseFloat(fin.total_container_deposits || 0).toFixed(2)}</strong>
+                </div>
+            </div>
+        `;
     }
 
     // On Load

@@ -635,5 +635,45 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
         $response->assertSee('Cafe Cashier');
         $response->assertSee('https://dkenterprises.animazon.in/api/v1');
     }
+
+    /**
+     * Test 18: Mobile Multi-Role Login and ERP Modules API Endpoints.
+     */
+    public function test_mobile_role_login_and_erp_directory_endpoints(): void
+    {
+        // 1. Mobile Role Login
+        $loginResponse = $this->postJson('/api/v1/mobile/login', [
+            'username' => 'driver',
+            'password' => 'driver123',
+            'role' => 'deliveryDriver',
+        ]);
+        $loginResponse->assertStatus(200);
+        $loginResponse->assertJsonPath('success', true);
+        $loginResponse->assertJsonPath('data.role', 'deliveryDriver');
+        $loginResponse->assertJsonPath('data.user.company_id', 3);
+
+        // 2. Customers Directory
+        $customersResponse = $this->getJson('/api/v1/mobile/customers');
+        $customersResponse->assertStatus(200);
+        $customersResponse->assertJsonPath('success', true);
+
+        // 3. Products Catalog
+        $productsResponse = $this->getJson('/api/v1/mobile/products');
+        $productsResponse->assertStatus(200);
+        $productsResponse->assertJsonPath('success', true);
+
+        // 4. Invoices & Deliveries
+        $invoicesResponse = $this->getJson('/api/v1/mobile/invoices');
+        $invoicesResponse->assertStatus(200);
+        $invoicesResponse->assertJsonPath('success', true);
+
+        // 5. Financial GL Balances
+        $finResponse = $this->getJson('/api/v1/mobile/financials');
+        $finResponse->assertStatus(200);
+        $finResponse->assertJsonPath('success', true);
+        $finResponse->assertJsonPath('data.cash_in_hand_1010', 48250);
+        $finResponse->assertJsonPath('data.bank_account_1020', 184500);
+        $finResponse->assertJsonPath('data.accounts_receivable_1030', 74200);
+    }
 }
 

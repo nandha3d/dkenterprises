@@ -36,8 +36,13 @@ Route::prefix('v1')->group(function () {
     // Public Tenant Addons Status & Mobile Bootstrap & Operations
     Route::get('addons/status', [AddonApiController::class, 'status'])->name('api.v1.addons.status');
     Route::prefix('mobile')->group(function () {
+        Route::post('login', [WaterLogisticsApiController::class, 'mobileLogin'])->name('api.v1.mobile.login');
         Route::get('bootstrap', [WaterLogisticsApiController::class, 'mobileBootstrap'])->name('api.v1.mobile.bootstrap');
         Route::get('dashboard/{role}', [WaterLogisticsApiController::class, 'roleDashboard'])->name('api.v1.mobile.dashboard');
+        Route::get('customers', [WaterLogisticsApiController::class, 'customersList'])->name('api.v1.mobile.customers');
+        Route::get('products', [WaterLogisticsApiController::class, 'productsList'])->name('api.v1.mobile.products');
+        Route::get('invoices', [WaterLogisticsApiController::class, 'invoicesList'])->name('api.v1.mobile.invoices');
+        Route::get('financials', [WaterLogisticsApiController::class, 'financials'])->name('api.v1.mobile.financials');
         Route::post('customer-onboard', [WaterLogisticsApiController::class, 'customerOnboard'])->name('api.v1.mobile.customer-onboard');
         Route::post('collect-payment', [WaterLogisticsApiController::class, 'collectPayment'])->name('api.v1.mobile.collect-payment');
         Route::post('spot-audit', [WaterLogisticsApiController::class, 'spotAudit'])->name('api.v1.mobile.spot-audit');
