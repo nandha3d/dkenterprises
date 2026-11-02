@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/glass_card.dart';
 
 class TicketMachineScreen extends StatefulWidget {
   final bool isTamil;
@@ -15,43 +16,71 @@ class TicketMachineScreen extends StatefulWidget {
 class _TicketMachineScreenState extends State<TicketMachineScreen> {
   final ApiService _apiService = ApiService();
 
-  // Package products available (open and dynamic)
-  final List<WaterPackageItem> _packages = const [
-    WaterPackageItem(code: 'CAN-20L', nameEn: '20L Drinking Jar', nameTa: '20L குடிநீர் ஜார்', unitPrice: 35.0, isJar: true),
-    WaterPackageItem(code: 'CAN-25L', nameEn: '25L Commercial Jar', nameTa: '25L வணிக ஜார்', unitPrice: 45.0, isJar: true),
-    WaterPackageItem(code: 'CAN-10L', nameEn: '10L Compact Dispenser', nameTa: '10L நடுத்தர ஜார்', unitPrice: 25.0, isJar: true),
-    WaterPackageItem(code: 'BTL-1L', nameEn: '1L Bottled Pack (12 Pcs)', nameTa: '1L பாட்டில் பாக் (12 шт)', unitPrice: 180.0, isJar: false),
-    WaterPackageItem(code: 'BTL-2L', nameEn: '2L Bottled Pack (9 Pcs)', nameTa: '2L பாட்டில் பாக் (9 шт)', unitPrice: 180.0, isJar: false),
-    WaterPackageItem(code: 'BTL-500ML', nameEn: '500ML Mini Pack (24 Pcs)', nameTa: '500ML மினி பாக் (24 шт)', unitPrice: 240.0, isJar: false),
-  ];
+  List<WaterPackageItem> _packages = [];
+  List<CustomerItem> _customers = [];
+  WaterPackageItem? _selectedPackage;
+  CustomerItem? _selectedCustomer;
 
-  late WaterPackageItem _selectedPackage;
-
-  // Customers on Beat Route
-  final List<CustomerItem> _customers = [
-    CustomerItem(id: 1, name: 'அரண் கஃபே - மெயின் கிச்சன் (Aran Cafe)', phone: '9842100010', address: '12 Gandhiji Road, Erode', emptyHeld: 24),
-    CustomerItem(id: 2, name: 'பாலாஜி கஃபே (Balaji Cafe)', phone: '9842100011', address: '54 Brough Road, Erode', emptyHeld: 15),
-    CustomerItem(id: 3, name: 'ப்ளாக் பெக்கோ டீ (Black Pekoe Tea)', phone: '9842100012', address: '88 Perundurai Road, Erode', emptyHeld: 32),
-    CustomerItem(id: 4, name: 'ஒன் கப் டீ (One Cup Tea)', phone: '9842100013', address: '19 Park Road, Erode', emptyHeld: 8),
-    CustomerItem(id: 5, name: 'சூர்யா டெக்ஸ் (Surya Tex)', phone: '9842100014', address: '102 Nethaji Road, Erode', emptyHeld: 40),
-  ];
-
-  late CustomerItem _selectedCustomer;
-
+  bool _isLoading = true;
   int _deliveredQty = 10;
   int _emptyReturnedQty = 10;
   String _paymentMode = 'cash'; // 'cash', 'upi', 'credit'
   bool _isSubmitting = false;
   Map<String, dynamic>? _lastReceipt;
 
-  // Live truck stock (packaged units)
   int _truckStock = 96;
 
   @override
   void initState() {
     super.initState();
-    _selectedPackage = _packages[0];
-    _selectedCustomer = _customers[0];
+    _loadApiData();
+  }
+
+  Future<void> _loadApiData() async {
+    setState(() => _isLoading = true);
+    final results = await Future.wait([
+      _apiService.fetchCustomers(),
+      _apiService.fetchProducts(),
+    ]);
+
+    final rawCusts = results[0];
+    final rawProds = results[1];
+
+    final customers = rawCusts.map((c) => CustomerItem(
+      id: c['id'] ?? 0,
+      name: c['name'] ?? 'Customer',
+      phone: c['phone'] ?? '',
+      address: c['address'] ?? '',
+      emptyHeld: c['cans_held'] ?? 0,
+    )).toList();
+
+    final packages = rawProds.map((p) {
+      final name = p['name'] ?? 'Packaged Water';
+      final price = (p['price'] ?? 35.0).toDouble();
+      final code = p['code'] ?? 'WAT-20L';
+      final isJar = !code.toString().contains('BTL');
+      return WaterPackageItem(
+        code: code,
+        nameEn: name,
+        nameTa: name,
+        unitPrice: price,
+        isJar: isJar,
+      );
+    }).toList();
+
+    if (mounted) {
+      setState(() {
+        _customers = customers.isNotEmpty
+            ? customers
+            : [CustomerItem(id: 1, name: 'Default Customer', phone: '9842100000', address: 'Town Route', emptyHeld: 10)];
+        _packages = packages.isNotEmpty
+            ? packages
+            : [const WaterPackageItem(code: 'CAN-20L', nameEn: '20L Drinking Jar', nameTa: '20L குடிநீர் ஜார்', unitPrice: 35.0, isJar: true)];
+        _selectedCustomer = _customers.first;
+        _selectedPackage = _packages.first;
+        _isLoading = false;
+      });
+    }
   }
 
   void _stepDelivered(int delta) {
@@ -59,8 +88,7 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
       final next = _deliveredQty + delta;
       if (next >= 1) {
         _deliveredQty = next;
-        // Auto-match empty returns if it was identical
-        if (_emptyReturnedQty == _deliveredQty - delta && _selectedPackage.isJar) {
+        if (_emptyReturnedQty == _deliveredQty - delta && (_selectedPackage?.isJar ?? true)) {
           _emptyReturnedQty = next;
         }
       }
@@ -68,176 +96,209 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
   }
 
   void _stepEmpty(int delta) {
-    if (!_selectedPackage.isJar) return;
     setState(() {
       final next = _emptyReturnedQty + delta;
-      if (next >= 0) _emptyReturnedQty = next;
+      if (next >= 0) {
+        _emptyReturnedQty = next;
+      }
     });
   }
 
+  double get _totalFare {
+    if (_selectedPackage == null) return 0.0;
+    return _deliveredQty * _selectedPackage!.unitPrice;
+  }
+
   Future<void> _submitDelivery() async {
+    if (_selectedCustomer == null || _selectedPackage == null) return;
+
     setState(() => _isSubmitting = true);
 
-    final total = _deliveredQty * _selectedPackage.unitPrice;
-    final cashCollected = _paymentMode == 'cash' ? total : (_paymentMode == 'upi' ? total : 0.0);
-    final deliveryNo = 'PKW-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
-
-    final deliveryRecord = PackagedWaterDeliveryRecord(
-      deliveryNumber: deliveryNo,
+    final record = WaterCanDeliveryRecord(
+      deliveryNumber: 'DEL-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
       routeId: 1,
-      customerId: _selectedCustomer.id,
-      customerName: _selectedCustomer.name,
-      packageCode: _selectedPackage.code,
-      quantityDelivered: _deliveredQty,
-      emptyReturned: _selectedPackage.isJar ? _emptyReturnedQty : 0,
-      unitPrice: _selectedPackage.unitPrice,
-      totalAmount: total,
-      cashCollected: cashCollected,
+      customerId: _selectedCustomer!.id,
+      customerName: _selectedCustomer!.name,
+      cansDelivered: _deliveredQty,
+      emptyCansCollected: _emptyReturnedQty,
+      canRate: _selectedPackage!.unitPrice,
+      totalAmount: _totalFare,
       paymentMode: _paymentMode,
-      latitude: 11.018221,
-      longitude: 76.964119,
-      timestamp: DateTime.now(),
+      deliveryTime: DateTime.now(),
+      balanceCansHeld: _selectedCustomer!.emptyHeld + (_deliveredQty - _emptyReturnedQty),
     );
 
-    await _apiService.submitPackagedWaterDelivery(deliveryRecord);
+    final res = await _apiService.submitCanDelivery(record);
 
     if (mounted) {
       setState(() {
         _isSubmitting = false;
         _truckStock = (_truckStock - _deliveredQty).clamp(0, 999);
         _lastReceipt = {
-          'delivery_no': deliveryNo,
-          'customer': _selectedCustomer.name,
-          'package': widget.isTamil ? _selectedPackage.nameTa : _selectedPackage.nameEn,
+          'delivery_no': record.deliveryNumber,
+          'customer': _selectedCustomer!.name,
+          'package': _selectedPackage!.name(widget.isTamil),
           'qty': _deliveredQty,
-          'empty': _selectedPackage.isJar ? _emptyReturnedQty : 0,
-          'rate': _selectedPackage.unitPrice,
-          'total': total,
+          'empty': _emptyReturnedQty,
+          'rate': _selectedPackage!.unitPrice,
+          'total': _totalFare,
           'mode': _paymentMode.toUpperCase(),
-          'time': DateTime.now().toLocal().toString().substring(11, 19),
-          'lat': 11.0182,
-          'lng': 76.9641,
+          'timestamp': DateTime.now().toLocal().toString().substring(0, 16),
+          'offline': res['offline_queued'] == true,
         };
       });
 
-      _showReceiptDialog();
+      _showReceiptSheet();
     }
   }
 
-  void _showReceiptDialog() {
+  void _showReceiptSheet() {
     if (_lastReceipt == null) return;
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E293B),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.card(context),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border.all(color: AppColors.border(context)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Icon(Icons.check_circle, color: Color(0xFF10B981), size: 28),
-            const SizedBox(width: 10),
-            Expanded(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.receipt_long, color: AppColors.brandEmerald, size: 22),
+                    const SizedBox(width: 8),
+                    Text(
+                      widget.isTamil ? 'மின்னணு ரசீது' : 'Delivery Electronic Slip',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.text(context),
+                      ),
+                    ),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+              ],
+            ),
+            const Divider(),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.isDark(context) ? Colors.black38 : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border(context)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Text(
+                      'DK WATERS — PACKAGED DRINKING WATER',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 12,
+                        letterSpacing: 0.5,
+                        color: AppColors.text(context),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Slip No: ${_lastReceipt!['delivery_no']}', style: const TextStyle(fontSize: 11, fontFamily: 'monospace')),
+                      Text('${_lastReceipt!['mode']}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.brandEmerald)),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text('Customer: ${_lastReceipt!['customer']}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('Package: ${_lastReceipt!['package']} x ${_lastReceipt!['qty']}', style: const TextStyle(fontSize: 11)),
+                  Text('Empty Jars Collected: ${_lastReceipt!['empty']}', style: const TextStyle(fontSize: 11, color: AppColors.brandSky)),
+                  const Divider(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('TOTAL AMOUNT:', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
+                      Text('₹ ${_lastReceipt!['total'].toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.brandEmerald)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.roleDeliveryDriver,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () => Navigator.pop(ctx),
               child: Text(
-                widget.isTamil ? 'டெலிவரி சீட்டு' : 'Delivery Thermal Slip',
-                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                widget.isTamil ? 'முடிந்தது (அடுத்த வாடிக்கையாளர்)' : 'Done (Next Customer)',
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
           ],
         ),
-        content: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: const Color(0xFF0F172A),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFF334155)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Center(
-                child: Column(
-                  children: [
-                    Text('DK WATERS — PACKAGED DRINKING WATER', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF38BDF8))),
-                    Text('TATA ACE BEAT ROUTE 1 · ERODE', style: TextStyle(fontSize: 10, color: Color(0xFF94A3B8))),
-                    Divider(color: Color(0xFF334155)),
-                  ],
-                ),
-              ),
-              Text('${widget.isTamil ? "ரசீது எண்" : "Slip No"}: ${_lastReceipt!['delivery_no']}', style: const TextStyle(color: Colors.white70, fontSize: 11)),
-              Text('${widget.isTamil ? "வாடிக்கையாளர்" : "Customer"}: ${_lastReceipt!['customer']}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-              Text('${widget.isTamil ? "பொருள்" : "Item"}: ${_lastReceipt!['package']}', style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 11)),
-              const SizedBox(height: 6),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('${widget.isTamil ? "டெலிவரி" : "Delivered"}: ${_lastReceipt!['qty']} шт', style: const TextStyle(color: Colors.white)),
-                  Text('${widget.isTamil ? "காலி வரவு" : "Empty In"}: ${_lastReceipt!['empty']} шт', style: const TextStyle(color: Color(0xFF38BDF8))),
-                ],
-              ),
-              const Divider(color: Color(0xFF334155)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(widget.isTamil ? 'மொத்தத் தொகை:' : 'Grand Total:', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                  Text('₹ ${_lastReceipt!['total']}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF34D399))),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('${widget.isTamil ? "முறை" : "Mode"}: ${_lastReceipt!['mode']}', style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
-                  Text('${_lastReceipt!['time']} · GPS Fixed', style: const TextStyle(fontSize: 10, color: Color(0xFF10B981))),
-                ],
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton.icon(
-            onPressed: () => Navigator.pop(ctx),
-            icon: const Icon(Icons.print, size: 16, color: Color(0xFF38BDF8)),
-            label: Text(widget.isTamil ? 'அச்சிடு / முடி' : 'Print / Done', style: const TextStyle(color: Color(0xFF38BDF8), fontWeight: FontWeight.bold)),
-          ),
-        ],
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final totalAmount = _deliveredQty * _selectedPackage.unitPrice;
+    final t = widget.isTamil;
+
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
     return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Live Stock Status Strip
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: AppColors.cardSubtle(context),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFF0284C7)),
-            ),
+          // Truck Stock Glass Card
+          GlassCard(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            borderRadius: 16,
+            tintColor: AppColors.roleDeliveryDriver,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.local_shipping, size: 18, color: Color(0xFF38BDF8)),
-                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.roleDeliveryDriver.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.local_shipping, color: AppColors.roleDeliveryDriver, size: 20),
+                    ),
+                    const SizedBox(width: 10),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.isTamil ? 'வண்டியில் உள்ள இருப்பு:' : 'Stock on Tata Ace:',
-                          style: TextStyle(fontSize: 11, color: AppColors.textMuted(context)),
+                          t ? 'டாடா ஏஸ் லாரி இருப்பு' : 'Truck Stock (Tata Ace)',
+                          style: TextStyle(fontSize: 11, color: AppColors.textMuted(context), fontWeight: FontWeight.w600),
                         ),
                         Text(
-                          '$_truckStock Units (${_selectedPackage.code})',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.text(context)),
+                          '$_truckStock Jars Loaded',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.text(context)),
                         ),
                       ],
                     ),
@@ -246,326 +307,282 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0284C7).withValues(alpha: 0.2),
+                    color: AppColors.brandEmerald.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.gps_fixed, size: 12, color: Color(0xFF38BDF8)),
-                      const SizedBox(width: 4),
-                      Text(
-                        widget.isTamil ? 'GPS இணைப்பில்' : 'GPS Active',
-                        style: const TextStyle(fontSize: 11, color: Color(0xFF38BDF8), fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                  child: const Text('LIVE ROUTE', style: TextStyle(color: AppColors.brandEmerald, fontSize: 10, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Customer Selection Glass Card
+          GlassCard(
+            padding: const EdgeInsets.all(16),
+            borderRadius: 18,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      t ? 'வாடிக்கையாளர் (பீட் ரூட்)' : 'Customer (Beat Route)',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.text(context)),
+                    ),
+                    Text(
+                      '${_customers.length} On Route',
+                      style: TextStyle(fontSize: 10, color: AppColors.textDim(context)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.isDark(context) ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.border(context)),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<CustomerItem>(
+                      isExpanded: true,
+                      value: _selectedCustomer,
+                      dropdownColor: AppColors.card(context),
+                      items: _customers.map((c) {
+                        return DropdownMenuItem(
+                          value: c,
+                          child: Text(
+                            '${c.name} (${c.emptyHeld} Cans)',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.text(context)),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        if (val != null) setState(() => _selectedCustomer = val);
+                      },
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
 
-          // 1. Packaged Water Product Selector
-          Text(
-            widget.isTamil ? 'குடிநீர் தயாரிப்பு தேர்வு (Package):' : 'Select Packaged Drinking Water:',
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF94A3B8)),
-          ),
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: AppColors.card(context),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.border(context)),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<WaterPackageItem>(
-                value: _selectedPackage,
-                isExpanded: true,
-                dropdownColor: AppColors.card(context),
-                items: _packages.map((pkg) {
-                  return DropdownMenuItem(
-                    value: pkg,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          widget.isTamil ? pkg.nameTa : pkg.nameEn,
-                          style: TextStyle(fontSize: 13, color: AppColors.text(context), fontWeight: FontWeight.w600),
+          const SizedBox(height: 14),
+
+          // Package Selection Glass Card
+          GlassCard(
+            padding: const EdgeInsets.all(16),
+            borderRadius: 18,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t ? 'குடிநீர் தயாரிப்பு (பேக்கேஜ்)' : 'Package Product',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.text(context)),
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _packages.map((pkg) {
+                    final isSel = _selectedPackage?.code == pkg.code;
+                    return GlassCard(
+                      isInteractive: true,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      borderRadius: 12,
+                      tintColor: isSel ? AppColors.roleDeliveryDriver : null,
+                      borderColor: isSel ? AppColors.roleDeliveryDriver : null,
+                      onTap: () => setState(() => _selectedPackage = pkg),
+                      child: Text(
+                        '${pkg.name(t)} · ₹${pkg.unitPrice.toStringAsFixed(0)}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
+                          color: isSel ? AppColors.roleDeliveryDriver : AppColors.text(context),
                         ),
-                        Text(
-                          '₹${pkg.unitPrice.toStringAsFixed(0)}',
-                          style: const TextStyle(fontSize: 13, color: Color(0xFF34D399), fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() {
-                      _selectedPackage = val;
-                      if (!val.isJar) _emptyReturnedQty = 0;
-                    });
-                  }
-                },
-              ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 16),
 
-          // 2. Customer Selector
-          Text(
-            widget.isTamil ? 'வாடிக்கையாளர் / கடை தேர்வு:' : 'Select Customer / Shop:',
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF94A3B8)),
-          ),
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: AppColors.card(context),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.border(context)),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<CustomerItem>(
-                value: _selectedCustomer,
-                isExpanded: true,
-                dropdownColor: AppColors.card(context),
-                items: _customers.map((c) {
-                  return DropdownMenuItem(
-                    value: c,
-                    child: Text(c.name, style: TextStyle(fontSize: 13, color: AppColors.text(context)), overflow: TextOverflow.ellipsis),
-                  );
-                }).toList(),
-                onChanged: (val) {
-                  if (val != null) setState(() => _selectedCustomer = val);
-                },
-              ),
-            ),
-          ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 14),
 
-          // 3. High-Speed Steppers: Units Delivered & Empty Returned
+          // Quantities Delivered & Returned Glass Cards
           Row(
             children: [
-              // Units Delivered
               Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.card(context),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.border(context)),
-                  ),
+                child: GlassCard(
+                  padding: const EdgeInsets.all(14),
+                  borderRadius: 18,
+                  tintColor: AppColors.roleDeliveryDriver,
                   child: Column(
                     children: [
                       Text(
-                        widget.isTamil ? 'டெலிவரி எண்ணிக்கை' : 'Units Delivered',
-                        style: const TextStyle(fontSize: 11, color: Color(0xFF38BDF8), fontWeight: FontWeight.bold),
+                        t ? 'விநியோகம் (Cans)' : 'Delivered Qty',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textMuted(context)),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         '$_deliveredQty',
-                        style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF38BDF8)),
+                        style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppColors.roleDeliveryDriver),
                       ),
                       const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _buildStepBtn('-5', () => _stepDelivered(-5)),
-                          const SizedBox(width: 4),
-                          _buildStepBtn('-1', () => _stepDelivered(-1)),
-                          const SizedBox(width: 4),
-                          _buildStepBtn('+1', () => _stepDelivered(1)),
-                          const SizedBox(width: 4),
-                          _buildStepBtn('+5', () => _stepDelivered(5)),
+                          IconButton(
+                            icon: const Icon(Icons.remove_circle_outline),
+                            onPressed: () => _stepDelivered(-1),
+                            color: AppColors.text(context),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.add_circle_outline),
+                            onPressed: () => _stepDelivered(1),
+                            color: AppColors.roleDeliveryDriver,
+                          ),
                         ],
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
-
-              // Empty Returned (Only enabled if jar packaging)
+              const SizedBox(width: 10),
               Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.card(context),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: _selectedPackage.isJar ? AppColors.border(context) : Colors.transparent),
-                  ),
+                child: GlassCard(
+                  padding: const EdgeInsets.all(14),
+                  borderRadius: 18,
+                  tintColor: AppColors.brandEmerald,
                   child: Column(
                     children: [
                       Text(
-                        widget.isTamil ? 'திரும்பிய காலி ஜார்' : 'Empty Jars In',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: _selectedPackage.isJar ? const Color(0xFF94A3B8) : const Color(0xFF475569),
-                          fontWeight: FontWeight.bold,
-                        ),
+                        t ? 'திரும்பியது (Empty)' : 'Empty Returned',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textMuted(context)),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        _selectedPackage.isJar ? '$_emptyReturnedQty' : '—',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: _selectedPackage.isJar ? const Color(0xFF34D399) : const Color(0xFF475569),
-                        ),
+                        '$_emptyReturnedQty',
+                        style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppColors.brandEmerald),
                       ),
                       const SizedBox(height: 8),
-                      if (_selectedPackage.isJar)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _buildStepBtn('-5', () => _stepEmpty(-5)),
-                            const SizedBox(width: 4),
-                            _buildStepBtn('-1', () => _stepEmpty(-1)),
-                            const SizedBox(width: 4),
-                            _buildStepBtn('+1', () => _stepEmpty(1)),
-                            const SizedBox(width: 4),
-                            _buildStepBtn('+5', () => _stepEmpty(5)),
-                          ],
-                        )
-                      else
-                        Text(
-                          widget.isTamil ? 'ஒருமுறை பயன்பாடு (Non-Return)' : 'Non-Returnable Pack',
-                          style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.remove_circle_outline),
+                            onPressed: () => _stepEmpty(-1),
+                            color: AppColors.text(context),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.add_circle_outline),
+                            onPressed: () => _stepEmpty(1),
+                            color: AppColors.brandEmerald,
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 18),
 
-          // Total Fare Highlight
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF0F172A),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFF1E293B)),
-            ),
+          const SizedBox(height: 14),
+
+          // Payment Mode Selector Glass Card
+          GlassCard(
+            padding: const EdgeInsets.all(14),
+            borderRadius: 18,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.isTamil ? 'மொத்த பில் தொகை:' : 'Total Payable:',
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
-                    ),
-                    Text(
-                      '$_deliveredQty × ₹${_selectedPackage.unitPrice.toStringAsFixed(0)}',
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
-                    ),
-                  ],
-                ),
-                Text(
-                  '₹ ${totalAmount.toStringAsFixed(2)}',
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF34D399)),
-                ),
+                _buildPayPill('cash', t ? 'ரொக்கம்' : 'Cash', Icons.payments, AppColors.brandEmerald),
+                const SizedBox(width: 8),
+                _buildPayPill('upi', 'UPI QR', Icons.qr_code, AppColors.roleSuperAdmin),
+                const SizedBox(width: 8),
+                _buildPayPill('credit', t ? 'கடன்' : 'Credit', Icons.credit_score, AppColors.brandAmber),
               ],
             ),
           ),
-          const SizedBox(height: 18),
 
-          // 4. Payment Mode Segmented Pills
-          Text(
-            widget.isTamil ? 'பணம் செலுத்தும் முறை (Payment Mode):' : 'Payment Mode:',
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF94A3B8)),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              _buildPaymentPill('cash', widget.isTamil ? '💵 பணம் (CASH)' : '💵 CASH', const Color(0xFF059669)),
-              const SizedBox(width: 8),
-              _buildPaymentPill('upi', widget.isTamil ? '📱 UPI / GPAY' : '📱 GPAY/UPI', const Color(0xFF0284C7)),
-              const SizedBox(width: 8),
-              _buildPaymentPill('credit', widget.isTamil ? '⏳ கடன் (CREDIT)' : '⏳ CREDIT', const Color(0xFFD97706)),
-            ],
-          ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 20),
 
-          // 5. Rapid Submit Button (<15 Seconds Law)
-          ElevatedButton(
-            onPressed: _isSubmitting ? null : _submitDelivery,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0284C7),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              elevation: 4,
+          // Submit Delivery Glass Action Button
+          Container(
+            height: 52,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [AppColors.roleDeliveryDriver, AppColors.brandNavy],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.roleDeliveryDriver.withOpacity(0.4),
+                  blurRadius: 18,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
-            child: _isSubmitting
-                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.flash_on, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        widget.isTamil ? '✅ பதிவு செய் (CONFIRM DELIVERY <15s)' : '✅ CONFIRM DELIVERY (<15s)',
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, letterSpacing: 0.5),
-                      ),
-                    ],
-                  ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: _isSubmitting ? null : _submitDelivery,
+                child: Center(
+                  child: _isSubmitting
+                      ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.check_circle_outline, color: Colors.white, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              t ? 'விநியோகம் உறுதிசெய் · ₹ ${_totalFare.toStringAsFixed(0)}' : 'Issue Ticket · ₹ ${_totalFare.toStringAsFixed(0)}',
+                              style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w900),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+            ),
           ),
+          const SizedBox(height: 20),
         ],
       ),
     );
   }
 
-  Widget _buildStepBtn(String label, VoidCallback onTap) {
-    return SizedBox(
-      height: 28,
-      width: 32,
-      child: TextButton(
-        onPressed: onTap,
-        style: TextButton.styleFrom(
-          padding: EdgeInsets.zero,
-          backgroundColor: AppColors.isDark(context) ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
-            color: AppColors.isDark(context) ? Colors.white : const Color(0xFF0F172A),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPaymentPill(String mode, String label, Color activeColor) {
-    final isSelected = _paymentMode == mode;
+  Widget _buildPayPill(String mode, String label, IconData icon, Color color) {
+    final isSel = _paymentMode == mode;
     return Expanded(
-      child: GestureDetector(
+      child: GlassCard(
+        isInteractive: true,
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        borderRadius: 12,
+        tintColor: isSel ? color : null,
+        borderColor: isSel ? color : null,
+        borderWidth: isSel ? 1.8 : 1.0,
         onTap: () => setState(() => _paymentMode = mode),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: isSelected ? activeColor : AppColors.card(context),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: isSelected ? activeColor : AppColors.border(context)),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: isSelected ? Colors.white : AppColors.textMuted(context),
+        child: Column(
+          children: [
+            Icon(icon, size: 18, color: isSel ? color : AppColors.textMuted(context)),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
+                color: isSel ? color : AppColors.text(context),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

@@ -1,6 +1,9 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../services/api_service.dart';
+import '../theme/app_theme.dart';
+import '../widgets/glass_card.dart';
 
 class RoleSelectorSheet extends StatefulWidget {
   final bool isTamil;
@@ -23,208 +26,206 @@ class RoleSelectorSheet extends StatefulWidget {
 }
 
 class _RoleSelectorSheetState extends State<RoleSelectorSheet> {
-  String _activeUrl = ApiService.activeBaseUrl;
-
   @override
   Widget build(BuildContext context) {
     final t = widget.isTamil;
+    final isDark = AppColors.isDark(context);
 
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF0F172A),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Drag handle
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.white24,
-                borderRadius: BorderRadius.circular(2),
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF021840).withOpacity(0.92) : Colors.white.withOpacity(0.94),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            border: Border(
+              top: BorderSide(
+                color: Colors.white.withOpacity(isDark ? 0.2 : 0.6),
+                width: 1.5,
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    t ? 'பயனர் பங்கு & நிறுவனத் தேர்வு' : 'Role & Enterprise Switcher',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    t ? 'வாடிக்கையாளர் சோதனைக்காக உடனடியாக மாற்றிப் பாருங்கள்' : 'Instant 1-Tap Switching for Client Demo & Testing',
-                    style: const TextStyle(color: Colors.white60, fontSize: 11),
-                  ),
-                ],
-              ),
-              IconButton(
-                icon: const Icon(Icons.close, color: Colors.white70),
-                onPressed: () => Navigator.pop(context),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.4),
+                blurRadius: 30,
+                offset: const Offset(0, -10),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Drag Handle Indicator
+              Center(
+                child: Container(
+                  width: 44,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.textDim(context).withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
 
-          // API Server Environment Selector
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF161F30),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF334155)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+              // Sheet Title & Close
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [AppColors.brandPurple, AppColors.brandNavy],
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.switch_account, color: Colors.white, size: 18),
+                      ),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            t ? 'பயனர் பங்கு தேர்வு (Switch Role)' : 'Switch Operational Role',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 15,
+                              color: AppColors.text(context),
+                            ),
+                          ),
+                          Text(
+                            t ? 'அனைத்து பாத்திரங்களும் சோதனைக்கு கிடைக்கும்' : 'All 6 Roles Available for Instant Access',
+                            style: TextStyle(
+                              color: AppColors.textMuted(context),
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.close, color: AppColors.textDim(context), size: 20),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+
+              // Live API Target Box
+              GlassCard(
+                padding: const EdgeInsets.all(12),
+                borderRadius: 14,
+                tintColor: AppColors.brandPurple,
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.cloud_done, color: Color(0xFF10B981), size: 16),
-                        const SizedBox(width: 6),
+                        const Icon(Icons.circle, color: AppColors.brandEmerald, size: 8),
+                        const SizedBox(width: 8),
                         Text(
-                          t ? 'இணைக்கப்பட்ட கிளவுட் ஏபிஐ' : 'Active Cloud API Target',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.white70),
+                          'LIVE API: ${ApiService.activeBaseUrl.replaceFirst('https://', '')}',
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.text(context),
+                          ),
                         ),
                       ],
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(4),
+                        color: AppColors.brandEmerald.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Text('LIVE 200 OK', style: TextStyle(color: Color(0xFF34D399), fontSize: 9, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'ONLINE',
+                        style: TextStyle(color: AppColors.brandEmerald, fontSize: 8.5, fontWeight: FontWeight.w900),
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
-                DropdownButtonFormField<String>(
-                  value: _activeUrl,
-                  dropdownColor: const Color(0xFF0F172A),
-                  style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 12, fontWeight: FontWeight.w600),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    filled: true,
-                    fillColor: const Color(0xFF111827),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                  ),
-                  items: const [
-                    DropdownMenuItem(
-                      value: ApiService.liveProductionUrl,
-                      child: Text('🌐 Live Server: dkenterprises.animazon.in'),
-                    ),
-                    DropdownMenuItem(
-                      value: ApiService.localEmulatorUrl,
-                      child: Text('💻 Localhost Emulator: 10.0.2.2:8080'),
-                    ),
-                    DropdownMenuItem(
-                      value: ApiService.localWebUrl,
-                      child: Text('🖥️ Localhost Web: 127.0.0.1:8080'),
-                    ),
-                  ],
-                  onChanged: (val) {
-                    if (val != null) {
-                      setState(() => _activeUrl = val);
-                      ApiService.switchEndpoint(val);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Target API switched to: $val')),
-                      );
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
+              ),
+              const SizedBox(height: 14),
 
-          // Role selection list
-          Text(
-            t ? 'செயல்பாட்டு பங்கு (Roles):' : 'Select Operational Role:',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white70),
-          ),
-          const SizedBox(height: 8),
-
-          Flexible(
-            child: ListView(
-              shrinkWrap: true,
-              children: UserRole.values.map((role) {
-                final isSelected = widget.currentRole == role;
-                return InkWell(
-                  onTap: () {
-                    widget.onSelectRole(role);
-                    Navigator.pop(context);
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: isSelected ? role.color.withOpacity(0.15) : const Color(0xFF111827),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isSelected ? role.color : const Color(0xFF1E293B),
-                        width: isSelected ? 1.5 : 1,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: role.color.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
+              // Role List Cards
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: UserRole.values.map((role) {
+                    final isSelected = widget.currentRole == role;
+                    return GlassCard(
+                      isInteractive: true,
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(12),
+                      borderRadius: 14,
+                      tintColor: isSelected ? role.color : null,
+                      borderColor: isSelected ? role.color : null,
+                      borderWidth: isSelected ? 1.5 : 1.0,
+                      onTap: () {
+                        widget.onSelectRole(role);
+                        Navigator.pop(context);
+                      },
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: role.color.withOpacity(isSelected ? 0.95 : 0.2),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              role.icon,
+                              color: isSelected ? Colors.white : role.color,
+                              size: 18,
+                            ),
                           ),
-                          child: Icon(role.icon, color: role.color, size: 20),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                role.title(t),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                  color: isSelected ? role.color : Colors.white,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  role.title(t),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 13,
+                                    color: isSelected ? role.color : AppColors.text(context),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                role.description(t),
-                                style: const TextStyle(color: Colors.white60, fontSize: 11),
-                              ),
-                            ],
+                                const SizedBox(height: 2),
+                                Text(
+                                  role.description(t),
+                                  style: TextStyle(
+                                    color: AppColors.textDim(context),
+                                    fontSize: 10.5,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        if (isSelected)
-                          Icon(Icons.check_circle, color: role.color, size: 18)
-                        else
-                          const Icon(Icons.arrow_forward_ios, color: Colors.white24, size: 12),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
+                          if (isSelected)
+                            Icon(Icons.check_circle, color: role.color, size: 18)
+                          else
+                            Icon(Icons.chevron_right, color: AppColors.textDim(context), size: 18),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

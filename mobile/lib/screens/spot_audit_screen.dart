@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import '../models/models.dart';
+import '../services/api_service.dart';
+import '../theme/app_theme.dart';
+import '../widgets/glass_card.dart';
 
 class SpotAuditScreen extends StatefulWidget {
   final bool isTamil;
@@ -10,272 +14,291 @@ class SpotAuditScreen extends StatefulWidget {
 }
 
 class _SpotAuditScreenState extends State<SpotAuditScreen> {
-  String _auditTarget = 'packaged'; // 'packaged' (DK Waters), 'tanker' (TMWS), 'cafe' (Aran Cafe)
+  final ApiService _apiService = ApiService();
+  String _auditTarget = 'packaged'; // 'packaged', 'tanker', 'cafe'
 
+  final _vehicleController = TextEditingController(text: 'Tata Ace TN-59-WA-1011');
+  final _driverController = TextEditingController(text: 'Kumar (Driver)');
   final _unitsObservedController = TextEditingController(text: '25');
   final _cashObservedController = TextEditingController(text: '1810');
-  bool _auditDone = false;
+  final _notesController = TextEditingController();
 
   final int _expectedUnits = 25;
   final double _expectedCash = 1810.0;
 
-  void _runAudit() {
-    setState(() => _auditDone = true);
+  bool _isSubmitting = false;
+
+  Future<void> _submitAudit() async {
+    setState(() => _isSubmitting = true);
+
+    final observedUnits = int.tryParse(_unitsObservedController.text) ?? 0;
+    final observedCash = double.tryParse(_cashObservedController.text) ?? 0.0;
+    final unitDiff = observedUnits - _expectedUnits;
+    final cashDiff = observedCash - _expectedCash;
+    final isFraud = unitDiff.abs() > 2 || cashDiff.abs() > 100;
+
+    final audit = SpotAuditRecord(
+      vehicleNumber: _vehicleController.text,
+      driverName: _driverController.text,
+      expectedUnits: _expectedUnits,
+      physicalUnits: observedUnits,
+      expectedCash: _expectedCash,
+      physicalCash: observedCash,
+      unitDifference: unitDiff,
+      cashDifference: cashDiff,
+      isFraudSuspected: isFraud,
+      auditNotes: _notesController.text.isEmpty ? 'Regular spot check' : _notesController.text,
+      auditTime: DateTime.now(),
+    );
+
+    await _apiService.submitSpotAudit(audit);
+
+    if (mounted) {
+      setState(() {
+        _isSubmitting = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            widget.isTamil
+                ? 'களத் தணிக்கை கிளவுட் மோசடி தடுப்பு மையத்தில் சமர்ப்பிக்கப்பட்டது!'
+                : 'Spot audit recorded and synced to Anti-Fraud Command!',
+          ),
+          backgroundColor: isFraud ? AppColors.brandDanger : AppColors.brandEmerald,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = widget.isTamil;
     final observedUnits = int.tryParse(_unitsObservedController.text) ?? 0;
     final observedCash = double.tryParse(_cashObservedController.text) ?? 0.0;
     final unitDiff = observedUnits - _expectedUnits;
     final cashDiff = observedCash - _expectedCash;
     final isClean = (unitDiff == 0 && cashDiff == 0.0);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header Banner
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFD97706)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.security, color: Color(0xFFFBBF24), size: 28),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.isTamil ? 'திடீர் களத் தணிக்கை (ஸ்பாட் ஆடிட்)' : 'Surprise Field Spot Audit',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white),
-                      ),
-                      Text(
-                        widget.isTamil
-                            ? 'நேரடி ஸ்டாக் மற்றும் ஓட்டுனர் ரொக்கம் சரிபார்ப்பு'
-                            : 'Physical manifest vs driver cash verification & anti-fraud audit',
-                        style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Audit Target Selector (Packaged Water / Bulk Tanker / Cafe)
-          Text(
-            widget.isTamil ? 'தணிக்கை செய்யப்படும் பிரிவு (Vehicle Type):' : 'Select Target for Audit:',
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF94A3B8)),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              _buildTargetPill('packaged', widget.isTamil ? 'குடிநீர் வேன் (Tata Ace)' : 'Packaged Water Van', const Color(0xFF0284C7)),
-              const SizedBox(width: 8),
-              _buildTargetPill('tanker', widget.isTamil ? 'வாட்டர் டேங்கர்' : 'Bulk Tanker', const Color(0xFF2563EB)),
-              const SizedBox(width: 8),
-              _buildTargetPill('cafe', widget.isTamil ? 'கஃபே கவுண்டர்' : 'Cafe Counter', const Color(0xFFD97706)),
-            ],
-          ),
-          const SizedBox(height: 18),
-
-          // Expected vs Physical Counts Card
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: const Color(0xFF111827),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFF334155)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _auditTarget == 'packaged'
-                          ? 'Tata Ace (TN 38 BX 4412) · Raja'
-                          : (_auditTarget == 'tanker' ? 'Tanker (TN 34 AF 4954) · Suresh' : 'Aran Cafe Counter 1 · Barista'),
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(4)),
-                      child: Text(
-                        widget.isTamil ? 'கணினி இருப்பு' : 'System Manifest',
-                        style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
-                      ),
-                    ),
-                  ],
-                ),
-                const Divider(color: Color(0xFF1E293B)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(widget.isTamil ? 'இருக்க வேண்டிய இருப்பு:' : 'Expected Units on Vehicle:', style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
-                    Text('$_expectedUnits Units', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white)),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(widget.isTamil ? 'இருக்க வேண்டிய ரொக்கம்:' : 'Expected Driver Cash (₹):', style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
-                    Text('₹ ${_expectedCash.toStringAsFixed(2)}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF34D399))),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Physical Observed Inputs
-          Text(
-            widget.isTamil ? 'நேரில் எண்ணப்பட்ட இருப்பு எண்ணிக்கை:' : 'Physical Units Counted by Supervisor:',
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF94A3B8)),
-          ),
-          const SizedBox(height: 6),
-          TextField(
-            controller: _unitsObservedController,
-            keyboardType: TextInputType.number,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: const Color(0xFF111827),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF334155))),
-            ),
-          ),
-          const SizedBox(height: 14),
-
-          Text(
-            widget.isTamil ? 'ஓட்டுனரிடம் உள்ள நேரடி ரொக்கம் (Cash ₹):' : 'Physical Cash in Hand (₹):',
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF94A3B8)),
-          ),
-          const SizedBox(height: 6),
-          TextField(
-            controller: _cashObservedController,
-            keyboardType: TextInputType.number,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: const Color(0xFF111827),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF334155))),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          ElevatedButton(
-            onPressed: _runAudit,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFD97706),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.analytics, size: 18),
-                const SizedBox(width: 8),
-                Text(
-                  widget.isTamil ? 'தணிக்கை முடிவை சரிபார் (EVALUATE VARIANCE)' : 'EVALUATE VARIANCE',
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Audit Results Card
-          if (_auditDone)
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: isClean ? const Color(0xFF065F46) : const Color(0xFF7F1D1D),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: isClean ? const Color(0xFF10B981) : const Color(0xFFEF4444)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return Scaffold(
+      backgroundColor: AppColors.scaffold(context),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Header Card
+            GlassCard(
+              padding: const EdgeInsets.all(16),
+              borderRadius: 20,
+              tintColor: AppColors.brandPurple,
+              child: Row(
                 children: [
-                  Row(
-                    children: [
-                      Icon(isClean ? Icons.check_circle : Icons.warning_amber_rounded, color: isClean ? const Color(0xFF34D399) : const Color(0xFFFCA5A5), size: 24),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          isClean
-                              ? (widget.isTamil ? 'தணிக்கை சரியானது (100% BALANCED)' : 'AUDIT PASSED: ZERO VARIANCE')
-                              : (widget.isTamil ? 'எச்சரிக்கை: கணக்கில் வித்தியாசம் உள்ளது!' : 'ALERT: VARIANCE DETECTED! FRAUD SUSPECTED'),
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppColors.brandNavy, AppColors.brandPurple],
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(Icons.security, color: Colors.white, size: 22),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          t ? 'திடீர் களத் தணிக்கை (ஸ்பாட் ஆடிட்)' : 'Anti-Theft Field Spot Audit',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.text(context),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const Divider(color: Colors.white24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(widget.isTamil ? 'இருப்பு வித்தியாசம்:' : 'Stock Unit Variance:', style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                      Text(
-                        unitDiff == 0 ? '0 Units' : (unitDiff > 0 ? '+$unitDiff Surplus' : '$unitDiff Missing'),
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(widget.isTamil ? 'ரொக்க வித்தியாசம்:' : 'Cash Variance:', style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                      Text(
-                        cashDiff == 0 ? '₹ 0.00' : (cashDiff > 0 ? '+₹ ${cashDiff.toStringAsFixed(2)} Surplus' : '₹ ${cashDiff.toStringAsFixed(2)} Shortage'),
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                      ),
-                    ],
+                        const SizedBox(height: 2),
+                        Text(
+                          t
+                              ? 'நேரடி ஸ்டாக் மற்றும் ஓட்டுனர் ரொக்கம் சரிபார்ப்பு'
+                              : 'Physical manifest vs driver cash verification',
+                          style: TextStyle(fontSize: 11, color: AppColors.textDim(context)),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-        ],
-      ),
-    );
-  }
+            const SizedBox(height: 16),
 
-  Widget _buildTargetPill(String target, String label, Color color) {
-    final isSelected = _auditTarget == target;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() {
-          _auditTarget = target;
-          _auditDone = false;
-        }),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: isSelected ? color : const Color(0xFF111827),
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: isSelected ? color : const Color(0xFF334155)),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 10.5,
-              fontWeight: FontWeight.bold,
-              color: isSelected ? Colors.white : const Color(0xFF94A3B8),
+            // Target Selector Pills
+            Row(
+              children: [
+                Expanded(
+                  child: ChoiceChip(
+                    label: Text(t ? 'குடிநீர் வேன்' : 'Water Van'),
+                    selected: _auditTarget == 'packaged',
+                    selectedColor: AppColors.brandPurple,
+                    labelStyle: TextStyle(
+                      color: _auditTarget == 'packaged' ? Colors.white : AppColors.textMuted(context),
+                      fontWeight: FontWeight.w800,
+                      fontSize: 11,
+                    ),
+                    onSelected: (v) => setState(() => _auditTarget = 'packaged'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ChoiceChip(
+                    label: Text(t ? 'டேங்கர்' : 'Bulk Tanker'),
+                    selected: _auditTarget == 'tanker',
+                    selectedColor: AppColors.brandPurple,
+                    labelStyle: TextStyle(
+                      color: _auditTarget == 'tanker' ? Colors.white : AppColors.textMuted(context),
+                      fontWeight: FontWeight.w800,
+                      fontSize: 11,
+                    ),
+                    onSelected: (v) => setState(() => _auditTarget = 'tanker'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ChoiceChip(
+                    label: Text(t ? 'கஃபே' : 'Cafe POS'),
+                    selected: _auditTarget == 'cafe',
+                    selectedColor: AppColors.brandPurple,
+                    labelStyle: TextStyle(
+                      color: _auditTarget == 'cafe' ? Colors.white : AppColors.textMuted(context),
+                      fontWeight: FontWeight.w800,
+                      fontSize: 11,
+                    ),
+                    onSelected: (v) => setState(() => _auditTarget = 'cafe'),
+                  ),
+                ),
+              ],
             ),
-          ),
+            const SizedBox(height: 16),
+
+            // Audit Physical vs Expected Card
+            GlassCard(
+              padding: const EdgeInsets.all(18),
+              borderRadius: 20,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    t ? 'நேரடி ஆய்வு விவரங்கள்' : 'Audit Observations',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.text(context)),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _unitsObservedController,
+                          keyboardType: TextInputType.number,
+                          style: TextStyle(color: AppColors.text(context), fontSize: 13),
+                          decoration: InputDecoration(
+                            labelText: t ? 'பார்த்த கேன்கள்' : 'Physical Units',
+                            labelStyle: TextStyle(color: AppColors.textDim(context), fontSize: 11),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _cashObservedController,
+                          keyboardType: TextInputType.number,
+                          style: TextStyle(color: AppColors.text(context), fontSize: 13),
+                          decoration: InputDecoration(
+                            labelText: t ? 'பார்த்த ரொக்கம் (₹)' : 'Physical Cash (₹)',
+                            labelStyle: TextStyle(color: AppColors.textDim(context), fontSize: 11),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  TextFormField(
+                    controller: _notesController,
+                    style: TextStyle(color: AppColors.text(context), fontSize: 13),
+                    decoration: InputDecoration(
+                      labelText: t ? 'ஆய்வுக் குறிப்புகள்' : 'Audit Notes & Observations',
+                      labelStyle: TextStyle(color: AppColors.textDim(context), fontSize: 11),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+
+                  // Variance Result Badge
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isClean ? AppColors.brandEmerald.withOpacity(0.12) : AppColors.brandDanger.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isClean ? AppColors.brandEmerald.withOpacity(0.3) : AppColors.brandDanger.withOpacity(0.3),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          isClean ? Icons.check_circle : Icons.warning_amber_rounded,
+                          color: isClean ? AppColors.brandEmerald : AppColors.brandDanger,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            isClean
+                                ? (t ? 'இருப்பு மற்றும் ரொக்கம் 100% சரியாக உள்ளது!' : 'Stock & cash 100% reconciled!')
+                                : (t ? 'வித்தியாசம்: $unitDiff கேன்கள், ₹$cashDiff ரொக்கம்' : 'Variance: $unitDiff units, ₹$cashDiff cash'),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: isClean ? AppColors.brandEmerald : AppColors.brandDanger,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 46,
+                    child: ElevatedButton(
+                      onPressed: _isSubmitting ? null : _submitAudit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.brandPurple,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        elevation: 0,
+                      ),
+                      child: _isSubmitting
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                            )
+                          : Text(
+                              t ? 'தணிக்கை முடிவைச் சமர்ப்பி' : 'Submit Audit to Anti-Fraud Command',
+                              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

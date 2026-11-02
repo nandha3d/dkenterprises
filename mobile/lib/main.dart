@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'models/models.dart';
 import 'services/api_service.dart';
@@ -31,8 +32,8 @@ class DKTrackApp extends StatefulWidget {
 
 class _DKTrackAppState extends State<DKTrackApp> {
   bool _isTamil = true; // Default Tamil for field ground operators
-  bool _isDarkMode = false; // Default to crisp sunlight-optimized Light Theme!
-  bool _isLoggedIn = false; // Starts at Login Screen for role selection & credentials authentication
+  bool _isDarkMode = true; // Sleek modern dark mode matching web app
+  bool _isLoggedIn = false; // Starts at Login Screen for demo role access & authentication
   CompanyVertical _activeVertical = CompanyVertical.dkWaters;
   UserRole _activeRole = UserRole.superAdmin;
   String _activeUserName = 'Super Admin';
@@ -191,32 +192,39 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     return ListTile(
       dense: true,
       visualDensity: const VisualDensity(horizontal: 0, vertical: -2),
-      leading: Icon(icon, color: iconColor ?? AppColors.textMuted(context), size: 20),
+      leading: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: (iconColor ?? AppColors.brandPurple).withOpacity(0.15),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: iconColor ?? AppColors.brandPurple, size: 18),
+      ),
       title: Text(
         title,
         style: TextStyle(
           color: AppColors.text(context),
           fontSize: 13,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
         ),
       ),
       trailing: badge != null
           ? Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: (badgeColor ?? const Color(0xFF0284C7)).withOpacity(0.15),
-                borderRadius: BorderRadius.circular(4),
+                color: (badgeColor ?? AppColors.brandSky).withOpacity(0.15),
+                borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 badge,
                 style: TextStyle(
-                  color: badgeColor ?? const Color(0xFF0284C7),
+                  color: badgeColor ?? AppColors.brandSky,
                   fontSize: 9,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
             )
-          : const Icon(Icons.chevron_right, size: 16, color: Colors.grey),
+          : Icon(Icons.chevron_right, size: 16, color: AppColors.textDim(context)),
       onTap: onTap,
     );
   }
@@ -229,8 +237,8 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         style: TextStyle(
           color: AppColors.textDim(context),
           fontSize: 10,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 0.5,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.6,
         ),
       ),
     );
@@ -241,6 +249,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     final t = widget.isTamil;
     final r = widget.activeRole;
     final v = widget.activeVertical;
+    final isDark = AppColors.isDark(context);
 
     // Role screens configuration
     List<Widget> screens;
@@ -356,18 +365,43 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     }
 
     return Scaffold(
+      backgroundColor: AppColors.scaffold(context),
+      extendBodyBehindAppBar: false,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F172A),
         elevation: 0,
+        backgroundColor: Colors.transparent,
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppColors.brandNavy.withOpacity(isDark ? 0.92 : 0.88),
+                    AppColors.brandPurple.withOpacity(isDark ? 0.70 : 0.50),
+                  ],
+                ),
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.white.withOpacity(isDark ? 0.14 : 0.4),
+                    width: 1.0,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
         leading: Builder(
           builder: (ctx) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.white70),
+            icon: const Icon(Icons.menu, color: Colors.white),
             onPressed: () => Scaffold.of(ctx).openDrawer(),
           ),
         ),
         title: InkWell(
           onTap: _openRoleSelector,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
             child: Row(
@@ -376,7 +410,14 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: r.color,
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: r.color.withOpacity(0.4),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Icon(r.icon, size: 16, color: Colors.white),
                 ),
@@ -391,7 +432,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                           Flexible(
                             child: Text(
                               r.title(t),
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Colors.white),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -400,7 +441,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                       ),
                       Text(
                         '${widget.activeUserName} • ${v.name(t)}',
-                        style: TextStyle(fontSize: 10, color: v.primaryColor, fontWeight: FontWeight.w600),
+                        style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.85), fontWeight: FontWeight.w600),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
@@ -411,50 +452,50 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
           ),
         ),
         actions: [
-          // Live API ping indicator chip
+          // Live API Badge
           Tooltip(
-            message: 'Target API: ${ApiService.activeBaseUrl}',
+            message: 'API: ${ApiService.activeBaseUrl}',
             child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              margin: const EdgeInsets.symmetric(vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
               decoration: BoxDecoration(
-                color: const Color(0xFF10B981).withOpacity(0.15),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF10B981).withOpacity(0.4)),
+                color: AppColors.brandEmerald.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.brandEmerald.withOpacity(0.5)),
               ),
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.circle, color: Color(0xFF10B981), size: 7),
+                  Icon(Icons.circle, color: AppColors.brandEmerald, size: 6),
                   SizedBox(width: 4),
-                  Text('API LIVE', style: TextStyle(color: Color(0xFF10B981), fontSize: 9, fontWeight: FontWeight.bold)),
+                  Text('LIVE', style: TextStyle(color: AppColors.brandEmerald, fontSize: 8.5, fontWeight: FontWeight.w900)),
                 ],
               ),
             ),
           ),
-          const SizedBox(width: 4),
-          // Theme Toggle Button (☀️ Light / 🌙 Dark)
+          const SizedBox(width: 2),
+          // Theme Toggle
           IconButton(
             tooltip: widget.isDarkMode ? 'Light Mode' : 'Dark Mode',
             icon: Icon(
               widget.isDarkMode ? Icons.light_mode : Icons.dark_mode,
-              color: widget.isDarkMode ? Colors.amber : Colors.white70,
-              size: 20,
+              color: widget.isDarkMode ? const Color(0xFFFBBF24) : Colors.white,
+              size: 19,
             ),
             onPressed: widget.onToggleTheme,
           ),
-          // Language toggle
+          // Language Toggle
           IconButton(
             tooltip: t ? 'Switch to English' : 'தமிழுக்கு மாறுக',
             icon: Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.white30),
+                border: Border.all(color: Colors.white.withOpacity(0.3)),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 t ? 'EN' : 'தமிழ்',
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white),
               ),
             ),
             onPressed: widget.onToggleLanguage,
@@ -463,17 +504,17 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         ],
       ),
 
-      // Comprehensive ERP Menus Navigation Drawer
+      // Glassmorphic ERP Menus Drawer
       drawer: Drawer(
         backgroundColor: AppColors.card(context),
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            // Drawer Header
+            // Frosted Drawer Header
             DrawerHeader(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [r.color, const Color(0xFF0F172A)],
+                  colors: [AppColors.brandNavy, AppColors.brandPurple],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -488,33 +529,40 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white.withOpacity(0.3)),
                         ),
                         child: const Icon(Icons.water_drop, color: Colors.white, size: 28),
                       ),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('DK Track ERP', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                          Text(
-                            widget.activeUserName,
-                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                          Text(r.title(t), style: const TextStyle(color: Colors.white70, fontSize: 10)),
-                        ],
-                      )
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'DK Track ERP',
+                              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900),
+                            ),
+                            Text(
+                              widget.activeUserName,
+                              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(r.title(t), style: const TextStyle(color: Colors.white70, fontSize: 10)),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: Colors.black38,
+                      color: Colors.black26,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      'API: ${ApiService.activeBaseUrl}',
+                      'API: ${ApiService.activeBaseUrl.replaceFirst('https://', '')}',
                       style: const TextStyle(color: Colors.white70, fontSize: 8.5, fontFamily: 'monospace'),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -527,7 +575,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             _buildDrawerSectionHeader(t ? 'கட்டளை மையம் & மாஸ்டர்கள்' : 'COMMAND & MASTERS'),
             _buildDrawerMenuItem(
               icon: Icons.dashboard,
-              iconColor: const Color(0xFF8B5CF6),
+              iconColor: AppColors.brandPurple,
               title: t ? 'முதன்மை டாஷ்போர்டு' : 'Executive Dashboard',
               onTap: () {
                 Navigator.pop(context);
@@ -536,31 +584,31 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             ),
             _buildDrawerMenuItem(
               icon: Icons.people_alt,
-              iconColor: const Color(0xFF0EA5E9),
+              iconColor: AppColors.brandSky,
               title: t ? 'வாடிக்கையாளர் பட்டியல் (Customers)' : 'Customers Directory',
               badge: 'ERP Master',
-              badgeColor: const Color(0xFF0EA5E9),
+              badgeColor: AppColors.brandSky,
               onTap: () => _navigateToScreen(CustomersScreen(isTamil: t)),
             ),
             _buildDrawerMenuItem(
               icon: Icons.category,
-              iconColor: const Color(0xFF10B981),
+              iconColor: AppColors.brandEmerald,
               title: t ? 'பொருட்கள் விலைப்பட்டியல் (Products)' : 'Products & Price Matrix',
               badge: 'Matrix',
-              badgeColor: const Color(0xFF10B981),
+              badgeColor: AppColors.brandEmerald,
               onTap: () => _navigateToScreen(ProductsScreen(isTamil: t)),
             ),
 
             Divider(color: AppColors.border(context), height: 16),
 
             // SECTION 2: Water Logistics Suite
-            _buildDrawerSectionHeader(t ? 'குடிநீர் தளவாடங்கள் (WATER LOGISTICS)' : 'WATER LOGISTICS SUITE'),
+            _buildDrawerSectionHeader(t ? 'குடிநீர் தளவாடங்கள்' : 'WATER LOGISTICS SUITE'),
             _buildDrawerMenuItem(
               icon: Icons.water_drop,
-              iconColor: const Color(0xFF0284C7),
+              iconColor: AppColors.brandSky,
               title: t ? 'குடிநீர் விநியோக டிக்கெட் (<15s)' : 'Packaged Water Delivery',
               badge: 'Fast Ticketing',
-              badgeColor: const Color(0xFF0284C7),
+              badgeColor: AppColors.brandSky,
               onTap: () => _navigateToScreen(TicketMachineScreen(isTamil: t)),
             ),
             _buildDrawerMenuItem(
@@ -579,37 +627,37 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             ),
             _buildDrawerMenuItem(
               icon: Icons.verified_user,
-              iconColor: const Color(0xFFDC2626),
+              iconColor: AppColors.brandDanger,
               title: t ? 'கேன் ஆய்வு & இருப்பு தணிக்கை' : 'Empty Jar Custody & Audit',
               badge: 'Anti-Theft',
-              badgeColor: const Color(0xFFDC2626),
+              badgeColor: AppColors.brandDanger,
               onTap: () => _navigateToScreen(SpotAuditScreen(isTamil: t)),
             ),
 
             Divider(color: AppColors.border(context), height: 16),
 
             // SECTION 3: Sales, Invoicing & Accounts
-            _buildDrawerSectionHeader(t ? 'விற்பனை & கணக்குகள் (FINANCE & ACCOUNTS)' : 'FINANCE & ACCOUNTS'),
+            _buildDrawerSectionHeader(t ? 'விற்பனை & கணக்குகள்' : 'FINANCE & ACCOUNTS'),
             _buildDrawerMenuItem(
               icon: Icons.receipt_long,
-              iconColor: const Color(0xFF10B981),
+              iconColor: AppColors.brandEmerald,
               title: t ? 'விற்பனை ரசீதுகள் (Invoices)' : 'Sales Invoices & Slips',
               badge: 'Invoices',
-              badgeColor: const Color(0xFF10B981),
+              badgeColor: AppColors.brandEmerald,
               onTap: () => _navigateToScreen(InvoicesScreen(isTamil: t)),
             ),
             _buildDrawerMenuItem(
               icon: Icons.assignment_turned_in,
-              iconColor: const Color(0xFF10B981),
+              iconColor: AppColors.brandEmerald,
               title: t ? 'வசூல் போர்ட்டல் & KYC' : 'Field Collections & KYC',
               onTap: () => _navigateToScreen(FieldAgentScreen(isTamil: t, vertical: v)),
             ),
             _buildDrawerMenuItem(
               icon: Icons.account_balance,
-              iconColor: const Color(0xFFF59E0B),
+              iconColor: AppColors.brandAmber,
               title: t ? 'நிதி லெட்ஜர் இருப்பு (GL 1010-1030)' : 'GL Financial Balances',
               badge: 'GL Ledger',
-              badgeColor: const Color(0xFFF59E0B),
+              badgeColor: AppColors.brandAmber,
               onTap: () => _navigateToScreen(FinancialsScreen(isTamil: t)),
             ),
 
@@ -620,7 +668,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             _buildDrawerMenuItem(
               icon: Icons.point_of_sale,
               iconColor: const Color(0xFFD97706),
-              title: t ? 'விரைவு டச் POS & டிராயர்' : 'Express Touch POS & Drawer',
+              title: t ? 'விரைவு டச் POS & கவுண்டர்' : 'Express Touch POS',
               badge: 'Cafe POS',
               badgeColor: const Color(0xFFD97706),
               onTap: () => _navigateToScreen(CafePosScreen(isTamil: t)),
@@ -647,10 +695,17 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             // SECTION 6: Session & Logout
             ListTile(
               dense: true,
-              leading: const Icon(Icons.logout, color: Colors.red, size: 20),
+              leading: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: AppColors.brandDanger.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.logout, color: AppColors.brandDanger, size: 18),
+              ),
               title: Text(
                 t ? 'வெளியேறு (Logout Session)' : 'Sign Out (Logout)',
-                style: const TextStyle(color: Colors.red, fontSize: 13, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: AppColors.brandDanger, fontSize: 13, fontWeight: FontWeight.w800),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -658,7 +713,8 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(t ? 'வெற்றிகரமாக வெளியேறினீர்கள்' : 'Logged out successfully'),
-                    backgroundColor: Colors.red,
+                    backgroundColor: AppColors.brandDanger,
+                    behavior: SnackBarBehavior.floating,
                   ),
                 );
               },
@@ -673,16 +729,35 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         children: screens,
       ),
 
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex < navItems.length ? _currentIndex : 0,
-        onTap: (index) => setState(() => _currentIndex = index),
-        backgroundColor: AppColors.bottomNavBg(context),
-        selectedItemColor: r.color,
-        unselectedItemColor: AppColors.textDim(context),
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
-        unselectedLabelStyle: const TextStyle(fontSize: 10),
-        type: BottomNavigationBarType.fixed,
-        items: navItems,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: AppColors.bottomNavBg(context),
+          border: Border(
+            top: BorderSide(
+              color: isDark ? Colors.white.withOpacity(0.12) : const Color(0xFF0F172A).withOpacity(0.08),
+              width: 1.0,
+            ),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+              blurRadius: 16,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex < navItems.length ? _currentIndex : 0,
+          onTap: (index) => setState(() => _currentIndex = index),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          selectedItemColor: r.color,
+          unselectedItemColor: AppColors.textDim(context),
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
+          unselectedLabelStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+          type: BottomNavigationBarType.fixed,
+          items: navItems,
+        ),
       ),
     );
   }

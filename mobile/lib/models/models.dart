@@ -79,6 +79,37 @@ class WaterPackageItem {
     required this.unitPrice,
     required this.isJar,
   });
+
+  String name(bool isTamil) => isTamil ? nameTa : nameEn;
+}
+
+/// Packaged water can delivery record for ticket machine
+class WaterCanDeliveryRecord {
+  final String deliveryNumber;
+  final int routeId;
+  final int customerId;
+  final String customerName;
+  final int cansDelivered;
+  final int emptyCansCollected;
+  final double canRate;
+  final double totalAmount;
+  final String paymentMode;
+  final DateTime deliveryTime;
+  final int balanceCansHeld;
+
+  WaterCanDeliveryRecord({
+    required this.deliveryNumber,
+    required this.routeId,
+    required this.customerId,
+    required this.customerName,
+    required this.cansDelivered,
+    required this.emptyCansCollected,
+    required this.canRate,
+    required this.totalAmount,
+    required this.paymentMode,
+    required this.deliveryTime,
+    required this.balanceCansHeld,
+  });
 }
 
 /// Customer entity for routes

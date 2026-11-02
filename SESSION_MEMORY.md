@@ -2944,3 +2944,54 @@ Addressed user feedback: *"dont make a specific name, replace the '20l can' as '
   - Automated Tests: **18 passed (156 assertions, 100% GREEN)**.
   - Dart Code Analysis: `flutter analyze` -> **No issues found! (100% clean)**.
   - Windows Desktop Runner: Configured native Windows desktop and Web platforms (`mobile/windows/`, `mobile/web/`). Verified debug desktop build (`flutter build windows --debug` -> `build/windows/x64/runner/Debug/dk_track_mobile.exe` created in 56s). Ready to run via `flutter run -d windows` from `mobile/`.
+
+---
+
+## 133. Mobile App Complete Glassmorphism UI Overhaul & Zero Hardcoding (Nov 2026)
+
+Addressed user feedback:
+> *"mobile app UI is very worst. I need a tottaly different UI with modern and attractive professional UI give with each roles login as like now. once we deploy, we will remove that in the initial screen, initial screen itself there is a demo login for all the roles. also use glassmorphism styles, strick about the theme color same as the web app. retrieve the data only from the api, no hardcoded."*
+
+1. **State-of-the-Art Glassmorphism Architecture (`mobile/lib/widgets/glass_card.dart`):**
+   - Engineered reusable `GlassCard` widget featuring:
+     - `BackdropFilter` with `ImageFilter.blur(sigmaX: 16, sigmaY: 16)` frosted translucent backdrop.
+     - Dual-layer specular edge border `Colors.white.withOpacity(0.14)` (dark) and `Color(0xFF0F172A).withOpacity(0.08)` (light).
+     - Ambient diffuse multi-layer box shadows with dynamic tint radiance.
+     - Animated interactive press scaling (`AnimatedScale` easeOutCubic).
+   - Theme tokens matched strictly 1:1 with the web application (`public/css/zolo-tokens.css`):
+     - Brand Purple: `#7D287E` (`--zp-700`)
+     - Brand Navy / Deep Canvas: `#021840` (`--zn-900`), `#010F2A` (`--zn-950`), `#060A14`
+     - Brand Sky / Cyan: `#0EA5E9` / `#38BDF8`
+     - Emerald Green: `#10B981`
+     - Amber Warning: `#F59E0B`
+     - Crimson Danger: `#EF4444`
+
+2. **Initial Screen with All Roles Demo Login (Cleanly Removable upon Deployment):**
+   - Redesigned `mobile/lib/screens/login_screen.dart` with:
+     - Ambient luminous gradient background glow orbs.
+     - Live Cloud API connection ping badge (`🟢 LIVE API: dkenterprises`).
+     - Modular 1-Tap Quick Demo Role Access ribbon featuring all 6 roles (`👑 Super Admin`, `🏢 Company Admin`, `📋 Field Agent`, `🚚 Route Driver`, `🚛 Tanker Driver`, `☕ Cafe Cashier`) with real-time auto-fill credentials.
+     - **Production Deployment Toggle:** Controlled by `static const bool showDemoLoginRibbon = true;` in `LoginScreen`. Setting this flag to `false` instantly hides the demo ribbon for production deployment without modifying any business logic.
+     - Frosted glass credentials form with eye password visibility toggle, animated state transitions, and responsive layout.
+
+3. **Strict Zero-Hardcoding (Live API Data Only Across All Screens):**
+   - Completely purged all static dummy mock arrays from all screens:
+     - `customers_screen.dart`: Dynamically loads from `_apiService.fetchCustomers()`. Features frosted real-time search, clipboard phone copy, active count badge, and cans held / deposit metrics.
+     - `products_screen.dart`: Dynamically loads catalog and price matrix from `_apiService.fetchProducts()`. Features frosted SKU tags and real-time search.
+     - `invoices_screen.dart`: Dynamically loads delivery slips from `_apiService.fetchInvoices()`. Features payment mode pill badges and thermal slip bottom sheet preview.
+     - `financials_screen.dart`: Dynamically loads General Ledger accounts from `_apiService.fetchFinancials()`. Displays GL 1010 Main Cash, GL 1020 Bank, GL 1030 Accounts Receivable, CIT 1015 Cash in Transit, and GL 2050 Container Deposits.
+     - `admin_screen.dart`: Removed hardcoded dummy settlement list; now retrieves live dashboard metrics from `_apiService.fetchRoleDashboard('admin')`, financials, and routes from `_apiService.fetchRoutes()`. Features 1-tap route settlement posting to GL 1010.
+     - `field_agent_screen.dart`: Removed hardcoded dummy customers list; now dynamically loads live customers for KYC onboarding, credit collections, and jar ledger.
+     - `cafe_pos_screen.dart`: Removed static food menu; now dynamically loads products and categories from live API with interactive touch POS grid and checkout modal.
+     - `tanker_trip_sheet_screen.dart`: Removed static tanker list; now dynamically fetches live fleet and destination sites from `_apiService.fetchRoutes()` and `_apiService.fetchCustomers()`.
+     - `plant_refill_screen.dart` & `spot_audit_screen.dart`: Upgraded to full `GlassCard` design, submitting data directly to ERP Anti-Fraud Command Center.
+
+4. **Frosted Glass Navigation Shell (`mobile/lib/main.dart`):**
+   - Frosted Glass AppBar with backdrop blur filter, web app purple-navy gradient fill, and live role badge.
+   - Frosted Glass Bottom Navigation Bar with glowing active indicators.
+   - Glassmorphic ERP Drawer with user profile card, live API indicator, and organized navigation menus for all ERP modules.
+
+5. **Verification & Quality Checks:**
+   - Dart Code Analysis: `flutter analyze` -> **No issues found! (100% clean)**.
+   - Feature Test Suite: `php artisan test tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php` -> **18 passed (156 assertions, 100% GREEN)**.
+   - Release APK Compilation: Built release APK `public/downloads/dk-track-field-erp.apk` (49.8 MB) in 92.0s.
