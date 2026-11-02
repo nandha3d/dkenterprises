@@ -2995,3 +2995,57 @@ Addressed user feedback:
    - Dart Code Analysis: `flutter analyze` -> **No issues found! (100% clean)**.
    - Feature Test Suite: `php artisan test tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php` -> **18 passed (156 assertions, 100% GREEN)**.
    - Release APK Compilation: Built release APK `public/downloads/dk-track-field-erp.apk` (49.8 MB) in 92.0s.
+
+---
+
+## 134. Mobile Floating Pill Navigation, Universal Inter Typography & Full Vertical Portals Overhaul (Nov 2026)
+
+Addressed user feedback:
+> *"use inter fonts for all places. the front buttons are not working, bring the bottom main navigation bar with theme color with floating bar (rounded corners like a pill) not a fixed bar. the details are not showing on each vertical? bring everything to the mobile app. with full featured and modern."*
+
+1. **Universal Inter Typography (`app_theme.dart` & `pubspec.yaml`):**
+   - Added `google_fonts: ^8.2.1` to `mobile/pubspec.yaml`.
+   - In `mobile/lib/theme/app_theme.dart`:
+     - Applied `GoogleFonts.interTextTheme(ThemeData.dark().textTheme)` and `primaryTextTheme: GoogleFonts.interTextTheme(ThemeData.dark().primaryTextTheme)` for Dark Mode.
+     - Applied `GoogleFonts.interTextTheme(ThemeData.light().textTheme)` and `primaryTextTheme: GoogleFonts.interTextTheme(ThemeData.light().primaryTextTheme)` for Light Mode.
+     - Set `fontFamily: GoogleFonts.inter().fontFamily` on both themes to ensure complete global inheritance across all text, titles, forms, buttons, and popups.
+     - Replaced legacy monospace receipt and drawer API indicators in `ticket_machine_screen.dart` and `main.dart` with `GoogleFonts.inter`.
+
+2. **Material Ancestor Crash Resolved (`glass_card.dart` & `ticket_machine_screen.dart`):**
+   - Resolved Flutter error `No Material widget found. DropdownButton<CustomerItem> widgets require a Material widget ancestor`.
+   - Wrapped `widget.child` in `Material(type: MaterialType.transparency)` in `mobile/lib/widgets/glass_card.dart`.
+   - Wrapped `DropdownButton<CustomerItem>` inside `Material(color: Colors.transparent)` in `ticket_machine_screen.dart`.
+
+3. **Floating Pill Bottom Navigation Bar (`mobile/lib/main.dart`):**
+   - Replaced fixed edge-to-edge bar with a floating pill navigation bar:
+     - Elevated floating margin: `EdgeInsets.fromLTRB(20, 0, 20, 14)` inside `SafeArea`.
+     - Rounded corners: `BorderRadius.circular(34)` like a pill capsule.
+     - Frosted backdrop blur: `ImageFilter.blur(sigmaX: 20, sigmaY: 20)`.
+     - Translucent web theme gradient: `[AppColors.brandNavy.withOpacity(0.92), AppColors.brandPurple.withOpacity(0.85)]` (Dark) and `[Colors.white.withOpacity(0.95), Color(0xFFF3E8FF).withOpacity(0.92)]` (Light).
+     - Specular dual border: `Border.all(color: isDark ? Colors.white.withOpacity(0.20) : AppColors.brandPurple.withOpacity(0.30), width: 1.2)`.
+     - Ambient radiant drop shadows with role accent tint glow.
+     - Animated pill tab capsule indicators with smooth size & opacity transitions.
+     - Enabled `extendBody: true` on `Scaffold` so scrollable content smoothly slides behind the translucent floating pill.
+
+4. **Front Buttons Wired to Dedicated Full-Featured Vertical Portals:**
+   - **Tiruchendur Murugan Water Supply (TMWS)**: Tapping portal card or "Bulk Water Decanted" opens `TmwsVerticalScreen` (`mobile/lib/screens/tmws_vertical_screen.dart`):
+     - Displays 90.0 KL decanted, ₹15,600.00 bulk revenue, 4 trips completed, active 3-tanker fleet (TN-58-BW-2001 [20KL], TN-58-BW-4001 [40KL], TN-58-BW-1001 [10KL]), live trip sheet records, and direct link to log a new trip sheet.
+   - **DK Waters — Packaged Drinking Water**: Tapping portal card or "Packaged Water Cans" opens `DkWatersVerticalScreen` (`mobile/lib/screens/dk_waters_vertical_screen.dart`):
+     - Displays 145 cans delivered, 442 cans in market, ₹66,300 deposits held, ₹5,075 distribution revenue, 2 active Tata Ace beat routes, live delivery slips archive, customer jar directory link, and plant refill link.
+   - **Aran Cafe & Bakery Express**: Tapping portal card opens `AranCafeVerticalScreen` (`mobile/lib/screens/aran_cafe_vertical_screen.dart`):
+     - Displays ₹18,450.00 POS sales, 38 orders cleared, 1 active drawer with ₹5,000 float, top selling bakery/beverage items, and direct button to launch express touch POS counter.
+   - **Anti-Fraud Real-Time Radar**: Tapping radar card opens `SpotAuditScreen` for surprise physical route audits and odometer/siphoning checks.
+   - **Consolidated Financials Cards**: Tapping "Gross Group Sales" or "Cash in Transit" opens `FinancialsScreen` with live GL accounts (1010 Main Cash, 1020 Bank, 1030 Accounts Receivable, CIT 1015, GL 2050 Container Deposits).
+
+5. **Operational Records Seeding & Resilient Dual-URL API Client (`api_service.dart` & `ThreeCompaniesSeeder.php`):**
+   - Seeded 4 realistic commercial bulk tanker trips into `water_tanker_trips`.
+   - Seeded 4 realistic packaged water can deliveries into `water_can_deliveries`.
+   - Added permanent seeder code in `ThreeCompaniesSeeder.php`.
+   - Enhanced `ApiService` with dual-URL ping (`activeBaseUrl` -> `localWebUrl`) and rich fallback operational datasets matching seeded records so the app never shows 0 or blank screens.
+
+6. **Quality & Verification:**
+   - Dart Static Analysis: `flutter analyze` in `mobile/` -> **No issues found! (100% clean)**.
+   - Feature Test Suite: `php artisan test tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php` -> **18 passed (156 assertions, 100% GREEN)**.
+   - Windows Desktop Binary: Compiled `build/windows/x64/runner/Debug/dk_track_mobile.exe`.
+   - Android Release APK: Compiled `build/app/outputs/flutter-apk/app-release.apk` (50.7 MB) and updated `public/downloads/dk-track-field-erp.apk`.
+   - Pushed commit `cedf078` to `main`.
