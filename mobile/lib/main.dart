@@ -5,7 +5,6 @@ import 'services/api_service.dart';
 import 'theme/app_theme.dart';
 import 'screens/login_screen.dart';
 import 'screens/super_admin_screen.dart';
-import 'screens/admin_screen.dart';
 import 'screens/field_agent_screen.dart';
 import 'screens/ticket_machine_screen.dart';
 import 'screens/plant_refill_screen.dart';
@@ -21,6 +20,7 @@ import 'screens/tmws_vertical_screen.dart';
 import 'screens/dk_waters_vertical_screen.dart';
 import 'screens/aran_cafe_vertical_screen.dart';
 import 'screens/financials_screen.dart';
+import 'screens/fleet_gps_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +35,7 @@ class DKTrackApp extends StatefulWidget {
 }
 
 class _DKTrackAppState extends State<DKTrackApp> {
-  bool _isTamil = true; // Default Tamil for field ground operators
+  bool _isTamil = false; // Default English as requested by user
   bool _isDarkMode = true; // Sleek modern dark mode matching web app
   bool _isLoggedIn = false; // Starts at Login Screen for demo role access & authentication
   CompanyVertical _activeVertical = CompanyVertical.dkWaters;
@@ -157,9 +157,41 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   @override
   void didUpdateWidget(covariant MainNavigationShell oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.activeVertical != widget.activeVertical || oldWidget.activeRole != widget.activeRole) {
+    if (oldWidget.activeVertical != widget.activeVertical) {
+      if (widget.activeRole == UserRole.superAdmin || widget.activeRole == UserRole.admin) {
+        if (widget.activeVertical == CompanyVertical.tmws) {
+          _currentIndex = 1;
+        } else if (widget.activeVertical == CompanyVertical.dkWaters) {
+          _currentIndex = 2;
+        } else if (widget.activeVertical == CompanyVertical.aranCafe) {
+          _currentIndex = 3;
+        }
+      } else {
+        _currentIndex = 0;
+      }
+    } else if (oldWidget.activeRole != widget.activeRole) {
       _currentIndex = 0;
     }
+  }
+
+  Color _getNavTabColor(int index, UserRole role) {
+    if (role == UserRole.superAdmin || role == UserRole.admin) {
+      switch (index) {
+        case 0:
+          return AppColors.brandPurple;
+        case 1:
+          return AppColors.roleTankerDriver;
+        case 2:
+          return AppColors.brandSky;
+        case 3:
+          return AppColors.roleCashier;
+        case 4:
+          return AppColors.brandEmerald;
+        default:
+          return role.color;
+      }
+    }
+    return role.color;
   }
 
   void _openRoleSelector() {
@@ -261,35 +293,34 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
 
     switch (r) {
       case UserRole.superAdmin:
-        screens = [
-          SuperAdminScreen(isTamil: t, onSelectVertical: widget.onSelectVertical),
-          SpotAuditScreen(isTamil: t),
-        ];
-        navItems = [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.admin_panel_settings),
-            label: t ? 'குரூப் மேற்பார்வை' : 'Group Command',
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.verified_user),
-            label: t ? 'மோசடி தணிக்கை' : 'Audit Radar',
-          ),
-        ];
-        break;
-
       case UserRole.admin:
         screens = [
-          AdminScreen(isTamil: t, vertical: v),
-          SpotAuditScreen(isTamil: t),
+          SuperAdminScreen(isTamil: t, onSelectVertical: widget.onSelectVertical),
+          TmwsVerticalScreen(isTamil: t),
+          DkWatersVerticalScreen(isTamil: t),
+          AranCafeVerticalScreen(isTamil: t),
+          FleetGpsScreen(isTamil: t),
         ];
         navItems = [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.business_center),
-            label: t ? 'நிறுவன அட்மின்' : 'Operations',
+            icon: const Icon(Icons.dashboard_rounded),
+            label: t ? 'கட்டளை' : 'Command',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.verified_user),
-            label: t ? 'ஸ்பாட் ஆய்வு' : 'Spot Audit',
+            icon: const Icon(Icons.fire_truck_rounded),
+            label: t ? 'TMWS பல்க்' : 'TMWS Tanker',
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.water_drop_rounded),
+            label: t ? 'DK குடிநீர்' : 'DK Waters',
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.local_cafe_rounded),
+            label: t ? 'அரண் கஃபே' : 'Aran Cafe',
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.radar_rounded),
+            label: t ? 'லைவ் GPS' : 'Live GPS',
           ),
         ];
         break;
@@ -297,15 +328,25 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       case UserRole.fieldAgent:
         screens = [
           FieldAgentScreen(isTamil: t, vertical: v),
+          CustomersScreen(isTamil: t),
+          FleetGpsScreen(isTamil: t, initialMode: FleetViewMode.packagedWater),
           SpotAuditScreen(isTamil: t),
         ];
         navItems = [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.assignment_ind),
+            icon: const Icon(Icons.assignment_ind_rounded),
             label: t ? 'வசூல் & KYC' : 'Field Sales',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.inventory_2),
+            icon: const Icon(Icons.people_alt_rounded),
+            label: t ? 'வாடிக்கையாளர்' : 'Customers',
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.radar_rounded),
+            label: t ? 'பீட் GPS' : 'Beat GPS',
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.inventory_2_rounded),
             label: t ? 'நேரடி தணிக்கை' : 'Jar Audit',
           ),
         ];
@@ -315,19 +356,24 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         screens = [
           TicketMachineScreen(isTamil: t),
           PlantRefillScreen(isTamil: t),
+          FleetGpsScreen(isTamil: t, initialMode: FleetViewMode.packagedWater),
           SpotAuditScreen(isTamil: t),
         ];
         navItems = [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.water_drop),
+            icon: const Icon(Icons.water_drop_rounded),
             label: t ? 'குடிநீர் டிக்கெட்' : 'Delivery Ticket',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.factory),
+            icon: const Icon(Icons.factory_rounded),
             label: t ? 'ஆலை லோடிங்' : 'Plant Refill',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.verified_user),
+            icon: const Icon(Icons.radar_rounded),
+            label: t ? 'பீட் GPS' : 'Beat GPS',
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.verified_user_rounded),
             label: t ? 'கேன் ஆய்வு' : 'Empty Audit',
           ),
         ];
@@ -336,16 +382,26 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       case UserRole.tankerDriver:
         screens = [
           TankerTripSheetScreen(isTamil: t),
+          TmwsVerticalScreen(isTamil: t),
+          FleetGpsScreen(isTamil: t, initialMode: FleetViewMode.tankers),
           SpotAuditScreen(isTamil: t),
         ];
         navItems = [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.fire_truck),
+            icon: const Icon(Icons.fire_truck_rounded),
             label: t ? 'டேங்கர் ட்ரிப்' : 'Tanker Trips',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.verified_user),
-            label: t ? 'ஸ்பாட் தணிக்கை' : 'Spot Audit',
+            icon: const Icon(Icons.local_shipping_rounded),
+            label: t ? 'TMWS மையம்' : 'TMWS Bulk',
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.radar_rounded),
+            label: t ? 'டேங்கர் GPS' : 'Tanker GPS',
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.verified_user_rounded),
+            label: t ? 'ஸ்பாட் ஆய்வு' : 'Spot Audit',
           ),
         ];
         break;
@@ -353,15 +409,20 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       case UserRole.cashier:
         screens = [
           CafePosScreen(isTamil: t),
+          AranCafeVerticalScreen(isTamil: t),
           SpotAuditScreen(isTamil: t),
         ];
         navItems = [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.point_of_sale),
+            icon: const Icon(Icons.point_of_sale_rounded),
             label: t ? 'விரைவு பில்லிங்' : 'Touch POS',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.verified_user),
+            icon: const Icon(Icons.local_cafe_rounded),
+            label: t ? 'அரண் கஃபே' : 'Aran Cafe',
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.verified_user_rounded),
             label: t ? 'டிராயர் தணிக்கை' : 'Cash Audit',
           ),
         ];
@@ -675,7 +736,14 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               title: 'TMWS Bulk Logistics',
               badge: 'Bulk Tankers',
               badgeColor: AppColors.roleTankerDriver,
-              onTap: () => _navigateToScreen(TmwsVerticalScreen(isTamil: t)),
+              onTap: () {
+                Navigator.pop(context);
+                if (r == UserRole.superAdmin || r == UserRole.admin) {
+                  setState(() => _currentIndex = 1);
+                } else {
+                  _navigateToScreen(TmwsVerticalScreen(isTamil: t));
+                }
+              },
             ),
             _buildDrawerMenuItem(
               icon: Icons.water_drop,
@@ -683,7 +751,14 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               title: 'DK Waters Distribution',
               badge: '20L Jars',
               badgeColor: AppColors.roleDeliveryDriver,
-              onTap: () => _navigateToScreen(DkWatersVerticalScreen(isTamil: t)),
+              onTap: () {
+                Navigator.pop(context);
+                if (r == UserRole.superAdmin || r == UserRole.admin) {
+                  setState(() => _currentIndex = 2);
+                } else {
+                  _navigateToScreen(DkWatersVerticalScreen(isTamil: t));
+                }
+              },
             ),
             _buildDrawerMenuItem(
               icon: Icons.local_cafe,
@@ -691,7 +766,29 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               title: 'Aran Cafe & Bakery Express',
               badge: 'Cafe & POS',
               badgeColor: AppColors.roleCashier,
-              onTap: () => _navigateToScreen(AranCafeVerticalScreen(isTamil: t)),
+              onTap: () {
+                Navigator.pop(context);
+                if (r == UserRole.superAdmin || r == UserRole.admin) {
+                  setState(() => _currentIndex = 3);
+                } else {
+                  _navigateToScreen(AranCafeVerticalScreen(isTamil: t));
+                }
+              },
+            ),
+            _buildDrawerMenuItem(
+              icon: Icons.share_location,
+              iconColor: AppColors.brandEmerald,
+              title: t ? 'நேரடி GPS கப்பற்படை ரேடார்' : 'Live Fleet GPS Radar',
+              badge: 'Live Radar',
+              badgeColor: AppColors.brandEmerald,
+              onTap: () {
+                Navigator.pop(context);
+                if (r == UserRole.superAdmin || r == UserRole.admin) {
+                  setState(() => _currentIndex = 4);
+                } else {
+                  _navigateToScreen(FleetGpsScreen(isTamil: t));
+                }
+              },
             ),
 
             Divider(color: AppColors.border(context), height: 16),
@@ -757,14 +854,14 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       // Modern Floating Pill Navigation Bar
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+          padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(34),
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
               child: Container(
                 height: 64,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: isDark
@@ -803,6 +900,8 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                   children: List.generate(navItems.length, (index) {
                     final item = navItems[index];
                     final isSelected = (_currentIndex < navItems.length ? _currentIndex : 0) == index;
+                    final tabColor = _getNavTabColor(index, r);
+
                     return InkWell(
                       onTap: () => setState(() => _currentIndex = index),
                       borderRadius: BorderRadius.circular(24),
@@ -810,18 +909,18 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                         duration: const Duration(milliseconds: 250),
                         curve: Curves.easeOutCubic,
                         padding: EdgeInsets.symmetric(
-                          horizontal: isSelected ? 16 : 12,
-                          vertical: 8,
+                          horizontal: isSelected ? 12 : 8,
+                          vertical: 7,
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? (isDark ? Colors.white.withOpacity(0.18) : r.color.withOpacity(0.15))
+                              ? (isDark ? tabColor.withOpacity(0.28) : tabColor.withOpacity(0.18))
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(24),
                           border: isSelected
                               ? Border.all(
-                                  color: isDark ? Colors.white.withOpacity(0.3) : r.color.withOpacity(0.35),
-                                  width: 1,
+                                  color: isDark ? tabColor.withOpacity(0.65) : tabColor.withOpacity(0.45),
+                                  width: 1.2,
                                 )
                               : null,
                         ),
@@ -831,19 +930,19 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                             Icon(
                               (item.icon as Icon).icon,
                               color: isSelected
-                                  ? (isDark ? Colors.white : r.color)
+                                  ? (isDark ? Colors.white : tabColor)
                                   : (isDark ? Colors.white60 : AppColors.textDim(context)),
-                              size: 20,
+                              size: isSelected ? 19 : 21,
                             ),
                             if (isSelected && item.label != null) ...[
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 5),
                               Text(
                                 item.label!,
                                 style: GoogleFonts.inter(
-                                  color: isDark ? Colors.white : r.color,
+                                  color: isDark ? Colors.white : tabColor,
                                   fontWeight: FontWeight.w800,
-                                  fontSize: 12,
-                                  letterSpacing: 0.2,
+                                  fontSize: 11,
+                                  letterSpacing: 0.1,
                                 ),
                               ),
                             ],

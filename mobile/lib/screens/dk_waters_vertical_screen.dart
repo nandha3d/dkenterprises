@@ -7,6 +7,7 @@ import 'ticket_machine_screen.dart';
 import 'plant_refill_screen.dart';
 import 'customers_screen.dart';
 import 'invoices_screen.dart';
+import 'fleet_gps_screen.dart';
 
 class DkWatersVerticalScreen extends StatefulWidget {
   final bool isTamil;
@@ -80,7 +81,7 @@ class _DkWatersVerticalScreenState extends State<DkWatersVerticalScreen> {
               onRefresh: _loadData,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 110),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -219,6 +220,85 @@ class _DkWatersVerticalScreenState extends State<DkWatersVerticalScreen> {
                     ),
                     const SizedBox(height: 16),
 
+                    // LIVE GPS TATA ACE BEAT DELIVERY RADAR CARD
+                    GlassCard(
+                      padding: const EdgeInsets.all(16),
+                      borderRadius: 18,
+                      tintColor: AppColors.brandSky,
+                      borderColor: AppColors.brandSky.withOpacity(0.4),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.brandSky.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(Icons.share_location, color: AppColors.brandSky, size: 18),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    t ? 'நேரடி GPS பீட் டெலிவரி ரேடார்' : 'Live Tata Ace Beat GPS Delivery',
+                                    style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.text(context)),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: AppColors.brandEmerald.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  '2 BEATS ACTIVE',
+                                  style: GoogleFonts.inter(color: AppColors.brandEmerald, fontSize: 9, fontWeight: FontWeight.w900),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            t
+                                ? '• TN-58-WA-101 (பீட் 1: 12/18 நிறுத்தங்கள் முடிந்தது · கிரீன் கார்டன் ஹோட்டல்)\n• TN-58-WA-102 (பீட் 2: 17/22 நிறுத்தங்கள் முடிந்தது · டெக்ச்வேலி டெக் ஹப்)'
+                                : '• TN-58-WA-101 (Beat 1: 12/18 Stops Done · Green Garden Hotel Next)\n• TN-58-WA-102 (Beat 2: 17/22 Stops Done · Texvalley Tech Hub Drop-off)',
+                            style: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted(context), height: 1.45),
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              icon: const Icon(Icons.radar, size: 16),
+                              label: Text(
+                                t ? 'ரூட் பீட் GPS வரைபடத்தை திறக்க' : 'Open Delivery Beat GPS Radar',
+                                style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 12),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.brandSky,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 11),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (ctx) => FleetGpsScreen(isTamil: t, initialMode: FleetViewMode.packagedWater),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
                     // Action Buttons Row
                     Row(
                       children: [
@@ -237,10 +317,7 @@ class _DkWatersVerticalScreenState extends State<DkWatersVerticalScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (ctx) => Scaffold(
-                                    appBar: AppBar(title: Text(t ? 'குடிநீர் டெலிவரி டிக்கெட்' : 'Delivery Ticket Machine')),
-                                    body: TicketMachineScreen(isTamil: t),
-                                  ),
+                                  builder: (ctx) => TicketMachineScreen(isTamil: t),
                                 ),
                               ).then((_) => _loadData());
                             },
@@ -261,10 +338,7 @@ class _DkWatersVerticalScreenState extends State<DkWatersVerticalScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (ctx) => Scaffold(
-                                    appBar: AppBar(title: Text(t ? 'ஆலை லோடிங் நுழைவு' : 'Plant Refill Intake')),
-                                    body: PlantRefillScreen(isTamil: t),
-                                  ),
+                                  builder: (ctx) => PlantRefillScreen(isTamil: t),
                                 ),
                               ).then((_) => _loadData());
                             },

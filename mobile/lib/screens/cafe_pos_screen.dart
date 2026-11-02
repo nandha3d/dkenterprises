@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/glass_card.dart';
@@ -118,8 +119,18 @@ class _CafePosScreenState extends State<CafePosScreen> {
     final t = widget.isTamil;
     final total = _getCartTotal();
 
+    final canPop = Navigator.canPop(context);
+
     return Scaffold(
       backgroundColor: AppColors.scaffold(context),
+      appBar: canPop
+          ? AppBar(
+              title: Text(
+                t ? 'அரண் கஃபே விரைவு பில்லிங்' : 'Aran Cafe Express Touch POS',
+                style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 16),
+              ),
+            )
+          : null,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppColors.brandPurple))
           : Column(

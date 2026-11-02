@@ -71,7 +71,7 @@ class _AranCafeVerticalScreenState extends State<AranCafeVerticalScreen> {
               onRefresh: _loadData,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 110),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -230,10 +230,7 @@ class _AranCafeVerticalScreenState extends State<AranCafeVerticalScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (ctx) => Scaffold(
-                                appBar: AppBar(title: Text(t ? 'விரைவு டச் POS' : 'Express Touch POS Counter')),
-                                body: CafePosScreen(isTamil: t),
-                              ),
+                              builder: (ctx) => CafePosScreen(isTamil: t),
                             ),
                           ).then((_) => _loadData());
                         },

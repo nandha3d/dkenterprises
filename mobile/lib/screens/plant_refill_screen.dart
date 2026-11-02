@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../models/models.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
@@ -30,7 +31,7 @@ class _PlantRefillScreenState extends State<PlantRefillScreen> {
   void _stepLoaded(int delta) {
     setState(() {
       final next = _cansLoaded + delta;
-      if (next >= 5) _cansLoaded = next;
+      if (next >= 1) _cansLoaded = next;
     });
   }
 
@@ -79,11 +80,20 @@ class _PlantRefillScreenState extends State<PlantRefillScreen> {
   Widget build(BuildContext context) {
     final t = widget.isTamil;
     final totalShiftCans = _loadsToday.fold<int>(0, (sum, item) => sum + (item['cans'] as int));
+    final canPop = Navigator.canPop(context);
 
     return Scaffold(
       backgroundColor: AppColors.scaffold(context),
+      appBar: canPop
+          ? AppBar(
+              title: Text(
+                t ? 'ஆலை கேன் லோடிங் & கேட் பாஸ்' : 'RO Plant Intake & Gate Pass',
+                style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 16),
+              ),
+            )
+          : null,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 110),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -148,29 +158,58 @@ class _PlantRefillScreenState extends State<PlantRefillScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.remove_circle, size: 36, color: AppColors.brandDanger),
-                        onPressed: () => _stepLoaded(-5),
+                        icon: const Icon(Icons.remove_circle, size: 38, color: AppColors.brandDanger),
+                        onPressed: () => _stepLoaded(-1),
+                        tooltip: '-1 Jar',
                       ),
                       const SizedBox(width: 20),
                       Text(
                         '$_cansLoaded',
                         style: const TextStyle(
-                          fontSize: 36,
+                          fontSize: 38,
                           fontWeight: FontWeight.w900,
                           color: AppColors.brandSky,
                         ),
                       ),
                       const SizedBox(width: 20),
                       IconButton(
-                        icon: const Icon(Icons.add_circle, size: 36, color: AppColors.brandEmerald),
-                        onPressed: () => _stepLoaded(5),
+                        icon: const Icon(Icons.add_circle, size: 38, color: AppColors.brandEmerald),
+                        onPressed: () => _stepLoaded(1),
+                        tooltip: '+1 Jar',
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
-                    t ? '20 லிட்டர் குடிநீர் கேன்கள்' : '20L Standard Jars',
+                    t ? '20 லிட்டர் கேன்கள் (1-ஆக அதிகரிக்கும்)' : '20L Standard Jars (Steps strictly by 1)',
                     style: TextStyle(fontSize: 11, color: AppColors.textDim(context)),
+                  ),
+                  const SizedBox(height: 12),
+                  // Quick Jump Chips for Batch Loading
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      ActionChip(
+                        label: const Text('-10'),
+                        labelStyle: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold),
+                        onPressed: () => _stepLoaded(-10),
+                      ),
+                      ActionChip(
+                        label: const Text('-5'),
+                        labelStyle: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold),
+                        onPressed: () => _stepLoaded(-5),
+                      ),
+                      ActionChip(
+                        label: const Text('+5'),
+                        labelStyle: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.brandEmerald),
+                        onPressed: () => _stepLoaded(5),
+                      ),
+                      ActionChip(
+                        label: const Text('+10'),
+                        labelStyle: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.brandEmerald),
+                        onPressed: () => _stepLoaded(10),
+                      ),
+                    ],
                   ),
                 ],
               ),

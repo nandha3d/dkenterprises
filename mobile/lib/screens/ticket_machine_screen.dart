@@ -89,9 +89,6 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
       final next = _deliveredQty + delta;
       if (next >= 1) {
         _deliveredQty = next;
-        if (_emptyReturnedQty == _deliveredQty - delta && (_selectedPackage?.isJar ?? true)) {
-          _emptyReturnedQty = next;
-        }
       }
     });
   }
@@ -260,161 +257,184 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
   @override
   Widget build(BuildContext context) {
     final t = widget.isTamil;
+    final canPop = Navigator.canPop(context);
 
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Scaffold(
+        backgroundColor: AppColors.scaffold(context),
+        body: const Center(child: CircularProgressIndicator(color: AppColors.roleDeliveryDriver)),
+      );
     }
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Truck Stock Glass Card
-          GlassCard(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            borderRadius: 16,
-            tintColor: AppColors.roleDeliveryDriver,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.roleDeliveryDriver.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(10),
+    return Scaffold(
+      backgroundColor: AppColors.scaffold(context),
+      appBar: canPop
+          ? AppBar(
+              title: Text(
+                t ? 'குடிநீர் விநியோக டிக்கெட்' : 'Water Delivery Ticketing',
+                style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 16),
+              ),
+            )
+          : null,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 110),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Truck Stock Glass Card
+            GlassCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              borderRadius: 16,
+              tintColor: AppColors.roleDeliveryDriver,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.roleDeliveryDriver.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.local_shipping, color: AppColors.roleDeliveryDriver, size: 20),
                       ),
-                      child: const Icon(Icons.local_shipping, color: AppColors.roleDeliveryDriver, size: 20),
-                    ),
-                    const SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          t ? 'டாடா ஏஸ் லாரி இருப்பு' : 'Truck Stock (Tata Ace)',
-                          style: TextStyle(fontSize: 11, color: AppColors.textMuted(context), fontWeight: FontWeight.w600),
-                        ),
-                        Text(
-                          '$_truckStock Jars Loaded',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.text(context)),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.brandEmerald.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(6),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            t ? 'டாடா ஏஸ் லாரி இருப்பு' : 'Truck Stock (Tata Ace)',
+                            style: TextStyle(fontSize: 11, color: AppColors.textMuted(context), fontWeight: FontWeight.w600),
+                          ),
+                          Text(
+                            '$_truckStock Jars Loaded',
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.text(context)),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  child: const Text('LIVE ROUTE', style: TextStyle(color: AppColors.brandEmerald, fontSize: 10, fontWeight: FontWeight.bold)),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Customer Selection Glass Card
-          GlassCard(
-            padding: const EdgeInsets.all(16),
-            borderRadius: 18,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      t ? 'வாடிக்கையாளர் (பீட் ரூட்)' : 'Customer (Beat Route)',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.text(context)),
-                    ),
-                    Text(
-                      '${_customers.length} On Route',
-                      style: TextStyle(fontSize: 10, color: AppColors.textDim(context)),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Material(
-                  color: Colors.transparent,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.isDark(context) ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.border(context)),
+                      color: AppColors.brandEmerald.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(6),
                     ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<CustomerItem>(
-                        isExpanded: true,
-                        value: _selectedCustomer,
-                        dropdownColor: AppColors.card(context),
-                        items: _customers.map((c) {
-                          return DropdownMenuItem(
-                            value: c,
-                            child: Text(
-                              '${c.name} (${c.emptyHeld} Cans)',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.text(context)),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (val) {
-                          if (val != null) setState(() => _selectedCustomer = val);
-                        },
+                    child: const Text('LIVE ROUTE', style: TextStyle(color: AppColors.brandEmerald, fontSize: 10, fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Customer Selection Glass Card
+            GlassCard(
+              padding: const EdgeInsets.all(16),
+              borderRadius: 18,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        t ? 'வாடிக்கையாளர் (பீட் ரூட்)' : 'Customer (Beat Route)',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.text(context)),
+                      ),
+                      Text(
+                        '${_customers.length} On Route',
+                        style: TextStyle(fontSize: 10, color: AppColors.textDim(context)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Material(
+                    color: Colors.transparent,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.card(context),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.border(context)),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<CustomerItem>(
+                          isExpanded: true,
+                          value: _selectedCustomer,
+                          dropdownColor: AppColors.card(context),
+                          items: _customers.map((c) {
+                            return DropdownMenuItem(
+                              value: c,
+                              child: Text(
+                                '${c.name} (${c.emptyHeld} Cans)',
+                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.text(context)),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (val) {
+                            if (val != null) setState(() => _selectedCustomer = val);
+                          },
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
 
-          const SizedBox(height: 14),
+            const SizedBox(height: 14),
 
-          // Package Selection Glass Card
-          GlassCard(
-            padding: const EdgeInsets.all(16),
-            borderRadius: 18,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  t ? 'குடிநீர் தயாரிப்பு (பேக்கேஜ்)' : 'Package Product',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.text(context)),
-                ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _packages.map((pkg) {
-                    final isSel = _selectedPackage?.code == pkg.code;
-                    return GlassCard(
-                      isInteractive: true,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      borderRadius: 12,
-                      tintColor: isSel ? AppColors.roleDeliveryDriver : null,
-                      borderColor: isSel ? AppColors.roleDeliveryDriver : null,
-                      onTap: () => setState(() => _selectedPackage = pkg),
-                      child: Text(
-                        '${pkg.name(t)} · ₹${pkg.unitPrice.toStringAsFixed(0)}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
-                          color: isSel ? AppColors.roleDeliveryDriver : AppColors.text(context),
+            // Package Selection Glass Card
+            GlassCard(
+              padding: const EdgeInsets.all(16),
+              borderRadius: 18,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    t ? 'குடிநீர் தயாரிப்பு (பேக்கேஜ்)' : 'Package Product',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.text(context)),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _packages.map((pkg) {
+                      final isSel = _selectedPackage?.code == pkg.code;
+                      return InkWell(
+                        onTap: () => setState(() => _selectedPackage = pkg),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isSel
+                                ? AppColors.roleDeliveryDriver.withOpacity(0.18)
+                                : AppColors.card(context),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSel ? AppColors.roleDeliveryDriver : AppColors.border(context),
+                              width: isSel ? 1.5 : 1.0,
+                            ),
+                          ),
+                          child: Text(
+                            '${pkg.name(t)} · ₹${pkg.unitPrice.toStringAsFixed(0)}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
+                              color: isSel ? AppColors.roleDeliveryDriver : AppColors.text(context),
+                            ),
+                          ),
                         ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
             ),
-          ),
 
           const SizedBox(height: 14),
 
@@ -560,8 +580,9 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
           const SizedBox(height: 20),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildPayPill(String mode, String label, IconData icon, Color color) {
     final isSel = _paymentMode == mode;

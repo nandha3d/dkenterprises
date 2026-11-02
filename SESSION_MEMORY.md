@@ -3049,3 +3049,50 @@ Addressed user feedback:
    - Windows Desktop Binary: Compiled `build/windows/x64/runner/Debug/dk_track_mobile.exe`.
    - Android Release APK: Compiled `build/app/outputs/flutter-apk/app-release.apk` (50.7 MB) and updated `public/downloads/dk-track-field-erp.apk`.
    - Pushed commit `cedf078` to `main`.
+
+---
+
+## 135. Universal 5-Tab Verticals Pill Nav Bar, Live Fleet GPS Radar, Strict Jar Increment & Universal Theme Harmonization (Nov 2026)
+
+Addressed user feedback:
+> *"in most of the places, dark theme and light themes are messed up. english default. why the jar numbers are not increament by one? the theme is not applied everywhere, also the UI is not properly aligned and padding not given for each elements. where is the live gps tracking pages for each (tanker and the packaged drinking). in this nav bar, use the verticals icon. so that we can access all the verticals through the nav bar itself. dashboard full of informations and reports and gps tracking for each one"*
+
+1. **Direct Access to All Enterprise Verticals via Floating Pill Nav Bar (`mobile/lib/main.dart`):**
+   - Transformed the floating pill navigation bar into a 5-tab multi-vertical control center for `superAdmin` and `admin` roles:
+     * 📊 **Command**: Consolidated Executive Dashboard (`Icons.dashboard_rounded`, Brand Purple `#7D287E`)
+     * 🚛 **TMWS Tanker**: Bulk Water Logistics & Decanting Hub (`Icons.fire_truck_rounded`, Royal Blue `#2563EB`)
+     * 💧 **DK Waters**: Packaged Drinking Water & Beat Logistics (`Icons.water_drop_rounded`, Sky Blue `#0284C7`)
+     * ☕ **Aran Cafe**: F&B POS, Drawer & Kitchen Management (`Icons.local_cafe_rounded`, Amber `#D97706`)
+     * 🛰️ **Live GPS**: Universal Fleet Radar & Live Vehicle Telemetry (`Icons.radar_rounded`, Emerald Green `#059669`)
+   - Implemented dynamic tab color highlighting per vertical.
+   - Synchronized `didUpdateWidget` and ERP Drawer to automatically jump to the corresponding tab when selected.
+   - Default language set to English (`_isTamil = false;`).
+
+2. **Universal Live Fleet GPS Radar Screen (`mobile/lib/screens/fleet_gps_screen.dart`):**
+   - Developed high-performance interactive radar canvas (`RadarMapPainter`):
+     * Animated sweeping radar scanner (`AnimationController` with continuous rotation).
+     * Concentric 30 km range rings, cardinal axes, origin landmark (`Borewell Hub`), and destination landmarks (`Texvalley Mall`, `Chennai Silks`).
+     * Real-time interactive vehicle blips with heading vectors, speed labels, and selection indicators.
+   - Mode Toggle between:
+     * **TMWS Bulk Tankers** (3 active vehicles: `TN-58-BW-2001` [20 KL], `TN-58-BW-4001` [40 KL], `TN-58-BW-1001` [10 KL]).
+     * **DK Waters Packaged Water** (2 Tata Ace delivery vehicles: `TN-58-WA-101`, `TN-58-WA-102`).
+   - Comprehensive telemetry instrument cards:
+     * Speed km/h, coordinates (`lat/lng`), bearing heading.
+     * Decanting flow sensor (`420 L/min`), anti-siphoning valve status, battery voltage, fuel level.
+     * Beat route progress timeline with completed, active, and pending delivery waypoints.
+   - Direct 1-tap launchers embedded in `tmws_vertical_screen.dart` and `dk_waters_vertical_screen.dart`.
+
+3. **Strict Jar Increment by 1:**
+   - `mobile/lib/screens/plant_refill_screen.dart`: Changed `_stepLoaded(delta)` from stepping by 5 to strictly +/- 1 (`min: 1`). Added optional batch jump chips (-10, -5, +5, +10).
+   - `mobile/lib/screens/ticket_machine_screen.dart`: Removed auto-mutation of `_emptyReturnedQty` when stepping delivered cans. Both now increment strictly by 1 independently.
+
+4. **Universal Dark/Light Theme Harmonization, Padding & Alignment:**
+   - Wrapped standalone screens (`ticket_machine_screen.dart`, `plant_refill_screen.dart`, `tanker_trip_sheet_screen.dart`, `spot_audit_screen.dart`, `cafe_pos_screen.dart`) with `Scaffold` and `AppBar` when `Navigator.canPop(context)` is true, eliminating transparent bleeding and missing back buttons.
+   - Replaced hardcoded translucent whites/blacks with dynamic theme tokens: `AppColors.card(context)`, `AppColors.border(context)`, and `AppColors.surface(context)`.
+   - Unified bottom padding (`EdgeInsets.fromLTRB(16, 12, 16, 110)`) across all scroll views so content is never occluded by the floating pill nav bar.
+
+5. **Verification & Quality Checks:**
+   - Dart Static Analysis: `flutter analyze` in `mobile/` -> **No issues found! (100% clean)**.
+   - Feature Test Suite: `php artisan test tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php` -> **18 passed (156 assertions, 100% GREEN)**.
+   - Windows Desktop Binary: Compiled `build/windows/x64/runner/Debug/dk_track_mobile.exe` in 20.4s.
+   - Android Release APK: Compiled `build/app/outputs/flutter-apk/app-release.apk`.

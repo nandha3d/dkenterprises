@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../models/models.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
@@ -80,11 +81,20 @@ class _SpotAuditScreenState extends State<SpotAuditScreen> {
     final unitDiff = observedUnits - _expectedUnits;
     final cashDiff = observedCash - _expectedCash;
     final isClean = (unitDiff == 0 && cashDiff == 0.0);
+    final canPop = Navigator.canPop(context);
 
     return Scaffold(
       backgroundColor: AppColors.scaffold(context),
+      appBar: canPop
+          ? AppBar(
+              title: Text(
+                t ? 'களத் தணிக்கை & மோசடி எதிர்ப்பு' : 'Spot Audit & Anti-Fraud',
+                style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 16),
+              ),
+            )
+          : null,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 110),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

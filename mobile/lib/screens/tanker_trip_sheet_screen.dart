@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../models/models.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
@@ -147,12 +148,22 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
     final t = widget.isTamil;
     final totalFare = _calculateTotalFare();
 
+    final canPop = Navigator.canPop(context);
+
     return Scaffold(
       backgroundColor: AppColors.scaffold(context),
+      appBar: canPop
+          ? AppBar(
+              title: Text(
+                t ? 'டேங்கர் ட்ரிப் ஷீட்' : 'Tanker Trip Sheet',
+                style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 16),
+              ),
+            )
+          : null,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppColors.brandPurple))
           : SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 110),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [

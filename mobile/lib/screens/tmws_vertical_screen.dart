@@ -5,6 +5,7 @@ import '../theme/app_theme.dart';
 import '../widgets/glass_card.dart';
 import 'tanker_trip_sheet_screen.dart';
 import 'spot_audit_screen.dart';
+import 'fleet_gps_screen.dart';
 
 class TmwsVerticalScreen extends StatefulWidget {
   final bool isTamil;
@@ -78,7 +79,7 @@ class _TmwsVerticalScreenState extends State<TmwsVerticalScreen> {
               onRefresh: _loadData,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 110),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -223,6 +224,85 @@ class _TmwsVerticalScreenState extends State<TmwsVerticalScreen> {
                     ),
                     const SizedBox(height: 16),
 
+                    // LIVE GPS TANKER TRACKING RADAR CARD
+                    GlassCard(
+                      padding: const EdgeInsets.all(16),
+                      borderRadius: 18,
+                      tintColor: AppColors.brandEmerald,
+                      borderColor: AppColors.brandEmerald.withOpacity(0.4),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.brandEmerald.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(Icons.share_location, color: AppColors.brandEmerald, size: 18),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    t ? 'நேரடி GPS டேங்கர் ரேடார்' : 'Live Tanker GPS Fleet Tracking',
+                                    style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.text(context)),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: AppColors.brandEmerald.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  '3 ONLINE',
+                                  style: GoogleFonts.inter(color: AppColors.brandEmerald, fontSize: 9, fontWeight: FontWeight.w900),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            t
+                                ? 'TN-58-BW-2001 (டெக்ச்வேலி மாலில் இறக்குகிறது)\nTN-58-BW-4001 (NH-544 சாலையில் 48 km/h வேகத்தில்)\nTN-58-BW-1001 (போர்வெல் ஆலைக்கு திரும்புகிறது)'
+                                : '• TN-58-BW-2001: Decanting at Texvalley Mall (0 km/h · 420 L/min)\n• TN-58-BW-4001: En Route NH-544 to Chennai Silks (48 km/h)\n• TN-58-BW-1001: Returning empty to Borewell Hub (39 km/h)',
+                            style: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted(context), height: 1.45),
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              icon: const Icon(Icons.radar, size: 16),
+                              label: Text(
+                                t ? 'முழு ரேடார் வரைபடத்தை திறக்க' : 'Open Live GPS Radar Map',
+                                style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 12),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.brandEmerald,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 11),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (ctx) => FleetGpsScreen(isTamil: t, initialMode: FleetViewMode.tankers),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
                     // Quick Actions
                     Row(
                       children: [
@@ -241,10 +321,7 @@ class _TmwsVerticalScreenState extends State<TmwsVerticalScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (ctx) => Scaffold(
-                                    appBar: AppBar(title: Text(t ? 'டேங்கர் ட்ரிப் ஷீட்' : 'Tanker Trip Sheet')),
-                                    body: TankerTripSheetScreen(isTamil: t),
-                                  ),
+                                  builder: (ctx) => TankerTripSheetScreen(isTamil: t),
                                 ),
                               ).then((_) => _loadData());
                             },
@@ -264,10 +341,7 @@ class _TmwsVerticalScreenState extends State<TmwsVerticalScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (ctx) => Scaffold(
-                                  appBar: AppBar(title: Text(t ? 'ஸ்பாட் ஆய்வு' : 'Fleet Spot Audit')),
-                                  body: SpotAuditScreen(isTamil: t),
-                                ),
+                                builder: (ctx) => SpotAuditScreen(isTamil: t),
                               ),
                             );
                           },
