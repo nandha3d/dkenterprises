@@ -36,7 +36,7 @@ class DKTrackApp extends StatefulWidget {
 
 class _DKTrackAppState extends State<DKTrackApp> {
   bool _isTamil = false; // Default English as requested by user
-  bool _isDarkMode = true; // Sleek modern dark mode matching web app
+  bool _isDarkMode = false; // Default Light mode as requested by user
   bool _isLoggedIn = false; // Starts at Login Screen for demo role access & authentication
   CompanyVertical _activeVertical = CompanyVertical.dkWaters;
   UserRole _activeRole = UserRole.superAdmin;
@@ -59,7 +59,7 @@ class _DKTrackAppState extends State<DKTrackApp> {
       _activeRole = role;
       if (role == UserRole.tankerDriver) {
         _activeVertical = CompanyVertical.tmws;
-      } else if (role == UserRole.deliveryDriver) {
+      } else if (role == UserRole.deliveryDriver || role == UserRole.fieldAgent) {
         _activeVertical = CompanyVertical.dkWaters;
       } else if (role == UserRole.cashier) {
         _activeVertical = CompanyVertical.aranCafe;
@@ -74,7 +74,7 @@ class _DKTrackAppState extends State<DKTrackApp> {
       _isLoggedIn = true;
       if (role == UserRole.tankerDriver) {
         _activeVertical = CompanyVertical.tmws;
-      } else if (role == UserRole.deliveryDriver) {
+      } else if (role == UserRole.deliveryDriver || role == UserRole.fieldAgent) {
         _activeVertical = CompanyVertical.dkWaters;
       } else if (role == UserRole.cashier) {
         _activeVertical = CompanyVertical.aranCafe;
@@ -299,12 +299,12 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
           TmwsVerticalScreen(isTamil: t),
           DkWatersVerticalScreen(isTamil: t),
           AranCafeVerticalScreen(isTamil: t),
-          FleetGpsScreen(isTamil: t),
+          FleetGpsScreen(isTamil: t, activeRole: r),
         ];
         navItems = [
           BottomNavigationBarItem(
             icon: const Icon(Icons.dashboard_rounded),
-            label: t ? 'கட்டளை' : 'Command',
+            label: t ? 'டாஷ்போர்டு' : 'Dashboard',
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.fire_truck_rounded),
@@ -329,8 +329,8 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         screens = [
           FieldAgentScreen(isTamil: t, vertical: v),
           CustomersScreen(isTamil: t),
-          FleetGpsScreen(isTamil: t, initialMode: FleetViewMode.packagedWater),
-          SpotAuditScreen(isTamil: t),
+          FleetGpsScreen(isTamil: t, initialMode: FleetViewMode.packagedWater, activeRole: r),
+          SpotAuditScreen(isTamil: t, activeRole: r),
         ];
         navItems = [
           BottomNavigationBarItem(
@@ -356,8 +356,8 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         screens = [
           TicketMachineScreen(isTamil: t),
           PlantRefillScreen(isTamil: t),
-          FleetGpsScreen(isTamil: t, initialMode: FleetViewMode.packagedWater),
-          SpotAuditScreen(isTamil: t),
+          FleetGpsScreen(isTamil: t, initialMode: FleetViewMode.packagedWater, activeRole: r),
+          SpotAuditScreen(isTamil: t, activeRole: r),
         ];
         navItems = [
           BottomNavigationBarItem(
@@ -383,8 +383,8 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         screens = [
           TankerTripSheetScreen(isTamil: t),
           TmwsVerticalScreen(isTamil: t),
-          FleetGpsScreen(isTamil: t, initialMode: FleetViewMode.tankers),
-          SpotAuditScreen(isTamil: t),
+          FleetGpsScreen(isTamil: t, initialMode: FleetViewMode.tankers, activeRole: r),
+          SpotAuditScreen(isTamil: t, activeRole: r),
         ];
         navItems = [
           BottomNavigationBarItem(
@@ -410,7 +410,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         screens = [
           CafePosScreen(isTamil: t),
           AranCafeVerticalScreen(isTamil: t),
-          SpotAuditScreen(isTamil: t),
+          SpotAuditScreen(isTamil: t, activeRole: r),
         ];
         navItems = [
           BottomNavigationBarItem(
@@ -465,7 +465,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
           ),
         ),
         title: InkWell(
-          onTap: _openRoleSelector,
+          onTap: (r == UserRole.superAdmin || r == UserRole.admin) ? _openRoleSelector : null,
           borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
@@ -501,7 +501,8 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const Icon(Icons.arrow_drop_down, color: Colors.white70, size: 18),
+                          if (r == UserRole.superAdmin || r == UserRole.admin)
+                            const Icon(Icons.arrow_drop_down, color: Colors.white70, size: 18),
                         ],
                       ),
                       Text(
@@ -636,176 +637,319 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               ),
             ),
 
-            // SECTION 1: ERP Executive & Operations
-            _buildDrawerSectionHeader(t ? 'கட்டளை மையம் & மாஸ்டர்கள்' : 'COMMAND & MASTERS'),
-            _buildDrawerMenuItem(
-              icon: Icons.dashboard,
-              iconColor: AppColors.brandPurple,
-              title: t ? 'முதன்மை டாஷ்போர்டு' : 'Executive Dashboard',
-              onTap: () {
-                Navigator.pop(context);
-                setState(() => _currentIndex = 0);
-              },
-            ),
-            _buildDrawerMenuItem(
-              icon: Icons.people_alt,
-              iconColor: AppColors.brandSky,
-              title: t ? 'வாடிக்கையாளர் பட்டியல் (Customers)' : 'Customers Directory',
-              badge: 'ERP Master',
-              badgeColor: AppColors.brandSky,
-              onTap: () => _navigateToScreen(CustomersScreen(isTamil: t)),
-            ),
-            _buildDrawerMenuItem(
-              icon: Icons.category,
-              iconColor: AppColors.brandEmerald,
-              title: t ? 'பொருட்கள் விலைப்பட்டியல் (Products)' : 'Products & Price Matrix',
-              badge: 'Matrix',
-              badgeColor: AppColors.brandEmerald,
-              onTap: () => _navigateToScreen(ProductsScreen(isTamil: t)),
-            ),
+            // GATED DRAWER SECTIONS BY ACTIVE ROLE
+            if (r == UserRole.superAdmin || r == UserRole.admin) ...[
+              // SECTION 1: MASTER DASHBOARD & REGISTRIES
+              _buildDrawerSectionHeader(t ? 'முதன்மை மையம் & மாஸ்டர்கள்' : 'DASHBOARD & MASTERS'),
+              _buildDrawerMenuItem(
+                icon: Icons.dashboard,
+                iconColor: AppColors.brandPurple,
+                title: t ? 'முதன்மை டாஷ்போர்டு' : 'Executive Dashboard',
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 0);
+                },
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.people_alt,
+                iconColor: AppColors.brandSky,
+                title: t ? 'வாடிக்கையாளர் பட்டியல் (Customers)' : 'Customers Directory',
+                badge: 'Master',
+                badgeColor: AppColors.brandSky,
+                onTap: () => _navigateToScreen(CustomersScreen(isTamil: t)),
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.category,
+                iconColor: AppColors.brandEmerald,
+                title: t ? 'பொருட்கள் விலைப்பட்டியல் (Products)' : 'Products & Price Matrix',
+                badge: 'Matrix',
+                badgeColor: AppColors.brandEmerald,
+                onTap: () => _navigateToScreen(ProductsScreen(isTamil: t)),
+              ),
 
-            Divider(color: AppColors.border(context), height: 16),
+              Divider(color: AppColors.border(context), height: 16),
 
-            // SECTION 2: Water Logistics Suite
-            _buildDrawerSectionHeader(t ? 'குடிநீர் தளவாடங்கள்' : 'WATER LOGISTICS SUITE'),
-            _buildDrawerMenuItem(
-              icon: Icons.water_drop,
-              iconColor: AppColors.brandSky,
-              title: t ? 'குடிநீர் விநியோக டிக்கெட் (<15s)' : 'Packaged Water Delivery',
-              badge: 'Fast Ticketing',
-              badgeColor: AppColors.brandSky,
-              onTap: () => _navigateToScreen(TicketMachineScreen(isTamil: t)),
-            ),
-            _buildDrawerMenuItem(
-              icon: Icons.fire_truck,
-              iconColor: const Color(0xFF2563EB),
-              title: t ? 'பல்க் டேங்கர் ட்ரிப் & இறக்குதல்' : 'Bulk Tanker Trips & Decanting',
-              badge: 'TMWS Fleet',
-              badgeColor: const Color(0xFF2563EB),
-              onTap: () => _navigateToScreen(TankerTripSheetScreen(isTamil: t)),
-            ),
-            _buildDrawerMenuItem(
-              icon: Icons.factory,
-              iconColor: const Color(0xFF0D9488),
-              title: t ? 'ஆலை லோடிங் & கேட் பாஸ்' : 'Plant Refill & Gate Passes',
-              onTap: () => _navigateToScreen(PlantRefillScreen(isTamil: t)),
-            ),
-            _buildDrawerMenuItem(
-              icon: Icons.verified_user,
-              iconColor: AppColors.brandDanger,
-              title: t ? 'கேன் ஆய்வு & இருப்பு தணிக்கை' : 'Empty Jar Custody & Audit',
-              badge: 'Anti-Theft',
-              badgeColor: AppColors.brandDanger,
-              onTap: () => _navigateToScreen(SpotAuditScreen(isTamil: t)),
-            ),
-
-            Divider(color: AppColors.border(context), height: 16),
-
-            // SECTION 3: Sales, Invoicing & Accounts
-            _buildDrawerSectionHeader(t ? 'விற்பனை & கணக்குகள்' : 'FINANCE & ACCOUNTS'),
-            _buildDrawerMenuItem(
-              icon: Icons.receipt_long,
-              iconColor: AppColors.brandEmerald,
-              title: t ? 'விற்பனை ரசீதுகள் (Invoices)' : 'Sales Invoices & Slips',
-              badge: 'Invoices',
-              badgeColor: AppColors.brandEmerald,
-              onTap: () => _navigateToScreen(InvoicesScreen(isTamil: t)),
-            ),
-            _buildDrawerMenuItem(
-              icon: Icons.assignment_turned_in,
-              iconColor: AppColors.brandEmerald,
-              title: t ? 'வசூல் போர்ட்டல் & KYC' : 'Field Collections & KYC',
-              onTap: () => _navigateToScreen(FieldAgentScreen(isTamil: t, vertical: v)),
-            ),
-            _buildDrawerMenuItem(
-              icon: Icons.account_balance,
-              iconColor: AppColors.brandAmber,
-              title: t ? 'நிதி லெட்ஜர் இருப்பு (GL 1010-1030)' : 'GL Financial Balances',
-              badge: 'GL Ledger',
-              badgeColor: AppColors.brandAmber,
-              onTap: () => _navigateToScreen(FinancialsScreen(isTamil: t)),
-            ),
-
-            Divider(color: AppColors.border(context), height: 16),
-
-            // SECTION 4: Dedicated Enterprise Portals & Verticals
-            _buildDrawerSectionHeader(t ? 'நிறுவனங்களின் போர்ட்டல்கள்' : 'ENTERPRISE VERTICALS'),
-            _buildDrawerMenuItem(
-              icon: Icons.fire_truck,
-              iconColor: AppColors.roleTankerDriver,
-              title: 'TMWS Bulk Logistics',
-              badge: 'Bulk Tankers',
-              badgeColor: AppColors.roleTankerDriver,
-              onTap: () {
-                Navigator.pop(context);
-                if (r == UserRole.superAdmin || r == UserRole.admin) {
+              // SECTION 2: ENTERPRISE VERTICALS
+              _buildDrawerSectionHeader(t ? 'நிறுவனங்களின் போர்ட்டல்கள்' : 'ENTERPRISE VERTICALS'),
+              _buildDrawerMenuItem(
+                icon: Icons.fire_truck,
+                iconColor: AppColors.roleTankerDriver,
+                title: 'TMWS Bulk Logistics',
+                badge: 'Tankers',
+                badgeColor: AppColors.roleTankerDriver,
+                onTap: () {
+                  Navigator.pop(context);
                   setState(() => _currentIndex = 1);
-                } else {
-                  _navigateToScreen(TmwsVerticalScreen(isTamil: t));
-                }
-              },
-            ),
-            _buildDrawerMenuItem(
-              icon: Icons.water_drop,
-              iconColor: AppColors.roleDeliveryDriver,
-              title: 'DK Waters Distribution',
-              badge: '20L Jars',
-              badgeColor: AppColors.roleDeliveryDriver,
-              onTap: () {
-                Navigator.pop(context);
-                if (r == UserRole.superAdmin || r == UserRole.admin) {
+                },
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.water_drop,
+                iconColor: AppColors.roleDeliveryDriver,
+                title: 'DK Waters Distribution',
+                badge: '20L Jars',
+                badgeColor: AppColors.roleDeliveryDriver,
+                onTap: () {
+                  Navigator.pop(context);
                   setState(() => _currentIndex = 2);
-                } else {
-                  _navigateToScreen(DkWatersVerticalScreen(isTamil: t));
-                }
-              },
-            ),
-            _buildDrawerMenuItem(
-              icon: Icons.local_cafe,
-              iconColor: AppColors.roleCashier,
-              title: 'Aran Cafe & Bakery Express',
-              badge: 'Cafe & POS',
-              badgeColor: AppColors.roleCashier,
-              onTap: () {
-                Navigator.pop(context);
-                if (r == UserRole.superAdmin || r == UserRole.admin) {
+                },
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.local_cafe,
+                iconColor: AppColors.roleCashier,
+                title: 'Aran Cafe & Bakery Express',
+                badge: 'Cafe & POS',
+                badgeColor: AppColors.roleCashier,
+                onTap: () {
+                  Navigator.pop(context);
                   setState(() => _currentIndex = 3);
-                } else {
-                  _navigateToScreen(AranCafeVerticalScreen(isTamil: t));
-                }
-              },
-            ),
-            _buildDrawerMenuItem(
-              icon: Icons.share_location,
-              iconColor: AppColors.brandEmerald,
-              title: t ? 'நேரடி GPS கப்பற்படை ரேடார்' : 'Live Fleet GPS Radar',
-              badge: 'Live Radar',
-              badgeColor: AppColors.brandEmerald,
-              onTap: () {
-                Navigator.pop(context);
-                if (r == UserRole.superAdmin || r == UserRole.admin) {
+                },
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.radar,
+                iconColor: AppColors.brandEmerald,
+                title: t ? 'நேரடி GPS கப்பற்படை ரேடார்' : 'Universal Fleet GPS Radar',
+                badge: 'Live Radar',
+                badgeColor: AppColors.brandEmerald,
+                onTap: () {
+                  Navigator.pop(context);
                   setState(() => _currentIndex = 4);
-                } else {
-                  _navigateToScreen(FleetGpsScreen(isTamil: t));
-                }
-              },
-            ),
+                },
+              ),
 
-            Divider(color: AppColors.border(context), height: 16),
+              Divider(color: AppColors.border(context), height: 16),
 
-            // SECTION 5: Roles & Enterprise Switching
-            _buildDrawerSectionHeader(t ? 'பாத்திரங்கள் & நிறுவனங்கள்' : 'ROLES & ENTERPRISES'),
-            _buildDrawerMenuItem(
-              icon: Icons.switch_account,
-              iconColor: r.color,
-              title: t ? 'பாத்திரத்தை மாற்று (Role Selector)' : 'Switch Active Role',
-              badge: r.title(t),
-              badgeColor: r.color,
-              onTap: () {
-                Navigator.pop(context);
-                _openRoleSelector();
-              },
-            ),
+              // SECTION 3: FINANCE & AUDIT
+              _buildDrawerSectionHeader(t ? 'நிதி & தணிக்கை' : 'FINANCE & AUDIT'),
+              _buildDrawerMenuItem(
+                icon: Icons.receipt_long,
+                iconColor: AppColors.brandEmerald,
+                title: t ? 'விற்பனை ரசீதுகள் (Invoices)' : 'Sales Invoices & Slips',
+                onTap: () => _navigateToScreen(InvoicesScreen(isTamil: t)),
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.account_balance,
+                iconColor: AppColors.brandAmber,
+                title: t ? 'நிதி லெட்ஜர் இருப்பு (GL 1010-1030)' : 'GL Financial Balances',
+                badge: 'GL Ledger',
+                badgeColor: AppColors.brandAmber,
+                onTap: () => _navigateToScreen(FinancialsScreen(isTamil: t)),
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.verified_user,
+                iconColor: AppColors.brandDanger,
+                title: t ? 'களத் தணிக்கை & மோசடி எதிர்ப்பு' : 'Anti-Theft Field Spot Audit',
+                badge: 'Audit',
+                badgeColor: AppColors.brandDanger,
+                onTap: () => _navigateToScreen(SpotAuditScreen(isTamil: t, activeRole: r)),
+              ),
+
+              Divider(color: AppColors.border(context), height: 16),
+
+              // SECTION 4: ROLES & ENTERPRISES
+              _buildDrawerSectionHeader(t ? 'பாத்திரங்கள் & நிறுவனங்கள்' : 'ROLES & ENTERPRISES'),
+              _buildDrawerMenuItem(
+                icon: Icons.switch_account,
+                iconColor: r.color,
+                title: t ? 'பாத்திரத்தை மாற்று (Role Selector)' : 'Switch Active Role',
+                badge: r.title(t),
+                badgeColor: r.color,
+                onTap: () {
+                  Navigator.pop(context);
+                  _openRoleSelector();
+                },
+              ),
+            ] else if (r == UserRole.deliveryDriver) ...[
+              // DK WATERS DELIVERY DRIVER ONLY
+              _buildDrawerSectionHeader(t ? 'DK குடிநீர் விநியோகம்' : 'DK WATERS LOGISTICS'),
+              _buildDrawerMenuItem(
+                icon: Icons.water_drop,
+                iconColor: AppColors.brandSky,
+                title: t ? 'குடிநீர் விநியோக டிக்கெட் (<15s)' : 'Delivery Ticket Machine',
+                badge: 'Fast',
+                badgeColor: AppColors.brandSky,
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 0);
+                },
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.factory,
+                iconColor: const Color(0xFF0D9488),
+                title: t ? 'ஆலை லோடிங் & காலி கேன்கள்' : 'Plant Refill & Gate Passes',
+                badge: 'Plant',
+                badgeColor: const Color(0xFF0D9488),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 1);
+                },
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.radar,
+                iconColor: AppColors.brandEmerald,
+                title: t ? 'நேரலை பீட் GPS ரேடார்' : 'Beat Delivery GPS Radar',
+                badge: 'Live',
+                badgeColor: AppColors.brandEmerald,
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 2);
+                },
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.receipt_long,
+                iconColor: AppColors.brandPurple,
+                title: t ? 'இன்றைய விநியோக ரசீதுகள்' : 'Today Delivery Invoices',
+                onTap: () => _navigateToScreen(InvoicesScreen(isTamil: t)),
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.people_alt,
+                iconColor: AppColors.brandSky,
+                title: t ? 'வழித்தட வாடிக்கையாளர்கள்' : 'Route Customers Directory',
+                onTap: () => _navigateToScreen(CustomersScreen(isTamil: t)),
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.verified_user,
+                iconColor: AppColors.brandDanger,
+                title: t ? 'காலி கேன் இருப்பு ஆய்வு' : 'Empty Jar Audit',
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 3);
+                },
+              ),
+            ] else if (r == UserRole.fieldAgent) ...[
+              // DK WATERS FIELD AGENT ONLY
+              _buildDrawerSectionHeader(t ? 'கள விற்பனை & KYC' : 'DK WATERS SALES & KYC'),
+              _buildDrawerMenuItem(
+                icon: Icons.assignment_ind,
+                iconColor: AppColors.roleFieldAgent,
+                title: t ? 'கள விற்பனை, KYC & வசூல்' : 'Field Sales & Collections',
+                badge: 'KYC',
+                badgeColor: AppColors.roleFieldAgent,
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 0);
+                },
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.people_alt,
+                iconColor: AppColors.brandSky,
+                title: t ? 'வாடிக்கையாளர் பட்டியல்' : 'Customers Directory',
+                badge: 'Directory',
+                badgeColor: AppColors.brandSky,
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 1);
+                },
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.radar,
+                iconColor: AppColors.brandEmerald,
+                title: t ? 'நேரலை பீட் GPS ரேடார்' : 'Beat Delivery GPS Radar',
+                badge: 'Live',
+                badgeColor: AppColors.brandEmerald,
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 2);
+                },
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.receipt_long,
+                iconColor: AppColors.brandPurple,
+                title: t ? 'விற்பனை & வசூல் ரசீதுகள்' : 'Invoices & Slips',
+                onTap: () => _navigateToScreen(InvoicesScreen(isTamil: t)),
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.inventory_2,
+                iconColor: AppColors.brandDanger,
+                title: t ? 'கேன் லெட்ஜர் தணிக்கை' : 'Jar Ledger Spot Audit',
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 3);
+                },
+              ),
+            ] else if (r == UserRole.tankerDriver) ...[
+              // TMWS BULK TANKER DRIVER ONLY
+              _buildDrawerSectionHeader(t ? 'TMWS பல்க் டேங்கர் தளவாடங்கள்' : 'TMWS BULK LOGISTICS'),
+              _buildDrawerMenuItem(
+                icon: Icons.fire_truck,
+                iconColor: AppColors.roleTankerDriver,
+                title: t ? 'டேங்கர் ட்ரிப் ஷீட் பதிவு' : 'Tanker Trip Sheet',
+                badge: 'Trip Sheet',
+                badgeColor: AppColors.roleTankerDriver,
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 0);
+                },
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.local_shipping,
+                iconColor: const Color(0xFF2563EB),
+                title: t ? 'TMWS பல்க் மையம் & பதிவுகள்' : 'TMWS Bulk Hub & Trips',
+                badge: 'Hub',
+                badgeColor: const Color(0xFF2563EB),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 1);
+                },
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.radar,
+                iconColor: AppColors.brandEmerald,
+                title: t ? 'டேங்கர் நேரலை GPS ரேடார்' : 'Live Tanker GPS Radar',
+                badge: 'Live',
+                badgeColor: AppColors.brandEmerald,
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 2);
+                },
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.verified_user,
+                iconColor: AppColors.brandDanger,
+                title: t ? 'ஓடோமீட்டர் & எரிபொருள் சரிபார்ப்பு' : 'Odometer & Diesel Check',
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 3);
+                },
+              ),
+            ] else if (r == UserRole.cashier) ...[
+              // ARAN CAFE CASHIER ONLY
+              _buildDrawerSectionHeader(t ? 'அரண் கஃபே & பேக்கரி' : 'ARAN CAFE & BAKERY'),
+              _buildDrawerMenuItem(
+                icon: Icons.point_of_sale,
+                iconColor: AppColors.roleCashier,
+                title: t ? 'விரைவு டச் பில்லிங் (POS)' : 'Express Touch POS Counter',
+                badge: 'Counter',
+                badgeColor: AppColors.roleCashier,
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 0);
+                },
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.local_cafe,
+                iconColor: const Color(0xFFD97706),
+                title: t ? 'அரண் கஃபே போர்ட்டல்' : 'Aran Cafe Portal',
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 1);
+                },
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.category,
+                iconColor: AppColors.brandEmerald,
+                title: t ? 'மெனு & பொருட்கள் விலை' : 'Menu & Product Catalog',
+                onTap: () => _navigateToScreen(ProductsScreen(isTamil: t)),
+              ),
+              _buildDrawerMenuItem(
+                icon: Icons.verified_user,
+                iconColor: AppColors.brandDanger,
+                title: t ? 'ரொக்க டிராயர் தணிக்கை' : 'Cash Drawer Shift Audit',
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 2);
+                },
+              ),
+            ],
 
             Divider(color: AppColors.border(context), height: 16),
 

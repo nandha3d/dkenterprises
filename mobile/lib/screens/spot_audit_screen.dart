@@ -7,8 +7,9 @@ import '../widgets/glass_card.dart';
 
 class SpotAuditScreen extends StatefulWidget {
   final bool isTamil;
+  final UserRole? activeRole;
 
-  const SpotAuditScreen({super.key, required this.isTamil});
+  const SpotAuditScreen({super.key, required this.isTamil, this.activeRole});
 
   @override
   State<SpotAuditScreen> createState() => _SpotAuditScreenState();
@@ -18,7 +19,7 @@ class _SpotAuditScreenState extends State<SpotAuditScreen> {
   final ApiService _apiService = ApiService();
   String _auditTarget = 'packaged'; // 'packaged', 'tanker', 'cafe'
 
-  final _vehicleController = TextEditingController(text: 'Tata Ace TN-59-WA-1011');
+  final _vehicleController = TextEditingController(text: 'Tata Ace TN-58-WA-101');
   final _driverController = TextEditingController(text: 'Kumar (Driver)');
   final _unitsObservedController = TextEditingController(text: '25');
   final _cashObservedController = TextEditingController(text: '1810');
@@ -28,6 +29,34 @@ class _SpotAuditScreenState extends State<SpotAuditScreen> {
   final double _expectedCash = 1810.0;
 
   bool _isSubmitting = false;
+
+  bool get _canSwitchTarget {
+    if (widget.activeRole == UserRole.deliveryDriver ||
+        widget.activeRole == UserRole.fieldAgent ||
+        widget.activeRole == UserRole.tankerDriver ||
+        widget.activeRole == UserRole.cashier) {
+      return false;
+    }
+    return true;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.activeRole == UserRole.deliveryDriver || widget.activeRole == UserRole.fieldAgent) {
+      _auditTarget = 'packaged';
+      _vehicleController.text = 'Tata Ace TN-58-WA-101';
+      _driverController.text = 'Kumar (Driver)';
+    } else if (widget.activeRole == UserRole.tankerDriver) {
+      _auditTarget = 'tanker';
+      _vehicleController.text = 'Tanker TN-58-BW-2001';
+      _driverController.text = 'Murugan S. (Driver)';
+    } else if (widget.activeRole == UserRole.cashier) {
+      _auditTarget = 'cafe';
+      _vehicleController.text = 'POS Register #01';
+      _driverController.text = 'Cashier Desk';
+    }
+  }
 
   Future<void> _submitAudit() async {
     setState(() => _isSubmitting = true);
@@ -144,52 +173,86 @@ class _SpotAuditScreenState extends State<SpotAuditScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Target Selector Pills
-            Row(
-              children: [
-                Expanded(
-                  child: ChoiceChip(
-                    label: Text(t ? 'குடிநீர் வேன்' : 'Water Van'),
-                    selected: _auditTarget == 'packaged',
-                    selectedColor: AppColors.brandPurple,
-                    labelStyle: TextStyle(
-                      color: _auditTarget == 'packaged' ? Colors.white : AppColors.textMuted(context),
-                      fontWeight: FontWeight.w800,
-                      fontSize: 11,
+            // Target Selector Pills (Gated)
+            if (_canSwitchTarget)
+              Row(
+                children: [
+                  Expanded(
+                    child: ChoiceChip(
+                      label: Text(t ? 'குடிநீர் வேன்' : 'Water Van'),
+                      selected: _auditTarget == 'packaged',
+                      selectedColor: AppColors.brandPurple,
+                      labelStyle: TextStyle(
+                        color: _auditTarget == 'packaged' ? Colors.white : AppColors.textMuted(context),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 11,
+                      ),
+                      onSelected: (v) => setState(() => _auditTarget = 'packaged'),
                     ),
-                    onSelected: (v) => setState(() => _auditTarget = 'packaged'),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ChoiceChip(
-                    label: Text(t ? 'டேங்கர்' : 'Bulk Tanker'),
-                    selected: _auditTarget == 'tanker',
-                    selectedColor: AppColors.brandPurple,
-                    labelStyle: TextStyle(
-                      color: _auditTarget == 'tanker' ? Colors.white : AppColors.textMuted(context),
-                      fontWeight: FontWeight.w800,
-                      fontSize: 11,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ChoiceChip(
+                      label: Text(t ? 'டேங்கர்' : 'Bulk Tanker'),
+                      selected: _auditTarget == 'tanker',
+                      selectedColor: AppColors.brandPurple,
+                      labelStyle: TextStyle(
+                        color: _auditTarget == 'tanker' ? Colors.white : AppColors.textMuted(context),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 11,
+                      ),
+                      onSelected: (v) => setState(() => _auditTarget = 'tanker'),
                     ),
-                    onSelected: (v) => setState(() => _auditTarget = 'tanker'),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ChoiceChip(
-                    label: Text(t ? 'கஃபே' : 'Cafe POS'),
-                    selected: _auditTarget == 'cafe',
-                    selectedColor: AppColors.brandPurple,
-                    labelStyle: TextStyle(
-                      color: _auditTarget == 'cafe' ? Colors.white : AppColors.textMuted(context),
-                      fontWeight: FontWeight.w800,
-                      fontSize: 11,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ChoiceChip(
+                      label: Text(t ? 'கஃபே' : 'Cafe POS'),
+                      selected: _auditTarget == 'cafe',
+                      selectedColor: AppColors.brandPurple,
+                      labelStyle: TextStyle(
+                        color: _auditTarget == 'cafe' ? Colors.white : AppColors.textMuted(context),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 11,
+                      ),
+                      onSelected: (v) => setState(() => _auditTarget = 'cafe'),
                     ),
-                    onSelected: (v) => setState(() => _auditTarget = 'cafe'),
                   ),
+                ],
+              )
+            else
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 14),
+                decoration: BoxDecoration(
+                  color: AppColors.brandPurple.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.brandPurple.withOpacity(0.35)),
                 ),
-              ],
-            ),
+                child: Row(
+                  children: [
+                    Icon(
+                      _auditTarget == 'tanker'
+                          ? Icons.fire_truck
+                          : (_auditTarget == 'cafe' ? Icons.local_cafe : Icons.water_drop),
+                      size: 16,
+                      color: AppColors.brandPurple,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      _auditTarget == 'tanker'
+                          ? (t ? 'பல்க் டேங்கர் தணிக்கை' : 'TMWS Tanker Physical Check')
+                          : (_auditTarget == 'cafe'
+                              ? (t ? 'கஃபே ரொக்க தணிக்கை' : 'Aran Cafe Drawer Check')
+                              : (t ? 'குடிநீர் கேன் நேரடி தணிக்கை' : 'DK Waters Can & Cash Check')),
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.text(context),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             const SizedBox(height: 16),
 
             // Audit Physical vs Expected Card

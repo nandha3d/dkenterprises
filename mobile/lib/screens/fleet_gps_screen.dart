@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../widgets/glass_card.dart';
 
@@ -10,11 +11,15 @@ enum FleetViewMode { tankers, packagedWater }
 class FleetGpsScreen extends StatefulWidget {
   final bool isTamil;
   final FleetViewMode initialMode;
+  final UserRole? activeRole;
+  final bool? lockMode;
 
   const FleetGpsScreen({
     super.key,
     required this.isTamil,
     this.initialMode = FleetViewMode.tankers,
+    this.activeRole,
+    this.lockMode,
   });
 
   @override
@@ -26,6 +31,16 @@ class _FleetGpsScreenState extends State<FleetGpsScreen> with SingleTickerProvid
   late AnimationController _radarController;
   Timer? _telemetryTimer;
   int _selectedVehicleIndex = 0;
+
+  bool get _canSwitchMode {
+    if (widget.lockMode == true) return false;
+    if (widget.activeRole == UserRole.deliveryDriver ||
+        widget.activeRole == UserRole.fieldAgent ||
+        widget.activeRole == UserRole.tankerDriver) {
+      return false;
+    }
+    return true;
+  }
 
   // Live Tanker Telemetry Data
   final List<Map<String, dynamic>> _tankers = [
@@ -160,7 +175,13 @@ class _FleetGpsScreenState extends State<FleetGpsScreen> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-    _mode = widget.initialMode;
+    if (widget.activeRole == UserRole.deliveryDriver || widget.activeRole == UserRole.fieldAgent) {
+      _mode = FleetViewMode.packagedWater;
+    } else if (widget.activeRole == UserRole.tankerDriver) {
+      _mode = FleetViewMode.tankers;
+    } else {
+      _mode = widget.initialMode;
+    }
     _radarController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 4),
@@ -268,116 +289,188 @@ class _FleetGpsScreenState extends State<FleetGpsScreen> with SingleTickerProvid
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Vertical Switcher Segmented Bar
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: AppColors.card(context),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border(context)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          _mode = FleetViewMode.tankers;
-                          _selectedVehicleIndex = 0;
-                        });
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        decoration: BoxDecoration(
-                          color: _mode == FleetViewMode.tankers
-                              ? AppColors.roleTankerDriver
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: _mode == FleetViewMode.tankers
-                              ? [
-                                  BoxShadow(
-                                    color: AppColors.roleTankerDriver.withOpacity(0.35),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  )
-                                ]
-                              : null,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.fire_truck,
-                              size: 18,
-                              color: _mode == FleetViewMode.tankers ? Colors.white : AppColors.textDim(context),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              t ? 'TMWS பல்க் டேங்கர் (3)' : 'TMWS Tankers (3)',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w800,
-                                color: _mode == FleetViewMode.tankers ? Colors.white : AppColors.text(context),
+            // Vertical Switcher Segmented Bar (Gated strictly to Admins / Super Admin)
+            if (_canSwitchMode)
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: AppColors.card(context),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.border(context)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            _mode = FleetViewMode.tankers;
+                            _selectedVehicleIndex = 0;
+                          });
+                        },
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            color: _mode == FleetViewMode.tankers
+                                ? AppColors.roleTankerDriver
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: _mode == FleetViewMode.tankers
+                                ? [
+                                    BoxShadow(
+                                      color: AppColors.roleTankerDriver.withOpacity(0.35),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    )
+                                  ]
+                                : null,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.fire_truck,
+                                size: 18,
+                                color: _mode == FleetViewMode.tankers ? Colors.white : AppColors.textDim(context),
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 8),
+                              Text(
+                                t ? 'TMWS பல்க் டேங்கர் (3)' : 'TMWS Tankers (3)',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w800,
+                                  color: _mode == FleetViewMode.tankers ? Colors.white : AppColors.text(context),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          _mode = FleetViewMode.packagedWater;
-                          _selectedVehicleIndex = 0;
-                        });
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        decoration: BoxDecoration(
-                          color: _mode == FleetViewMode.packagedWater
-                              ? AppColors.brandSky
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: _mode == FleetViewMode.packagedWater
-                              ? [
-                                  BoxShadow(
-                                    color: AppColors.brandSky.withOpacity(0.35),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  )
-                                ]
-                              : null,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.water_drop,
-                              size: 18,
-                              color: _mode == FleetViewMode.packagedWater ? Colors.white : AppColors.textDim(context),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              t ? 'DK குடிநீர் வேன்கள் (2)' : 'DK Waters Beats (2)',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w800,
-                                color: _mode == FleetViewMode.packagedWater ? Colors.white : AppColors.text(context),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            _mode = FleetViewMode.packagedWater;
+                            _selectedVehicleIndex = 0;
+                          });
+                        },
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            color: _mode == FleetViewMode.packagedWater
+                                ? AppColors.brandSky
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: _mode == FleetViewMode.packagedWater
+                                ? [
+                                    BoxShadow(
+                                      color: AppColors.brandSky.withOpacity(0.35),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    )
+                                  ]
+                                : null,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.water_drop,
+                                size: 18,
+                                color: _mode == FleetViewMode.packagedWater ? Colors.white : AppColors.textDim(context),
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 8),
+                              Text(
+                                t ? 'DK குடிநீர் வேன்கள் (2)' : 'DK Waters Beats (2)',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w800,
+                                  color: _mode == FleetViewMode.packagedWater ? Colors.white : AppColors.text(context),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
+                  ],
+                ),
+              )
+            else
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: (_mode == FleetViewMode.tankers ? AppColors.roleTankerDriver : AppColors.brandSky).withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: (_mode == FleetViewMode.tankers ? AppColors.roleTankerDriver : AppColors.brandSky).withOpacity(0.40),
+                    width: 1.2,
                   ),
-                ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: _mode == FleetViewMode.tankers ? AppColors.roleTankerDriver : AppColors.brandSky,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        _mode == FleetViewMode.tankers ? Icons.fire_truck : Icons.water_drop,
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _mode == FleetViewMode.tankers
+                                ? (t ? 'TMWS பல்க் டேங்கர் கப்பற்படை ரேடார்' : 'TMWS Bulk Tanker Fleet Radar')
+                                : (t ? 'DK குடிநீர் விநியோக பீட் ரேடார்' : 'DK Waters Beat Delivery Fleet Radar'),
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.text(context),
+                            ),
+                          ),
+                          Text(
+                            _mode == FleetViewMode.tankers
+                                ? (t ? '3 டேங்கர்கள் செயலில் · நேரலை GPS டெலிமெட்ரி' : '3 Tankers Active · Live Telemetry & Anti-Siphon Gate')
+                                : (t ? '2 டாடா ஏஸ் வேன்கள் · நேரலை பீட் வழித்தடம்' : '2 Tata Ace Trucks · Live Delivery Stops & Jars'),
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: AppColors.textDim(context),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.brandEmerald.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.brandEmerald.withOpacity(0.4)),
+                      ),
+                      child: Text(
+                        t ? 'நேரலை' : 'ACTIVE',
+                        style: const TextStyle(
+                          color: AppColors.brandEmerald,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
 
             const SizedBox(height: 14),
 
@@ -452,7 +545,9 @@ class _FleetGpsScreenState extends State<FleetGpsScreen> with SingleTickerProvid
                               border: Border.all(color: AppColors.brandEmerald.withOpacity(0.5)),
                             ),
                             child: Text(
-                              t ? 'போர்வெல் ஆலை' : 'Borewell Hub',
+                              _mode == FleetViewMode.tankers
+                                  ? (t ? 'போர்வெல் ஆலை' : 'TMWS Borewell Hub')
+                                  : (t ? 'DK குடிநீர் ஆலை' : 'DK Waters Plant'),
                               style: const TextStyle(color: Colors.white, fontSize: 8.5, fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -652,7 +747,7 @@ class _FleetGpsScreenState extends State<FleetGpsScreen> with SingleTickerProvid
             const SizedBox(height: 8),
 
             SizedBox(
-              height: 48,
+              height: 58,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
@@ -666,7 +761,7 @@ class _FleetGpsScreenState extends State<FleetGpsScreen> with SingleTickerProvid
                     borderRadius: BorderRadius.circular(14),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                       decoration: BoxDecoration(
                         color: isSel
                             ? (v['statusColor'] as Color).withOpacity(0.18)
@@ -680,6 +775,7 @@ class _FleetGpsScreenState extends State<FleetGpsScreen> with SingleTickerProvid
                         ),
                       ),
                       child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             _mode == FleetViewMode.tankers ? Icons.fire_truck : Icons.water_drop,
@@ -690,19 +786,23 @@ class _FleetGpsScreenState extends State<FleetGpsScreen> with SingleTickerProvid
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
                                 v['id'] as String,
                                 style: GoogleFonts.inter(
                                   fontWeight: FontWeight.w800,
                                   fontSize: 12,
+                                  height: 1.15,
                                   color: isSel ? AppColors.text(context) : AppColors.textDim(context),
                                 ),
                               ),
+                              const SizedBox(height: 2),
                               Text(
                                 '${v['speed']} km/h · ${v['status']}',
                                 style: TextStyle(
                                   fontSize: 9,
+                                  height: 1.15,
                                   fontWeight: FontWeight.w700,
                                   color: v['statusColor'] as Color,
                                 ),

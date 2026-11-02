@@ -3096,3 +3096,57 @@ Addressed user feedback:
    - Feature Test Suite: `php artisan test tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php` -> **18 passed (156 assertions, 100% GREEN)**.
    - Windows Desktop Binary: Compiled `build/windows/x64/runner/Debug/dk_track_mobile.exe` in 20.4s.
    - Android Release APK: Compiled `build/app/outputs/flutter-apk/app-release.apk`.
+
+---
+
+## 136. Strict Multi-Company Role Gating, Default Light Theme & English, and Pixel Overflow Fix (Nov 2026)
+
+Addressed user feedback:
+> *"make the defaultt is light theme and english is default. lets make the command to dashboard. why field delivery boy can see other business of TMWS and viceversa? strictly gate all the user seeing other modules and other's dashboards etc."*
+> Attached screenshots showing:
+> 1. `Fleet Vehicle Live Telemetry` with `TN-58-BW-2001` - `BOTTOM OVERFLOWED BY 1.00 PIXELS` error inside the selector chip.
+> 2. Bottom floating pill navigation bar displaying `Command` tab instead of `Dashboard`.
+> 3. Field Agent able to view `TMWS Tankers (3)` toggle on the Live GPS radar, and access other business modules in the drawer.
+
+1. **Default Light Theme & English as Default (`mobile/lib/main.dart`):**
+   - Configured `bool _isDarkMode = false;` in `DKTrackApp` so light theme is active out of the box with vibrant brand palettes, crisp typography, and frosted glass cards.
+   - Configured `bool _isTamil = false;` as default English interface with 1-tap Tamil toggle available in the top bar.
+
+2. **Renamed "Command" to "Dashboard" (`mobile/lib/main.dart`):**
+   - Renamed bottom floating pill navigation tab 0 to 📊 **Dashboard** (`டாஷ்போர்டு` in Tamil).
+   - Synchronized tooltips, navigation indicators, and drawer labels to "Executive Dashboard".
+
+3. **Strict Multi-Company Role Gating Across All Modules:**
+   - **Live Fleet GPS Radar (`mobile/lib/screens/fleet_gps_screen.dart`)**:
+     * Added `final UserRole? activeRole;` parameter.
+     * Route delivery drivers and field agents are locked to `FleetViewMode.packagedWater`. The `TMWS Tankers (3)` toggle button is completely hidden; they can only view DK Waters Tata Ace delivery vehicles and beat waypoints.
+     * Tanker drivers are locked to `FleetViewMode.tankers`. The `DK Waters Beats (2)` toggle button is completely hidden; they can only view TMWS tankers and decanting hubs.
+     * Cashiers have no fleet radar access.
+     * Only Super Admin and Group Admin have the toggle row to inspect both fleets.
+     * Landmarks in radar dynamically display `DK Waters Plant` or `TMWS Borewell Hub` matching the active vertical.
+   - **ERP Drawer Menu Gating (`mobile/lib/main.dart`)**:
+     * Redesigned drawer to strictly filter menu items by `widget.activeRole`:
+       - `deliveryDriver`: Sees only DK Waters Logistics (Ticket Machine, Plant Refill, Beat Delivery GPS Radar, Today's Invoices, Route Customers, Empty Jar Audit). All TMWS, Aran Cafe, and financial ledger items are completely removed.
+       - `fieldAgent`: Sees only DK Waters Sales & KYC (Field Sales & KYC, Customers Directory, Beat Delivery GPS Radar, Invoices & Slips, Jar Ledger Audit).
+       - `tankerDriver`: Sees only TMWS Bulk Logistics (Tanker Trip Sheet, TMWS Bulk Hub, Live Tanker GPS Radar, Odometer & Diesel Check). All packaged water cans and cafes are completely removed.
+       - `cashier`: Sees only Aran Cafe (Express Touch POS Counter, Aran Cafe Portal, Menu Catalog, Cash Drawer Shift Audit).
+       - `superAdmin` & `admin`: Full multi-company executive suite (Masters, Verticals, Financials, Audit).
+   - **AppBar Role Switcher Gated (`mobile/lib/main.dart`)**:
+     * Disabled `_openRoleSelector` for non-admin field workers.
+     * Dropdown arrow `▼` in the top bar is only visible to `superAdmin` and `admin`. Field workers cannot tap the top bar to switch themselves to Super Admin or other businesses.
+     * "Switch Active Role" option in the drawer is strictly restricted to `superAdmin` and `admin`.
+   - **Spot Audit Target Gating (`mobile/lib/screens/spot_audit_screen.dart`)**:
+     * Added `final UserRole? activeRole;` parameter.
+     * Automatically locks `_auditTarget` to `packaged` (Water Van), `tanker` (Bulk Tanker), or `cafe` (Cafe Drawer) matching the user's role.
+     * Completely hides the ChoiceChips for other businesses from non-admin roles.
+
+4. **Resolved 1.00 Pixel Overflow on Vehicle Selector Chips (`mobile/lib/screens/fleet_gps_screen.dart`):**
+   - Increased selector container height from `48` to `58`.
+   - Adjusted internal padding to `const EdgeInsets.symmetric(horizontal: 14, vertical: 6)`.
+   - Added `mainAxisSize: MainAxisSize.min` and line height `height: 1.15` on `GoogleFonts.inter` vehicle ID and speed labels, providing ample breathing room and permanently eliminating the 1.00px overflow error.
+
+5. **Verification & Quality Checks:**
+   - Dart Static Analysis: `flutter analyze` in `mobile/` -> **No issues found! (100% clean)**.
+   - Feature Test Suite: `php artisan test tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php` -> **18 passed (156 assertions, 100% GREEN)**.
+   - Windows Desktop Binary: Compiled `build/windows/x64/runner/Debug/dk_track_mobile.exe` in 14.4s.
+   - Android Release APK: Compiled `build/app/outputs/flutter-apk/app-release.apk`.
