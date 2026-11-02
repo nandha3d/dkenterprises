@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
   // Brand Primitives from Web App (zolo-tokens.css)
@@ -92,7 +93,9 @@ class AppTheme {
         surface: const Color(0xFF101726),
         error: const Color(0xFFEF4444),
       ),
-      fontFamily: 'Roboto',
+      fontFamily: GoogleFonts.inter().fontFamily,
+      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
+      primaryTextTheme: GoogleFonts.interTextTheme(ThemeData.dark().primaryTextTheme),
     );
   }
 
@@ -119,7 +122,9 @@ class AppTheme {
         surface: Colors.white,
         error: const Color(0xFFDC2626),
       ),
-      fontFamily: 'Roboto',
+      fontFamily: GoogleFonts.inter().fontFamily,
+      textTheme: GoogleFonts.interTextTheme(ThemeData.light().textTheme),
+      primaryTextTheme: GoogleFonts.interTextTheme(ThemeData.light().primaryTextTheme),
     );
   }
 }

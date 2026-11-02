@@ -16,6 +16,10 @@ import 'screens/role_selector_sheet.dart';
 import 'screens/customers_screen.dart';
 import 'screens/products_screen.dart';
 import 'screens/invoices_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'screens/tmws_vertical_screen.dart';
+import 'screens/dk_waters_vertical_screen.dart';
+import 'screens/aran_cafe_vertical_screen.dart';
 import 'screens/financials_screen.dart';
 
 void main() {
@@ -563,7 +567,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                     ),
                     child: Text(
                       'API: ${ApiService.activeBaseUrl.replaceFirst('https://', '')}',
-                      style: const TextStyle(color: Colors.white70, fontSize: 8.5, fontFamily: 'monospace'),
+                      style: GoogleFonts.inter(color: Colors.white70, fontSize: 8.5, fontWeight: FontWeight.w600),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -663,15 +667,31 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
 
             Divider(color: AppColors.border(context), height: 16),
 
-            // SECTION 4: Cafe POS
-            _buildDrawerSectionHeader(t ? 'அரண் கஃபே பில்லிங்' : 'ARAN CAFE COUNTER'),
+            // SECTION 4: Dedicated Enterprise Portals & Verticals
+            _buildDrawerSectionHeader(t ? 'நிறுவனங்களின் போர்ட்டல்கள்' : 'ENTERPRISE VERTICALS'),
             _buildDrawerMenuItem(
-              icon: Icons.point_of_sale,
-              iconColor: const Color(0xFFD97706),
-              title: t ? 'விரைவு டச் POS & கவுண்டர்' : 'Express Touch POS',
-              badge: 'Cafe POS',
-              badgeColor: const Color(0xFFD97706),
-              onTap: () => _navigateToScreen(CafePosScreen(isTamil: t)),
+              icon: Icons.fire_truck,
+              iconColor: AppColors.roleTankerDriver,
+              title: 'TMWS Bulk Logistics',
+              badge: 'Bulk Tankers',
+              badgeColor: AppColors.roleTankerDriver,
+              onTap: () => _navigateToScreen(TmwsVerticalScreen(isTamil: t)),
+            ),
+            _buildDrawerMenuItem(
+              icon: Icons.water_drop,
+              iconColor: AppColors.roleDeliveryDriver,
+              title: 'DK Waters Distribution',
+              badge: '20L Jars',
+              badgeColor: AppColors.roleDeliveryDriver,
+              onTap: () => _navigateToScreen(DkWatersVerticalScreen(isTamil: t)),
+            ),
+            _buildDrawerMenuItem(
+              icon: Icons.local_cafe,
+              iconColor: AppColors.roleCashier,
+              title: 'Aran Cafe & Bakery Express',
+              badge: 'Cafe & POS',
+              badgeColor: AppColors.roleCashier,
+              onTap: () => _navigateToScreen(AranCafeVerticalScreen(isTamil: t)),
             ),
 
             Divider(color: AppColors.border(context), height: 16),
@@ -705,14 +725,17 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               ),
               title: Text(
                 t ? 'வெளியேறு (Logout Session)' : 'Sign Out (Logout)',
-                style: const TextStyle(color: AppColors.brandDanger, fontSize: 13, fontWeight: FontWeight.w800),
+                style: GoogleFonts.inter(color: AppColors.brandDanger, fontSize: 13, fontWeight: FontWeight.w800),
               ),
               onTap: () {
                 Navigator.pop(context);
                 widget.onLogout();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(t ? 'வெற்றிகரமாக வெளியேறினீர்கள்' : 'Logged out successfully'),
+                    content: Text(
+                      t ? 'வெற்றிகரமாக வெளியேறினீர்கள்' : 'Logged out successfully',
+                      style: GoogleFonts.inter(),
+                    ),
                     backgroundColor: AppColors.brandDanger,
                     behavior: SnackBarBehavior.floating,
                   ),
@@ -724,39 +747,115 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         ),
       ),
 
+      extendBody: true,
+
       body: IndexedStack(
         index: _currentIndex < screens.length ? _currentIndex : 0,
         children: screens,
       ),
 
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: AppColors.bottomNavBg(context),
-          border: Border(
-            top: BorderSide(
-              color: isDark ? Colors.white.withOpacity(0.12) : const Color(0xFF0F172A).withOpacity(0.08),
-              width: 1.0,
+      // Modern Floating Pill Navigation Bar
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(34),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(
+                height: 64,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: isDark
+                        ? [
+                            AppColors.brandNavy.withOpacity(0.92),
+                            AppColors.brandPurple.withOpacity(0.85),
+                          ]
+                        : [
+                            Colors.white.withOpacity(0.95),
+                            const Color(0xFFF3E8FF).withOpacity(0.92),
+                          ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(34),
+                  border: Border.all(
+                    color: isDark ? Colors.white.withOpacity(0.20) : AppColors.brandPurple.withOpacity(0.30),
+                    width: 1.2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: r.color.withOpacity(isDark ? 0.35 : 0.20),
+                      blurRadius: 22,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 8),
+                    ),
+                    BoxShadow(
+                      color: Colors.black.withOpacity(isDark ? 0.45 : 0.12),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: List.generate(navItems.length, (index) {
+                    final item = navItems[index];
+                    final isSelected = (_currentIndex < navItems.length ? _currentIndex : 0) == index;
+                    return InkWell(
+                      onTap: () => setState(() => _currentIndex = index),
+                      borderRadius: BorderRadius.circular(24),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOutCubic,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isSelected ? 16 : 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? (isDark ? Colors.white.withOpacity(0.18) : r.color.withOpacity(0.15))
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(24),
+                          border: isSelected
+                              ? Border.all(
+                                  color: isDark ? Colors.white.withOpacity(0.3) : r.color.withOpacity(0.35),
+                                  width: 1,
+                                )
+                              : null,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              (item.icon as Icon).icon,
+                              color: isSelected
+                                  ? (isDark ? Colors.white : r.color)
+                                  : (isDark ? Colors.white60 : AppColors.textDim(context)),
+                              size: 20,
+                            ),
+                            if (isSelected && item.label != null) ...[
+                              const SizedBox(width: 8),
+                              Text(
+                                item.label!,
+                                style: GoogleFonts.inter(
+                                  color: isDark ? Colors.white : r.color,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
             ),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-              blurRadius: 16,
-              offset: const Offset(0, -4),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex < navItems.length ? _currentIndex : 0,
-          onTap: (index) => setState(() => _currentIndex = index),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          selectedItemColor: r.color,
-          unselectedItemColor: AppColors.textDim(context),
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
-          unselectedLabelStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
-          type: BottomNavigationBarType.fixed,
-          items: navItems,
         ),
       ),
     );

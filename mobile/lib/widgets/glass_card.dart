@@ -86,7 +86,10 @@ class _GlassCardState extends State<GlassCard> {
             ),
         ],
       ),
-      child: widget.child,
+      child: Material(
+        type: MaterialType.transparency,
+        child: widget.child,
+      ),
     );
 
     // Apply BackdropFilter blur

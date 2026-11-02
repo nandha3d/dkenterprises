@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../models/models.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
@@ -218,8 +219,8 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Slip No: ${_lastReceipt!['delivery_no']}', style: const TextStyle(fontSize: 11, fontFamily: 'monospace')),
-                      Text('${_lastReceipt!['mode']}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.brandEmerald)),
+                      Text('Slip No: ${_lastReceipt!['delivery_no']}', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600)),
+                      Text('${_lastReceipt!['mode']}', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.brandEmerald)),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -339,31 +340,34 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.isDark(context) ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border(context)),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<CustomerItem>(
-                      isExpanded: true,
-                      value: _selectedCustomer,
-                      dropdownColor: AppColors.card(context),
-                      items: _customers.map((c) {
-                        return DropdownMenuItem(
-                          value: c,
-                          child: Text(
-                            '${c.name} (${c.emptyHeld} Cans)',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.text(context)),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (val) {
-                        if (val != null) setState(() => _selectedCustomer = val);
-                      },
+                Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.isDark(context) ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.border(context)),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<CustomerItem>(
+                        isExpanded: true,
+                        value: _selectedCustomer,
+                        dropdownColor: AppColors.card(context),
+                        items: _customers.map((c) {
+                          return DropdownMenuItem(
+                            value: c,
+                            child: Text(
+                              '${c.name} (${c.emptyHeld} Cans)',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.text(context)),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          if (val != null) setState(() => _selectedCustomer = val);
+                        },
+                      ),
                     ),
                   ),
                 ),
