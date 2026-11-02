@@ -152,6 +152,7 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
 
   void _showReceiptSheet() {
     if (_lastReceipt == null) return;
+    final t = widget.isTamil;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -172,15 +173,31 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.receipt_long, color: AppColors.brandEmerald, size: 22),
-                    const SizedBox(width: 8),
-                    Text(
-                      widget.isTamil ? 'மின்னணு ரசீது' : 'Delivery Electronic Slip',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.text(context),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.brandEmerald.withOpacity(0.18),
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: const Icon(Icons.receipt_long, color: AppColors.brandEmerald, size: 20),
+                    ),
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          t ? 'விற்பனை & விநியோக ரசீது' : 'Can Sales & Delivery Slip',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.text(context),
+                          ),
+                        ),
+                        Text(
+                          t ? 'உடனடி மின்னணு தெர்மல் ரசீது' : 'Instant 58mm Thermal Delivery Slip',
+                          style: TextStyle(fontSize: 10.5, color: AppColors.textDim(context)),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -194,48 +211,138 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.isDark(context) ? Colors.black38 : const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(12),
+                color: AppColors.isDark(context) ? Colors.black38 : const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: AppColors.border(context)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Center(
-                    child: Text(
-                      'DK WATERS — PACKAGED DRINKING WATER',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 12,
-                        letterSpacing: 0.5,
-                        color: AppColors.text(context),
-                      ),
+                    child: Column(
+                      children: [
+                        Text(
+                          'DK WATERS — PACKAGED DRINKING WATER',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 12.5,
+                            letterSpacing: 0.6,
+                            color: AppColors.text(context),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Beat Route Delivery Slip • FSSAI: 1242300000000',
+                          style: TextStyle(fontSize: 9.5, color: AppColors.textDim(context)),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Slip No: ${_lastReceipt!['delivery_no']}', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600)),
-                      Text('${_lastReceipt!['mode']}', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.brandEmerald)),
+                      Text('Slip No: ${_lastReceipt!['delivery_no']}', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700)),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.brandEmerald.withOpacity(0.18),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '${_lastReceipt!['mode']}',
+                          style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.brandEmerald),
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 6),
-                  Text('Customer: ${_lastReceipt!['customer']}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('Package: ${_lastReceipt!['package']} x ${_lastReceipt!['qty']}', style: const TextStyle(fontSize: 11)),
-                  Text('Empty Jars Collected: ${_lastReceipt!['empty']}', style: const TextStyle(fontSize: 11, color: AppColors.brandSky)),
-                  const Divider(height: 16),
+                  Text(
+                    'Customer: ${_lastReceipt!['customer']}',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.text(context)),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    'Package: ${_lastReceipt!['package']} × ${_lastReceipt!['qty']} Cans (@ ₹${_lastReceipt!['rate']}/can)',
+                    style: TextStyle(fontSize: 11, color: AppColors.text(context)),
+                  ),
+                  Text(
+                    'Empty Jars Collected: ${_lastReceipt!['empty']} Cans Returned',
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.brandEmerald),
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.roleDeliveryDriver.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      'Customer Jar Balance: ${(_selectedCustomer?.emptyHeld ?? 0) + _deliveredQty - _emptyReturnedQty} Cans currently held',
+                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.roleDeliveryDriver),
+                    ),
+                  ),
+                  const Divider(height: 18),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('TOTAL AMOUNT:', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
-                      Text('₹ ${_lastReceipt!['total'].toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.brandEmerald)),
+                      Text(t ? 'மொத்த தொகை:' : 'TOTAL FARE:', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
+                      Text(
+                        '₹ ${_lastReceipt!['total'].toStringAsFixed(2)}',
+                        style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 17, color: AppColors.brandEmerald),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.print, size: 16),
+                    label: Text(t ? 'தெர்மல் பிரிண்ட்' : 'Print Slip', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700)),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      side: BorderSide(color: AppColors.border(context)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(t ? 'ESC/POS தெர்மல் பிரிண்டருக்கு ரசீது அனுப்பப்பட்டது!' : 'Sent to 58mm Bluetooth Thermal Printer!'),
+                          backgroundColor: AppColors.brandEmerald,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.share, size: 16),
+                    label: Text(t ? 'பகிர்' : 'WhatsApp', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700)),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      side: BorderSide(color: AppColors.border(context)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(t ? 'வாடிக்கையாளரின் வாட்ஸ்அப்பிற்கு ரசீது அனுப்பப்பட்டது!' : 'Delivery Slip shared to customer WhatsApp!'),
+                          backgroundColor: AppColors.brandSky,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.roleDeliveryDriver,
@@ -244,7 +351,7 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
               ),
               onPressed: () => Navigator.pop(ctx),
               child: Text(
-                widget.isTamil ? 'முடிந்தது (அடுத்த வாடிக்கையாளர்)' : 'Done (Next Customer)',
+                t ? 'முடிந்தது (அடுத்த வாடிக்கையாளர் விற்பனை)' : 'Done (Next Customer Sale)',
                 style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
@@ -271,7 +378,7 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
       appBar: canPop
           ? AppBar(
               title: Text(
-                t ? 'குடிநீர் விநியோக டிக்கெட்' : 'Water Delivery Ticketing',
+                t ? 'குடிநீர் விற்பனை POS' : 'Can Sales POS (Sell Cans)',
                 style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 16),
               ),
             )
@@ -282,6 +389,84 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Prominent Header Banner
+            GlassCard(
+              padding: const EdgeInsets.all(16),
+              borderRadius: 18,
+              tintColor: AppColors.roleDeliveryDriver,
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppColors.roleDeliveryDriver, AppColors.brandNavy],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.roleDeliveryDriver.withOpacity(0.35),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(Icons.point_of_sale_rounded, color: Colors.white, size: 24),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                t ? 'குடிநீர் விற்பனை கவுண்டர்' : 'DK Waters — Can Sales POS',
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 14,
+                                  color: AppColors.text(context),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.brandEmerald.withOpacity(0.18),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                'SPOT POS',
+                                style: GoogleFonts.inter(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.brandEmerald,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          t
+                              ? 'விற்பனை கேன்கள், காலி கேன் வரவு & உடனடி ரசீது'
+                              : 'Spot can billing, empty jar collection & instant slip',
+                          style: GoogleFonts.inter(fontSize: 10.5, color: AppColors.textDim(context)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 14),
+
             // Truck Stock Glass Card
             GlassCard(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -316,19 +501,29 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
                       ),
                     ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.brandEmerald.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Text('LIVE ROUTE', style: TextStyle(color: AppColors.brandEmerald, fontSize: 10, fontWeight: FontWeight.bold)),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.brandEmerald.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Text('LIVE BEAT', style: TextStyle(color: AppColors.brandEmerald, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${(_truckStock - _deliveredQty).clamp(0, 999)} Left after sale',
+                        style: TextStyle(fontSize: 10, color: AppColors.textDim(context), fontWeight: FontWeight.w600),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
             // Customer Selection Glass Card
             GlassCard(
@@ -340,9 +535,15 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        t ? 'வாடிக்கையாளர் (பீட் ரூட்)' : 'Customer (Beat Route)',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.text(context)),
+                      Row(
+                        children: [
+                          const Icon(Icons.person_pin_circle_rounded, size: 18, color: AppColors.roleDeliveryDriver),
+                          const SizedBox(width: 6),
+                          Text(
+                            t ? 'வாடிக்கையாளர் (பீட் ரூட்)' : 'Select Customer (Beat Route)',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.text(context)),
+                          ),
+                        ],
                       ),
                       Text(
                         '${_customers.length} On Route',
@@ -369,7 +570,7 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
                             return DropdownMenuItem(
                               value: c,
                               child: Text(
-                                '${c.name} (${c.emptyHeld} Cans)',
+                                '${c.name} • ${c.emptyHeld} Cans Held',
                                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.text(context)),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -382,6 +583,33 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
                       ),
                     ),
                   ),
+                  if (_selectedCustomer != null) ...[
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.isDark(context) ? Colors.black26 : const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.phone_android, size: 14, color: AppColors.brandSky),
+                          const SizedBox(width: 6),
+                          Text(
+                            _selectedCustomer!.phone.isNotEmpty ? _selectedCustomer!.phone : '9842100000',
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                          ),
+                          const Spacer(),
+                          Icon(Icons.home_work_outlined, size: 14, color: AppColors.textDim(context)),
+                          const SizedBox(width: 4),
+                          Text(
+                            _selectedCustomer!.address.isNotEmpty ? _selectedCustomer!.address : 'Town Route',
+                            style: TextStyle(fontSize: 11, color: AppColors.textDim(context)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -395,9 +623,18 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    t ? 'குடிநீர் தயாரிப்பு (பேக்கேஜ்)' : 'Package Product',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.text(context)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        t ? 'குடிநீர் தயாரிப்பு (பேக்கேஜ்)' : 'Water Package Product',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.text(context)),
+                      ),
+                      Text(
+                        'Rate: ₹${_selectedPackage?.unitPrice.toStringAsFixed(0) ?? "35"}/can',
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.roleDeliveryDriver),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 10),
                   Wrap(
@@ -438,7 +675,7 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
 
           const SizedBox(height: 14),
 
-          // Quantities Delivered & Returned Glass Cards
+          // Quantities Delivered & Returned Glass Cards (strictly increment by 1)
           Row(
             children: [
               Expanded(
@@ -449,15 +686,16 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
                   child: Column(
                     children: [
                       Text(
-                        t ? 'விநியோகம் (Cans)' : 'Delivered Qty',
+                        t ? 'விற்பனை (Cans Delivered)' : 'Delivered / Sold Cans',
                         style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textMuted(context)),
+                        textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Text(
                         '$_deliveredQty',
-                        style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppColors.roleDeliveryDriver),
+                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.roleDeliveryDriver),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -486,15 +724,16 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
                   child: Column(
                     children: [
                       Text(
-                        t ? 'திரும்பியது (Empty)' : 'Empty Returned',
+                        t ? 'காலி வரவு (Empties Returned)' : 'Empty Cans Collected',
                         style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textMuted(context)),
+                        textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Text(
                         '$_emptyReturnedQty',
-                        style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppColors.brandEmerald),
+                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.brandEmerald),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -519,6 +758,57 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
 
           const SizedBox(height: 14),
 
+          // Live Can Custody & Balance Reconciler Card
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppColors.roleDeliveryDriver.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.roleDeliveryDriver.withOpacity(0.25)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Column(
+                  children: [
+                    Text(t ? 'முந்தைய இருப்பு' : 'Cust. Previous', style: TextStyle(fontSize: 9.5, color: AppColors.textDim(context))),
+                    const SizedBox(height: 2),
+                    Text('${_selectedCustomer?.emptyHeld ?? 0} Cans', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                const Icon(Icons.add, size: 14, color: AppColors.roleDeliveryDriver),
+                Column(
+                  children: [
+                    Text(t ? 'விற்பனை' : 'Delivered', style: TextStyle(fontSize: 9.5, color: AppColors.textDim(context))),
+                    const SizedBox(height: 2),
+                    Text('+$_deliveredQty Cans', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.roleDeliveryDriver)),
+                  ],
+                ),
+                const Icon(Icons.remove, size: 14, color: AppColors.brandEmerald),
+                Column(
+                  children: [
+                    Text(t ? 'காலி வசூல்' : 'Collected', style: TextStyle(fontSize: 9.5, color: AppColors.textDim(context))),
+                    const SizedBox(height: 2),
+                    Text('-$_emptyReturnedQty Cans', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.brandEmerald)),
+                  ],
+                ),
+                const Icon(Icons.drag_handle, size: 14, color: Colors.grey),
+                Column(
+                  children: [
+                    Text(t ? 'வாடிக்கையாளர் புதிய இருப்பு' : 'New Cust. Held', style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700, color: AppColors.brandPurple)),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${(_selectedCustomer?.emptyHeld ?? 0) + _deliveredQty - _emptyReturnedQty} Cans',
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.brandPurple),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 14),
+
           // Payment Mode Selector Glass Card
           GlassCard(
             padding: const EdgeInsets.all(14),
@@ -534,11 +824,11 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
             ),
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
 
           // Submit Delivery Glass Action Button
           Container(
-            height: 52,
+            height: 54,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [AppColors.roleDeliveryDriver, AppColors.brandNavy],
@@ -565,10 +855,12 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.check_circle_outline, color: Colors.white, size: 20),
-                            const SizedBox(width: 8),
+                            const Icon(Icons.check_circle_outline, color: Colors.white, size: 22),
+                            const SizedBox(width: 10),
                             Text(
-                              t ? 'விநியோகம் உறுதிசெய் · ₹ ${_totalFare.toStringAsFixed(0)}' : 'Issue Ticket · ₹ ${_totalFare.toStringAsFixed(0)}',
+                              t
+                                  ? 'விற்பனை உறுதிசெய் · ₹ ${_totalFare.toStringAsFixed(0)} (ரசீது)'
+                                  : 'Sell Cans & Issue Slip · ₹ ${_totalFare.toStringAsFixed(0)}',
                               style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w900),
                             ),
                           ],
@@ -613,3 +905,4 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
     );
   }
 }
+

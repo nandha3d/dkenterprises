@@ -304,8 +304,8 @@ class _DkWatersVerticalScreenState extends State<DkWatersVerticalScreen> {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            icon: const Icon(Icons.point_of_sale, size: 18),
-                            label: Text(t ? 'டெலிவரி டிக்கெட்' : 'Delivery Ticket', style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 12)),
+                            icon: const Icon(Icons.point_of_sale_rounded, size: 18),
+                            label: Text(t ? 'குடிநீர் விற்பனை POS' : 'Can Sales POS (Sell Cans)', style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 12)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.roleDeliveryDriver,
                               foregroundColor: Colors.white,

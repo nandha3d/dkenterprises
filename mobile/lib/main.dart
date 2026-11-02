@@ -190,6 +190,36 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         default:
           return role.color;
       }
+    } else if (role == UserRole.deliveryDriver) {
+      switch (index) {
+        case 0:
+          return AppColors.roleDeliveryDriver;
+        case 1:
+          return const Color(0xFF0D9488);
+        case 2:
+          return AppColors.brandEmerald;
+        case 3:
+          return AppColors.brandPurple;
+        case 4:
+          return AppColors.brandDanger;
+        default:
+          return role.color;
+      }
+    } else if (role == UserRole.fieldAgent) {
+      switch (index) {
+        case 0:
+          return AppColors.roleDeliveryDriver;
+        case 1:
+          return AppColors.roleFieldAgent;
+        case 2:
+          return AppColors.brandSky;
+        case 3:
+          return AppColors.brandEmerald;
+        case 4:
+          return AppColors.brandDanger;
+        default:
+          return role.color;
+      }
     }
     return role.color;
   }
@@ -327,12 +357,17 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
 
       case UserRole.fieldAgent:
         screens = [
+          TicketMachineScreen(isTamil: t),
           FieldAgentScreen(isTamil: t, vertical: v),
           CustomersScreen(isTamil: t),
           FleetGpsScreen(isTamil: t, initialMode: FleetViewMode.packagedWater, activeRole: r),
           SpotAuditScreen(isTamil: t, activeRole: r),
         ];
         navItems = [
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.point_of_sale_rounded),
+            label: t ? 'குடிநீர் விற்பனை' : 'Can Sales POS',
+          ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.assignment_ind_rounded),
             label: t ? 'வசூல் & KYC' : 'Field Sales',
@@ -357,12 +392,13 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
           TicketMachineScreen(isTamil: t),
           PlantRefillScreen(isTamil: t),
           FleetGpsScreen(isTamil: t, initialMode: FleetViewMode.packagedWater, activeRole: r),
+          InvoicesScreen(isTamil: t),
           SpotAuditScreen(isTamil: t, activeRole: r),
         ];
         navItems = [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.water_drop_rounded),
-            label: t ? 'குடிநீர் டிக்கெட்' : 'Delivery Ticket',
+            icon: const Icon(Icons.point_of_sale_rounded),
+            label: t ? 'குடிநீர் விற்பனை' : 'Can Sales POS',
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.factory_rounded),
@@ -373,7 +409,11 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             label: t ? 'பீட் GPS' : 'Beat GPS',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.verified_user_rounded),
+            icon: const Icon(Icons.receipt_long_rounded),
+            label: t ? 'விற்பனை ரசீது' : 'Sales Slips',
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.inventory_2_rounded),
             label: t ? 'கேன் ஆய்வு' : 'Empty Audit',
           ),
         ];
@@ -694,6 +734,14 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 },
               ),
               _buildDrawerMenuItem(
+                icon: Icons.point_of_sale_rounded,
+                iconColor: AppColors.brandSky,
+                title: t ? 'குடிநீர் விற்பனை POS (Sell Cans)' : 'Can Sales POS (Sell Cans)',
+                badge: '20L POS',
+                badgeColor: AppColors.brandSky,
+                onTap: () => _navigateToScreen(TicketMachineScreen(isTamil: t)),
+              ),
+              _buildDrawerMenuItem(
                 icon: Icons.local_cafe,
                 iconColor: AppColors.roleCashier,
                 title: 'Aran Cafe & Bakery Express',
@@ -762,11 +810,11 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               // DK WATERS DELIVERY DRIVER ONLY
               _buildDrawerSectionHeader(t ? 'DK குடிநீர் விநியோகம்' : 'DK WATERS LOGISTICS'),
               _buildDrawerMenuItem(
-                icon: Icons.water_drop,
-                iconColor: AppColors.brandSky,
-                title: t ? 'குடிநீர் விநியோக டிக்கெட் (<15s)' : 'Delivery Ticket Machine',
-                badge: 'Fast',
-                badgeColor: AppColors.brandSky,
+                icon: Icons.point_of_sale_rounded,
+                iconColor: AppColors.roleDeliveryDriver,
+                title: t ? 'குடிநீர் விற்பனை POS (Sell Cans)' : 'Can Sales POS (Sell Cans)',
+                badge: 'POS',
+                badgeColor: AppColors.roleDeliveryDriver,
                 onTap: () {
                   Navigator.pop(context);
                   setState(() => _currentIndex = 0);
@@ -798,7 +846,12 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 icon: Icons.receipt_long,
                 iconColor: AppColors.brandPurple,
                 title: t ? 'இன்றைய விநியோக ரசீதுகள்' : 'Today Delivery Invoices',
-                onTap: () => _navigateToScreen(InvoicesScreen(isTamil: t)),
+                badge: 'Slips',
+                badgeColor: AppColors.brandPurple,
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 3);
+                },
               ),
               _buildDrawerMenuItem(
                 icon: Icons.people_alt,
@@ -812,12 +865,23 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 title: t ? 'காலி கேன் இருப்பு ஆய்வு' : 'Empty Jar Audit',
                 onTap: () {
                   Navigator.pop(context);
-                  setState(() => _currentIndex = 3);
+                  setState(() => _currentIndex = 4);
                 },
               ),
             ] else if (r == UserRole.fieldAgent) ...[
               // DK WATERS FIELD AGENT ONLY
               _buildDrawerSectionHeader(t ? 'கள விற்பனை & KYC' : 'DK WATERS SALES & KYC'),
+              _buildDrawerMenuItem(
+                icon: Icons.point_of_sale_rounded,
+                iconColor: AppColors.roleDeliveryDriver,
+                title: t ? 'குடிநீர் விற்பனை POS (Sell Cans)' : 'Can Sales POS (Sell Cans)',
+                badge: 'POS',
+                badgeColor: AppColors.roleDeliveryDriver,
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 0);
+                },
+              ),
               _buildDrawerMenuItem(
                 icon: Icons.assignment_ind,
                 iconColor: AppColors.roleFieldAgent,
@@ -826,7 +890,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 badgeColor: AppColors.roleFieldAgent,
                 onTap: () {
                   Navigator.pop(context);
-                  setState(() => _currentIndex = 0);
+                  setState(() => _currentIndex = 1);
                 },
               ),
               _buildDrawerMenuItem(
@@ -837,7 +901,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 badgeColor: AppColors.brandSky,
                 onTap: () {
                   Navigator.pop(context);
-                  setState(() => _currentIndex = 1);
+                  setState(() => _currentIndex = 2);
                 },
               ),
               _buildDrawerMenuItem(
@@ -848,7 +912,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 badgeColor: AppColors.brandEmerald,
                 onTap: () {
                   Navigator.pop(context);
-                  setState(() => _currentIndex = 2);
+                  setState(() => _currentIndex = 3);
                 },
               ),
               _buildDrawerMenuItem(
@@ -863,7 +927,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 title: t ? 'கேன் லெட்ஜர் தணிக்கை' : 'Jar Ledger Spot Audit',
                 onTap: () {
                   Navigator.pop(context);
-                  setState(() => _currentIndex = 3);
+                  setState(() => _currentIndex = 4);
                 },
               ),
             ] else if (r == UserRole.tankerDriver) ...[

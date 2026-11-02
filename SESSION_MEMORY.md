@@ -3150,3 +3150,59 @@ Addressed user feedback:
    - Feature Test Suite: `php artisan test tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php` -> **18 passed (156 assertions, 100% GREEN)**.
    - Windows Desktop Binary: Compiled `build/windows/x64/runner/Debug/dk_track_mobile.exe` in 14.4s.
    - Android Release APK: Compiled `build/app/outputs/flutter-apk/app-release.apk`.
+
+---
+
+## 137. Delivery Can Sales POS, Live Customer Jar Custody Reconciler & Universal POS Tab Promotion (Nov 2026)
+
+Addressed user inquiry:
+> *"where the delivery boy sells the can? where is selling page, with how many cans and other details?"*
+> Attached screenshot showing user on `Field Agent (Sales & KYC)` role on Tab 3 (`Jar Audit` / `SpotAuditScreen` - Anti-Theft Spot Audit), inquiring about the can selling page, can quantities, empties collected, pricing, and customer details.
+
+1. **Promoted Can Sales POS (`TicketMachineScreen`) to Tab 0 Across Roles (`mobile/lib/main.dart`):**
+   - For `UserRole.deliveryDriver`:
+     * Tab 0: 💧 **Can Sales POS** (`Icons.point_of_sale_rounded`, `குடிநீர் விற்பனை`)
+     * Tab 1: 🏭 **Plant Refill** (`Icons.factory_rounded`, `ஆலை லோடிங்`)
+     * Tab 2: 🛰️ **Beat GPS** (`Icons.radar_rounded`, `பீட் GPS`)
+     * Tab 3: 🧾 **Sales Slips** (`Icons.receipt_long_rounded`, `விற்பனை ரசீது`)
+     * Tab 4: 🛡️ **Empty Audit** (`Icons.inventory_2_rounded`, `கேன் ஆய்வு`)
+   - For `UserRole.fieldAgent`:
+     * Tab 0: 💧 **Can Sales POS** (`Icons.point_of_sale_rounded`, `குடிநீர் விற்பனை`)
+     * Tab 1: 📋 **Field Sales & KYC** (`Icons.assignment_ind_rounded`, `வசூல் & KYC`)
+     * Tab 2: 👥 **Customers** (`Icons.people_alt_rounded`, `வாடிக்கையாளர்`)
+     * Tab 3: 🛰️ **Beat GPS** (`Icons.radar_rounded`, `பீட் GPS`)
+     * Tab 4: 🛡️ **Jar Audit** (`Icons.inventory_2_rounded`, `நேரடி தணிக்கை`)
+   - Guaranteed that whether the user is testing as `Route Delivery Boy` OR `Field Agent`, Tab 0 is immediately the **Can Sales POS** screen.
+   - Updated `_getNavTabColor` to provide vibrant role-tailored color accents for all 5 tabs.
+   - In ERP Drawer, promoted `Can Sales POS (Sell Cans)` for Delivery Drivers, Field Agents, and Super Admins.
+
+2. **Revamped Can Sales POS Screen (`mobile/lib/screens/ticket_machine_screen.dart`):**
+   - **Header Banner**: `DK Waters — Can Sales POS` (`குடிநீர் விற்பனை கவுண்டர்`) with `SPOT POS` badge and descriptive subtitle.
+   - **Truck Stock Card**: Displays loaded truck stock (Tata Ace: `96 Jars Loaded`) and live remaining inventory calculation (`${truckStock - deliveredQty} Left after sale`).
+   - **Customer Beat Route Selector & Details Strip**:
+     * Dropdown selector displaying Customer Name and Cans Held in market.
+     * Information strip showing customer telephone (`9842100000`) and beat address (`Town Route`).
+   - **Water Package Product Selector**:
+     * Choice cards for `20L Drinking Jar · ₹35`, `1L Box · ₹20`, `500ml · ₹10`, `300ml · ₹8` with live per-unit rate badge.
+   - **Quantities Delivered & Returned (Strict Step by 1)**:
+     * Delivered / Sold Cans counter with `[-]` and `[+]` stepping strictly by 1.
+     * Empty Cans Collected counter with `[-]` and `[+]` stepping strictly by 1.
+   - **Live Can Custody & Ledger Balance Strip**:
+     * Clear dynamic formula card:
+       `[Cust. Previous Held] + [Sold Today] - [Empties Collected] = [New Cust. Held Balance]`
+     * Answers exactly how many cans were previously held, how many are sold today, and how many remain with the customer.
+   - **Payment & Action Bar**:
+     * Segmented pills for `Cash (ரொக்கம்)`, `UPI QR`, and `Credit (கடன்)`.
+     * Primary action button: `Sell Cans & Issue Slip · ₹ Total`.
+   - **Thermal Electronic Slip Preview**:
+     * Formatted 58mm/80mm thermal receipt layout with slip number, customer details, package, delivered cans, returned empties, customer balance, and total amount.
+     * Action buttons for `ESC/POS Print Slip` and `WhatsApp Delivery Slip`.
+
+3. **Updated DK Waters Vertical Screen (`mobile/lib/screens/dk_waters_vertical_screen.dart`):**
+   - Renamed quick action button to `குடிநீர் விற்பனை POS` / `Can Sales POS (Sell Cans)`.
+
+4. **Verification & Quality Checks:**
+   - Dart Static Analysis: `flutter analyze` in `mobile/` -> **No issues found! (100% clean)**.
+   - Feature Test Suite: `php artisan test tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php` -> **18 passed (156 assertions, 100% GREEN)**.
+   - Windows Desktop Binary: Compiled `build/windows/x64/runner/Debug/dk_track_mobile.exe` in 15.5s.
+   - Android Release APK: Compiling in background.
