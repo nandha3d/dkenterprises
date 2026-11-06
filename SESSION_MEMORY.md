@@ -3206,3 +3206,48 @@ Addressed user inquiry:
    - Feature Test Suite: `php artisan test tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php` -> **18 passed (156 assertions, 100% GREEN)**.
    - Windows Desktop Binary: Compiled `build/windows/x64/runner/Debug/dk_track_mobile.exe` in 15.5s.
    - Android Release APK: Compiling in background.
+
+---
+
+## 138. Commercial Bulk Water Tanker Automated GPS & Halt Billing Workflow (Nov 2026)
+
+Addressed user requirements:
+> *"1. make it further more automatic, by using the start trip to turn on the GPS kilometers tracking. But make it overridealble if possible,(when the GPS is not active). at that time we can use the odometer setup. otherwise we can use both for dual verification.*
+> *2. also make the halt timing automatic by keep the vehcle idel that tracked by GPS,*
+> *3. the only manual entry is just a motor used or not, and how many hours or minutes used."*
+
+1. **Automatic GPS Distance Tracking with Start Trip & Dual Verification (`mobile/lib/screens/tanker_trip_sheet_screen.dart`):**
+   - Implemented `TripTrackingStatus` state machine (`notStarted`, `enRoute`, `atSite`, `completed`).
+   - Added **`🚀 Start Trip (Auto GPS Tracking)`** master trigger:
+     * Requests location permissions and starts live GPS location stream (`Geolocator.getPositionStream`).
+     * Accumulates high-accuracy distance deltas (`Geolocator.distanceBetween`), filtering out jitter/drift (< 5m).
+     * Live display of `Speed (km/h)`, `Elapsed Duration`, and `GPS Distance (KM)`.
+   - **Dual Verification & Odometer Fallback / Override**:
+     * Shows GPS Tracked Distance and Odometer reading side-by-side in `_buildDualDistanceTrackingCard`.
+     * If GPS is offline or signal drops (e.g., deep rural borewells), automatically notifies the driver and smoothly falls back to odometer calculations.
+     * When GPS is active, auto-syncs `End KM = Start KM + gpsDistanceKm`.
+     * Added **`Override GPS with Manual Odometer`** switch (`_useManualOverride`), allowing the driver or supervisor to manually key in odometer readings whenever desired.
+     * Displays a live dual match verification chip with variance: e.g. `Dual Match: 0.2 KM variance (99.6% Match) · ✅ Verified`.
+
+2. **Automatic Halt / Waiting Timing via GPS Idling Detection:**
+   - In `_onGpsPositionUpdate` and `_startTripClock`:
+     * When vehicle speed drops below 2.5 km/h while en route or when arriving at customer site (`TripTrackingStatus.atSite`), vehicle is flagged as `IDLE / HALTED`.
+     * Automatically counts idle seconds (`_autoHaltSeconds`) without requiring manual driver calculation.
+     * Applies the predefined product grace period (e.g. 15 mins free) and auto-computes billable waiting detention: `(haltMinutes - freeGrace) * waitingRatePerMin`.
+     * Displays `Total Halted Time: 45 Mins (00:45:12)` and `Billable Waiting: 30 Mins (+₹450)` in `_buildAutoHaltCard`.
+
+3. **Single Manual Entry: Motor Pumping with Live Pump Stopwatch:**
+   - Isolated motor pumping into a distinct, high-contrast operational card (`_buildMotorPumpingCard`):
+     * Toggle switch: `Unloading Motor Used? [ YES / NO ]`.
+     * Manual minutes input field with quick-preset chips (`15m`, `30m`, `45m`, `60m`).
+     * Added **Live Pump Stopwatch**: Driver can simply tap `[ ▶ Start Pump ]` when engaging the PTO/diesel pump and `[ ⏹ Stop Pump ]` when finished; the exact elapsed pumping minutes are calculated and populated automatically.
+     * Live pricing preview: `XX mins @ ₹10.00/min = +₹XXX`.
+
+4. **Dynamic Itemized Bill Preview & Instant ERP Ledger Submission:**
+   - Live Fare Card reactively updates transparent line items:
+     * `Base Water Load (20KL incl. 10 KM)` = ₹ 2,800.00
+     * `Excess Distance Surcharge (45.8 KM)` = ₹ 1,832.00
+     * `Motor Pumping Service (40 mins)` = ₹ 400.00
+     * `Customer Site Waiting Delay (30 mins)` = ₹ 450.00
+     * **Total Billed Fare: ₹ 5,482.00**
+   - Submits through `apiService.submitTankerTrip` and auto-posts journal entries to the ERP ledger.
