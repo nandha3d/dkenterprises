@@ -22,6 +22,9 @@
 !/storage/framework/views/.gitignore
 !/storage/logs/.gitignore
 /vendor
+/bootstrap/cache/*.php
+/bootstrap/cache/*.tmp
+!/bootstrap/cache/.gitignore
 *.zip
 .env
 .env.backup
