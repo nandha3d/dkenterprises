@@ -32,6 +32,23 @@ use App\Http\Controllers\Api\V1\ReportApiController;
 
 Route::prefix('v1')->group(function () {
 
+    // Public Health & Ping Endpoints
+    Route::get('health', function () {
+        return response()->json([
+            'status' => 'OK',
+            'system' => 'DK Enterprises ERP API v1',
+            'timestamp' => now()->toIso8601String(),
+        ]);
+    })->name('api.v1.health');
+
+    Route::get('ping', function () {
+        return response()->json([
+            'status' => 'OK',
+            'system' => 'DK Enterprises ERP API v1',
+            'timestamp' => now()->toIso8601String(),
+        ]);
+    })->name('api.v1.ping');
+
     // Public Authentication Endpoints
     Route::prefix('auth')->group(function () {
         Route::post('login', [AuthController::class, 'login'])->middleware('throttle:api-login')->name('api.v1.auth.login');
@@ -74,6 +91,10 @@ Route::prefix('v1')->group(function () {
             Route::post('spot-audit', [WaterLogisticsApiController::class, 'spotAudit'])->name('api.v1.mobile.spot-audit');
             Route::post('driver-surrender', [WaterLogisticsApiController::class, 'driverCashSurrender'])->name('api.v1.mobile.driver-surrender');
         });
+
+        // Direct Mobile Convenience Aliases
+        Route::get('financials', [WaterLogisticsApiController::class, 'financials'])->name('api.v1.financials.alias');
+        Route::get('invoices', [WaterLogisticsApiController::class, 'invoicesList'])->name('api.v1.invoices.alias');
 
         // Sales & Invoicing
         Route::prefix('sales')->group(function () {

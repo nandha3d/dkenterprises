@@ -7,25 +7,29 @@ abstract final class ApiEndpoints {
     defaultValue: defaultBaseUrl,
   );
 
+  // Health & Ping (Public)
+  static const String ping = '/health';
+  static const String bootstrap = '/mobile/bootstrap';
+
   // Authentication & Identity
   static const String login = '/mobile/login';
   static const String me = '/me';
 
   // Core Financials & Dashboards
-  static const String financials = '/financials';
+  static const String financials = '/mobile/financials';
   static String roleDashboard(String role) => '/mobile/dashboard/$role';
 
   // Parties & Master Data
-  static const String customers = '/customers';
-  static const String customerOnboard = '/customer-onboard';
+  static const String customers = '/mobile/customers';
+  static const String customerOnboard = '/mobile/customer-onboard';
   static const String suppliers = '/suppliers';
-  static const String products = '/products';
+  static const String products = '/mobile/products';
 
   // Sales & Invoices
   static const String sales = '/sales';
-  static const String invoices = '/invoices';
+  static const String invoices = '/mobile/invoices';
   static const String quotations = '/quotations';
-  static const String collectPayment = '/collect-payment';
+  static const String collectPayment = '/mobile/collect-payment';
 
   // Purchases
   static const String purchases = '/purchases';
@@ -50,8 +54,8 @@ abstract final class ApiEndpoints {
   static const String waterCanRoutes = '/routes';
   static const String waterCanDeliveries = '/can-deliveries';
   static const String plantIntakes = '/plant-intakes';
-  static const String spotAudit = '/spot-audit';
-  static const String driverCashSurrender = '/driver-surrender';
+  static const String spotAudit = '/mobile/spot-audit';
+  static const String driverCashSurrender = '/mobile/driver-surrender';
   static const String tankerTrips = '/trip-sheets';
 
   // Cafe & POS

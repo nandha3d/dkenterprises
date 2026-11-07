@@ -94,10 +94,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             connectTimeout: const Duration(seconds: 8),
                             receiveTimeout: const Duration(seconds: 8),
                           ));
-                          final res = await dio.get('$targetUrl/financials');
+                          final cleanUrl = targetUrl.endsWith('/') ? targetUrl.substring(0, targetUrl.length - 1) : targetUrl;
+                          final res = await dio.get('$cleanUrl/mobile/bootstrap');
                           setModalState(() {
                             isTesting = false;
-                            testResult = 'Success: Connected to server (${res.statusCode})';
+                            testResult = 'Success: ERP Server Online (${res.statusCode} OK)';
                           });
                         } catch (e) {
                           setModalState(() {

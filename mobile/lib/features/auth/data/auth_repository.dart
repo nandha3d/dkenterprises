@@ -48,8 +48,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return false;
     }
 
-    final data = loginResult.dataOrNull!;
-    final token = data['token']?.toString() ?? '';
+    final rawData = loginResult.dataOrNull!;
+    final data = rawData['data'] is Map<String, dynamic>
+        ? rawData['data'] as Map<String, dynamic>
+        : (rawData['data'] is Map ? Map<String, dynamic>.from(rawData['data'] as Map) : rawData);
+    final token = data['token']?.toString() ?? rawData['token']?.toString() ?? '';
     if (token.isEmpty) {
       state = state.copyWith(
         isLoading: false,
@@ -83,7 +86,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return;
     }
 
-    final data = result.dataOrNull!;
+    final rawData = result.dataOrNull!;
+    final data = rawData['data'] is Map<String, dynamic>
+        ? rawData['data'] as Map<String, dynamic>
+        : (rawData['data'] is Map ? Map<String, dynamic>.from(rawData['data'] as Map) : rawData);
     final userJson = data['user'] as Map<String, dynamic>? ?? {};
     final user = UserProfile.fromJson(userJson);
 

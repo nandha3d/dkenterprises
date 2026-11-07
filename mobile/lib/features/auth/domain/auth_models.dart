@@ -61,11 +61,11 @@ class CompanyInfo {
 
   factory CompanyInfo.fromJson(Map<String, dynamic> json) {
     final branchesJson = json['branches'] as List<dynamic>? ?? [];
-    final fyJson = (json['financial_years'] ?? json['open_financial_years']) as List<dynamic>? ?? [];
+    final fyJson = (json['fiscal_years'] ?? json['financial_years'] ?? json['open_financial_years']) as List<dynamic>? ?? [];
 
     return CompanyInfo(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
-      name: json['name']?.toString() ?? 'Company',
+      name: (json['trade_name'] ?? json['legal_name'] ?? json['name'])?.toString() ?? 'Company',
       code: json['code']?.toString(),
       industry: json['industry']?.toString(),
       branches: branchesJson.map((b) => BranchInfo.fromJson(b as Map<String, dynamic>)).toList(),
@@ -95,10 +95,10 @@ class UserProfile {
     return UserProfile(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
       name: json['name']?.toString() ?? '',
-      username: json['username']?.toString() ?? '',
+      username: (json['username'] ?? json['name'])?.toString() ?? '',
       email: json['email']?.toString(),
       phone: json['phone']?.toString(),
-      role: json['role']?.toString() ?? 'user',
+      role: (json['role_slug'] ?? json['role'])?.toString() ?? 'user',
     );
   }
 }
