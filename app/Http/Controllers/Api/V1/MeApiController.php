@@ -130,13 +130,31 @@ class MeApiController extends BaseApiController
         $activeBranchId = (int) ($request->header('X-Branch-ID') ?? ($activeCompany['branches'][0]->id ?? 1));
         $activeFiscalYearId = (int) ($request->header('X-Financial-Year-ID') ?? ($activeCompany['fiscal_years'][0]->id ?? 1));
 
+        $primaryRole = $roles[0] ?? 'Staff';
+        $roleSlug = match(strtolower($user->name)) {
+            'admin' => 'superAdmin',
+            'driver' => 'deliveryDriver',
+            'tanker_driver', 'tanker' => 'tankerDriver',
+            'cashier' => 'cashier',
+            'agent', 'field_agent' => 'fieldAgent',
+            default => match(strtolower($primaryRole)) {
+                'admin', 'superadmin', 'owner' => 'superAdmin',
+                'delivery driver', 'deliverydriver', 'driver' => 'deliveryDriver',
+                'tanker driver', 'tankerdriver' => 'tankerDriver',
+                'field agent', 'fieldagent', 'agent' => 'fieldAgent',
+                'cashier' => 'cashier',
+                default => 'staff',
+            },
+        };
+
         return $this->sendResponse([
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
                 'phone' => $user->phone,
-                'role' => $roles[0] ?? 'Staff',
+                'role' => $primaryRole,
+                'role_slug' => $roleSlug,
                 'role_id' => $user->role_id,
                 'warehouse_id' => $user->warehouse_id,
                 'biller_id' => $user->biller_id,

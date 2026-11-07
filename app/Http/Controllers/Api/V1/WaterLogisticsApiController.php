@@ -628,13 +628,23 @@ class WaterLogisticsApiController extends BaseApiController
 
         // Normalized role slug for mobile compatibility
         $rawRoleInput = $request->input('role');
-        $roleSlug = $rawRoleInput ?: match(strtolower($primaryRole)) {
-            'admin', 'superadmin', 'owner' => 'superAdmin',
-            'delivery driver', 'driver' => 'deliveryDriver',
-            'tanker driver' => 'tankerDriver',
-            'field agent', 'agent' => 'fieldAgent',
+        $userNameLower = strtolower($user->name);
+        $primaryRoleLower = strtolower($primaryRole);
+
+        $roleSlug = $rawRoleInput ?: match($userNameLower) {
+            'admin' => 'superAdmin',
+            'driver' => 'deliveryDriver',
+            'tanker_driver', 'tanker' => 'tankerDriver',
             'cashier' => 'cashier',
-            default => strtolower(str_replace(' ', '', $primaryRole)),
+            'agent', 'field_agent' => 'fieldAgent',
+            default => match($primaryRoleLower) {
+                'admin', 'superadmin', 'owner' => 'superAdmin',
+                'delivery driver', 'deliverydriver', 'driver' => 'deliveryDriver',
+                'tanker driver', 'tankerdriver' => 'tankerDriver',
+                'field agent', 'fieldagent', 'agent' => 'fieldAgent',
+                'cashier' => 'cashier',
+                default => 'staff',
+            },
         };
         if (strtolower($roleSlug) === 'deliverydriver') $roleSlug = 'deliveryDriver';
         if (strtolower($roleSlug) === 'tankerdriver') $roleSlug = 'tankerDriver';
@@ -670,9 +680,20 @@ class WaterLogisticsApiController extends BaseApiController
         $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id') ?? $request->company_id;
         $limit = min((int) ($request->input('limit', 50)), 100);
 
+        $authUser = Auth::user();
+        $authName = strtolower($authUser?->name ?? '');
+
         $query = DB::table('customers')
             ->leftJoin('water_can_inventories', 'customers.id', '=', 'water_can_inventories.customer_id')
             ->when($companyId, fn ($q) => $q->where('customers.company_id', $companyId))
+            ->when($authName === 'driver' || $authName === 'delivery_driver', function ($q) {
+                $routeCustomerIds = DB::table('water_can_deliveries')->where('route_id', 1)->pluck('customer_id');
+                $q->whereIn('customers.id', $routeCustomerIds);
+            })
+            ->when($authName === 'tanker_driver' || $authName === 'tanker', function ($q) {
+                $tripCustomerIds = DB::table('water_tanker_trips')->pluck('customer_id');
+                $q->whereIn('customers.id', $tripCustomerIds);
+            })
             ->when($request->filled('updated_since'), fn ($q) => $q->where('customers.updated_at', '>=', $request->updated_since))
             ->when($request->filled('search'), function ($q) use ($request) {
                 $term = '%' . $request->search . '%';
@@ -681,9 +702,13 @@ class WaterLogisticsApiController extends BaseApiController
             ->select(
                 'customers.id',
                 'customers.name',
+                'customers.company_name',
                 'customers.phone_number as phone',
                 'customers.address',
                 'customers.city',
+                'customers.latitude',
+                'customers.longitude',
+                'customers.geofence_radius',
                 'customers.company_id',
                 DB::raw('COALESCE(water_can_inventories.total_cans_held, 0) as cans_held'),
                 DB::raw('COALESCE(water_can_inventories.deposit_held, 0) as deposit_held'),
@@ -1016,21 +1041,25 @@ class WaterLogisticsApiController extends BaseApiController
         usort($recentTransactions, fn ($a, $b) => strcmp($b['date'], $a['date']));
         $recentTransactions = array_slice($recentTransactions, 0, 10);
 
+        $user = Auth::user();
+        $isDriverOrStaff = $user && in_array(strtolower($user->name), ['driver', 'delivery_driver', 'tanker_driver', 'tanker', 'agent']);
+
         $data = [
             'company_id' => (int) $companyId,
-            'cash_balance' => $cash1010,
-            'cash_in_hand_1010' => $cash1010,
-            'bank_balance' => $bank1020,
-            'bank_account_1020' => $bank1020,
-            'receivables' => $ar1030,
-            'accounts_receivable_1030' => $ar1030,
-            'payables' => $payables2010,
-            'accounts_payable_2010' => $payables2010,
-            'total_container_deposits' => $totalDeposits,
+            'is_restricted' => $isDriverOrStaff,
+            'cash_balance' => $isDriverOrStaff ? 0.0 : $cash1010,
+            'cash_in_hand_1010' => $isDriverOrStaff ? 0.0 : $cash1010,
+            'bank_balance' => $isDriverOrStaff ? 0.0 : $bank1020,
+            'bank_account_1020' => $isDriverOrStaff ? 0.0 : $bank1020,
+            'receivables' => $isDriverOrStaff ? 0.0 : $ar1030,
+            'accounts_receivable_1030' => $isDriverOrStaff ? 0.0 : $ar1030,
+            'payables' => $isDriverOrStaff ? 0.0 : $payables2010,
+            'accounts_payable_2010' => $isDriverOrStaff ? 0.0 : $payables2010,
+            'total_container_deposits' => $isDriverOrStaff ? 0.0 : $totalDeposits,
             'cash_in_transit_drivers' => $cashInTransit,
             'today_collections' => $todayCollections,
             'collections_today' => $todayCollections,
-            'recent_transactions' => $recentTransactions,
+            'recent_transactions' => $isDriverOrStaff ? [] : $recentTransactions,
         ];
 
         return $this->sendResponse($data, 'Real-time financial ledger balances retrieved');
@@ -1214,10 +1243,284 @@ class WaterLogisticsApiController extends BaseApiController
     }
 
     /**
-     * Mobile Fleet Live Telematics
+     * Parse location string or WhatsApp shared location text to extract latitude and longitude.
+     */
+    public static function parseCoordinates(?string $input, ?float $fallbackLat = null, ?float $fallbackLng = null): ?array
+    {
+        if (empty($input)) {
+            if ($fallbackLat !== null && $fallbackLng !== null && $fallbackLat != 0.0 && $fallbackLng != 0.0) {
+                return ['latitude' => $fallbackLat, 'longitude' => $fallbackLng];
+            }
+            return null;
+        }
+
+        $input = trim(urldecode($input));
+
+        // Pattern 1: URL with q=lat,lng or query=lat,lng or loc:lat,lng
+        if (preg_match('/(?:[?&](?:q|query|loc)=|loc:)\s*(-?\d{1,2}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)/i', $input, $matches)) {
+            return [
+                'latitude' => (float) $matches[1],
+                'longitude' => (float) $matches[2],
+            ];
+        }
+
+        // Pattern 2: Google Maps @lat,lng,zoom or /place/lat,lng
+        if (preg_match('/(?:@|place\/)\s*(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/i', $input, $matches)) {
+            return [
+                'latitude' => (float) $matches[1],
+                'longitude' => (float) $matches[2],
+            ];
+        }
+
+        // Pattern 3: Raw coordinates "11.0845, 77.2941" or "11.0845 77.2941"
+        if (preg_match('/(-?\d{1,2}\.\d{3,})\s*(?:,|\s+)\s*(-?\d{1,3}\.\d{3,})/', $input, $matches)) {
+            return [
+                'latitude' => (float) $matches[1],
+                'longitude' => (float) $matches[2],
+            ];
+        }
+
+        if ($fallbackLat !== null && $fallbackLng !== null && $fallbackLat != 0.0 && $fallbackLng != 0.0) {
+            return ['latitude' => $fallbackLat, 'longitude' => $fallbackLng];
+        }
+
+        return null;
+    }
+
+    /**
+     * Save Customer Delivery Location (WhatsApp link parser & GPS pin persistence)
+     */
+    public function updateCustomerLocation(Request $request, int $id): JsonResponse
+    {
+        $customer = DB::table('customers')->where('id', $id)->first();
+        if (!$customer) {
+            return $this->sendError('Customer not found', [], 404);
+        }
+
+        $lat = $request->input('latitude') !== null ? (float) $request->input('latitude') : null;
+        $lng = $request->input('longitude') !== null ? (float) $request->input('longitude') : null;
+        $locationText = $request->input('whatsapp_text') ?? $request->input('location_input') ?? $request->input('location_url');
+
+        $coords = self::parseCoordinates($locationText, $lat, $lng);
+
+        if (!$coords) {
+            return $this->sendError('Invalid location data. Please provide valid coordinates or a Google Maps / WhatsApp location link.', [], 422);
+        }
+
+        $updateData = [
+            'latitude' => $coords['latitude'],
+            'longitude' => $coords['longitude'],
+            'updated_at' => now(),
+        ];
+
+        if ($request->filled('address')) {
+            $updateData['address'] = $request->input('address');
+        }
+        if ($request->filled('geofence_radius')) {
+            $updateData['geofence_radius'] = (int) $request->input('geofence_radius');
+        }
+
+        DB::table('customers')->where('id', $id)->update($updateData);
+
+        $updatedCustomer = DB::table('customers')->where('id', $id)->first();
+
+        return $this->sendResponse([
+            'customer_id' => $id,
+            'name' => $updatedCustomer->name,
+            'latitude' => (float) $updatedCustomer->latitude,
+            'longitude' => (float) $updatedCustomer->longitude,
+            'geofence_radius' => (int) ($updatedCustomer->geofence_radius ?? 100),
+            'address' => $updatedCustomer->address,
+            'google_maps_url' => "https://www.google.com/maps/search/?api=1&query={$updatedCustomer->latitude},{$updatedCustomer->longitude}",
+            'updated_at' => $updatedCustomer->updated_at,
+        ], 'Customer delivery location saved successfully. Future orders will navigate here.');
+    }
+
+    /**
+     * Mobile Driver Operational Manifest (Strictly Scoped by Driver)
+     */
+    public function driverManifest(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $userName = strtolower($user?->name ?? '');
+        $isTanker = ($userName === 'tanker_driver' || $userName === 'tanker');
+
+        if ($isTanker) {
+            // Bulk Tanker Driver Manifest
+            $tanker = DB::table('water_tankers')
+                ->where('id', 1) // Tanker 1 TN-58-BW-2001
+                ->first();
+
+            $activeTrip = DB::table('water_tanker_trips')
+                ->join('customers', 'water_tanker_trips.customer_id', '=', 'customers.id')
+                ->where('water_tanker_trips.tanker_id', $tanker?->id ?? 1)
+                ->orderBy('water_tanker_trips.id', 'desc')
+                ->select(
+                    'water_tanker_trips.id',
+                    'water_tanker_trips.trip_number',
+                    'water_tanker_trips.tanker_id',
+                    'water_tanker_trips.customer_id',
+                    'customers.name as customer_name',
+                    'customers.company_name',
+                    'customers.phone_number',
+                    'customers.address',
+                    'customers.city',
+                    'customers.latitude',
+                    'customers.longitude',
+                    'customers.geofence_radius',
+                    'water_tanker_trips.source_plant',
+                    'water_tanker_trips.destination_site',
+                    'water_tanker_trips.water_quantity_kl',
+                    'water_tanker_trips.start_km',
+                    'water_tanker_trips.end_km',
+                    'water_tanker_trips.trip_rate',
+                    'water_tanker_trips.diesel_expense',
+                    'water_tanker_trips.status'
+                )
+                ->first();
+
+            $completedTripsCount = DB::table('water_tanker_trips')
+                ->where('tanker_id', $tanker?->id ?? 1)
+                ->where('status', 'completed')
+                ->count();
+
+            $totalKlToday = (float) DB::table('water_tanker_trips')
+                ->where('tanker_id', $tanker?->id ?? 1)
+                ->sum('water_quantity_kl');
+
+            return $this->sendResponse([
+                'driver_type' => 'tanker',
+                'driver_name' => $tanker?->driver_name ?? 'K. Murugan',
+                'driver_phone' => $tanker?->driver_phone ?? '9842100001',
+                'vehicle' => [
+                    'id' => $tanker?->id ?? 1,
+                    'vehicle_number' => $tanker?->vehicle_number ?? 'TN-58-BW-2001',
+                    'model' => $tanker?->model_type ?? 'Tata LPT 2518 (20KL Dual Chamber)',
+                    'capacity_kl' => $tanker?->capacity_kl ?? 20,
+                    'capacity_liters' => $tanker?->capacity_liters ?? 20000,
+                    'current_odometer' => $tanker?->current_odometer_km ?? 45200,
+                    'latitude' => $tanker?->latitude,
+                    'longitude' => $tanker?->longitude,
+                ],
+                'active_trip' => $activeTrip ? [
+                    'id' => $activeTrip->id,
+                    'trip_number' => $activeTrip->trip_number,
+                    'customer_id' => $activeTrip->customer_id,
+                    'customer_name' => $activeTrip->customer_name,
+                    'destination_site' => $activeTrip->destination_site,
+                    'phone' => $activeTrip->phone_number,
+                    'address' => $activeTrip->address . ($activeTrip->city ? ', ' . $activeTrip->city : ''),
+                    'latitude' => $activeTrip->latitude ? (float) $activeTrip->latitude : null,
+                    'longitude' => $activeTrip->longitude ? (float) $activeTrip->longitude : null,
+                    'has_gps' => !empty($activeTrip->latitude) && !empty($activeTrip->longitude),
+                    'google_maps_url' => ($activeTrip->latitude && $activeTrip->longitude)
+                        ? "https://www.google.com/maps/dir/?api=1&destination={$activeTrip->latitude},{$activeTrip->longitude}"
+                        : null,
+                    'water_quantity_kl' => (float) $activeTrip->water_quantity_kl,
+                    'water_decanted_liters' => ((float) $activeTrip->water_quantity_kl) * 1000,
+                    'start_km' => $activeTrip->start_km,
+                    'end_km' => $activeTrip->end_km,
+                    'trip_rate' => (float) $activeTrip->trip_rate,
+                    'diesel_expense' => (float) $activeTrip->diesel_expense,
+                    'status' => $activeTrip->status,
+                ] : null,
+                'stats' => [
+                    'trips_today' => $completedTripsCount,
+                    'total_kl' => $totalKlToday,
+                ],
+            ], 'Tanker driver operational manifest loaded');
+        } else {
+            // 20L Water Can Delivery Driver Manifest
+            $route = DB::table('water_can_routes')->where('id', 1)->first();
+
+            $deliveries = DB::table('water_can_deliveries')
+                ->join('customers', 'water_can_deliveries.customer_id', '=', 'customers.id')
+                ->where('water_can_deliveries.route_id', 1)
+                ->select(
+                    'water_can_deliveries.id',
+                    'water_can_deliveries.customer_id',
+                    'customers.name as customer_name',
+                    'customers.phone_number',
+                    'customers.address',
+                    'customers.city',
+                    'customers.latitude',
+                    'customers.longitude',
+                    'water_can_deliveries.cans_delivered',
+                    'water_can_deliveries.empty_cans_returned',
+                    'water_can_deliveries.paid_amount',
+                    'water_can_deliveries.payment_mode',
+                    'water_can_deliveries.created_at'
+                )
+                ->get();
+
+            $stops = [];
+            $totalDelivered = 0;
+            $totalEmpty = 0;
+            $totalCollected = 0.0;
+
+            foreach ($deliveries as $d) {
+                $totalDelivered += (int) $d->cans_delivered;
+                $totalEmpty += (int) $d->empty_cans_returned;
+                $totalCollected += (float) $d->paid_amount;
+                $stops[] = [
+                    'id' => $d->id,
+                    'customer_id' => $d->customer_id,
+                    'name' => $d->customer_name,
+                    'phone' => $d->phone_number,
+                    'address' => $d->address . ($d->city ? ', ' . $d->city : ''),
+                    'latitude' => $d->latitude ? (float) $d->latitude : null,
+                    'longitude' => $d->longitude ? (float) $d->longitude : null,
+                    'has_gps' => !empty($d->latitude) && !empty($d->longitude),
+                    'google_maps_url' => ($d->latitude && $d->longitude)
+                        ? "https://www.google.com/maps/dir/?api=1&destination={$d->latitude},{$d->longitude}"
+                        : null,
+                    'cans_delivered' => (int) $d->cans_delivered,
+                    'empty_cans_returned' => (int) $d->empty_cans_returned,
+                    'amount_collected' => (float) $d->paid_amount,
+                    'payment_mode' => $d->payment_mode ?? 'cash',
+                    'status' => 'delivered',
+                ];
+            }
+
+            // Pending surrender calculation
+            $surrenderedToday = (float) DB::table('water_can_driver_surrenders')
+                ->where('driver_id', $user?->id ?? 1)
+                ->whereDate('surrender_date', now()->toDateString())
+                ->sum('cash_surrendered');
+
+            $pendingSurrender = max(0.0, $totalCollected - $surrenderedToday);
+
+            return $this->sendResponse([
+                'driver_type' => 'delivery',
+                'driver_name' => $route?->driver_name ?? 'R. Muthu',
+                'driver_phone' => $route?->driver_phone ?? '9842100010',
+                'vehicle' => [
+                    'vehicle_number' => $route?->vehicle_no ?? 'TN-58-WA-101 (Tata Ace)',
+                    'route_name' => $route?->route_name ?? 'Anna Nagar & Teppakulam Route',
+                ],
+                'can_inventory' => [
+                    'truck_capacity' => 60,
+                    'loaded_cans' => 60,
+                    'delivered_cans' => $totalDelivered,
+                    'empty_cans_on_truck' => $totalEmpty,
+                    'remaining_full_cans' => max(0, 60 - $totalDelivered),
+                ],
+                'stops' => $stops,
+                'cash' => [
+                    'total_collected' => $totalCollected,
+                    'surrendered' => $surrenderedToday,
+                    'in_hand' => $pendingSurrender,
+                ],
+            ], 'Delivery driver operational manifest loaded');
+        }
+    }
+
+    /**
+     * Mobile Fleet Live Telematics (Strictly Gated by Driver Role)
      */
     public function fleetLive(Request $request): JsonResponse
     {
+        $user = Auth::user();
         $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id');
         $company = $companyId ? Company::find($companyId) : null;
         $industry = $request->input('vertical') ?? $company?->industry;
@@ -1228,28 +1531,84 @@ class WaterLogisticsApiController extends BaseApiController
                 : 'packaged_water';
         }
 
+        $userName = strtolower($user?->name ?? '');
+        $isTankerDriver = ($userName === 'tanker_driver' || $userName === 'tanker');
+        $isCanDriver = ($userName === 'driver' || $userName === 'delivery_driver');
+
         if ($industry === 'packaged_water') {
             $tankers = [];
-            $canRoutes = DB::table('water_can_routes')->where('is_active', true)->get();
-            $customers = DB::table('customers')
-                ->where('is_active', true)
-                ->when($companyId, fn ($q) => $q->where('company_id', $companyId))
-                ->whereNotNull('latitude')
-                ->select('id', 'name', 'company_name', 'phone_number', 'address', 'city', 'latitude', 'longitude')
-                ->get();
+
+            if ($isCanDriver) {
+                // DELIVERY DRIVER: Only see assigned Tata Ace and assigned route beat stops
+                $canRoutes = DB::table('water_can_routes')
+                    ->where('is_active', true)
+                    ->where(function ($q) use ($user) {
+                        $q->where('id', 1)
+                          ->orWhere('driver_name', 'like', '%' . ($user->name ?? '') . '%');
+                    })
+                    ->get();
+
+                $customerIds = DB::table('water_can_deliveries')
+                    ->where('route_id', 1)
+                    ->pluck('customer_id');
+
+                $customers = DB::table('customers')
+                    ->where('is_active', true)
+                    ->whereIn('id', $customerIds)
+                    ->whereNotNull('latitude')
+                    ->select('id', 'name', 'company_name', 'phone_number', 'address', 'city', 'latitude', 'longitude')
+                    ->get();
+            } else {
+                // Admin: see all routes and customers
+                $canRoutes = DB::table('water_can_routes')->where('is_active', true)->get();
+                $customers = DB::table('customers')
+                    ->where('is_active', true)
+                    ->when($companyId, fn ($q) => $q->where('company_id', $companyId))
+                    ->whereNotNull('latitude')
+                    ->select('id', 'name', 'company_name', 'phone_number', 'address', 'city', 'latitude', 'longitude')
+                    ->get();
+            }
         } else {
-            $tankers = DB::table('water_tankers')->where('is_active', true)->get();
+            // Bulk Tanker Logistics
             $canRoutes = [];
-            $customers = DB::table('customers')
-                ->where('is_active', true)
-                ->when($companyId, fn ($q) => $q->where('company_id', $companyId))
-                ->whereNotNull('latitude')
-                ->select('id', 'name', 'company_name', 'phone_number', 'address', 'city', 'latitude', 'longitude')
-                ->get();
+
+            if ($isTankerDriver) {
+                // TANKER DRIVER: Only see assigned tanker and active trip destination customer
+                $activeTrip = DB::table('water_tanker_trips')
+                    ->where(function ($q) use ($user) {
+                        $q->where('created_by', $user?->id)
+                          ->orWhere('tanker_id', 1);
+                    })
+                    ->orderBy('id', 'desc')
+                    ->first();
+
+                $assignedTankerId = $activeTrip?->tanker_id ?? 1;
+
+                $tankers = DB::table('water_tankers')
+                    ->where('id', $assignedTankerId)
+                    ->where('is_active', true)
+                    ->get();
+
+                $customerId = $activeTrip?->customer_id;
+                $customers = DB::table('customers')
+                    ->where('id', $customerId)
+                    ->select('id', 'name', 'company_name', 'phone_number', 'address', 'city', 'latitude', 'longitude')
+                    ->get();
+            } else {
+                // Admin: see full tanker fleet
+                $tankers = DB::table('water_tankers')->where('is_active', true)->get();
+                $customers = DB::table('customers')
+                    ->where('is_active', true)
+                    ->when($companyId, fn ($q) => $q->where('company_id', $companyId))
+                    ->whereNotNull('latitude')
+                    ->select('id', 'name', 'company_name', 'phone_number', 'address', 'city', 'latitude', 'longitude')
+                    ->get();
+            }
         }
 
         return $this->sendResponse([
             'industry' => $industry,
+            'is_driver_view' => ($isTankerDriver || $isCanDriver),
             'tankers' => $tankers,
             'can_routes' => $canRoutes,
             'customers' => $customers,

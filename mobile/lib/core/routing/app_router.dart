@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/accounting/presentation/accounting_books_screen.dart';
 import '../../features/accounting/presentation/payment_collection_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
-import '../../features/dashboard/presentation/executive_dashboard_screen.dart';
+import '../../features/dashboard/presentation/role_dashboard_dispatcher.dart';
 import '../../features/expenses/presentation/quick_expense_screen.dart';
 import '../../features/hrm/presentation/attendance_screen.dart';
 import '../../features/inventory/presentation/stock_count_screen.dart';
@@ -96,7 +96,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: '/home',
-            builder: (context, state) => const ExecutiveDashboardScreen(),
+            builder: (context, state) => const RoleDashboardDispatcher(),
           ),
           GoRoute(
             path: '/tasks',

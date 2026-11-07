@@ -52,8 +52,6 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
   Position? _lastGpsPosition;
   StreamSubscription<Position>? _positionStreamSub;
   Timer? _tripClockTimer;
-  DateTime? _tripStartTime;
-  DateTime? _siteArrivalTime;
   int _elapsedTripSeconds = 0;
   double _currentSpeedKmh = 0.0;
 
@@ -135,7 +133,6 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
 
     setState(() {
       _trackingStatus = TripTrackingStatus.enRoute;
-      _tripStartTime = DateTime.now();
       _gpsDistanceKm = 0.0;
       _autoHaltSeconds = 0;
       _elapsedTripSeconds = 0;
@@ -274,7 +271,6 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
   void _markArrivedAtSite() {
     setState(() {
       _trackingStatus = TripTrackingStatus.atSite;
-      _siteArrivalTime = DateTime.now();
       _isIdleDetected = true;
       _currentSpeedKmh = 0.0;
     });

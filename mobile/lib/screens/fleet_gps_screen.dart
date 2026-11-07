@@ -994,48 +994,52 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
                   const SizedBox(height: 14),
 
                   // Live Metric Grid: Speed, Fuel, Battery, Odometer Variance
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildMetricMiniCard(
-                          icon: Icons.speed,
-                          label: t ? 'வேகம் (Speed)' : 'Live Speed',
-                          value: '${selectedVehicle['speed']} km/h',
-                          accentColor: selectedVehicle['statusColor'] as Color,
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _buildMetricMiniCard(
+                            icon: Icons.speed,
+                            label: t ? 'வேகம் (Speed)' : 'Live Speed',
+                            value: '${selectedVehicle['speed']} km/h',
+                            accentColor: selectedVehicle['statusColor'] as Color,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildMetricMiniCard(
-                          icon: Icons.local_gas_station,
-                          label: t ? 'டீசல் இருப்பு' : 'Fuel Level',
-                          value: selectedVehicle['fuel'] as String,
-                          accentColor: AppColors.brandAmber,
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildMetricMiniCard(
+                            icon: Icons.local_gas_station,
+                            label: t ? 'டீசல் இருப்பு' : 'Fuel Level',
+                            value: selectedVehicle['fuel'] as String,
+                            accentColor: AppColors.brandAmber,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildMetricMiniCard(
-                          icon: Icons.battery_charging_full,
-                          label: t ? 'பேட்டரி வோல்ட்' : 'ECU Battery',
-                          value: selectedVehicle['battery'] as String,
-                          accentColor: AppColors.brandSky,
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildMetricMiniCard(
+                            icon: Icons.battery_charging_full,
+                            label: t ? 'பேட்டரி வோல்ட்' : 'ECU Battery',
+                            value: selectedVehicle['battery'] as String,
+                            accentColor: AppColors.brandSky,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-
-                  const SizedBox(height: 14),
 
                   // Mode-Specific Details:
                   if (_mode == FleetViewMode.tankers) ...[
                     // Decanting Flow Sensor & Valve Security
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      margin: const EdgeInsets.only(top: 4),
+                      padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: AppColors.roleTankerDriver.withOpacity(0.08),
+                        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF0FDF4),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppColors.roleTankerDriver.withOpacity(0.25)),
+                        border: Border.all(
+                          color: isDark ? Colors.white12 : const Color(0xFF86EFAC),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1043,17 +1047,38 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                t ? 'இறக்கும் ஃப்ளோ ரேட் மீட்டர்' : 'Decanting Flow Sensor Meter',
-                                style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.roleTankerDriver),
+                              Row(
+                                children: [
+                                  const Icon(Icons.water_drop, color: Color(0xFF0284C7), size: 16),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    t ? 'இறக்கும் ஃப்ளோ ரேட் மீட்டர்' : 'Decanting Flow Sensor Meter',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: isDark ? Colors.white : const Color(0xFF0369A1),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                selectedVehicle['flowRate'] as String,
-                                style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.roleTankerDriver),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF0284C7).withOpacity(0.12),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  selectedVehicle['flowRate'] as String,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w900,
+                                    color: const Color(0xFF0284C7),
+                                  ),
+                                ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          const Divider(height: 16),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -1063,11 +1088,11 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
                               ),
                               Text(
                                 selectedVehicle['capacity'] as String,
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black87),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -1081,7 +1106,7 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
                               ),
                             ],
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -1245,12 +1270,20 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
     required String value,
     required Color accentColor,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppColors.card(context),
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.border(context)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -93,6 +93,8 @@ Route::prefix('v1')->group(function () {
             Route::post('driver-surrender', [WaterLogisticsApiController::class, 'driverCashSurrender'])->name('api.v1.mobile.driver-surrender');
             Route::get('fleet/live', [WaterLogisticsApiController::class, 'fleetLive'])->name('api.v1.mobile.fleet.live');
             Route::post('fleet/ping', [WaterLogisticsApiController::class, 'fleetPing'])->name('api.v1.mobile.fleet.ping');
+            Route::post('customers/{id}/location', [WaterLogisticsApiController::class, 'updateCustomerLocation'])->name('api.v1.mobile.customers.location');
+            Route::get('driver/manifest', [WaterLogisticsApiController::class, 'driverManifest'])->name('api.v1.mobile.driver.manifest');
         });
 
         // Direct Mobile Convenience Aliases

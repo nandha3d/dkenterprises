@@ -26,6 +26,21 @@ class AppScaffold extends ConsumerWidget {
     final headerBg = isDark ? AppColors.darkCard : AppColors.lightCard;
     final borderCol = isDark ? AppColors.darkBorder : AppColors.lightBorder;
 
+    final user = authState.user;
+    final role = (user?.role ?? '').toLowerCase();
+    final username = (user?.username ?? user?.name ?? '').toLowerCase();
+    final isStaffOrDriver = role == 'tankerdriver' ||
+        role == 'deliverydriver' ||
+        role == 'driver' ||
+        role == 'cashier' ||
+        role == 'fieldagent' ||
+        role == 'agent' ||
+        username == 'tanker_driver' ||
+        username == 'driver' ||
+        username == 'cashier' ||
+        username == 'agent';
+    final isAdmin = !isStaffOrDriver;
+
     final companyName = authState.activeCompany?.name ?? 'ZOLO ERP';
     final branchName = authState.activeBranch?.name ?? 'Main';
 
@@ -48,7 +63,7 @@ class AppScaffold extends ConsumerWidget {
           child: Container(color: borderCol, height: 1),
         ),
         title: InkWell(
-          onTap: authState.companies.length > 1 ? () => context.push('/workspace') : null,
+          onTap: (isAdmin && authState.companies.length > 1) ? () => context.push('/workspace') : null,
           borderRadius: BorderRadius.circular(8),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
@@ -87,7 +102,7 @@ class AppScaffold extends ConsumerWidget {
                           color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                         ),
                       ),
-                      if (authState.companies.length > 1) ...[
+                      if (isAdmin && authState.companies.length > 1) ...[
                         const SizedBox(width: 4),
                         Icon(
                           Icons.keyboard_arrow_down_rounded,
@@ -113,16 +128,17 @@ class AppScaffold extends ConsumerWidget {
               minimumSize: const Size(34, 32),
             ),
           ),
-          // Group Workspace / Switch Company
-          IconButton(
-            icon: const Icon(Icons.domain_rounded, size: 20),
-            tooltip: 'All Companies & Group Workspace',
-            onPressed: () => context.push('/workspace'),
-            style: IconButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              minimumSize: const Size(34, 32),
+          // Group Workspace / Switch Company (Admin Only)
+          if (isAdmin)
+            IconButton(
+              icon: const Icon(Icons.domain_rounded, size: 20),
+              tooltip: 'All Companies & Group Workspace',
+              onPressed: () => context.push('/workspace'),
+              style: IconButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                minimumSize: const Size(34, 32),
+              ),
             ),
-          ),
           // Language Switcher Pill (EN / TA)
           TextButton(
             onPressed: () {
