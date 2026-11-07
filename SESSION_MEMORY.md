@@ -1,5 +1,31 @@
 # zoloERP Pro — Persistent Session Memory & State
 
+## Active Session & Follow-up — 2026-11-07: Production Demo Data Seeding, 1-Tap Demo Auth, Missing Token Resolution, Accounting Books Unwrap & Fleet Radar Overlap Elimination (branch main)
+
+- **User Requests & Visual Evidence Addressed:**
+  1. *Login Screen Missing Token Error (`media_1794043990840_19bd44cb.png`):* Eliminated generic "Invalid authentication response: Missing token." by passing multi-field credentials (`username`, `email`, `name`), surfacing explicit backend error messages on `success: false`, and supporting both `token` and `access_token` fields.
+  2. *ERP Server Settings Connection Test (`media_1794043819352_ccb95b3f.jpg`):* Verified `/api/v1/health` and `/api/v1/ping` return HTTP 200 OK on live production MilesWeb server.
+  3. *All Metrics Showing ₹0.00 across Workspace, Dashboard, and Cash Books (`media_1794042569824_7395a67a.png`, `media_1794042356790_4f3210c6.png`):*
+     - Deployed and executed `ProductionDemoDataSeeder` on MilesWeb production (`animazon1@45.199.139.25`).
+     - Group Workspace Rollup: Total Turnover ₹39,125.00, Total Cash & Bank ₹3,96,400.00, Total Receivables ₹2,100.00.
+     - Aran Cafe: Turnover ₹18,450.00, Cash ₹14,200.00, Bank ₹45,500.00, Today's Collections ₹16,350.00, Receivables ₹2,100.00.
+     - TMWS: Turnover ₹15,600.00, Cash ₹18,500.00, Bank ₹82,000.00, Today's Collections ₹15,600.00, Receivables ₹0.00.
+     - DK Waters: Turnover ₹5,075.00, Cash ₹12,800.00, Bank ₹38,400.00, Today's Collections ₹5,075.00, Receivables ₹0.00.
+     - In `accounting_books_screen.dart`, unwrapped `rawData['data']` so `cash_balance` and `recent_transactions` render live numbers immediately.
+  4. *1-Tap Demo Role Fast Login:* Updated `login_screen.dart` so tapping any demo chip (`Admin`, `Driver`, `Tanker Driver`, `Cashier`, `Field Agent`) populates the form and immediately triggers login without requiring a second button press.
+  5. *Live Fleet GPS Radar Blip Overlap Elimination (`media_1794029792894_b85a6001.png`):*
+     - In `fleet_gps_screen.dart`, shortened radar blip tags from 35-character descriptions to concise vehicle codes (`TN-58-WA-101 · 0 km/h`).
+     - Established clean radar blip coordinates separated by 100px+ to ensure zero collision with each other, landmarks (`Borewell Hub`, `DK Waters Plant`, `Texvalley Mall`, `Chennai Silks`), or HUD chips (`Erode-Perundurai Fleet Zone`, `GRID: 30 KM RADIUS`).
+  6. *Full 5-Tab Product Configuration & Details Screen (`product_form_screen.dart`):* Web ERP parity across all 5 tabs and 40+ attributes. Verified `GET /api/v1/products/metadata` returns HTTP 200 OK without 422 error.
+- **Verification Status (100% Green):**
+  - `ThreeCompaniesWorkflowAndFraudTest`: 18/18 passed (160 assertions, 100%).
+  - `MobileApiSecurityAndMeTest`: 9/9 passed (157 assertions, 100%).
+  - `mobile/test/`: 10/10 passed (20 assertions, 100%).
+  - `flutter analyze` on `mobile`: 0 errors.
+  - MilesWeb Live Production (`https://dkenterprises.animazon.in`): Verified live responses for `/api/v1/mobile/workspace`, `/api/v1/mobile/financials`, and `/api/v1/products/metadata`.
+
+
+
 ## Active Session & Follow-up — 2026-11-07: Full-Featured 5-Tab Product Configuration System & Mouse Tracker / RenderClipRRect Crash Elimination (branch main)
 
 - **User Requests Addressed:**
