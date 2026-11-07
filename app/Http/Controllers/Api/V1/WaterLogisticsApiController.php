@@ -774,5 +774,150 @@ class WaterLogisticsApiController extends BaseApiController
 
         return $this->sendResponse($data, 'Real-time financial ledger balances retrieved');
     }
+
+    /**
+     * Mobile Multi-Company Workspace Insights & Selection Directory
+     */
+    public function groupWorkspaceInsights(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $isAdmin = $user && ($user->role_id == 1 || in_array(strtolower($user->name ?? ''), ['admin', 'superuser']));
+
+        // Get accessible company IDs
+        if ($isAdmin) {
+            $companyIds = DB::table('companies')->pluck('id')->toArray();
+        } else {
+            $companyIds = DB::table('company_user')
+                ->where('user_id', $user->id)
+                ->pluck('company_id')
+                ->toArray();
+            if (empty($companyIds)) {
+                $companyIds = [1, 2, 3, 4];
+            }
+        }
+
+        $companies = \App\Models\Company::whereIn('id', $companyIds)->get();
+
+        $companyCards = [];
+        $totalTurnover = 0.0;
+        $totalCashBank = 0.0;
+        $totalReceivables = 0.0;
+
+        foreach ($companies as $comp) {
+            $cId = $comp->id;
+
+            // Industry & Subtype from accessor
+            $industry = $comp->industry ?? 'general_trading';
+            $subtype = $comp->subtype ?? '';
+
+            // 1. Sales & Revenue
+            $salesTotal = (float) DB::table('sales')
+                ->where('company_id', $cId)
+                ->whereNull('deleted_at')
+                ->sum('grand_total');
+
+            // 2. Cash & Bank
+            $cash = (float) DB::table('journal_items')
+                ->join('chart_of_accounts', 'journal_items.chart_of_account_id', '=', 'chart_of_accounts.id')
+                ->where('chart_of_accounts.company_id', $cId)
+                ->where(fn ($q) => $q->where('chart_of_accounts.code', '1010')->orWhere('chart_of_accounts.control_type', 'cash'))
+                ->sum(DB::raw('journal_items.debit - journal_items.credit'));
+
+            $bank = (float) DB::table('journal_items')
+                ->join('chart_of_accounts', 'journal_items.chart_of_account_id', '=', 'chart_of_accounts.id')
+                ->where('chart_of_accounts.company_id', $cId)
+                ->where(fn ($q) => $q->where('chart_of_accounts.code', '1020')->orWhere('chart_of_accounts.control_type', 'bank'))
+                ->sum(DB::raw('journal_items.debit - journal_items.credit'));
+
+            // 3. Receivables
+            $receivables = (float) DB::table('journal_items')
+                ->join('chart_of_accounts', 'journal_items.chart_of_account_id', '=', 'chart_of_accounts.id')
+                ->where('chart_of_accounts.company_id', $cId)
+                ->where(fn ($q) => $q->where('chart_of_accounts.code', '1030')->orWhere('chart_of_accounts.control_type', 'ar'))
+                ->sum(DB::raw('journal_items.debit - journal_items.credit'));
+
+            // Visual configuration by vertical
+            $verticalConfig = match ($industry) {
+                'cafe_bakery' => [
+                    'label' => 'Bakery & Food Service POS',
+                    'tagline' => 'Touch POS Terminal, Daily Cash Drawer & Kitchen Orders',
+                    'icon' => 'restaurant',
+                    'primary_color' => '#D97706',
+                    'badge' => 'Cafe & Bakery',
+                ],
+                'bulk_water' => [
+                    'label' => 'Commercial Bulk Water Logistics',
+                    'tagline' => 'Tanker Fleet, Trip Sheets & Waiting Surcharges',
+                    'icon' => 'local_shipping',
+                    'primary_color' => '#0284C7',
+                    'badge' => 'Bulk Tankers',
+                ],
+                'packaged_water' => [
+                    'label' => '20L Packaged Water Distribution',
+                    'tagline' => 'Can Route Beat, Empty Jars & Driver Surrenders',
+                    'icon' => 'water_drop',
+                    'primary_color' => '#059669',
+                    'badge' => '20L Can Routes',
+                ],
+                'textile' => [
+                    'label' => 'Textile & Garment Manufacturing',
+                    'tagline' => 'Fabric Stock, Job Work Orders & Wholesale Billing',
+                    'icon' => 'inventory_2',
+                    'primary_color' => '#7C3AED',
+                    'badge' => 'Textile & Loom',
+                ],
+                default => [
+                    'label' => 'Commercial Enterprise Operations',
+                    'tagline' => 'Sales, Inventory, Invoicing & General Accounting',
+                    'icon' => 'business',
+                    'primary_color' => '#0369A1',
+                    'badge' => 'General ERP',
+                ],
+            };
+
+            $branchesCount = DB::table('company_branches')->where('company_id', $cId)->count();
+            $activeFy = DB::table('fiscal_years')
+                ->where('company_id', $cId)
+                ->where('is_closed', 0)
+                ->value('name') ?? 'FY 2026-27';
+
+            $totalTurnover += $salesTotal;
+            $totalCashBank += ($cash + $bank);
+            $totalReceivables += $receivables;
+
+            $companyCards[] = [
+                'id' => $cId,
+                'code' => $comp->code,
+                'name' => $comp->trade_name ?: $comp->legal_name ?: $comp->name,
+                'legal_name' => $comp->legal_name ?: $comp->name,
+                'industry' => $industry,
+                'subtype' => $subtype,
+                'vertical' => $verticalConfig,
+                'metrics' => [
+                    'sales_turnover' => $salesTotal,
+                    'cash_in_hand' => $cash,
+                    'bank_balance' => $bank,
+                    'cash_and_bank' => $cash + $bank,
+                    'receivables' => $receivables,
+                ],
+                'branches_count' => max(1, $branchesCount),
+                'active_fiscal_year' => $activeFy,
+            ];
+        }
+
+        $summary = [
+            'total_turnover' => $totalTurnover,
+            'total_cash_and_bank' => $totalCashBank,
+            'total_receivables' => $totalReceivables,
+            'total_companies_count' => count($companyCards),
+            'currency' => 'INR',
+            'symbol' => '₹',
+        ];
+
+        return $this->sendResponse([
+            'summary' => $summary,
+            'companies' => $companyCards,
+        ], 'Multi-company group workspace insights loaded');
+    }
 }
 

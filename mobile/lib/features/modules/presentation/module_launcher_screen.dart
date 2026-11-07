@@ -137,26 +137,74 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
         ],
       ),
       _ModuleCategory(
-        title: 'Vertical Operations',
+        title: switch (industry) {
+          'cafe_bakery' => 'Bakery & Cafe Operations',
+          'bulk_water' => 'Bulk Tanker Fleet Logistics',
+          'packaged_water' => '20L Can Route Distribution',
+          'textile' => 'Textile & Garment Operations',
+          _ => 'Commercial Operations',
+        },
         modules: [
-          if (industry == 'packaged_water' || industry.isEmpty) ...[
+          // 1. Cafe & Bakery Vertical (Aran Cafe)
+          if (industry == 'cafe_bakery') ...[
+            _Module(
+              title: 'Bakery & Cafe POS',
+              description: 'Touch terminal billing & cash drawer closing',
+              icon: Icons.restaurant_rounded,
+              route: '/operations/cafe-pos',
+              color: const Color(0xFFD97706),
+            ),
+            _Module(
+              title: 'Kitchen & Recipe Inventory',
+              description: 'Bakery ingredient stocks, flour & dairy audit',
+              icon: Icons.inventory_2_rounded,
+              route: '/inventory/stock-count',
+              color: const Color(0xFF059669),
+            ),
+            _Module(
+              title: 'Cafe Expenses & Purchases',
+              description: 'Vegetables, milk, gas & daily operational bills',
+              icon: Icons.receipt_long_rounded,
+              route: '/expenses/new',
+              color: AppColors.primary,
+            ),
+          ]
+          // 2. Bulk Water Tankers Vertical (TMWS)
+          else if (industry == 'bulk_water') ...[
+            _Module(
+              title: 'Tanker Trip Sheet',
+              description: 'Dispatches, km odometers, motor pumping & waiting surcharges',
+              icon: Icons.local_shipping_rounded,
+              route: '/operations/tanker-trip',
+              color: const Color(0xFF0284C7),
+            ),
+            _Module(
+              title: 'Trip Payment Collection',
+              description: 'Collect driver cash & corporate commercial dues',
+              icon: Icons.payments_rounded,
+              route: '/accounting/collect',
+              color: AppColors.success,
+            ),
+            _Module(
+              title: 'Diesel & Vehicle Maintenance',
+              description: 'Fuel slips, tanker repair & toll expenditure',
+              icon: Icons.local_gas_station_rounded,
+              route: '/expenses/new',
+              color: AppColors.warning,
+            ),
+          ]
+          // 3. 20L Can Route Distribution Vertical (DK Waters)
+          else if (industry == 'packaged_water') ...[
             _Module(
               title: 'Can Sales POS Ticket',
               description: 'Fast 15-second driver sales & return tickets',
               icon: Icons.water_drop_rounded,
               route: '/operations/can-sales',
-              color: const Color(0xFF0284C7),
-            ),
-            _Module(
-              title: 'Plant Refill Manifest',
-              description: 'Factory empty load & full refill batches',
-              icon: Icons.factory_rounded,
-              route: '/operations/plant-refill',
-              color: const Color(0xFF0369A1),
+              color: const Color(0xFF059669),
             ),
             _Module(
               title: 'Spot Empty Can Audit',
-              description: 'Customer jar count vs ledger balance audit',
+              description: 'Inspect Tata Ace vehicle cans vs route manifest',
               icon: Icons.fact_check_rounded,
               route: '/operations/spot-audit',
               color: AppColors.warning,
@@ -166,25 +214,40 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
               description: 'End-of-day route settlement with admin cashier',
               icon: Icons.price_check_rounded,
               route: '/operations/driver-surrender',
+              color: const Color(0xFF0284C7),
+            ),
+            _Module(
+              title: 'RO Plant Refill Manifest',
+              description: 'Reverse Osmosis factory intake batch logs',
+              icon: Icons.factory_rounded,
+              route: '/operations/plant-refill',
+              color: AppColors.primary,
+            ),
+          ]
+          // 4. Textile & Garment Manufacturing Vertical (zoloERP Textiles)
+          else if (industry == 'textile') ...[
+            _Module(
+              title: 'Wholesale Tax Invoicing',
+              description: 'Fabric & garment commercial invoice generation',
+              icon: Icons.receipt_long_rounded,
+              route: '/sales/new',
+              color: const Color(0xFF7C3AED),
+            ),
+            _Module(
+              title: 'Fabric Roll & Yarn Stock Audit',
+              description: 'Physical meter roll and yarn weight audits',
+              icon: Icons.inventory_2_rounded,
+              route: '/inventory/stock-count',
+              color: AppColors.primary,
+            ),
+            _Module(
+              title: 'Commercial Debtor Collection',
+              description: 'Collect trade receivables against B2B invoices',
+              icon: Icons.payments_rounded,
+              route: '/accounting/collect',
               color: AppColors.success,
             ),
           ],
-          if (industry == 'bulk_water' || industry.isEmpty)
-            _Module(
-              title: 'Tanker Trip Sheet',
-              description: 'Dispatches, km odometers, motor pumping & waiting surcharges',
-              icon: Icons.local_shipping_rounded,
-              route: '/operations/tanker-trip',
-              color: const Color(0xFF0369A1),
-            ),
-          if (industry == 'cafe_bakery' || industry.isEmpty)
-            _Module(
-              title: 'Bakery & Cafe POS',
-              description: 'Touch terminal billing & cash drawer closing',
-              icon: Icons.restaurant_rounded,
-              route: '/operations/cafe-pos',
-              color: const Color(0xFFD97706),
-            ),
         ],
       ),
       _ModuleCategory(

@@ -177,6 +177,40 @@ class ProfileScreen extends ConsumerWidget {
                   const Divider(height: 16),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.domain_rounded),
+                    title: const Text('Company & Workspace Directory', style: TextStyle(fontSize: 14)),
+                    subtitle: Text(
+                      '${authState.activeCompany?.name ?? "Select"} • All Entities',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => context.push('/workspace'),
+                  ),
+                  const Divider(height: 16),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded),
+                    title: const Text('Theme Appearance', style: TextStyle(fontSize: 14)),
+                    subtitle: Text(
+                      isDark ? 'Dark Theme' : 'Light Theme',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    trailing: SegmentedButton<String>(
+                      segments: const [
+                        ButtonSegment(value: 'light', label: Text('Light')),
+                        ButtonSegment(value: 'dark', label: Text('Dark')),
+                      ],
+                      selected: {isDark ? 'dark' : 'light'},
+                      onSelectionChanged: (selected) {
+                        ref.read(themeModeProvider.notifier).setThemeMode(
+                          selected.first == 'dark' ? ThemeMode.dark : ThemeMode.light,
+                        );
+                      },
+                    ),
+                  ),
+                  const Divider(height: 16),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.language_rounded),
                     title: const Text('App Language', style: TextStyle(fontSize: 14)),
                     subtitle: Text(

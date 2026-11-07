@@ -22,6 +22,7 @@ import '../../features/reports/presentation/reports_screen.dart';
 import '../../features/sales/presentation/new_sale_bill_screen.dart';
 import '../../features/sales/presentation/sales_invoices_screen.dart';
 import '../../features/tasks/presentation/tasks_screen.dart';
+import '../../features/workspace/presentation/workspace_screen.dart';
 import '../providers.dart';
 import '../ui/app_scaffold.dart';
 
@@ -33,14 +34,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/home',
+    initialLocation: '/workspace',
     redirect: (context, state) {
       final isLoggingIn = state.uri.path == '/login';
       if (!authState.isAuthenticated) {
         return isLoggingIn ? null : '/login';
       }
       if (isLoggingIn) {
-        return '/home';
+        return '/workspace';
       }
       return null;
     },
@@ -48,6 +49,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/workspace',
+        builder: (context, state) => const WorkspaceScreen(),
       ),
 
       // 5-Slot Bottom Bar Shell

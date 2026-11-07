@@ -205,5 +205,57 @@ class MobileApiSecurityAndMeTest extends TestCase
             ]
         ]);
     }
+
+    /**
+     * 9. Workspace insights returns multi-company directory and group totals
+     */
+    public function test_workspace_insights_returns_multi_company_directory(): void
+    {
+        $user = User::where('name', 'admin')->first();
+        $token = $user->createToken('test-ws-token')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/mobile/workspace');
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('success', true);
+        $response->assertJsonStructure([
+            'data' => [
+                'summary' => [
+                    'total_turnover',
+                    'total_cash_and_bank',
+                    'total_receivables',
+                    'total_companies_count',
+                    'currency',
+                    'symbol',
+                ],
+                'companies' => [
+                    '*' => [
+                        'id',
+                        'code',
+                        'name',
+                        'legal_name',
+                        'industry',
+                        'vertical' => [
+                            'label',
+                            'tagline',
+                            'icon',
+                            'primary_color',
+                            'badge',
+                        ],
+                        'metrics' => [
+                            'sales_turnover',
+                            'cash_in_hand',
+                            'bank_balance',
+                            'cash_and_bank',
+                            'receivables',
+                        ],
+                        'branches_count',
+                        'active_fiscal_year',
+                    ]
+                ]
+            ]
+        ]);
+    }
 }
 

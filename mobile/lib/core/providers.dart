@@ -47,3 +47,36 @@ final localeProvider = StateProvider<Locale>((ref) {
   return Locale(langCode);
 });
 
+class ThemeModeNotifier extends StateNotifier<ThemeMode> {
+  final SecureStorageService _storage;
+
+  ThemeModeNotifier(this._storage) : super(_parseMode(_storage.getThemeMode()));
+
+  static ThemeMode _parseMode(String mode) {
+    return switch (mode) {
+      'dark' => ThemeMode.dark,
+      'system' => ThemeMode.system,
+      _ => ThemeMode.light, // Default light theme!
+    };
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    state = mode;
+    final modeStr = switch (mode) {
+      ThemeMode.dark => 'dark',
+      ThemeMode.system => 'system',
+      ThemeMode.light => 'light',
+    };
+    await _storage.setThemeMode(modeStr);
+  }
+
+  void toggleTheme() {
+    setThemeMode(state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark);
+  }
+}
+
+final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
+  final storage = ref.watch(secureStorageProvider);
+  return ThemeModeNotifier(storage);
+});
+

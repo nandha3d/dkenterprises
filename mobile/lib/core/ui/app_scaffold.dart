@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../providers.dart';
 import '../sync/sync_worker.dart';
 import '../theme/app_colors.dart';
-import 'company_switcher_sheet.dart';
 import 'quick_action_sheet.dart';
 
 class AppScaffold extends ConsumerWidget {
@@ -49,7 +48,7 @@ class AppScaffold extends ConsumerWidget {
           child: Container(color: borderCol, height: 1),
         ),
         title: InkWell(
-          onTap: () => CompanySwitcherSheet.show(context),
+          onTap: () => context.push('/workspace'),
           borderRadius: BorderRadius.circular(8),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
@@ -102,6 +101,26 @@ class AppScaffold extends ConsumerWidget {
           ),
         ),
         actions: [
+          // Theme Switcher Toggle (Light / Dark)
+          IconButton(
+            icon: Icon(isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded, size: 20),
+            tooltip: isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme',
+            onPressed: () => ref.read(themeModeProvider.notifier).toggleTheme(),
+            style: IconButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              minimumSize: const Size(34, 32),
+            ),
+          ),
+          // Group Workspace / Switch Company
+          IconButton(
+            icon: const Icon(Icons.domain_rounded, size: 20),
+            tooltip: 'All Companies & Group Workspace',
+            onPressed: () => context.push('/workspace'),
+            style: IconButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              minimumSize: const Size(34, 32),
+            ),
+          ),
           // Language Switcher Pill (EN / TA)
           TextButton(
             onPressed: () {

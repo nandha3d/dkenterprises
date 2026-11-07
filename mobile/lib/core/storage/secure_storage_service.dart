@@ -15,6 +15,7 @@ class SecureStorageService {
   static const String _keyFinancialYearId = 'active_financial_year_id';
   static const String _keyLanguage = 'selected_language';
   static const String _keyServerUrl = 'custom_server_url';
+  static const String _keyThemeMode = 'selected_theme_mode';
 
   SecureStorageService(this._secureStorage, this._prefs);
 
@@ -65,6 +66,12 @@ class SecureStorageService {
   }
 
   String getLanguage() => _prefs.getString(_keyLanguage) ?? 'en';
+
+  String getThemeMode() => _prefs.getString(_keyThemeMode) ?? 'light';
+
+  Future<void> setThemeMode(String mode) async {
+    await _prefs.setString(_keyThemeMode, mode);
+  }
 
   String getServerUrl() => _prefs.getString(_keyServerUrl) ?? 'https://dkenterprises.animazon.in/api/v1';
 

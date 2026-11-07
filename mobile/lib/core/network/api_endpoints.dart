@@ -16,6 +16,7 @@ abstract final class ApiEndpoints {
   static const String me = '/me';
 
   // Core Financials & Dashboards
+  static const String workspace = '/mobile/workspace';
   static const String financials = '/mobile/financials';
   static String roleDashboard(String role) => '/mobile/dashboard/$role';
 

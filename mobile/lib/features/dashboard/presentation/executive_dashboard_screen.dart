@@ -276,57 +276,164 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
           ),
           const SizedBox(height: 20),
 
-          // Vertical Operational Command
+          // Strict Vertical Operational Command
           Text(
-            'Operational Workflows',
+            switch (industry) {
+              'cafe_bakery' => 'Bakery & Cafe Operations',
+              'bulk_water' => 'Bulk Tanker Fleet Logistics',
+              'packaged_water' => '20L Can Route Distribution',
+              'textile' => 'Textile & Loom Manufacturing',
+              _ => 'Commercial Operations',
+            },
             style: AppTypography.section.copyWith(color: textCol),
           ),
           const SizedBox(height: 10),
 
-          if (industry == 'packaged_water' || industry.isEmpty) ...[
-            _buildWorkflowActionCard(
-              context: context,
-              title: '20L Can Distribution Beat',
-              description: 'Ticket Machine, Spot Empty Audit & Plant Refill',
-              icon: Icons.water_drop_rounded,
-              color: const Color(0xFF0284C7),
-              onTap: () => context.push('/operations/can-sales'),
-            ),
-            const SizedBox(height: 10),
-          ],
-
-          if (industry == 'bulk_water' || industry.isEmpty) ...[
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Bulk Tanker Fleet Operations',
-              description: 'Trip sheets, motor pumping & waiting surcharges',
-              icon: Icons.local_shipping_rounded,
-              color: const Color(0xFF0369A1),
-              onTap: () => context.push('/operations/tanker-trip'),
-            ),
-            const SizedBox(height: 10),
-          ],
-
-          if (industry == 'cafe_bakery' || industry.isEmpty) ...[
+          // 1. Cafe & Bakery Vertical (Aran Cafe)
+          if (industry == 'cafe_bakery') ...[
             _buildWorkflowActionCard(
               context: context,
               title: 'Aran Cafe POS Terminal',
-              description: 'Touch order billing & cash drawer closing',
+              description: 'Touch order billing, table & counter dispatch',
               icon: Icons.restaurant_rounded,
               color: const Color(0xFFD97706),
               onTap: () => context.push('/operations/cafe-pos'),
             ),
             const SizedBox(height: 10),
+            _buildWorkflowActionCard(
+              context: context,
+              title: 'Kitchen & Recipe Inventory',
+              description: 'Bakery ingredient stocks, flour & dairy audit',
+              icon: Icons.inventory_2_rounded,
+              color: const Color(0xFF059669),
+              onTap: () => context.push('/inventory/stock-count'),
+            ),
+            const SizedBox(height: 10),
+            _buildWorkflowActionCard(
+              context: context,
+              title: 'Cafe Expenses & Kitchen Purchases',
+              description: 'Vegetable, milk, gas & daily operational bills',
+              icon: Icons.receipt_long_rounded,
+              color: AppColors.primary,
+              onTap: () => context.push('/expenses/new'),
+            ),
+          ]
+          // 2. Bulk Water Tankers Vertical (TMWS)
+          else if (industry == 'bulk_water') ...[
+            _buildWorkflowActionCard(
+              context: context,
+              title: 'Bulk Tanker Fleet Operations',
+              description: 'Trip sheets, motor pumping & waiting surcharges',
+              icon: Icons.local_shipping_rounded,
+              color: const Color(0xFF0284C7),
+              onTap: () => context.push('/operations/tanker-trip'),
+            ),
+            const SizedBox(height: 10),
+            _buildWorkflowActionCard(
+              context: context,
+              title: 'Trip Payment Collection',
+              description: 'Collect driver cash & corporate commercial dues',
+              icon: Icons.payments_rounded,
+              color: AppColors.success,
+              onTap: () => context.push('/accounting/collect'),
+            ),
+            const SizedBox(height: 10),
+            _buildWorkflowActionCard(
+              context: context,
+              title: 'Diesel & Vehicle Maintenance',
+              description: 'Fuel slips, tanker repair & toll expenditure',
+              icon: Icons.local_gas_station_rounded,
+              color: AppColors.warning,
+              onTap: () => context.push('/expenses/new'),
+            ),
+          ]
+          // 3. 20L Can Route Distribution Vertical (DK Waters)
+          else if (industry == 'packaged_water') ...[
+            _buildWorkflowActionCard(
+              context: context,
+              title: '20L Can Distribution Beat',
+              description: 'Ticket Machine, Spot Empty Audit & Plant Refill',
+              icon: Icons.water_drop_rounded,
+              color: const Color(0xFF059669),
+              onTap: () => context.push('/operations/can-sales'),
+            ),
+            const SizedBox(height: 10),
+            _buildWorkflowActionCard(
+              context: context,
+              title: 'Spot Empty Can Audit',
+              description: 'Inspect Tata Ace vehicle cans vs route manifest',
+              icon: Icons.fact_check_rounded,
+              color: AppColors.warning,
+              onTap: () => context.push('/operations/spot-audit'),
+            ),
+            const SizedBox(height: 10),
+            _buildWorkflowActionCard(
+              context: context,
+              title: 'Driver Cash & Jar Surrender',
+              description: 'End-of-day route settlement with admin cashier',
+              icon: Icons.price_check_rounded,
+              color: const Color(0xFF0284C7),
+              onTap: () => context.push('/operations/driver-surrender'),
+            ),
+            const SizedBox(height: 10),
+            _buildWorkflowActionCard(
+              context: context,
+              title: 'RO Plant Refill Manifest',
+              description: 'Reverse Osmosis factory intake batch logs',
+              icon: Icons.factory_rounded,
+              color: AppColors.primary,
+              onTap: () => context.push('/operations/plant-refill'),
+            ),
+          ]
+          // 4. Textile & Garment Manufacturing Vertical (zoloERP Textiles)
+          else if (industry == 'textile') ...[
+            _buildWorkflowActionCard(
+              context: context,
+              title: 'Wholesale Tax Invoicing',
+              description: 'Fabric & garment commercial invoice generation',
+              icon: Icons.receipt_long_rounded,
+              color: const Color(0xFF7C3AED),
+              onTap: () => context.push('/sales/new'),
+            ),
+            const SizedBox(height: 10),
+            _buildWorkflowActionCard(
+              context: context,
+              title: 'Fabric Roll & Yarn Stock Audit',
+              description: 'Physical meter roll and yarn weight audits',
+              icon: Icons.inventory_2_rounded,
+              color: AppColors.primary,
+              onTap: () => context.push('/inventory/stock-count'),
+            ),
+            const SizedBox(height: 10),
+            _buildWorkflowActionCard(
+              context: context,
+              title: 'Commercial Debtor Collection',
+              description: 'Collect trade receivables against B2B invoices',
+              icon: Icons.payments_rounded,
+              color: AppColors.success,
+              onTap: () => context.push('/accounting/collect'),
+            ),
+          ]
+          // 5. Default General Enterprise Fallback
+          else ...[
+            _buildWorkflowActionCard(
+              context: context,
+              title: 'Sales Billing',
+              description: 'New invoice and customer receipt creation',
+              icon: Icons.receipt_long_rounded,
+              color: AppColors.primary,
+              onTap: () => context.push('/sales/new'),
+            ),
+            const SizedBox(height: 10),
+            _buildWorkflowActionCard(
+              context: context,
+              title: 'Physical Stock Count',
+              description: 'Barcode scan, godown inventory reconciliation',
+              icon: Icons.inventory_2_rounded,
+              color: const Color(0xFF059669),
+              onTap: () => context.push('/inventory/stock-count'),
+            ),
           ],
-
-          _buildWorkflowActionCard(
-            context: context,
-            title: 'Physical Stock Count',
-            description: 'Barcode scan, godown inventory reconciliation',
-            icon: Icons.inventory_2_rounded,
-            color: const Color(0xFF059669),
-            onTap: () => context.push('/inventory/stock-count'),
-          ),
           const SizedBox(height: 24),
         ],
       ),
