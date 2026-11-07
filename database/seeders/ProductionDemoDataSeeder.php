@@ -188,10 +188,10 @@ class ProductionDemoDataSeeder extends Seeder
 
         if (Schema::hasTable('water_can_inventories') && !DB::table('water_can_inventories')->exists()) {
             DB::table('water_can_inventories')->insert([
-                ['customer_id' => 2, 'total_cans_held' => 120, 'deposit_held' => 18000.00, 'deposit_rate_per_can' => 150.00, 'last_delivered_at' => $now, 'created_at' => $now, 'updated_at' => $now],
-                ['customer_id' => 3, 'total_cans_held' => 85, 'deposit_held' => 12750.00, 'deposit_rate_per_can' => 150.00, 'last_delivered_at' => $now, 'created_at' => $now, 'updated_at' => $now],
-                ['customer_id' => 4, 'total_cans_held' => 60, 'deposit_held' => 9000.00, 'deposit_rate_per_can' => 150.00, 'last_delivered_at' => $now, 'created_at' => $now, 'updated_at' => $now],
-                ['customer_id' => 5, 'total_cans_held' => 35, 'deposit_held' => 5250.00, 'deposit_rate_per_can' => 150.00, 'last_delivered_at' => $now, 'created_at' => $now, 'updated_at' => $now],
+                ['customer_id' => 2, 'total_cans_held' => 120, 'deposit_held' => 18000.00, 'last_delivery_date' => $today, 'created_at' => $now, 'updated_at' => $now],
+                ['customer_id' => 3, 'total_cans_held' => 85, 'deposit_held' => 12750.00, 'last_delivery_date' => $today, 'created_at' => $now, 'updated_at' => $now],
+                ['customer_id' => 4, 'total_cans_held' => 60, 'deposit_held' => 9000.00, 'last_delivery_date' => $today, 'created_at' => $now, 'updated_at' => $now],
+                ['customer_id' => 5, 'total_cans_held' => 35, 'deposit_held' => 5250.00, 'last_delivery_date' => $today, 'created_at' => $now, 'updated_at' => $now],
             ]);
         }
 
