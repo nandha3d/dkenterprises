@@ -30,13 +30,21 @@ import '../ui/app_scaffold.dart';
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
+class GoRouterRefreshNotifier extends ChangeNotifier {
+  GoRouterRefreshNotifier(Ref ref) {
+    ref.listen(authNotifierProvider, (_, __) => notifyListeners());
+  }
+}
+
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authNotifierProvider);
+  final refreshNotifier = GoRouterRefreshNotifier(ref);
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
+    refreshListenable: refreshNotifier,
     initialLocation: '/workspace',
     redirect: (context, state) {
+      final authState = ref.read(authNotifierProvider);
       final isLoggingIn = state.uri.path == '/login';
       if (!authState.isAuthenticated) {
         return isLoggingIn ? null : '/login';

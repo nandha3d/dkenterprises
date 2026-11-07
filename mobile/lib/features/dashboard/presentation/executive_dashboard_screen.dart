@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/ui/error_state.dart';
 import '../../../core/ui/kpi_card.dart';
+import '../../auth/domain/auth_models.dart';
 
 class ExecutiveDashboardScreen extends ConsumerStatefulWidget {
   const ExecutiveDashboardScreen({super.key});
@@ -103,6 +104,12 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AuthState>(authNotifierProvider, (previous, next) {
+      if (previous?.activeCompany?.id != next.activeCompany?.id) {
+        _loadDashboardData();
+      }
+    });
+
     final authState = ref.watch(authNotifierProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textCol = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;

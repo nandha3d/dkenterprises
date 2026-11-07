@@ -4,9 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/network/api_endpoints.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/ui/amount_text.dart';
-import '../../../core/ui/kpi_card.dart';
 import '../../auth/domain/auth_models.dart';
 
 class WorkspaceScreen extends ConsumerStatefulWidget {
@@ -117,17 +115,29 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Group Workspace & Entities'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'DK Enterprises Group',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              '${companies.length} Operating Entities',
+              style: TextStyle(fontSize: 11, color: mutedCol, fontWeight: FontWeight.normal),
+            ),
+          ],
+        ),
         actions: [
           // Theme Switcher Toggle (Light / Dark)
           IconButton(
-            icon: Icon(isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded),
+            icon: Icon(isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded, size: 20),
             tooltip: isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme',
             onPressed: () => themeNotifier.toggleTheme(),
           ),
           // Logout Button
           IconButton(
-            icon: const Icon(Icons.logout_rounded),
+            icon: const Icon(Icons.logout_rounded, size: 20),
             tooltip: 'Sign Out',
             onPressed: () async {
               await ref.read(authNotifierProvider.notifier).logout();
@@ -139,18 +149,18 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
       body: RefreshIndicator(
         onRefresh: _loadWorkspaceData,
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           children: [
             if (_isLoading)
               const Padding(
-                padding: EdgeInsets.only(bottom: 12),
+                padding: EdgeInsets.only(bottom: 10),
                 child: LinearProgressIndicator(minHeight: 2),
               ),
 
             if (_errorMessage != null)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                margin: const EdgeInsets.only(bottom: 12),
+                margin: const EdgeInsets.only(bottom: 10),
                 decoration: BoxDecoration(
                   color: AppColors.danger.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
@@ -174,42 +184,55 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                 ),
               ),
 
-            // Top Welcome Banner
+            // 1. Compact 3-Column Financial Ribbon
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
                 color: cardBg,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: borderCol, width: 1),
               ),
               child: Row(
                 children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: (isDark ? AppColors.primaryDark : AppColors.primary).withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.domain_rounded,
-                      color: isDark ? AppColors.primaryDark : AppColors.primary,
-                      size: 26,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'DK Enterprises Group',
-                          style: AppTypography.title.copyWith(color: textCol, fontSize: 18),
-                        ),
+                        Text('Group Turnover', style: TextStyle(fontSize: 11, color: mutedCol)),
                         const SizedBox(height: 2),
-                        Text(
-                          'Select an entity to enter its dedicated vertical workspace',
-                          style: AppTypography.caption.copyWith(color: mutedCol),
+                        AmountText(
+                          amount: groupTurnover,
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textCol),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(width: 1, height: 28, color: borderCol),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Cash & Bank', style: TextStyle(fontSize: 11, color: mutedCol)),
+                        const SizedBox(height: 2),
+                        AmountText(
+                          amount: groupCashBank,
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.success),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(width: 1, height: 28, color: borderCol),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Receivables', style: TextStyle(fontSize: 11, color: mutedCol)),
+                        const SizedBox(height: 2),
+                        AmountText(
+                          amount: groupReceivables,
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.warning),
                         ),
                       ],
                     ),
@@ -217,79 +240,33 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 14),
 
-            // Section 1: Consolidated Multi-Company Group Overview
-            Text(
-              'Consolidated Group Overview',
-              style: AppTypography.section.copyWith(color: textCol),
-            ),
-            const SizedBox(height: 10),
-
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.35,
-              children: [
-                KpiCard(
-                  title: 'Group Sales Turnover',
-                  amount: _isLoading && _workspaceData == null ? null : groupTurnover,
-                  customValue: _isLoading && _workspaceData == null ? '...' : null,
-                  icon: Icons.trending_up_rounded,
-                  iconColor: AppColors.success,
-                  subtitle: 'Combined turnover',
-                ),
-                KpiCard(
-                  title: 'Group Cash & Bank',
-                  amount: _isLoading && _workspaceData == null ? null : groupCashBank,
-                  customValue: _isLoading && _workspaceData == null ? '...' : null,
-                  icon: Icons.account_balance_wallet_rounded,
-                  iconColor: AppColors.primary,
-                  subtitle: 'Liquid balances',
-                ),
-                KpiCard(
-                  title: 'Total Receivables',
-                  amount: _isLoading && _workspaceData == null ? null : groupReceivables,
-                  customValue: _isLoading && _workspaceData == null ? '...' : null,
-                  icon: Icons.call_received_rounded,
-                  iconColor: AppColors.warning,
-                  subtitle: 'Customer dues',
-                ),
-                KpiCard(
-                  title: 'Operating Entities',
-                  amount: null,
-                  customValue: '${companies.length} Companies',
-                  icon: Icons.storefront_rounded,
-                  iconColor: const Color(0xFF7C3AED),
-                  subtitle: 'Distinct verticals',
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            // Section 2: Dedicated Vertical Companies
+            // 2. Section Title
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   'Select Company Workspace',
-                  style: AppTypography.section.copyWith(color: textCol),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: textCol,
+                  ),
                 ),
                 Text(
-                  'Strict Isolation',
+                  'Tap any card to open',
                   style: TextStyle(
                     fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? AppColors.primaryDark : AppColors.primary,
+                    fontWeight: FontWeight.w500,
+                    color: mutedCol,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
 
+            // 3. Compact Company List Cards
             if (companies.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24),
@@ -302,7 +279,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
               )
             else
               ...companies.map((company) {
-                return _buildCompanyCard(
+                return _buildCompactCompanyCard(
                   context: context,
                   company: company,
                   isDark: isDark,
@@ -313,14 +290,14 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                 );
               }),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCompanyCard({
+  Widget _buildCompactCompanyCard({
     required BuildContext context,
     required CompanyInfo company,
     required bool isDark,
@@ -329,36 +306,35 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
     required Color textCol,
     required Color mutedCol,
   }) {
-    // Resolve vertical presentation metadata
     final industry = company.industry ?? '';
     final (badgeLabel, tagline, iconData, brandColor) = switch (industry) {
       'cafe_bakery' => (
-          'Bakery & Cafe Operations',
-          'Touch POS Terminal, Daily Cash Drawer & Kitchen Orders',
+          'Bakery & POS',
+          'Aran Cafe Touch Terminal & Orders',
           Icons.restaurant_rounded,
           const Color(0xFFD97706),
         ),
       'bulk_water' => (
-          'Commercial Bulk Water Logistics',
-          'Tanker Fleet, Trip Sheets & Waiting Surcharges',
+          'Bulk Tankers',
+          'Fleet Logistics & Trip Sheets',
           Icons.local_shipping_rounded,
           const Color(0xFF0284C7),
         ),
       'packaged_water' => (
-          '20L Packaged Water Distribution',
-          'Can Route Beat, Empty Jars & Driver Surrenders',
+          '20L Can Routes',
+          'Beat Sales & Plant Refill',
           Icons.water_drop_rounded,
           const Color(0xFF059669),
         ),
       'textile' => (
-          'Textile & Garment Manufacturing',
-          'Fabric Stock, Job Work Orders & Wholesale Billing',
+          'Textile & Loom',
+          'Fabric Stock & Wholesale Billing',
           Icons.inventory_2_rounded,
           const Color(0xFF7C3AED),
         ),
       _ => (
-          'Commercial Business Enterprise',
-          'Billing, Invoicing, Inventory & General Ledger',
+          'Enterprise',
+          'Billing, Invoicing & Ledger',
           Icons.business_rounded,
           AppColors.primary,
         ),
@@ -376,38 +352,40 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
 
     final turnover = matchData?['metrics']?['sales_turnover'] as num? ?? 0;
     final cashBank = matchData?['metrics']?['cash_and_bank'] as num? ?? 0;
-    final dues = matchData?['metrics']?['receivables'] as num? ?? 0;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: cardBg,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: borderCol, width: 1),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header Bar with Vertical Badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: brandColor.withOpacity(0.08),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(13)),
-              border: Border(bottom: BorderSide(color: borderCol, width: 0.8)),
-            ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _selectCompany(context, company),
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Row(
               children: [
+                // Vertical accent icon container
                 Container(
-                  width: 38,
-                  height: 38,
+                  width: 44,
+                  height: 44,
                   decoration: BoxDecoration(
-                    color: brandColor.withOpacity(0.18),
+                    color: brandColor.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: brandColor.withOpacity(0.25),
+                      width: 1,
+                    ),
                   ),
                   child: Icon(iconData, color: brandColor, size: 22),
                 ),
                 const SizedBox(width: 12),
+
+                // Company Title, Badge & Tagline
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -418,7 +396,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                             child: Text(
                               company.name,
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 15,
                                 fontWeight: FontWeight.bold,
                                 color: textCol,
                               ),
@@ -426,125 +404,69 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          const SizedBox(width: 6),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: brandColor,
-                              borderRadius: BorderRadius.circular(12),
+                              color: brandColor.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              company.code ?? 'CORP',
-                              style: const TextStyle(
+                              badgeLabel,
+                              style: TextStyle(
                                 fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                color: brandColor,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 3),
                       Text(
-                        badgeLabel,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: brandColor,
-                        ),
+                        tagline,
+                        style: TextStyle(fontSize: 12, color: mutedCol),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        children: [
+                          Text('Turnover: ', style: TextStyle(fontSize: 11, color: mutedCol)),
+                          AmountText(
+                            amount: turnover,
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textCol),
+                          ),
+                          Text('  •  Cash: ', style: TextStyle(fontSize: 11, color: mutedCol)),
+                          AmountText(
+                            amount: cashBank,
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.success),
+                          ),
+                        ],
                       ),
                     ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+
+                // Chevron Forward Action
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white10 : const Color(0xFFF1F5F9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.chevron_right_rounded,
+                    color: brandColor,
+                    size: 20,
                   ),
                 ),
               ],
             ),
           ),
-
-          // Tagline description
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
-            child: Text(
-              tagline,
-              style: TextStyle(fontSize: 13, color: mutedCol),
-            ),
-          ),
-
-          // Mini metrics strip
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isDark ? Colors.black26 : const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Turnover', style: TextStyle(fontSize: 11, color: mutedCol)),
-                        const SizedBox(height: 2),
-                        AmountText(
-                          amount: turnover,
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: textCol),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(width: 1, height: 26, color: borderCol),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Cash & Bank', style: TextStyle(fontSize: 11, color: mutedCol)),
-                        const SizedBox(height: 2),
-                        AmountText(
-                          amount: cashBank,
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.success),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(width: 1, height: 26, color: borderCol),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Receivables', style: TextStyle(fontSize: 11, color: mutedCol)),
-                        const SizedBox(height: 2),
-                        AmountText(
-                          amount: dues,
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.warning),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Action Button to Enter Company Workspace
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: ElevatedButton.icon(
-              onPressed: () => _selectCompany(context, company),
-              icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-              label: Text('Open ${company.name} Workspace'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: brandColor,
-                foregroundColor: Colors.white,
-                minimumSize: const Size(double.infinity, 44),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
