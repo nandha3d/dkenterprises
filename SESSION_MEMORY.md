@@ -15,12 +15,13 @@
   - Reload LiteSpeed PHP workers: `touch .htaccess`
 - **Mobile Default Endpoint:** `https://dkenterprises.animazon.in/api/v1`
 - **Latest Live Commits & Fixes (2026-11-07):**
+  - Commit `292c016`: Wired live GPS fleet radar telematics into GoRouter (`/fleet/gps`) supporting both Bulk Tankers (`FleetViewMode.tankers`) and 20L Can Beat distribution (`FleetViewMode.packagedWater`); deployed to MilesWeb production.
   - Commit `8a509bc`: Implemented Company Picker & Group Workspace Screen (`/workspace`), strict vertical gating for each company (`cafe_bakery`, `bulk_water`, `packaged_water`, `textile`), Light Theme default (`ThemeMode.light`) with persistent toggle in top bar and profile, and backend endpoint `GET /api/v1/mobile/workspace`; deployed to MilesWeb production.
   - Commit `bb8d255`: Added `sqflite_common_ffi` and desktop FFI initialization (`sqfliteFfiInit()`) in `mobile/lib/main.dart` for Windows/Linux/macOS desktop runner; overhauled `ExecutiveDashboardScreen` with non-blocking linear progress indicators, instant cached painting, memory fallbacks, and 8s network timeouts; added safe try/catch fallbacks to `LocalDatabase` outbox methods; pushed to `origin/main` and deployed directly to MilesWeb server.
   - Commit `bb853e5`: Fixed JSON response envelope unwrapping in `AuthNotifier.login()` and `refreshMe()` (`data['data']` payload structure).
   - Added public `/api/v1/health` and `/api/v1/ping` endpoints in `routes/api.php` so pre-flight connection tests succeed instantly with `200 OK`.
   - Added fallback aliases for `/api/v1/financials`, `/api/v1/customers`, and `/api/v1/invoices`.
-  - Recompiled and uploaded production APK to `public/downloads/dk-track-field-erp.apk`.
+  - Recompiled and uploaded production APK to `public/downloads/dk-track-field-erp.apk` (213.27 MB).
   - Live authentication verified: `admin` / `admin` and `driver` / `driver123` issue Sanctum Bearer tokens and retrieve 4 accessible companies.
 
 ## Active Session & Follow-up — 2026-11-07: ZOLO ERP Complete Mobile Application Redesign, ERP Feature Parity & Production-Ready Implementation (branch main)
