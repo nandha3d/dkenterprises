@@ -41,42 +41,59 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
     final companyId = authState.activeCompany?.id ?? 0;
     final cacheKey = 'financials_company_$companyId';
 
-    // Check offline cache first
-    final cached = await db.getCache(cacheKey);
-    final cacheTime = await db.getCacheTimestamp(cacheKey);
-    if (cached != null && cached is Map<String, dynamic>) {
-      setState(() {
-        _financials = cached;
-        _lastRefreshedAt = cacheTime;
-        _isFromCache = true;
-      });
+    // 1. Check offline cache first
+    try {
+      final cached = await db.getCache(cacheKey).timeout(const Duration(milliseconds: 500));
+      final cacheTime = await db.getCacheTimestamp(cacheKey).timeout(const Duration(milliseconds: 500));
+      if (cached != null && cached is Map<String, dynamic> && mounted) {
+        setState(() {
+          _financials = cached;
+          _lastRefreshedAt = cacheTime;
+          _isFromCache = true;
+          _isLoading = false; // Immediately paint cached snapshot!
+        });
+      }
+    } catch (_) {
+      // Continue to live fetch
     }
 
-    // Attempt live server fetch
-    final result = await apiClient.get(
-      ApiEndpoints.financials,
-      fromJson: (data) => data as Map<String, dynamic>,
-    );
+    // 2. Attempt live server fetch with safe timeout
+    try {
+      final result = await apiClient.get(
+        ApiEndpoints.financials,
+        fromJson: (data) => data as Map<String, dynamic>,
+      ).timeout(const Duration(seconds: 8));
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (result.isSuccess) {
-      final liveData = result.dataOrNull!;
-      await db.saveCache(cacheKey, liveData);
-      setState(() {
-        _financials = liveData;
-        _isLoading = false;
-        _isFromCache = false;
-        _lastRefreshedAt = DateTime.now();
-      });
-    } else {
-      if (_financials == null) {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = result.failureOrNull?.message ?? 'Failed to load live data';
-        });
+      if (result.isSuccess) {
+        final rawData = result.dataOrNull!;
+        final liveData = rawData['data'] is Map<String, dynamic>
+            ? rawData['data'] as Map<String, dynamic>
+            : (rawData['data'] is Map ? Map<String, dynamic>.from(rawData['data'] as Map) : rawData);
+        await db.saveCache(cacheKey, liveData);
+        if (mounted) {
+          setState(() {
+            _financials = liveData;
+            _isFromCache = false;
+            _lastRefreshedAt = DateTime.now();
+          });
+        }
       } else {
-        // Keep showing cached data
+        if (_financials == null && mounted) {
+          setState(() {
+            _errorMessage = result.failureOrNull?.message ?? 'Failed to load live data';
+          });
+        }
+      }
+    } catch (e) {
+      if (_financials == null && mounted) {
+        setState(() {
+          _errorMessage = 'Connection timeout. Pull down to refresh.';
+        });
+      }
+    } finally {
+      if (mounted) {
         setState(() {
           _isLoading = false;
         });
@@ -93,28 +110,56 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
 
     final industry = authState.activeCompany?.industry ?? '';
 
-    if (_isLoading && _financials == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_errorMessage != null && _financials == null) {
-      return ErrorState(
-        message: _errorMessage!,
-        onRetry: _loadDashboardData,
-      );
-    }
-
-    final cashBalance = _financials?['cash_balance'] as num? ?? 0;
-    final bankBalance = _financials?['bank_balance'] as num? ?? 0;
-    final receivables = _financials?['receivables'] as num? ?? 0;
+    final cashBalance = _financials?['cash_balance'] as num? ??
+        _financials?['cash_in_hand_1010'] as num? ?? 0;
+    final bankBalance = _financials?['bank_balance'] as num? ??
+        _financials?['bank_account_1020'] as num? ?? 0;
+    final receivables = _financials?['receivables'] as num? ??
+        _financials?['accounts_receivable_1030'] as num? ?? 0;
     final payables = _financials?['payables'] as num? ?? 0;
-    final todayCollections = _financials?['collections_today'] as num? ?? 0;
+    final todayCollections = _financials?['collections_today'] as num? ??
+        _financials?['today_collections'] as num? ?? 0;
+
+    final isInitialLoading = _isLoading && _financials == null;
 
     return RefreshIndicator(
       onRefresh: _loadDashboardData,
       child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         children: [
+          if (_isLoading)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 12),
+              child: LinearProgressIndicator(minHeight: 2),
+            ),
+
+          // Error Banner if network failed and no cache
+          if (_errorMessage != null && !isInitialLoading)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: AppColors.danger.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.danger.withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline_rounded, size: 16, color: AppColors.danger),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _errorMessage!,
+                      style: const TextStyle(fontSize: 12, color: AppColors.danger),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _loadDashboardData,
+                    child: const Text('Retry', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ),
           // Live Server / Cached Status Bar
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -183,21 +228,24 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
             children: [
               KpiCard(
                 title: 'Cash in Hand (1010)',
-                amount: cashBalance,
+                amount: isInitialLoading ? null : cashBalance,
+                customValue: isInitialLoading ? '...' : null,
                 icon: Icons.account_balance_wallet_rounded,
                 iconColor: AppColors.success,
                 onTap: () => context.push('/accounting/books'),
               ),
               KpiCard(
                 title: 'Bank Balances (1020)',
-                amount: bankBalance,
+                amount: isInitialLoading ? null : bankBalance,
+                customValue: isInitialLoading ? '...' : null,
                 icon: Icons.account_balance_rounded,
                 iconColor: AppColors.primary,
                 onTap: () => context.push('/accounting/books'),
               ),
               KpiCard(
                 title: 'Receivables (1030)',
-                amount: receivables,
+                amount: isInitialLoading ? null : receivables,
+                customValue: isInitialLoading ? '...' : null,
                 icon: Icons.call_received_rounded,
                 iconColor: AppColors.warning,
                 subtitle: 'Customer Dues',
@@ -205,7 +253,8 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
               ),
               KpiCard(
                 title: 'Payables (2010)',
-                amount: payables,
+                amount: isInitialLoading ? null : payables,
+                customValue: isInitialLoading ? '...' : null,
                 icon: Icons.call_made_rounded,
                 iconColor: AppColors.danger,
                 subtitle: 'Supplier Dues',
@@ -218,7 +267,8 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
           // Today's Collections Strip
           KpiCard(
             title: "Today's Verified Collections",
-            amount: todayCollections,
+            amount: isInitialLoading ? null : todayCollections,
+            customValue: isInitialLoading ? '...' : null,
             icon: Icons.verified_rounded,
             iconColor: AppColors.success,
             subtitle: 'Direct journal entries posted to ledger',
