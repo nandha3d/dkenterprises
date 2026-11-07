@@ -48,7 +48,7 @@ class AppScaffold extends ConsumerWidget {
           child: Container(color: borderCol, height: 1),
         ),
         title: InkWell(
-          onTap: () => context.push('/workspace'),
+          onTap: authState.companies.length > 1 ? () => context.push('/workspace') : null,
           borderRadius: BorderRadius.circular(8),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
@@ -87,12 +87,14 @@ class AppScaffold extends ConsumerWidget {
                           color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        size: 16,
-                        color: isDark ? AppColors.primaryDark : AppColors.primary,
-                      ),
+                      if (authState.companies.length > 1) ...[
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          size: 16,
+                          color: isDark ? AppColors.primaryDark : AppColors.primary,
+                        ),
+                      ],
                     ],
                   ),
                 ),

@@ -577,12 +577,21 @@ class WaterLogisticsApiController extends BaseApiController
             $permissions = array_values(array_unique(array_merge($permissions, $allPerms)));
         }
 
-        // Accessible companies
+        // Accessible companies with industry settings
         $companies = DB::table('company_user')
             ->join('companies', 'company_user.company_id', '=', 'companies.id')
+            ->leftJoin('company_industry_settings', 'companies.id', '=', 'company_industry_settings.company_id')
             ->where('company_user.user_id', $user->id)
             ->where('companies.status', 'active')
-            ->select('companies.id', 'companies.code', 'companies.legal_name', 'companies.trade_name', 'company_user.is_default')
+            ->select(
+                'companies.id',
+                'companies.code',
+                'companies.legal_name',
+                'companies.trade_name',
+                DB::raw("COALESCE(companies.trade_name, companies.legal_name, companies.code) as name"),
+                'company_user.is_default',
+                DB::raw("COALESCE(company_industry_settings.profile_key, 'general') as industry")
+            )
             ->get();
 
         $defaultCompany = $companies->firstWhere('is_default', 1) ?? $companies->first();
@@ -689,30 +698,54 @@ class WaterLogisticsApiController extends BaseApiController
         $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id') ?? $request->company_id;
         $limit = min((int) ($request->input('limit', 50)), 100);
 
-        $query = DB::table('water_can_deliveries')
-            ->join('customers', 'water_can_deliveries.customer_id', '=', 'customers.id')
-            ->when($companyId, fn ($q) => $q->where('customers.company_id', $companyId))
-            ->when($request->filled('updated_since'), fn ($q) => $q->where('water_can_deliveries.updated_at', '>=', $request->updated_since))
+        // Primary: Commercial Sales Invoices strictly for this active company
+        $invoices = DB::table('sales')
+            ->where('sales.company_id', $companyId)
+            ->whereNull('sales.deleted_at')
+            ->leftJoin('customers', 'sales.customer_id', '=', 'customers.id')
             ->select(
-                'water_can_deliveries.id',
-                'water_can_deliveries.delivery_no',
-                'water_can_deliveries.delivery_date',
-                'water_can_deliveries.cans_delivered',
-                'water_can_deliveries.empty_cans_returned as empty_cans_collected',
-                'water_can_deliveries.total_amount',
-                'water_can_deliveries.payment_mode',
+                'sales.id',
+                'sales.reference_no',
+                'sales.created_at as date',
+                'sales.grand_total',
+                'sales.paid_amount',
                 'customers.name as customer_name',
-                'water_can_deliveries.updated_at'
+                'sales.updated_at'
             )
-            ->orderBy('water_can_deliveries.id', 'desc');
+            ->orderBy('sales.id', 'desc')
+            ->take($limit)
+            ->get();
 
-        $deliveries = $query->take($limit)->get();
+        // If no sales invoices yet, and this is packaged water, check water_can_deliveries
+        if ($invoices->isEmpty()) {
+            $deliveries = DB::table('water_can_deliveries')
+                ->join('customers', 'water_can_deliveries.customer_id', '=', 'customers.id')
+                ->when($companyId, fn ($q) => $q->where('customers.company_id', $companyId))
+                ->when($request->filled('updated_since'), fn ($q) => $q->where('water_can_deliveries.updated_at', '>=', $request->updated_since))
+                ->select(
+                    'water_can_deliveries.id',
+                    'water_can_deliveries.delivery_no as reference_no',
+                    'water_can_deliveries.delivery_date as date',
+                    'water_can_deliveries.cans_delivered',
+                    'water_can_deliveries.empty_cans_returned as empty_cans_collected',
+                    'water_can_deliveries.total_amount as grand_total',
+                    'water_can_deliveries.paid_amount',
+                    'water_can_deliveries.payment_mode',
+                    'customers.name as customer_name',
+                    'water_can_deliveries.updated_at'
+                )
+                ->orderBy('water_can_deliveries.id', 'desc')
+                ->take($limit)
+                ->get();
 
-        return $this->sendResponse($deliveries, 'Invoices and deliveries retrieved');
+            return $this->sendResponse($deliveries, 'Invoices and deliveries retrieved');
+        }
+
+        return $this->sendResponse($invoices, 'Invoices retrieved successfully');
     }
 
     /**
-     * ERP Financial Ledger Balances (Real Calculation from Ledger & Inventories)
+     * ERP Financial Ledger Balances (Strict Company Scoped & Web App Parity)
      */
     public function financials(Request $request): JsonResponse
     {
@@ -720,56 +753,174 @@ class WaterLogisticsApiController extends BaseApiController
         if (!$companyId && Auth::check()) {
             $companyId = DB::table('company_user')->where('user_id', Auth::id())->where('is_default', 1)->value('company_id')
                 ?? DB::table('company_user')->where('user_id', Auth::id())->value('company_id')
-                ?? 3;
+                ?? 1;
         }
-        $companyId ??= 3; // Fallback to DK Waters if not specified
+        $companyId ??= 1;
 
-        // 1. Live Ledger balances from journal_items
+        // 1. Live Ledger cash balance (from journal_items + accounts table fallback)
         $cash1010 = (float) DB::table('journal_items')
             ->join('chart_of_accounts', 'journal_items.chart_of_account_id', '=', 'chart_of_accounts.id')
             ->where('chart_of_accounts.company_id', $companyId)
             ->where(fn ($q) => $q->where('chart_of_accounts.code', '1010')->orWhere('chart_of_accounts.control_type', 'cash'))
             ->sum(DB::raw('journal_items.debit - journal_items.credit'));
 
+        if ($cash1010 == 0.0) {
+            $cash1010 = (float) DB::table('accounts')
+                ->where('company_id', $companyId)
+                ->where('is_active', 1)
+                ->where(fn ($q) => $q->where('name', 'like', '%cash%')->orWhere('account_no', 'like', '%cash%'))
+                ->sum('total_balance');
+        }
+
+        // 2. Bank balance (from journal_items + accounts table fallback)
         $bank1020 = (float) DB::table('journal_items')
             ->join('chart_of_accounts', 'journal_items.chart_of_account_id', '=', 'chart_of_accounts.id')
             ->where('chart_of_accounts.company_id', $companyId)
             ->where(fn ($q) => $q->where('chart_of_accounts.code', '1020')->orWhere('chart_of_accounts.control_type', 'bank'))
             ->sum(DB::raw('journal_items.debit - journal_items.credit'));
 
-        $ar1030 = (float) DB::table('journal_items')
+        if ($bank1020 == 0.0) {
+            $bank1020 = (float) DB::table('accounts')
+                ->where('company_id', $companyId)
+                ->where('is_active', 1)
+                ->where(fn ($q) => $q->where('name', 'like', '%bank%')->orWhere('account_no', 'like', '%bank%'))
+                ->sum('total_balance');
+        }
+
+        // 3. Receivables (Open customer invoices in sales table + journal AR)
+        $salesReceivables = (float) DB::table('sales')
+            ->where('company_id', $companyId)
+            ->whereNull('deleted_at')
+            ->whereColumn('paid_amount', '<', 'grand_total')
+            ->sum(DB::raw('grand_total - paid_amount'));
+
+        $journalAr = (float) DB::table('journal_items')
             ->join('chart_of_accounts', 'journal_items.chart_of_account_id', '=', 'chart_of_accounts.id')
             ->where('chart_of_accounts.company_id', $companyId)
             ->where(fn ($q) => $q->where('chart_of_accounts.code', '1030')->orWhere('chart_of_accounts.control_type', 'ar'))
             ->sum(DB::raw('journal_items.debit - journal_items.credit'));
 
-        // 2. Container Deposits held for customers of this company
+        $ar1030 = max($salesReceivables, $journalAr);
+
+        // 4. Payables (Open supplier purchases in purchases table + journal AP)
+        $purchasePayables = (float) DB::table('purchases')
+            ->where('company_id', $companyId)
+            ->whereColumn('paid_amount', '<', 'grand_total')
+            ->sum(DB::raw('grand_total - paid_amount'));
+
+        $journalAp = (float) DB::table('journal_items')
+            ->join('chart_of_accounts', 'journal_items.chart_of_account_id', '=', 'chart_of_accounts.id')
+            ->where('chart_of_accounts.company_id', $companyId)
+            ->where(fn ($q) => $q->where('chart_of_accounts.code', '2010')->orWhere('chart_of_accounts.control_type', 'ap'))
+            ->sum(DB::raw('journal_items.credit - journal_items.debit'));
+
+        $payables2010 = max($purchasePayables, $journalAp);
+
+        // 5. Container Deposits held for customers of this company
         $totalDeposits = (float) DB::table('water_can_inventories')
             ->join('customers', 'water_can_inventories.customer_id', '=', 'customers.id')
             ->where('customers.company_id', $companyId)
             ->sum('water_can_inventories.deposit_held');
 
-        // 3. Driver Surrendered Cash today (in transit to bank)
+        // 6. Driver Surrendered Cash today (in transit to bank)
         $cashInTransit = (float) DB::table('water_can_driver_surrenders')
             ->where('company_id', $companyId)
             ->whereDate('surrender_date', now()->toDateString())
             ->sum('cash_surrendered');
 
-        // 4. Collections received today
-        $todayCollections = (float) DB::table('water_can_deliveries')
+        // 7. Collections received today
+        $todayCollections = (float) DB::table('payments')
+            ->join('sales', 'payments.sale_id', '=', 'sales.id')
+            ->where('sales.company_id', $companyId)
+            ->whereDate('payments.created_at', now()->toDateString())
+            ->sum('payments.amount');
+
+        $waterCanCollections = (float) DB::table('water_can_deliveries')
             ->join('customers', 'water_can_deliveries.customer_id', '=', 'customers.id')
             ->where('customers.company_id', $companyId)
             ->whereDate('water_can_deliveries.delivery_date', now()->toDateString())
             ->sum('water_can_deliveries.paid_amount');
 
+        $todayCollections += $waterCanCollections;
+
+        // 8. Real Recent Transactions strictly scoped to this company
+        $recentTransactions = [];
+
+        // Real customer receipts
+        $receipts = DB::table('payments')
+            ->join('sales', 'payments.sale_id', '=', 'sales.id')
+            ->leftJoin('customers', 'sales.customer_id', '=', 'customers.id')
+            ->where('sales.company_id', $companyId)
+            ->select(
+                'payments.id',
+                DB::raw("CONCAT('Receipt: ', COALESCE(customers.name, 'Customer')) as title"),
+                'payments.amount',
+                DB::raw('1 as is_credit'),
+                'payments.paying_method as payment_mode',
+                'payments.created_at'
+            )
+            ->orderBy('payments.id', 'desc')
+            ->take(6)
+            ->get();
+
+        foreach ($receipts as $r) {
+            $recentTransactions[] = [
+                'id' => (int) $r->id,
+                'title' => $r->title,
+                'amount' => (float) $r->amount,
+                'is_credit' => true,
+                'date' => (string) $r->created_at,
+                'mode' => $r->payment_mode ?? 'Cash',
+                'account_type' => stripos($r->payment_mode ?? '', 'bank') !== false ? 'bank' : 'cash',
+            ];
+        }
+
+        // Real expenses
+        $expenses = DB::table('expenses')
+            ->where('expenses.company_id', $companyId)
+            ->leftJoin('expense_categories', 'expenses.expense_category_id', '=', 'expense_categories.id')
+            ->select(
+                'expenses.id',
+                DB::raw("CONCAT('Expense: ', COALESCE(expense_categories.name, expenses.note, 'Expense')) as title"),
+                'expenses.amount',
+                DB::raw('0 as is_credit'),
+                'expenses.created_at'
+            )
+            ->orderBy('expenses.id', 'desc')
+            ->take(6)
+            ->get();
+
+        foreach ($expenses as $e) {
+            $recentTransactions[] = [
+                'id' => (int) $e->id,
+                'title' => $e->title,
+                'amount' => (float) $e->amount,
+                'is_credit' => false,
+                'date' => (string) $e->created_at,
+                'mode' => 'Cash',
+                'account_type' => 'cash',
+            ];
+        }
+
+        // Sort combined recent transactions by date descending
+        usort($recentTransactions, fn ($a, $b) => strcmp($b['date'], $a['date']));
+        $recentTransactions = array_slice($recentTransactions, 0, 10);
+
         $data = [
             'company_id' => (int) $companyId,
+            'cash_balance' => $cash1010,
             'cash_in_hand_1010' => $cash1010,
+            'bank_balance' => $bank1020,
             'bank_account_1020' => $bank1020,
+            'receivables' => $ar1030,
             'accounts_receivable_1030' => $ar1030,
+            'payables' => $payables2010,
+            'accounts_payable_2010' => $payables2010,
             'total_container_deposits' => $totalDeposits,
             'cash_in_transit_drivers' => $cashInTransit,
             'today_collections' => $todayCollections,
+            'collections_today' => $todayCollections,
+            'recent_transactions' => $recentTransactions,
         ];
 
         return $this->sendResponse($data, 'Real-time financial ledger balances retrieved');
@@ -918,6 +1069,102 @@ class WaterLogisticsApiController extends BaseApiController
             'summary' => $summary,
             'companies' => $companyCards,
         ], 'Multi-company group workspace insights loaded');
+    }
+
+    /**
+     * Mobile Fleet Live Telematics
+     */
+    public function fleetLive(Request $request): JsonResponse
+    {
+        $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id');
+        $company = $companyId ? Company::find($companyId) : null;
+        $industry = $request->input('vertical') ?? $company?->industry;
+
+        if (!$industry) {
+            $industry = ($company && ($company->code === 'TMWS' || str_contains(strtolower($company->trade_name ?? ''), 'tanker')))
+                ? 'bulk_water'
+                : 'packaged_water';
+        }
+
+        if ($industry === 'packaged_water') {
+            $tankers = [];
+            $canRoutes = DB::table('water_can_routes')->where('is_active', true)->get();
+            $customers = DB::table('customers')
+                ->where('is_active', true)
+                ->when($companyId, fn ($q) => $q->where('company_id', $companyId))
+                ->whereNotNull('latitude')
+                ->select('id', 'name', 'company_name', 'phone_number', 'address', 'city', 'latitude', 'longitude')
+                ->get();
+        } else {
+            $tankers = DB::table('water_tankers')->where('is_active', true)->get();
+            $canRoutes = [];
+            $customers = DB::table('customers')
+                ->where('is_active', true)
+                ->when($companyId, fn ($q) => $q->where('company_id', $companyId))
+                ->whereNotNull('latitude')
+                ->select('id', 'name', 'company_name', 'phone_number', 'address', 'city', 'latitude', 'longitude')
+                ->get();
+        }
+
+        return $this->sendResponse([
+            'industry' => $industry,
+            'tankers' => $tankers,
+            'can_routes' => $canRoutes,
+            'customers' => $customers,
+            'server_time' => now()->toIso8601String(),
+        ], 'Live fleet telematics loaded successfully');
+    }
+
+    /**
+     * Mobile Fleet Telematics Ping Ingestion
+     */
+    public function fleetPing(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'vehicle_type' => 'required|in:tanker,route',
+            'vehicle_id' => 'required',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'speed' => 'nullable|numeric',
+            'odometer' => 'nullable|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation error', $validator->errors()->toArray(), 422);
+        }
+
+        $lat = (float) $request->latitude;
+        $lng = (float) $request->longitude;
+        $speed = (float) ($request->speed ?? 0);
+        $odometer = $request->odometer ? (float) $request->odometer : null;
+
+        if ($request->vehicle_type === 'tanker') {
+            $update = [
+                'latitude' => $lat,
+                'longitude' => $lng,
+                'current_speed' => $speed,
+                'last_ping_at' => now(),
+            ];
+            if ($odometer) {
+                $update['current_odometer_km'] = $odometer;
+            }
+            DB::table('water_tankers')->where('id', $request->vehicle_id)->update($update);
+        } else {
+            $update = [
+                'latitude' => $lat,
+                'longitude' => $lng,
+                'current_speed' => $speed,
+                'last_ping_at' => now(),
+            ];
+            DB::table('water_can_routes')->where('id', $request->vehicle_id)->update($update);
+        }
+
+        return $this->sendResponse([
+            'recorded_at' => now()->toIso8601String(),
+            'latitude' => $lat,
+            'longitude' => $lng,
+            'speed' => $speed,
+        ], 'Telemetry ping recorded successfully');
     }
 }
 

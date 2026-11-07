@@ -5,6 +5,7 @@ import '../../../core/providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/ui/amount_text.dart';
+import '../../../core/ui/empty_state.dart';
 import '../../../core/ui/error_state.dart';
 
 class AccountingBooksScreen extends ConsumerStatefulWidget {
@@ -57,9 +58,22 @@ class _AccountingBooksScreenState extends ConsumerState<AccountingBooksScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final borderCol = isDark ? AppColors.darkBorder : AppColors.lightBorder;
+    final textCol = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
 
-    final cashBalance = _financials?['cash_balance'] as num? ?? 0;
-    final bankBalance = _financials?['bank_balance'] as num? ?? 0;
+    final cashBalance = _financials?['cash_balance'] as num? ??
+        _financials?['cash_in_hand_1010'] as num? ?? 0;
+    final bankBalance = _financials?['bank_balance'] as num? ??
+        _financials?['bank_account_1020'] as num? ?? 0;
+
+    final allTx = (_financials?['recent_transactions'] as List<dynamic>?) ?? [];
+    final currentBookType = _selectedBook == 0 ? 'cash' : 'bank';
+    final filteredTx = allTx.where((t) {
+      if (t is Map) {
+        final type = (t['account_type'] ?? 'cash').toString().toLowerCase();
+        return type == currentBookType;
+      }
+      return false;
+    }).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -141,17 +155,32 @@ class _AccountingBooksScreenState extends ConsumerState<AccountingBooksScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : _errorMessage != null
                     ? ErrorState(message: _errorMessage!, onRetry: _fetchFinancials)
-                    : ListView(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        children: [
-                          Text('Recent Journal Postings', style: AppTypography.section.copyWith(fontSize: 16)),
-                          const SizedBox(height: 10),
-                          _buildLedgerRow('Water Can Route Collection', '+₹1,450.00', true, 'Today, 04:30 PM'),
-                          _buildLedgerRow('Diesel Fuel Expense', '-₹500.00', false, 'Today, 02:15 PM'),
-                          _buildLedgerRow('Sri Murugan Mess Settlement', '+₹850.00', true, 'Today, 11:20 AM'),
-                          _buildLedgerRow('Godown Loading Refreshments', '-₹120.00', false, 'Yesterday, 06:10 PM'),
-                        ],
-                      ),
+                    : filteredTx.isEmpty
+                        ? EmptyState(
+                            title: 'No Postings',
+                            message: 'No ${_selectedBook == 0 ? "cash" : "bank"} transactions recorded yet for this company.',
+                            icon: Icons.receipt_long_outlined,
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: filteredTx.length + 1,
+                            itemBuilder: (ctx, idx) {
+                              if (idx == 0) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: Text('Recent Journal Postings', style: AppTypography.section.copyWith(fontSize: 16, color: textCol)),
+                                );
+                              }
+                              final tx = filteredTx[idx - 1] as Map;
+                              final title = tx['title']?.toString() ?? 'Journal Posting';
+                              final amount = num.tryParse(tx['amount']?.toString() ?? '0') ?? 0;
+                              final isCredit = tx['is_credit'] == true || tx['is_credit'] == 1;
+                              final dateStr = tx['date']?.toString() ?? '';
+                              final formattedAmount = '${isCredit ? "+" : "-"}${AmountText.format(amount)}';
+
+                              return _buildLedgerRow(title, formattedAmount, isCredit, dateStr);
+                            },
+                          ),
           ),
         ],
       ),

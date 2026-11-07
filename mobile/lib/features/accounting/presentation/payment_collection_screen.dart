@@ -15,11 +15,44 @@ class PaymentCollectionScreen extends ConsumerStatefulWidget {
 }
 
 class _PaymentCollectionScreenState extends ConsumerState<PaymentCollectionScreen> {
-  final _customerController = TextEditingController(text: 'Sri Murugan Mess');
-  final _amountController = TextEditingController(text: '850');
+  final _customerController = TextEditingController();
+  final _amountController = TextEditingController();
   final _notesController = TextEditingController();
   String _paymentMode = 'Cash';
   bool _isSubmitting = false;
+  int? _selectedCustomerId;
+  double _currentDue = 0.0;
+  List<Map<String, dynamic>> _customers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCustomers();
+  }
+
+  Future<void> _fetchCustomers() async {
+    final client = ref.read(apiClientProvider);
+    final res = await client.get(
+      ApiEndpoints.customers,
+      fromJson: (data) {
+        final list = data is Map && data['data'] is List
+            ? data['data'] as List
+            : (data is List ? data : []);
+        return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      },
+    );
+    if (mounted && res.isSuccess) {
+      setState(() {
+        _customers = res.dataOrNull ?? [];
+        if (_customers.isNotEmpty) {
+          final first = _customers.first;
+          _selectedCustomerId = first['id'] as int?;
+          _customerController.text = first['name']?.toString() ?? '';
+          _currentDue = (first['outstanding_due'] as num?)?.toDouble() ?? 0.0;
+        }
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -45,7 +78,7 @@ class _PaymentCollectionScreenState extends ConsumerState<PaymentCollectionScree
     final syncWorker = ref.read(syncWorkerProvider);
 
     final payload = {
-      'customer_id': 1,
+      'customer_id': _selectedCustomerId ?? 1,
       'customer_name': _customerController.text.trim(),
       'amount': amount,
       'payment_mode': _paymentMode,
@@ -125,9 +158,9 @@ class _PaymentCollectionScreenState extends ConsumerState<PaymentCollectionScree
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Current Outstanding Due:', style: AppTypography.caption),
-                      const AmountText(
-                        amount: 850.0,
-                        color: AppColors.danger,
+                      AmountText(
+                        amount: _currentDue,
+                        color: _currentDue > 0 ? AppColors.danger : AppColors.success,
                       ),
                     ],
                   ),

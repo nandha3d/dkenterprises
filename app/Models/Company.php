@@ -37,6 +37,11 @@ class Company extends Model
         return $this->hasMany(FiscalYear::class);
     }
 
+    public function getNameAttribute(): string
+    {
+        return $this->attributes['name'] ?? $this->trade_name ?? $this->legal_name ?? $this->code ?? 'Company';
+    }
+
     public function getIndustryAttribute(): ?string
     {
         return $this->attributes['industry'] ?? \Illuminate\Support\Facades\DB::table('company_industry_settings')->where('company_id', $this->id)->value('profile_key');

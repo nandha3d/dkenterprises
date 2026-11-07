@@ -49,10 +49,10 @@ class _StockOverviewScreenState extends ConsumerState<StockOverviewScreen> {
     final result = await client.get(
       ApiEndpoints.products,
       fromJson: (data) {
-        if (data is List) {
-          return data.cast<Map<String, dynamic>>();
-        }
-        return <Map<String, dynamic>>[];
+        final list = data is Map && data['data'] is List
+            ? data['data'] as List
+            : (data is List ? data : []);
+        return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
       },
     );
 

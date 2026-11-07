@@ -14,11 +14,40 @@ class SpotAuditScreen extends ConsumerStatefulWidget {
 }
 
 class _SpotAuditScreenState extends ConsumerState<SpotAuditScreen> {
-  final _customerController = TextEditingController(text: 'Royal Care Clinic');
-  int _systemRecordedJars = 15;
-  int _physicalCountedJars = 12;
+  final _customerController = TextEditingController();
+  int _systemRecordedJars = 0;
+  int _physicalCountedJars = 0;
   final _remarksController = TextEditingController();
   bool _isSubmitting = false;
+  List<Map<String, dynamic>> _customers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCustomers();
+  }
+
+  Future<void> _fetchCustomers() async {
+    final client = ref.read(apiClientProvider);
+    final res = await client.get(
+      ApiEndpoints.customers,
+      fromJson: (data) {
+        final list = data is Map && data['data'] is List
+            ? data['data'] as List
+            : (data is List ? data : []);
+        return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      },
+    );
+    if (mounted && res.isSuccess && (res.dataOrNull?.isNotEmpty ?? false)) {
+      setState(() {
+        _customers = res.dataOrNull!;
+        final first = _customers.first;
+        _customerController.text = first['name']?.toString() ?? '';
+        _systemRecordedJars = (first['total_cans_held'] as num?)?.toInt() ?? 0;
+        _physicalCountedJars = _systemRecordedJars;
+      });
+    }
+  }
 
   @override
   void dispose() {

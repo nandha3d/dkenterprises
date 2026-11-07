@@ -15,17 +15,42 @@ class CafePosScreen extends ConsumerStatefulWidget {
 }
 
 class _CafePosScreenState extends ConsumerState<CafePosScreen> {
-  final List<Map<String, dynamic>> _menuItems = [
-    {'id': 1, 'name': 'Filter Coffee', 'price': 25.0, 'category': 'Beverages'},
-    {'id': 2, 'name': 'Cardamom Tea', 'price': 20.0, 'category': 'Beverages'},
-    {'id': 3, 'name': 'Egg Puff', 'price': 30.0, 'category': 'Bakes'},
-    {'id': 4, 'name': 'Paneer Roll', 'price': 45.0, 'category': 'Bakes'},
-    {'id': 5, 'name': 'Chocolate Pastry', 'price': 60.0, 'category': 'Cakes'},
-    {'id': 6, 'name': 'Cold Badam Milk', 'price': 40.0, 'category': 'Beverages'},
-  ];
-
+  List<Map<String, dynamic>> _menuItems = [];
+  bool _isLoading = true;
   final Map<int, int> _cart = {}; // itemId -> qty
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMenuItems();
+  }
+
+  Future<void> _fetchMenuItems() async {
+    final client = ref.read(apiClientProvider);
+    final res = await client.get(
+      ApiEndpoints.products,
+      fromJson: (data) {
+        final list = data is Map && data['data'] is List
+            ? data['data'] as List
+            : (data is List ? data : []);
+        return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      },
+    );
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+        if (res.isSuccess && (res.dataOrNull?.isNotEmpty ?? false)) {
+          _menuItems = res.dataOrNull!.map((p) => {
+            'id': p['id'] as int,
+            'name': p['name']?.toString() ?? 'Item',
+            'price': (p['price'] as num?)?.toDouble() ?? 0.0,
+            'category': (p['category'] ?? p['category_name'] ?? 'Bakery & Cafe')?.toString(),
+          }).toList();
+        }
+      });
+    }
+  }
 
   double get _totalBill {
     double total = 0;
@@ -140,7 +165,13 @@ class _CafePosScreenState extends ConsumerState<CafePosScreen> {
         children: [
           // Items Grid
           Expanded(
-            child: GridView.builder(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _menuItems.isEmpty
+                    ? const Center(
+                        child: Text('No menu products configured for this branch.'),
+                      )
+                    : GridView.builder(
               padding: const EdgeInsets.all(16),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,

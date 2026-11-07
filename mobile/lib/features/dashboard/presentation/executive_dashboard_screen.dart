@@ -6,7 +6,6 @@ import '../../../core/network/api_endpoints.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/ui/error_state.dart';
 import '../../../core/ui/kpi_card.dart';
 import '../../auth/domain/auth_models.dart';
 
@@ -106,7 +105,11 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
   Widget build(BuildContext context) {
     ref.listen<AuthState>(authNotifierProvider, (previous, next) {
       if (previous?.activeCompany?.id != next.activeCompany?.id) {
-        _loadDashboardData();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _loadDashboardData();
+          }
+        });
       }
     });
 

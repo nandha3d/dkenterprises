@@ -32,7 +32,11 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 class GoRouterRefreshNotifier extends ChangeNotifier {
   GoRouterRefreshNotifier(Ref ref) {
-    ref.listen(authNotifierProvider, (_, __) => notifyListeners());
+    ref.listen(authNotifierProvider, (_, __) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
+    });
   }
 }
 
@@ -50,7 +54,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return isLoggingIn ? null : '/login';
       }
       if (isLoggingIn) {
-        return '/workspace';
+        return authState.companies.length <= 1 ? '/home' : '/workspace';
+      }
+      if (state.uri.path == '/workspace' && authState.companies.length <= 1) {
+        return '/home';
       }
       return null;
     },

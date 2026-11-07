@@ -48,8 +48,16 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
 
     if (salesRes.isSuccess || stockRes.isSuccess) {
       setState(() {
-        _salesSummary = salesRes.dataOrNull;
-        _stockSummary = stockRes.dataOrNull;
+        final sRaw = salesRes.dataOrNull;
+        _salesSummary = sRaw != null && sRaw['data'] is Map
+            ? Map<String, dynamic>.from(sRaw['data'] as Map)
+            : sRaw;
+
+        final stRaw = stockRes.dataOrNull;
+        _stockSummary = stRaw != null && stRaw['data'] is Map
+            ? Map<String, dynamic>.from(stRaw['data'] as Map)
+            : stRaw;
+
         _isLoading = false;
       });
     } else {
@@ -66,10 +74,12 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     final textCol = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
     final mutedCol = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
-    final totalSales = _salesSummary?['total_sales'] as num? ?? 48250;
-    final totalInvoices = _salesSummary?['invoice_count'] as num? ?? 14;
-    final totalStockValuation = _stockSummary?['total_valuation'] as num? ?? 128450;
-    final totalItems = _stockSummary?['item_count'] as num? ?? 26;
+    final totalSales = _salesSummary?['total_sales'] as num? ?? 0;
+    final totalInvoices = _salesSummary?['total_invoices'] as num? ??
+        _salesSummary?['invoice_count'] as num? ?? 0;
+    final totalStockValuation = _stockSummary?['total_valuation'] as num? ?? 0;
+    final totalItems = _stockSummary?['total_items'] as num? ??
+        _stockSummary?['item_count'] as num? ?? 0;
 
     return Scaffold(
       appBar: AppBar(

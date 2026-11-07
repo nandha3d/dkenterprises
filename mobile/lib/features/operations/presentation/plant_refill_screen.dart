@@ -14,10 +14,10 @@ class PlantRefillScreen extends ConsumerStatefulWidget {
 }
 
 class _PlantRefillScreenState extends ConsumerState<PlantRefillScreen> {
-  final _vehicleController = TextEditingController(text: 'TN 38 DK 1001 (Tata Ace)');
-  int _emptyHandedOver = 120;
-  int _fullLoaded = 120;
-  int _damagedJars = 2;
+  final _vehicleController = TextEditingController();
+  int _emptyHandedOver = 0;
+  int _fullLoaded = 0;
+  int _damagedJars = 0;
   bool _isSubmitting = false;
 
   @override

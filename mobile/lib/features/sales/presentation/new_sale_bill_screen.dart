@@ -18,8 +18,43 @@ class _NewSaleBillScreenState extends ConsumerState<NewSaleBillScreen> {
   final _customerController = TextEditingController(text: 'Walk-in Retail Customer');
   String _paymentMode = 'Cash'; // Cash, UPI, Credit
   int _qty = 1;
-  double _unitPrice = 35.0; // Standard 20L can default
+  double _unitPrice = 35.0;
+  String _selectedProductName = 'Standard Commercial Item';
+  int? _selectedProductId;
+  List<Map<String, dynamic>> _products = [];
+  bool _isLoadingProducts = true;
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProducts();
+  }
+
+  Future<void> _fetchProducts() async {
+    final client = ref.read(apiClientProvider);
+    final res = await client.get(
+      ApiEndpoints.products,
+      fromJson: (data) {
+        final list = data is Map && data['data'] is List
+            ? data['data'] as List
+            : (data is List ? data : []);
+        return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      },
+    );
+    if (mounted) {
+      setState(() {
+        _isLoadingProducts = false;
+        if (res.isSuccess && (res.dataOrNull?.isNotEmpty ?? false)) {
+          _products = res.dataOrNull!;
+          final first = _products.first;
+          _selectedProductId = first['id'] as int?;
+          _selectedProductName = first['name']?.toString() ?? 'Standard Product';
+          _unitPrice = (first['price'] as num?)?.toDouble() ?? 35.0;
+        }
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -38,7 +73,8 @@ class _NewSaleBillScreenState extends ConsumerState<NewSaleBillScreen> {
 
     final payload = {
       'customer_name': _customerController.text.trim(),
-      'item_name': '20L Packaged Water Can',
+      'item_name': _selectedProductName,
+      'product_id': _selectedProductId,
       'qty': _qty,
       'unit_price': _unitPrice,
       'grand_total': _totalAmount,
@@ -140,17 +176,48 @@ class _NewSaleBillScreenState extends ConsumerState<NewSaleBillScreen> {
                         'Item Details',
                         style: AppTypography.section.copyWith(fontSize: 16, color: textCol),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(6),
+                      if (_isLoadingProducts)
+                        const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      else if (_products.length > 1)
+                        DropdownButton<int>(
+                          value: _selectedProductId,
+                          underline: const SizedBox.shrink(),
+                          items: _products.map((p) {
+                            return DropdownMenuItem<int>(
+                              value: p['id'] as int?,
+                              child: Text(
+                                p['name']?.toString() ?? '',
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (id) {
+                            if (id != null) {
+                              final p = _products.firstWhere((item) => item['id'] == id);
+                              setState(() {
+                                _selectedProductId = id;
+                                _selectedProductName = p['name']?.toString() ?? '';
+                                _unitPrice = (p['price'] as num?)?.toDouble() ?? _unitPrice;
+                              });
+                            }
+                          },
+                        )
+                      else
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            _selectedProductName,
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary),
+                          ),
                         ),
-                        child: const Text(
-                          '20L Packaged Water Can',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary),
-                        ),
-                      ),
                     ],
                   ),
                   const Divider(height: 24),

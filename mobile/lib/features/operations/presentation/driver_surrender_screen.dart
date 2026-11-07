@@ -15,10 +15,34 @@ class DriverSurrenderScreen extends ConsumerStatefulWidget {
 }
 
 class _DriverSurrenderScreenState extends ConsumerState<DriverSurrenderScreen> {
-  final _collectedController = TextEditingController(text: '4200');
-  final _expensesController = TextEditingController(text: '500');
+  final _collectedController = TextEditingController();
+  final _expensesController = TextEditingController();
   final _notesController = TextEditingController();
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCollections();
+  }
+
+  Future<void> _loadCollections() async {
+    final client = ref.read(apiClientProvider);
+    final res = await client.get(
+      ApiEndpoints.financials,
+      fromJson: (data) => data as Map<String, dynamic>,
+    );
+    if (mounted && res.isSuccess) {
+      final raw = res.dataOrNull!;
+      final fin = raw['data'] is Map ? raw['data'] as Map : raw;
+      final coll = (fin['today_collections'] as num?)?.toDouble() ?? 0.0;
+      if (coll > 0) {
+        setState(() {
+          _collectedController.text = coll.toStringAsFixed(0);
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {

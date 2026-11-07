@@ -15,12 +15,40 @@ class CanSalesScreen extends ConsumerStatefulWidget {
 }
 
 class _CanSalesScreenState extends ConsumerState<CanSalesScreen> {
-  final _customerController = TextEditingController(text: 'Sri Murugan Mess');
-  int _deliveredCans = 10;
-  int _returnedEmpties = 8;
+  final _customerController = TextEditingController();
+  int _deliveredCans = 1;
+  int _returnedEmpties = 0;
   double _pricePerCan = 35.0;
   String _paymentMode = 'Cash';
   bool _isSubmitting = false;
+  List<Map<String, dynamic>> _customers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCustomers();
+  }
+
+  Future<void> _fetchCustomers() async {
+    final client = ref.read(apiClientProvider);
+    final res = await client.get(
+      ApiEndpoints.customers,
+      fromJson: (data) {
+        final list = data is Map && data['data'] is List
+            ? data['data'] as List
+            : (data is List ? data : []);
+        return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      },
+    );
+    if (mounted && res.isSuccess) {
+      setState(() {
+        _customers = res.dataOrNull ?? [];
+        if (_customers.isNotEmpty) {
+          _customerController.text = _customers.first['name']?.toString() ?? '';
+        }
+      });
+    }
+  }
 
   @override
   void dispose() {

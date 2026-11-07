@@ -15,14 +15,40 @@ class TankerTripScreen extends ConsumerStatefulWidget {
 }
 
 class _TankerTripScreenState extends ConsumerState<TankerTripScreen> {
-  final _customerController = TextEditingController(text: 'Sri Krishna Spinners (Site A)');
-  final _startOdoController = TextEditingController(text: '48210');
-  final _endOdoController = TextEditingController(text: '48235');
-  int _waterLitres = 12000;
-  double _baseTripRate = 1800.0;
-  double _motorPumpingSurcharge = 200.0;
-  double _waitingSurcharge = 150.0;
+  final _customerController = TextEditingController();
+  final _startOdoController = TextEditingController();
+  final _endOdoController = TextEditingController();
+  int _waterLitres = 16000;
+  double _baseTripRate = 2400.0;
+  double _motorPumpingSurcharge = 0.0;
+  double _waitingSurcharge = 0.0;
   bool _isSubmitting = false;
+  List<Map<String, dynamic>> _customers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCustomers();
+  }
+
+  Future<void> _fetchCustomers() async {
+    final client = ref.read(apiClientProvider);
+    final res = await client.get(
+      ApiEndpoints.customers,
+      fromJson: (data) {
+        final list = data is Map && data['data'] is List
+            ? data['data'] as List
+            : (data is List ? data : []);
+        return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      },
+    );
+    if (mounted && res.isSuccess && (res.dataOrNull?.isNotEmpty ?? false)) {
+      setState(() {
+        _customers = res.dataOrNull!;
+        _customerController.text = _customers.first['name']?.toString() ?? '';
+      });
+    }
+  }
 
   @override
   void dispose() {

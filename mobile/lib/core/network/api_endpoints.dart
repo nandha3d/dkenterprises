@@ -63,5 +63,9 @@ abstract final class ApiEndpoints {
   static const String cafeMenu = '/cafe/menu';
   static const String cafeOrders = '/cafe/orders';
   static const String cafeDrawerReconcile = '/cafe/drawer-reconcile';
+
+  // Fleet Telematics & GPS
+  static const String fleetLive = '/mobile/fleet/live';
+  static const String fleetPing = '/mobile/fleet/ping';
 }
 

@@ -1,5 +1,30 @@
 # zoloERP Pro — Persistent Session Memory & State
 
+## Active Session & Follow-up — 2026-11-07: Multi-Entity Strict Isolation, Backend Dynamic Calculations, Real Fleet GPS Telematics & Audit Spec Execution (branch main)
+
+- **User Requests Addressed:**
+  1. Complete adherence to `docs/DK_Enterprises_Antigravity_ERP_Mobile_Web_Audit_and_Fix_Spec.md`.
+  2. Strict multi-entity isolation: Context A (`/workspace`) is the ONLY multi-entity rollup; Context B (all internal company screens) strictly locked to active company (`X-Company-ID`). Zero cross-company leakage.
+  3. Demo role 1-tap quick logins on Login screen (`admin`, `driver`, `tanker_driver`, `cashier`, `agent`).
+  4. Fix ERP Server Settings connection test (hitting `/health` instead of 404).
+  5. Dynamic calculations driven entirely by backend API; elimination of hardcoded mock numbers and simulated fake GPS jitter.
+  6. Real fleet GPS telematics integration (`/api/v1/mobile/fleet/live` and `/api/v1/mobile/fleet/ping`).
+  7. Creation of 5 required audit documents in `docs/audits/`.
+- **Implementation & Verification:**
+  - Audit deliverables produced in `docs/audits/`:
+    - `ERP_WEB_MOBILE_PARITY_MATRIX.md`
+    - `COMPANY_ISOLATION_AUDIT.md`
+    - `GPS_MODULE_AUDIT.md`
+    - `API_CONTRACT_AND_CALCULATION_AUDIT.md`
+    - `IMPLEMENTATION_CHANGELOG.md`
+  - Backend controllers updated: `WaterLogisticsApiController.php`, `ReportApiController.php`, `Company.php`, `routes/api.php`.
+  - Mobile screens updated with complete dynamic data fetching & null safety: `login_screen.dart`, `app_router.dart`, `app_scaffold.dart`, `tasks_screen.dart`, `payment_collection_screen.dart`, `new_sale_bill_screen.dart`, `cafe_pos_screen.dart`, `reports_screen.dart`, `accounting_books_screen.dart`, `sales_invoices_screen.dart`, `purchase_bills_screen.dart`, `stock_overview_screen.dart`, `fleet_gps_screen.dart`.
+  - Verification:
+    - `tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php`: 18/18 passed (160 assertions, 100%).
+    - `tests/Feature/MobileApiSecurityAndMeTest.php`: 9/9 passed (157 assertions, 100%).
+    - `mobile/test/`: 10/10 passed (20 assertions, 100%).
+    - `mobile` flutter analyze: 0 errors.
+
 ## Authoritative Hosting & Infrastructure: MilesWeb Production Environment
 - **Host Provider:** MilesWeb Cloud/cPanel
 - **Server IP:** `45.199.139.25` (Port 22 SSH)

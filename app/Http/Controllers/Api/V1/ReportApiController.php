@@ -38,6 +38,7 @@ class ReportApiController extends BaseApiController
             'total_paid' => $totalPaid,
             'total_due' => $totalDue,
             'total_invoices' => $totalInvoices,
+            'invoice_count' => $totalInvoices,
         ], 'Sales analytics report retrieved');
     }
 
@@ -100,6 +101,8 @@ class ReportApiController extends BaseApiController
         return $this->sendResponse([
             'warehouse_id' => $warehouseId,
             'total_valuation' => $totalValuation,
+            'total_items' => count($stockItems),
+            'item_count' => count($stockItems),
             'items' => $stockItems,
         ], 'Stock valuation report retrieved');
     }

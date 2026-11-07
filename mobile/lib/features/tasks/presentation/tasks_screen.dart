@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/network/api_endpoints.dart';
 import '../../../core/providers.dart';
 import '../../../core/sync/sync_worker.dart';
 import '../../../core/theme/app_colors.dart';
@@ -16,14 +17,57 @@ class TasksScreen extends ConsumerStatefulWidget {
 }
 
 class _TasksScreenState extends ConsumerState<TasksScreen> {
-  int _selectedFilterIndex = 0; // 0: Route Stops, 1: Pending Sync, 2: Approvals
+  int _selectedFilterIndex = 0; // 0: Route / Operations, 1: Pending Sync, 2: Approvals
+  bool _isLoadingTasks = false;
+  List<Map<String, dynamic>> _dynamicStops = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTasks();
+  }
+
+  Future<void> _fetchTasks() async {
+    final authState = ref.read(authNotifierProvider);
+    final industry = authState.activeCompany?.industry ?? '';
+    if (industry == 'packaged_water') {
+      setState(() => _isLoadingTasks = true);
+      final client = ref.read(apiClientProvider);
+      final res = await client.get(
+        ApiEndpoints.customers,
+        fromJson: (data) {
+          final list = data is Map && data['data'] is List
+              ? data['data'] as List
+              : (data is List ? data : []);
+          return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+        },
+      );
+      if (mounted) {
+        setState(() {
+          _isLoadingTasks = false;
+          _dynamicStops = res.dataOrNull ?? [];
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authNotifierProvider);
+    final industry = authState.activeCompany?.industry ?? '';
     final syncWorker = ref.watch(syncWorkerProvider);
     final syncState = syncWorker.state;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final borderCol = isDark ? AppColors.darkBorder : AppColors.lightBorder;
+
+    final primaryTabLabel = switch (industry) {
+      'packaged_water' => 'Beat Deliveries',
+      'cafe_bakery' => 'Cafe Operations',
+      'bulk_water' => 'Tanker Dispatches',
+      _ => 'Daily Queue',
+    };
+
+    final primaryTabCount = industry == 'packaged_water' ? _dynamicStops.length : 3;
 
     return Scaffold(
       appBar: AppBar(
@@ -48,8 +92,8 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
             child: Row(
               children: [
                 _buildFilterChip(
-                  label: 'Beat Stops',
-                  count: 4,
+                  label: primaryTabLabel,
+                  count: primaryTabCount,
                   index: 0,
                 ),
                 const SizedBox(width: 8),
@@ -72,7 +116,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
           // Task List Body
           Expanded(
             child: _selectedFilterIndex == 0
-                ? _buildRouteStopsList(context)
+                ? _buildVerticalOperationsList(context, industry)
                 : _selectedFilterIndex == 1
                     ? _buildSyncOutboxList(context, syncWorker)
                     : const EmptyState(
@@ -93,7 +137,6 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
     Color? badgeColor,
   }) {
     final isSelected = _selectedFilterIndex == index;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return ChoiceChip(
       label: Row(
@@ -105,15 +148,15 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: badgeColor ?? (isSelected ? Colors.white.withOpacity(0.2) : AppColors.primary.withOpacity(0.12)),
+                color: badgeColor ?? (isSelected ? Colors.white : AppColors.primary),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                count.toString(),
+                '$count',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: FontWeight.bold,
-                  color: isSelected ? Colors.white : (badgeColor ?? AppColors.primary),
+                  color: badgeColor != null ? Colors.white : (isSelected ? AppColors.primary : Colors.white),
                 ),
               ),
             ),
@@ -122,33 +165,219 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
       ),
       selected: isSelected,
       onSelected: (_) => setState(() => _selectedFilterIndex = index),
-      selectedColor: isDark ? AppColors.primaryDark : AppColors.primary,
-      backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCanvas,
-      labelStyle: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-        color: isSelected
-            ? (isDark ? Colors.black : Colors.white)
-            : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
-      ),
     );
   }
 
-  Widget _buildRouteStopsList(BuildContext context) {
-    final stops = [
-      {'name': 'Sri Murugan Mess', 'area': 'Anna Nagar', 'cans': 10, 'due': '₹850', 'phone': '9876543210'},
-      {'name': 'Kannan Departmental Store', 'area': 'Main Road', 'cans': 15, 'due': '₹0', 'phone': '9876543211'},
-      {'name': 'Royal Care Clinic', 'area': 'Cross Cut Road', 'cans': 5, 'due': '₹1,200', 'phone': '9876543212'},
-      {'name': 'Green Star Cafe', 'area': 'Gandhi Puram', 'cans': 8, 'due': '₹640', 'phone': '9876543213'},
+  Widget _buildVerticalOperationsList(BuildContext context, String industry) {
+    if (industry == 'packaged_water') {
+      return _buildWaterCanStopsList(context);
+    } else if (industry == 'cafe_bakery') {
+      return _buildCafeOperationsList(context);
+    } else if (industry == 'bulk_water') {
+      return _buildTankerOperationsList(context);
+    } else {
+      return const EmptyState(
+        title: 'No Pending Queue Items',
+        message: 'All operations and vouchers for this company workspace are settled.',
+        icon: Icons.done_all_rounded,
+      );
+    }
+  }
+
+  Widget _buildCafeOperationsList(BuildContext context) {
+    final tasks = [
+      {
+        'title': 'Aran Cafe Touch POS Counter',
+        'subtitle': 'Ready for table & counter billing',
+        'route': '/operations/cafe-pos',
+        'icon': Icons.point_of_sale_rounded,
+        'action': 'Open POS',
+        'color': const Color(0xFFD97706),
+      },
+      {
+        'title': 'Kitchen & Ingredient Stock Audit',
+        'subtitle': 'Verify milk, sugar, flour & coffee beans',
+        'route': '/inventory/stock-count',
+        'icon': Icons.inventory_2_rounded,
+        'action': 'Audit',
+        'color': const Color(0xFF059669),
+      },
+      {
+        'title': 'Daily Cafe Operational Expenses',
+        'subtitle': 'Record dairy, gas, veggies & vendor payments',
+        'route': '/expenses/new',
+        'icon': Icons.receipt_long_rounded,
+        'action': 'Record',
+        'color': AppColors.primary,
+      },
     ];
 
     return ListView.separated(
       padding: const EdgeInsets.all(16),
-      itemCount: stops.length,
+      itemCount: tasks.length,
       separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (ctx, index) {
-        final stop = stops[index];
+        final task = tasks[index];
         final isDark = Theme.of(context).brightness == Brightness.dark;
+        final color = task['color'] as Color;
+
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: color.withOpacity(0.12),
+                  child: Icon(task['icon'] as IconData, size: 20, color: color),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        task['title'] as String,
+                        style: AppTypography.label.copyWith(
+                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        task['subtitle'] as String,
+                        style: AppTypography.caption.copyWith(
+                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () => context.push(task['route'] as String),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(80, 38),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    backgroundColor: color,
+                  ),
+                  child: Text(task['action'] as String, style: const TextStyle(fontSize: 13, color: Colors.white)),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTankerOperationsList(BuildContext context) {
+    final tasks = [
+      {
+        'title': 'Live Tanker GPS Fleet Radar',
+        'subtitle': 'Track active water tankers, speed & decanting flow',
+        'route': '/fleet/gps?mode=bulk_water',
+        'icon': Icons.share_location_rounded,
+        'action': 'Radar',
+        'color': const Color(0xFF0369A1),
+      },
+      {
+        'title': 'Tanker Trip Sheet Dispatch',
+        'subtitle': 'Log start/end odometer, motor pumping & waiting surcharges',
+        'route': '/operations/tanker-trip',
+        'icon': Icons.local_shipping_rounded,
+        'action': 'Dispatch',
+        'color': const Color(0xFF0284C7),
+      },
+      {
+        'title': 'Diesel & Vehicle Expenses',
+        'subtitle': 'Capture pump slips, driver batta & maintenance bills',
+        'route': '/expenses/new',
+        'icon': Icons.local_gas_station_rounded,
+        'action': 'Log Fuel',
+        'color': AppColors.warning,
+      },
+    ];
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: tasks.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      itemBuilder: (ctx, index) {
+        final task = tasks[index];
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final color = task['color'] as Color;
+
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: color.withOpacity(0.12),
+                  child: Icon(task['icon'] as IconData, size: 20, color: color),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        task['title'] as String,
+                        style: AppTypography.label.copyWith(
+                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        task['subtitle'] as String,
+                        style: AppTypography.caption.copyWith(
+                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () => context.push(task['route'] as String),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(80, 38),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    backgroundColor: color,
+                  ),
+                  child: Text(task['action'] as String, style: const TextStyle(fontSize: 13, color: Colors.white)),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildWaterCanStopsList(BuildContext context) {
+    if (_isLoadingTasks) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_dynamicStops.isEmpty) {
+      return const EmptyState(
+        title: 'No Scheduled Can Stops',
+        message: 'All 20L can delivery beats for this vehicle are clear.',
+        icon: Icons.local_drink_rounded,
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: _dynamicStops.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      itemBuilder: (ctx, index) {
+        final stop = _dynamicStops[index];
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final name = stop['name']?.toString() ?? 'Customer';
+        final address = (stop['address'] ?? stop['city'])?.toString() ?? 'Route Beat';
+        final cans = stop['total_cans_held'] ?? stop['daily_avg_cans'] ?? 10;
+        final due = stop['outstanding_due'] != null ? '₹${stop['outstanding_due']}' : null;
 
         return Card(
           child: Padding(
@@ -172,25 +401,26 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        stop['name'] as String,
+                        name,
                         style: AppTypography.label.copyWith(
                           color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${stop['area']} • Order: ${stop['cans']} Cans',
+                        '$address • Order: $cans Cans',
                         style: AppTypography.caption.copyWith(
                           color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                         ),
                       ),
-                      Text(
-                        'Outstanding: ${stop['due']}',
-                        style: AppTypography.caption.copyWith(
-                          color: AppColors.danger,
-                          fontWeight: FontWeight.w600,
+                      if (due != null)
+                        Text(
+                          'Outstanding: $due',
+                          style: AppTypography.caption.copyWith(
+                            color: AppColors.danger,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),

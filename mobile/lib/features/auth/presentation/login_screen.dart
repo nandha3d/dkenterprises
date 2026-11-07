@@ -95,7 +95,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             receiveTimeout: const Duration(seconds: 8),
                           ));
                           final cleanUrl = targetUrl.endsWith('/') ? targetUrl.substring(0, targetUrl.length - 1) : targetUrl;
-                          final res = await dio.get('$cleanUrl/mobile/bootstrap');
+                          final endpoint = cleanUrl.endsWith('/api/v1') ? '$cleanUrl/health' : (cleanUrl.endsWith('/') ? '${cleanUrl}api/v1/health' : '$cleanUrl/api/v1/health');
+                          final res = await dio.get(endpoint);
                           setModalState(() {
                             isTesting = false;
                             testResult = 'Success: ERP Server Online (${res.statusCode} OK)';
@@ -142,6 +143,42 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
+  void _populateDemoRole(String roleName, String username, String password) {
+    setState(() {
+      _usernameController.text = username;
+      _passwordController.text = password;
+    });
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Demo credentials loaded: $roleName ($username)'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Widget _buildDemoChip(String roleName, String username, String password, IconData icon, bool isDark) {
+    return ActionChip(
+      avatar: Icon(icon, size: 14, color: isDark ? AppColors.primaryDark : AppColors.primary),
+      label: Text(
+        roleName,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+        ),
+      ),
+      backgroundColor: isDark ? AppColors.darkCanvas : AppColors.lightCanvas,
+      side: BorderSide(
+        color: (isDark ? AppColors.primaryDark : AppColors.primary).withOpacity(0.3),
+        width: 1,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      onPressed: () => _populateDemoRole(roleName, username, password),
+    );
+  }
+
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -151,7 +188,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         );
 
     if (success && mounted) {
-      context.go('/home');
+      final authState = ref.read(authNotifierProvider);
+      if (authState.companies.length <= 1) {
+        context.go('/home');
+      } else {
+        context.go('/workspace');
+      }
     }
   }
 
@@ -396,6 +438,53 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                             )
                           : const Text('Sign In to Account'),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Demo Roles Quick-Fill Bar
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isDark ? AppColors.darkCard : AppColors.lightCard,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.badge_outlined,
+                                size: 14,
+                                color: isDark ? AppColors.primaryDark : AppColors.primary,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Demo Role Fast-Login Options',
+                                style: AppTypography.caption.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: [
+                              _buildDemoChip('Admin', 'admin', 'admin', Icons.admin_panel_settings_rounded, isDark),
+                              _buildDemoChip('Can Driver', 'driver', 'driver123', Icons.local_drink_rounded, isDark),
+                              _buildDemoChip('Tanker Driver', 'tanker_driver', 'driver123', Icons.local_shipping_rounded, isDark),
+                              _buildDemoChip('Cafe Cashier', 'cashier', 'cashier123', Icons.point_of_sale_rounded, isDark),
+                              _buildDemoChip('Field Agent', 'agent', 'agent123', Icons.support_agent_rounded, isDark),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 20),
                     Center(
