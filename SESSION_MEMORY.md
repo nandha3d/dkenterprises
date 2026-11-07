@@ -1,5 +1,45 @@
 # zoloERP Pro — Persistent Session Memory & State
 
+## Active Session & Follow-up — 2026-11-07: Strict Role Gating, Driver Data Isolation, WhatsApp GPS Capture & Live MilesWeb Production Deployment (commits 22c0466 & b4bdc3c on branch main)
+
+- **User Requests Addressed:**
+  1. *"tanker drivers dont want to see other's locations, we can just load the customer's location for drivers. also if a customer shares their location through whatsapp, can we capture from that and keep it in our location database for next order? not only tanker drviers, any, field assisstants and delivery persons dont see other's data except thier customer data. also all the data are showing to drivers and other roles? what kind of app management is this? make it high priority make the gating rules first and assing the roles according to their work. never see company dashboard, only a dashboard relevant to them. only a super admin can watch anything. admin can be assinged to one or two companies, etc."*
+- **Implementation & Architecture:**
+  1. **Strict Role-Based Dashboard Dispatching (`role_dashboard_dispatcher.dart`):**
+     - Bypasses executive balance sheet (`ExecutiveDashboardScreen`) for all non-executive roles.
+     - `tankerDriver`: Dispatched to `TankerDriverDashboardScreen`. Displays assigned tanker vehicle card (`TN-58-BW-2001`), active destination customer site, 1-tap Google Maps turn-by-turn navigation, WhatsApp GPS location update bottom sheet, decanting flow sensor meter, trip odometer and diesel expenses, and trip completion action.
+     - `deliveryDriver`: Dispatched to `CanDeliveryDriverDashboardScreen`. Displays assigned Tata Ace van, can inventory manifest (loaded / delivered / empty / remaining), route beat delivery stops with customer address and phone, 1-tap Google Maps navigation, WhatsApp location update bottom sheet, and shift cash surrender action.
+     - `cashier`: Dispatched to `CashierDashboardScreen`. Displays touch POS order billing terminal launcher, customer payment collection, and daily cash drawer reconciliation.
+     - `fieldAgent`: Dispatched to `FieldAgentDashboardScreen`. Displays assigned customer dues collection, customer onboarding with GPS pin capture, and conveyance logging.
+     - `superAdmin` / `companyAdmin`: Dispatched to `ExecutiveDashboardScreen`.
+  2. **Driver Fleet & Financial Isolation on Backend (`WaterLogisticsApiController.php` & `MeApiController.php`):**
+     - `fleetLive` (`/api/v1/mobile/fleet/live`): Filtered strictly by authenticated role. Tanker drivers receive only their assigned tanker; delivery drivers receive only their assigned route truck; full fleet radar is restricted to admin/superAdmin.
+     - `financials` (`/api/v1/mobile/financials`): When queried by field staff (`driver`, `tanker_driver`, `agent`), executive ledger balances (`cash_balance`, `bank_balance`, `receivables`, `payables`) return 0 with `is_restricted: true`, completely eliminating executive financial leaks.
+     - Single-Company Scoping: Non-admin users are strictly tied to their single company (`TMWS` for tanker driver, `DK Waters` for delivery driver & field agent, `Aran Cafe` for cashier).
+  3. **WhatsApp Location Link Capture & Customer DB Persistence:**
+     - Created `POST /api/v1/mobile/customers/{id}/location` accepting raw coordinates or WhatsApp Google Maps shared text/links (`https://maps.google.com/?q=lat,lng`, `@lat,lng`, `/place/`, etc.). Regex-extracts latitude and longitude and persists directly into `customers.latitude` and `customers.longitude`.
+     - Created `LocationParser` (`mobile/lib/core/utils/location_parser.dart`): Parses coordinates, generates Google Maps directions URL, and launches turn-by-turn navigation via `url_launcher`.
+     - Created `CaptureLocationDialog` (`mobile/lib/features/operations/presentation/capture_location_dialog.dart`): Interactive modal bottom sheet allowing drivers/agents to paste customer WhatsApp messages or capture live phone GPS, preview coordinates, and update customer master.
+     - Created `GET /api/v1/mobile/driver/manifest`: Returns tailored manifest for bulk tanker trips and 20L can distribution stops with active customer GPS coordinates and 1-tap navigation URLs.
+  4. **Modules, Quick Action Sheet & Profile Company Switcher Gating:**
+     - `module_launcher_screen.dart`: Categorized module launcher dynamically filtered by role. Tanker drivers only see Tanker Trip & Diesel Expenses; delivery drivers only see Can POS, Spot Audit, Cash Surrender, and Fuel; cashiers only see Bakery POS, Cash Drawer, and Customer Payments; field agents only see Payments, Customer Directory, and Field Expenses.
+     - `quick_action_sheet.dart`: Middle `+` button strictly shows actions tailored to the user's role.
+     - `app_router.dart`: Added route guard redirects. Any field staff/driver attempting to access `/workspace`, `/accounting/books`, `/reports`, `/purchases`, or `/products` is automatically redirected to `/home`.
+     - `app_scaffold.dart` & `profile_screen.dart`: Company switcher dropdown and `/workspace` navigation hidden for drivers and staff.
+  5. **Live MilesWeb Production Deployment & Verification:**
+     - Deployed commits `22c0466` and `b4bdc3c` directly to MilesWeb server (`animazon1@45.199.139.25` at `/var/www/2928957e-908a-4326-a64d-a58ad5b99ca0/dkenterprises.animazon.in`).
+     - Verified live responses on `https://dkenterprises.animazon.in`:
+       - `POST /api/v1/mobile/login` returns normalized `role_slug` (`tankerDriver`, `deliveryDriver`, `cashier`, `fieldAgent`).
+       - `POST /api/v1/mobile/customers/4/location` successfully extracts lat/lng from WhatsApp links and persists to DB.
+       - `GET /api/v1/mobile/driver/manifest` returns isolated active trip and stops for drivers.
+       - `GET /api/v1/mobile/financials` returns `is_restricted: true` and 0 ledger balances for drivers.
+- **Verification Status (100% Green):**
+  - `tests/Feature/DriverIsolationAndLocationTest.php`: 6/6 passed (31 assertions, 100%).
+  - `tests/Feature/MobileApiSecurityAndMeTest.php`: 9/9 passed (157 assertions, 100%).
+  - `tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php`: 18/18 passed (160 assertions, 100%).
+  - `mobile/test/`: 15/15 passed (25 assertions, 100%).
+  - `mobile` flutter analyze: 0 errors.
+
 ## Active Session & Follow-up — 2026-11-07: Production Demo Data Seeding, 1-Tap Demo Auth, Missing Token Resolution, Accounting Books Unwrap & Fleet Radar Overlap Elimination (branch main)
 
 - **User Requests & Visual Evidence Addressed:**
