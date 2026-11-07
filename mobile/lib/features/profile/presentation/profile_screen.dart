@@ -24,6 +24,22 @@ class ProfileScreen extends ConsumerWidget {
     final textCol = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
     final mutedCol = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
+    final user = authState.user;
+    final role = (user?.role ?? '').toLowerCase();
+    final username = (user?.username ?? user?.name ?? '').toLowerCase();
+    final isStaffOrDriver = role == 'tankerdriver' ||
+        role == 'deliverydriver' ||
+        role == 'driver' ||
+        role == 'cashier' ||
+        role == 'fieldagent' ||
+        role == 'agent' ||
+        username == 'tanker_driver' ||
+        username == 'driver' ||
+        username == 'cashier' ||
+        username == 'agent';
+
+    final canSwitchCompany = !isStaffOrDriver && authState.companies.length > 1;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Profile & Settings'),
@@ -95,11 +111,12 @@ class ProfileScreen extends ConsumerWidget {
                         'Active Organization',
                         style: AppTypography.section.copyWith(fontSize: 15, color: textCol),
                       ),
-                      TextButton.icon(
-                        onPressed: () => CompanySwitcherSheet.show(context),
-                        icon: const Icon(Icons.swap_horiz_rounded, size: 16),
-                        label: const Text('Switch'),
-                      ),
+                      if (canSwitchCompany)
+                        TextButton.icon(
+                          onPressed: () => CompanySwitcherSheet.show(context),
+                          icon: const Icon(Icons.swap_horiz_rounded, size: 16),
+                          label: const Text('Switch'),
+                        ),
                     ],
                   ),
                   const Divider(height: 16),

@@ -55,12 +55,42 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (!authState.isAuthenticated) {
         return isLoggingIn ? null : '/login';
       }
+
+      final user = authState.user;
+      final role = (user?.role ?? '').toLowerCase();
+      final username = (user?.username ?? user?.name ?? '').toLowerCase();
+      final isStaffOrDriver = role == 'tankerdriver' ||
+          role == 'deliverydriver' ||
+          role == 'driver' ||
+          role == 'cashier' ||
+          role == 'fieldagent' ||
+          role == 'agent' ||
+          username == 'tanker_driver' ||
+          username == 'driver' ||
+          username == 'cashier' ||
+          username == 'agent';
+
       if (isLoggingIn) {
-        return authState.companies.length <= 1 ? '/home' : '/workspace';
+        return (isStaffOrDriver || authState.companies.length <= 1) ? '/home' : '/workspace';
       }
-      if (state.uri.path == '/workspace' && authState.companies.length <= 1) {
+
+      if (state.uri.path == '/workspace' && (isStaffOrDriver || authState.companies.length <= 1)) {
         return '/home';
       }
+
+      // Restrict executive financial ledgers and purchase books from field staff and drivers
+      final path = state.uri.path;
+      if (isStaffOrDriver) {
+        if (path.startsWith('/accounting/books') && role != 'cashier' && username != 'cashier') {
+          return '/home';
+        }
+        if (path.startsWith('/reports') ||
+            path.startsWith('/purchases') ||
+            path.startsWith('/products')) {
+          return '/home';
+        }
+      }
+
       return null;
     },
     routes: [

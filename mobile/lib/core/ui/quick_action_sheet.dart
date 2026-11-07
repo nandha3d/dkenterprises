@@ -27,58 +27,19 @@ class QuickActionSheet extends ConsumerWidget {
 
     final industry = authState.activeCompany?.industry ?? '';
 
-    // Quick action definitions based on permissions & vertical
-    final actions = <_ActionItem>[
-      _ActionItem(
-        title: 'New Sale Bill',
-        subtitle: 'B2B/B2C invoice',
-        icon: Icons.receipt_long_rounded,
-        color: AppColors.primary,
-        route: '/sales/new',
-        enabled: authState.hasPermission('sales-index') || authState.hasPermission('sales-add'),
-      ),
-      _ActionItem(
-        title: 'Collect Payment',
-        subtitle: 'Invoice settlement',
-        icon: Icons.payments_rounded,
-        color: AppColors.success,
-        route: '/accounting/collect',
-        enabled: true,
-      ),
-      _ActionItem(
-        title: 'Quick Expense',
-        subtitle: 'Bill receipt & GPS',
-        icon: Icons.attach_money_rounded,
-        color: AppColors.warning,
-        route: '/expenses/new',
-        enabled: true,
-      ),
-      _ActionItem(
-        title: 'New Product',
-        subtitle: 'Item configuration',
-        icon: Icons.add_box_rounded,
-        color: AppColors.brandPurple,
-        route: '/products/new',
-        enabled: true,
-      ),
-      _ActionItem(
-        title: 'Mark Attendance',
-        subtitle: 'Geofenced punch',
-        icon: Icons.fingerprint_rounded,
-        color: AppColors.info,
-        route: '/hrm/attendance',
-        enabled: true,
-      ),
-      if (industry == 'packaged_water' || industry.isEmpty)
-        _ActionItem(
-          title: 'Can Sales POS',
-          subtitle: 'Water distribution',
-          icon: Icons.water_drop_rounded,
-          color: const Color(0xFF0284C7),
-          route: '/operations/can-sales',
-          enabled: true,
-        ),
-      if (industry == 'bulk_water' || industry.isEmpty)
+    final user = authState.user;
+    final role = (user?.role ?? '').toLowerCase();
+    final username = (user?.username ?? user?.name ?? '').toLowerCase();
+
+    final isTankerDriver = role == 'tankerdriver' || username == 'tanker_driver' || username == 'tanker';
+    final isDeliveryDriver = role == 'deliverydriver' || role == 'driver' || username == 'driver';
+    final isCashier = role == 'cashier' || username == 'cashier';
+    final isFieldAgent = role == 'fieldagent' || role == 'agent' || username == 'agent';
+
+    final actions = <_ActionItem>[];
+
+    if (isTankerDriver) {
+      actions.addAll([
         _ActionItem(
           title: 'Tanker Trip',
           subtitle: 'Dispatch & surcharge',
@@ -87,7 +48,68 @@ class QuickActionSheet extends ConsumerWidget {
           route: '/operations/tanker-trip',
           enabled: true,
         ),
-      if (industry == 'cafe_bakery' || industry.isEmpty)
+        _ActionItem(
+          title: 'Diesel & Expense',
+          subtitle: 'Bill receipt & GPS',
+          icon: Icons.attach_money_rounded,
+          color: AppColors.warning,
+          route: '/expenses/new',
+          enabled: true,
+        ),
+        _ActionItem(
+          title: 'Mark Attendance',
+          subtitle: 'Geofenced punch',
+          icon: Icons.fingerprint_rounded,
+          color: AppColors.info,
+          route: '/hrm/attendance',
+          enabled: true,
+        ),
+      ]);
+    } else if (isDeliveryDriver) {
+      actions.addAll([
+        _ActionItem(
+          title: 'Can Sales POS',
+          subtitle: 'Water distribution',
+          icon: Icons.water_drop_rounded,
+          color: const Color(0xFF0284C7),
+          route: '/operations/can-sales',
+          enabled: true,
+        ),
+        _ActionItem(
+          title: 'Driver Cash Surrender',
+          subtitle: 'End-of-day settlement',
+          icon: Icons.price_check_rounded,
+          color: const Color(0xFF0284C7),
+          route: '/operations/driver-surrender',
+          enabled: true,
+        ),
+        _ActionItem(
+          title: 'Spot Can Audit',
+          subtitle: 'Truck inventory check',
+          icon: Icons.fact_check_rounded,
+          color: AppColors.warning,
+          route: '/operations/spot-audit',
+          enabled: true,
+        ),
+        _ActionItem(
+          title: 'Daily Expense',
+          subtitle: 'Fuel & tolls',
+          icon: Icons.attach_money_rounded,
+          color: AppColors.warning,
+          route: '/expenses/new',
+          enabled: true,
+        ),
+        _ActionItem(
+          title: 'Mark Attendance',
+          subtitle: 'Geofenced punch',
+          icon: Icons.fingerprint_rounded,
+          color: AppColors.info,
+          route: '/hrm/attendance',
+          enabled: true,
+        ),
+      ]);
+    } else if (isCashier) {
+      actions.addAll([
         _ActionItem(
           title: 'Cafe POS',
           subtitle: 'Order billing',
@@ -96,15 +118,137 @@ class QuickActionSheet extends ConsumerWidget {
           route: '/operations/cafe-pos',
           enabled: true,
         ),
-      _ActionItem(
-        title: 'Stock Count',
-        subtitle: 'Godown audit',
-        icon: Icons.inventory_2_rounded,
-        color: const Color(0xFF64748B),
-        route: '/inventory/stock-count',
-        enabled: true,
-      ),
-    ];
+        _ActionItem(
+          title: 'Collect Payment',
+          subtitle: 'Invoice settlement',
+          icon: Icons.payments_rounded,
+          color: AppColors.success,
+          route: '/accounting/collect',
+          enabled: true,
+        ),
+        _ActionItem(
+          title: 'Quick Expense',
+          subtitle: 'Kitchen purchases',
+          icon: Icons.attach_money_rounded,
+          color: AppColors.warning,
+          route: '/expenses/new',
+          enabled: true,
+        ),
+        _ActionItem(
+          title: 'Mark Attendance',
+          subtitle: 'Geofenced punch',
+          icon: Icons.fingerprint_rounded,
+          color: AppColors.info,
+          route: '/hrm/attendance',
+          enabled: true,
+        ),
+      ]);
+    } else if (isFieldAgent) {
+      actions.addAll([
+        _ActionItem(
+          title: 'Collect Payment',
+          subtitle: 'Party receipt',
+          icon: Icons.payments_rounded,
+          color: AppColors.success,
+          route: '/accounting/collect',
+          enabled: true,
+        ),
+        _ActionItem(
+          title: 'Quick Expense',
+          subtitle: 'Field conveyance',
+          icon: Icons.attach_money_rounded,
+          color: AppColors.warning,
+          route: '/expenses/new',
+          enabled: true,
+        ),
+        _ActionItem(
+          title: 'Mark Attendance',
+          subtitle: 'Geofenced punch',
+          icon: Icons.fingerprint_rounded,
+          color: AppColors.info,
+          route: '/hrm/attendance',
+          enabled: true,
+        ),
+      ]);
+    } else {
+      actions.addAll([
+        _ActionItem(
+          title: 'New Sale Bill',
+          subtitle: 'B2B/B2C invoice',
+          icon: Icons.receipt_long_rounded,
+          color: AppColors.primary,
+          route: '/sales/new',
+          enabled: authState.hasPermission('sales-index') || authState.hasPermission('sales-add'),
+        ),
+        _ActionItem(
+          title: 'Collect Payment',
+          subtitle: 'Invoice settlement',
+          icon: Icons.payments_rounded,
+          color: AppColors.success,
+          route: '/accounting/collect',
+          enabled: true,
+        ),
+        _ActionItem(
+          title: 'Quick Expense',
+          subtitle: 'Bill receipt & GPS',
+          icon: Icons.attach_money_rounded,
+          color: AppColors.warning,
+          route: '/expenses/new',
+          enabled: true,
+        ),
+        _ActionItem(
+          title: 'New Product',
+          subtitle: 'Item configuration',
+          icon: Icons.add_box_rounded,
+          color: AppColors.brandPurple,
+          route: '/products/new',
+          enabled: true,
+        ),
+        _ActionItem(
+          title: 'Mark Attendance',
+          subtitle: 'Geofenced punch',
+          icon: Icons.fingerprint_rounded,
+          color: AppColors.info,
+          route: '/hrm/attendance',
+          enabled: true,
+        ),
+        if (industry == 'packaged_water' || industry.isEmpty)
+          _ActionItem(
+            title: 'Can Sales POS',
+            subtitle: 'Water distribution',
+            icon: Icons.water_drop_rounded,
+            color: const Color(0xFF0284C7),
+            route: '/operations/can-sales',
+            enabled: true,
+          ),
+        if (industry == 'bulk_water' || industry.isEmpty)
+          _ActionItem(
+            title: 'Tanker Trip',
+            subtitle: 'Dispatch & surcharge',
+            icon: Icons.local_shipping_rounded,
+            color: const Color(0xFF0369A1),
+            route: '/operations/tanker-trip',
+            enabled: true,
+          ),
+        if (industry == 'cafe_bakery' || industry.isEmpty)
+          _ActionItem(
+            title: 'Cafe POS',
+            subtitle: 'Order billing',
+            icon: Icons.restaurant_rounded,
+            color: const Color(0xFFD97706),
+            route: '/operations/cafe-pos',
+            enabled: true,
+          ),
+        _ActionItem(
+          title: 'Stock Count',
+          subtitle: 'Godown audit',
+          icon: Icons.inventory_2_rounded,
+          color: const Color(0xFF64748B),
+          route: '/inventory/stock-count',
+          enabled: true,
+        ),
+      ]);
+    }
 
     return Container(
       constraints: BoxConstraints(

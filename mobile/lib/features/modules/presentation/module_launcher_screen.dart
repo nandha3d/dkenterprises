@@ -32,197 +32,56 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
 
     final industry = authState.activeCompany?.industry ?? '';
 
-    // List of all ERP modules grouped by category
-    final allCategories = <_ModuleCategory>[
-      _ModuleCategory(
-        title: 'Sales & Commercial',
-        modules: [
-          _Module(
-            title: 'Sales Invoices',
-            description: 'B2B/B2C billing, tax invoice & payment history',
-            icon: Icons.receipt_long_rounded,
-            route: '/sales',
-            color: AppColors.primary,
-          ),
-          _Module(
-            title: 'Quotations',
-            description: 'Commercial quotes & price estimates',
-            icon: Icons.request_quote_rounded,
-            route: '/sales',
-            color: AppColors.info,
-          ),
-          _Module(
-            title: 'Customer Payments',
-            description: 'Receipt allocation against outstanding dues',
-            icon: Icons.payments_rounded,
-            route: '/accounting/collect',
-            color: AppColors.success,
-          ),
-        ],
-      ),
-      _ModuleCategory(
-        title: 'Procurement & Purchases',
-        modules: [
-          _Module(
-            title: 'Purchase Bills',
-            description: 'Inward vendor bills & payable dues',
-            icon: Icons.shopping_bag_rounded,
-            route: '/purchases',
-            color: const Color(0xFF0284C7),
-          ),
-          _Module(
-            title: 'Supplier Payments',
-            description: 'Disbursements from cash/bank accounts',
-            icon: Icons.outbox_rounded,
-            route: '/purchases',
-            color: AppColors.warning,
-          ),
-        ],
-      ),
-      _ModuleCategory(
-        title: 'Inventory & Godowns',
-        modules: [
-          _Module(
-            title: 'Product Catalog & Config',
-            description: 'Item master, barcode symbology, pricing & vertical setup',
-            icon: Icons.category_rounded,
-            route: '/products',
-            color: AppColors.primary,
-          ),
-          _Module(
-            title: 'New Product Configuration',
-            description: 'Tabbed master configuration for standard, combo & services',
-            icon: Icons.add_box_rounded,
-            route: '/products/new',
-            color: AppColors.brandPurple,
-          ),
-          _Module(
-            title: 'Stock Valuation',
-            description: 'Real-time stock valuation by warehouse',
-            icon: Icons.inventory_2_rounded,
-            route: '/inventory',
-            color: AppColors.success,
-          ),
-          _Module(
-            title: 'Physical Stock Count',
-            description: 'Barcode scanning and godown variance audits',
-            icon: Icons.qr_code_scanner_rounded,
-            route: '/inventory/stock-count',
-            color: const Color(0xFF64748B),
-          ),
-        ],
-      ),
-      _ModuleCategory(
-        title: 'Customers & Suppliers (Parties)',
-        modules: [
-          _Module(
-            title: 'Customers 360',
-            description: 'Customer list, credit balance, can deposits & KYC',
-            icon: Icons.people_alt_rounded,
-            route: '/customers',
-            color: AppColors.primary,
-          ),
-          _Module(
-            title: 'Suppliers Directory',
-            description: 'Vendor contacts, GSTIN & payable statements',
-            icon: Icons.storefront_rounded,
-            route: '/suppliers',
-            color: const Color(0xFF0369A1),
-          ),
-        ],
-      ),
-      _ModuleCategory(
-        title: 'Accounting & Cash Books',
-        modules: [
-          _Module(
-            title: 'Day Book & Cash Book',
-            description: 'Cash-in-hand (1010) & Bank (1020) ledger movements',
-            icon: Icons.menu_book_rounded,
-            route: '/accounting/books',
-            color: AppColors.brandNavy,
-          ),
-          _Module(
-            title: 'Quick Expense Voucher',
-            description: 'Instant receipt capture with camera & GPS stamp',
-            icon: Icons.attach_money_rounded,
-            route: '/expenses/new',
-            color: AppColors.danger,
-          ),
-        ],
-      ),
-      _ModuleCategory(
-        title: switch (industry) {
-          'cafe_bakery' => 'Bakery & Cafe Operations',
-          'bulk_water' => 'Bulk Tanker Fleet Logistics',
-          'packaged_water' => '20L Can Route Distribution',
-          'textile' => 'Textile & Garment Operations',
-          _ => 'Commercial Operations',
-        },
-        modules: [
-          // 1. Cafe & Bakery Vertical (Aran Cafe)
-          if (industry == 'cafe_bakery') ...[
-            _Module(
-              title: 'Bakery & Cafe POS',
-              description: 'Touch terminal billing & cash drawer closing',
-              icon: Icons.restaurant_rounded,
-              route: '/operations/cafe-pos',
-              color: const Color(0xFFD97706),
-            ),
-            _Module(
-              title: 'Kitchen & Recipe Inventory',
-              description: 'Bakery ingredient stocks, flour & dairy audit',
-              icon: Icons.inventory_2_rounded,
-              route: '/inventory/stock-count',
-              color: const Color(0xFF059669),
-            ),
-            _Module(
-              title: 'Cafe Expenses & Purchases',
-              description: 'Vegetables, milk, gas & daily operational bills',
-              icon: Icons.receipt_long_rounded,
-              route: '/expenses/new',
-              color: AppColors.primary,
-            ),
-          ]
-          // 2. Bulk Water Tankers Vertical (TMWS)
-          else if (industry == 'bulk_water') ...[
-            _Module(
-              title: 'Live Tanker GPS Fleet Radar',
-              description: 'Radar tracking, decanting flow rate, dwell time & fuel',
-              icon: Icons.share_location_rounded,
-              route: '/fleet/gps?mode=bulk_water',
-              color: const Color(0xFF0369A1),
-            ),
+    final user = authState.user;
+    final role = (user?.role ?? '').toLowerCase();
+    final username = (user?.username ?? user?.name ?? '').toLowerCase();
+
+    final isTankerDriver = role == 'tankerdriver' || username == 'tanker_driver' || username == 'tanker';
+    final isDeliveryDriver = role == 'deliverydriver' || role == 'driver' || username == 'driver';
+    final isCashier = role == 'cashier' || username == 'cashier';
+    final isFieldAgent = role == 'fieldagent' || role == 'agent' || username == 'agent';
+
+    final allCategories = <_ModuleCategory>[];
+
+    if (isTankerDriver) {
+      allCategories.addAll([
+        _ModuleCategory(
+          title: 'Bulk Tanker Operations',
+          modules: [
             _Module(
               title: 'Tanker Trip Sheet',
-              description: 'Dispatches, km odometers, motor pumping & waiting surcharges',
+              description: 'Dispatches, odometers, decanting & surcharges',
               icon: Icons.local_shipping_rounded,
               route: '/operations/tanker-trip',
               color: const Color(0xFF0284C7),
             ),
             _Module(
-              title: 'Trip Payment Collection',
-              description: 'Collect driver cash & corporate commercial dues',
-              icon: Icons.payments_rounded,
-              route: '/accounting/collect',
-              color: AppColors.success,
-            ),
-            _Module(
-              title: 'Diesel & Vehicle Maintenance',
+              title: 'Diesel & Vehicle Expenses',
               description: 'Fuel slips, tanker repair & toll expenditure',
               icon: Icons.local_gas_station_rounded,
               route: '/expenses/new',
               color: AppColors.warning,
             ),
-          ]
-          // 3. 20L Can Route Distribution Vertical (DK Waters)
-          else if (industry == 'packaged_water') ...[
+          ],
+        ),
+        _ModuleCategory(
+          title: 'Staff & Attendance',
+          modules: [
             _Module(
-              title: 'Tata Ace Beat GPS Radar',
-              description: 'Route beat perimeter, delivery stops & van jar balance',
-              icon: Icons.share_location_rounded,
-              route: '/fleet/gps?mode=packaged_water',
-              color: const Color(0xFF0284C7),
+              title: 'Geofenced Attendance',
+              description: 'GPS check-in / check-out',
+              icon: Icons.fingerprint_rounded,
+              route: '/hrm/attendance',
+              color: AppColors.info,
             ),
+          ],
+        ),
+      ]);
+    } else if (isDeliveryDriver) {
+      allCategories.addAll([
+        _ModuleCategory(
+          title: '20L Can Distribution Operations',
+          modules: [
             _Module(
               title: 'Can Sales POS Ticket',
               description: 'Fast 15-second driver sales & return tickets',
@@ -239,70 +98,395 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
             ),
             _Module(
               title: 'Driver Cash Surrender',
-              description: 'End-of-day route settlement with admin cashier',
+              description: 'End-of-day route settlement with cashier',
               icon: Icons.price_check_rounded,
               route: '/operations/driver-surrender',
               color: const Color(0xFF0284C7),
             ),
             _Module(
-              title: 'RO Plant Refill Manifest',
-              description: 'Reverse Osmosis factory intake batch logs',
-              icon: Icons.factory_rounded,
-              route: '/operations/plant-refill',
+              title: 'Route Fuel & Expenses',
+              description: 'Daily diesel & van maintenance slips',
+              icon: Icons.attach_money_rounded,
+              route: '/expenses/new',
+              color: AppColors.warning,
+            ),
+          ],
+        ),
+        _ModuleCategory(
+          title: 'Staff & Attendance',
+          modules: [
+            _Module(
+              title: 'Geofenced Attendance',
+              description: 'GPS check-in / check-out',
+              icon: Icons.fingerprint_rounded,
+              route: '/hrm/attendance',
+              color: AppColors.info,
+            ),
+          ],
+        ),
+      ]);
+    } else if (isCashier) {
+      allCategories.addAll([
+        _ModuleCategory(
+          title: 'Bakery & POS Operations',
+          modules: [
+            _Module(
+              title: 'Bakery & Cafe POS',
+              description: 'Touch terminal billing & kitchen orders',
+              icon: Icons.restaurant_rounded,
+              route: '/operations/cafe-pos',
+              color: const Color(0xFFD97706),
+            ),
+            _Module(
+              title: 'Daily Cash Drawer Closing',
+              description: 'Cash-in-hand (1010) register balance',
+              icon: Icons.menu_book_rounded,
+              route: '/accounting/books',
+              color: AppColors.brandNavy,
+            ),
+            _Module(
+              title: 'Customer Payment Collection',
+              description: 'Collect outstanding party dues',
+              icon: Icons.payments_rounded,
+              route: '/accounting/collect',
+              color: AppColors.success,
+            ),
+            _Module(
+              title: 'Kitchen & Daily Expenses',
+              description: 'Vegetables, milk & daily purchases',
+              icon: Icons.attach_money_rounded,
+              route: '/expenses/new',
+              color: AppColors.danger,
+            ),
+          ],
+        ),
+        _ModuleCategory(
+          title: 'Staff & Attendance',
+          modules: [
+            _Module(
+              title: 'Geofenced Attendance',
+              description: 'GPS check-in / check-out',
+              icon: Icons.fingerprint_rounded,
+              route: '/hrm/attendance',
+              color: AppColors.info,
+            ),
+          ],
+        ),
+      ]);
+    } else if (isFieldAgent) {
+      allCategories.addAll([
+        _ModuleCategory(
+          title: 'Commercial Field Operations',
+          modules: [
+            _Module(
+              title: 'Customer Dues & Collection',
+              description: 'Receipt allocation against outstanding dues',
+              icon: Icons.payments_rounded,
+              route: '/accounting/collect',
+              color: AppColors.success,
+            ),
+            _Module(
+              title: 'Customer Directory & GPS Pins',
+              description: 'Customer list, credit balance & location update',
+              icon: Icons.people_alt_rounded,
+              route: '/customers',
               color: AppColors.primary,
             ),
-          ]
-          // 4. Textile & Garment Manufacturing Vertical (zoloERP Textiles)
-          else if (industry == 'textile') ...[
             _Module(
-              title: 'Wholesale Tax Invoicing',
-              description: 'Fabric & garment commercial invoice generation',
+              title: 'Field Conveyance & Expenses',
+              description: 'Instant receipt capture with camera & GPS',
+              icon: Icons.attach_money_rounded,
+              route: '/expenses/new',
+              color: AppColors.warning,
+            ),
+          ],
+        ),
+        _ModuleCategory(
+          title: 'Staff & Attendance',
+          modules: [
+            _Module(
+              title: 'Geofenced Attendance',
+              description: 'GPS check-in / check-out',
+              icon: Icons.fingerprint_rounded,
+              route: '/hrm/attendance',
+              color: AppColors.info,
+            ),
+          ],
+        ),
+      ]);
+    } else {
+      // Full ERP Suite for Admin / Super Admin
+      allCategories.addAll([
+        _ModuleCategory(
+          title: 'Sales & Commercial',
+          modules: [
+            _Module(
+              title: 'Sales Invoices',
+              description: 'B2B/B2C billing, tax invoice & payment history',
               icon: Icons.receipt_long_rounded,
-              route: '/sales/new',
-              color: const Color(0xFF7C3AED),
-            ),
-            _Module(
-              title: 'Fabric Roll & Yarn Stock Audit',
-              description: 'Physical meter roll and yarn weight audits',
-              icon: Icons.inventory_2_rounded,
-              route: '/inventory/stock-count',
+              route: '/sales',
               color: AppColors.primary,
             ),
             _Module(
-              title: 'Commercial Debtor Collection',
-              description: 'Collect trade receivables against B2B invoices',
+              title: 'Quotations',
+              description: 'Commercial quotes & price estimates',
+              icon: Icons.request_quote_rounded,
+              route: '/sales',
+              color: AppColors.info,
+            ),
+            _Module(
+              title: 'Customer Payments',
+              description: 'Receipt allocation against outstanding dues',
               icon: Icons.payments_rounded,
               route: '/accounting/collect',
               color: AppColors.success,
             ),
           ],
-        ],
-      ),
-      _ModuleCategory(
-        title: 'HRM & Attendance',
-        modules: [
-          _Module(
-            title: 'Geofenced Attendance',
-            description: 'Facial selfie & GPS check-in / check-out',
-            icon: Icons.fingerprint_rounded,
-            route: '/hrm/attendance',
-            color: AppColors.info,
-          ),
-        ],
-      ),
-      _ModuleCategory(
-        title: 'Analytics & Reports',
-        modules: [
-          _Module(
-            title: 'Financial & Sales Reports',
-            description: 'Sales summaries, stock aging & customer ledgers',
-            icon: Icons.bar_chart_rounded,
-            route: '/reports',
-            color: AppColors.brandPurple,
-          ),
-        ],
-      ),
-    ];
+        ),
+        _ModuleCategory(
+          title: 'Procurement & Purchases',
+          modules: [
+            _Module(
+              title: 'Purchase Bills',
+              description: 'Inward vendor bills & payable dues',
+              icon: Icons.shopping_bag_rounded,
+              route: '/purchases',
+              color: const Color(0xFF0284C7),
+            ),
+            _Module(
+              title: 'Supplier Payments',
+              description: 'Disbursements from cash/bank accounts',
+              icon: Icons.outbox_rounded,
+              route: '/purchases',
+              color: AppColors.warning,
+            ),
+          ],
+        ),
+        _ModuleCategory(
+          title: 'Inventory & Godowns',
+          modules: [
+            _Module(
+              title: 'Product Catalog & Config',
+              description: 'Item master, barcode symbology, pricing & vertical setup',
+              icon: Icons.category_rounded,
+              route: '/products',
+              color: AppColors.primary,
+            ),
+            _Module(
+              title: 'New Product Configuration',
+              description: 'Tabbed master configuration for standard, combo & services',
+              icon: Icons.add_box_rounded,
+              route: '/products/new',
+              color: AppColors.brandPurple,
+            ),
+            _Module(
+              title: 'Stock Valuation',
+              description: 'Real-time stock valuation by warehouse',
+              icon: Icons.inventory_2_rounded,
+              route: '/inventory',
+              color: AppColors.success,
+            ),
+            _Module(
+              title: 'Physical Stock Count',
+              description: 'Barcode scanning and godown variance audits',
+              icon: Icons.qr_code_scanner_rounded,
+              route: '/inventory/stock-count',
+              color: const Color(0xFF64748B),
+            ),
+          ],
+        ),
+        _ModuleCategory(
+          title: 'Customers & Suppliers (Parties)',
+          modules: [
+            _Module(
+              title: 'Customers 360',
+              description: 'Customer list, credit balance, can deposits & KYC',
+              icon: Icons.people_alt_rounded,
+              route: '/customers',
+              color: AppColors.primary,
+            ),
+            _Module(
+              title: 'Suppliers Directory',
+              description: 'Vendor contacts, GSTIN & payable statements',
+              icon: Icons.storefront_rounded,
+              route: '/suppliers',
+              color: const Color(0xFF0369A1),
+            ),
+          ],
+        ),
+        _ModuleCategory(
+          title: 'Accounting & Cash Books',
+          modules: [
+            _Module(
+              title: 'Day Book & Cash Book',
+              description: 'Cash-in-hand (1010) & Bank (1020) ledger movements',
+              icon: Icons.menu_book_rounded,
+              route: '/accounting/books',
+              color: AppColors.brandNavy,
+            ),
+            _Module(
+              title: 'Quick Expense Voucher',
+              description: 'Instant receipt capture with camera & GPS stamp',
+              icon: Icons.attach_money_rounded,
+              route: '/expenses/new',
+              color: AppColors.danger,
+            ),
+          ],
+        ),
+        _ModuleCategory(
+          title: switch (industry) {
+            'cafe_bakery' => 'Bakery & Cafe Operations',
+            'bulk_water' => 'Bulk Tanker Fleet Logistics',
+            'packaged_water' => '20L Can Route Distribution',
+            'textile' => 'Textile & Garment Operations',
+            _ => 'Commercial Operations',
+          },
+          modules: [
+            // 1. Cafe & Bakery Vertical (Aran Cafe)
+            if (industry == 'cafe_bakery') ...[
+              _Module(
+                title: 'Bakery & Cafe POS',
+                description: 'Touch terminal billing & cash drawer closing',
+                icon: Icons.restaurant_rounded,
+                route: '/operations/cafe-pos',
+                color: const Color(0xFFD97706),
+              ),
+              _Module(
+                title: 'Kitchen & Recipe Inventory',
+                description: 'Bakery ingredient stocks, flour & dairy audit',
+                icon: Icons.inventory_2_rounded,
+                route: '/inventory/stock-count',
+                color: const Color(0xFF059669),
+              ),
+              _Module(
+                title: 'Cafe Expenses & Purchases',
+                description: 'Vegetables, milk, gas & daily operational bills',
+                icon: Icons.receipt_long_rounded,
+                route: '/expenses/new',
+                color: AppColors.primary,
+              ),
+            ]
+            // 2. Bulk Water Tankers Vertical (TMWS)
+            else if (industry == 'bulk_water') ...[
+              _Module(
+                title: 'Live Tanker GPS Fleet Radar',
+                description: 'Radar tracking, decanting flow rate, dwell time & fuel',
+                icon: Icons.share_location_rounded,
+                route: '/fleet/gps?mode=bulk_water',
+                color: const Color(0xFF0369A1),
+              ),
+              _Module(
+                title: 'Tanker Trip Sheet',
+                description: 'Dispatches, km odometers, motor pumping & waiting surcharges',
+                icon: Icons.local_shipping_rounded,
+                route: '/operations/tanker-trip',
+                color: const Color(0xFF0284C7),
+              ),
+              _Module(
+                title: 'Trip Payment Collection',
+                description: 'Collect driver cash & corporate commercial dues',
+                icon: Icons.payments_rounded,
+                route: '/accounting/collect',
+                color: AppColors.success,
+              ),
+              _Module(
+                title: 'Diesel & Vehicle Maintenance',
+                description: 'Fuel slips, tanker repair & toll expenditure',
+                icon: Icons.local_gas_station_rounded,
+                route: '/expenses/new',
+                color: AppColors.warning,
+              ),
+            ]
+            // 3. 20L Can Route Distribution Vertical (DK Waters)
+            else if (industry == 'packaged_water') ...[
+              _Module(
+                title: 'Tata Ace Beat GPS Radar',
+                description: 'Route beat perimeter, delivery stops & van jar balance',
+                icon: Icons.share_location_rounded,
+                route: '/fleet/gps?mode=packaged_water',
+                color: const Color(0xFF0284C7),
+              ),
+              _Module(
+                title: 'Can Sales POS Ticket',
+                description: 'Fast 15-second driver sales & return tickets',
+                icon: Icons.water_drop_rounded,
+                route: '/operations/can-sales',
+                color: const Color(0xFF059669),
+              ),
+              _Module(
+                title: 'Spot Empty Can Audit',
+                description: 'Inspect Tata Ace vehicle cans vs route manifest',
+                icon: Icons.fact_check_rounded,
+                route: '/operations/spot-audit',
+                color: AppColors.warning,
+              ),
+              _Module(
+                title: 'Driver Cash Surrender',
+                description: 'End-of-day route settlement with admin cashier',
+                icon: Icons.price_check_rounded,
+                route: '/operations/driver-surrender',
+                color: const Color(0xFF0284C7),
+              ),
+              _Module(
+                title: 'RO Plant Refill Manifest',
+                description: 'Reverse Osmosis factory intake batch logs',
+                icon: Icons.factory_rounded,
+                route: '/operations/plant-refill',
+                color: AppColors.primary,
+              ),
+            ]
+            // 4. Textile & Garment Manufacturing Vertical (zoloERP Textiles)
+            else if (industry == 'textile') ...[
+              _Module(
+                title: 'Wholesale Tax Invoicing',
+                description: 'Fabric & garment commercial invoice generation',
+                icon: Icons.receipt_long_rounded,
+                route: '/sales/new',
+                color: const Color(0xFF7C3AED),
+              ),
+              _Module(
+                title: 'Fabric Roll & Yarn Stock Audit',
+                description: 'Physical meter roll and yarn weight audits',
+                icon: Icons.inventory_2_rounded,
+                route: '/inventory/stock-count',
+                color: AppColors.primary,
+              ),
+              _Module(
+                title: 'Commercial Debtor Collection',
+                description: 'Collect trade receivables against B2B invoices',
+                icon: Icons.payments_rounded,
+                route: '/accounting/collect',
+                color: AppColors.success,
+              ),
+            ],
+          ],
+        ),
+        _ModuleCategory(
+          title: 'HRM & Attendance',
+          modules: [
+            _Module(
+              title: 'Geofenced Attendance',
+              description: 'Facial selfie & GPS check-in / check-out',
+              icon: Icons.fingerprint_rounded,
+              route: '/hrm/attendance',
+              color: AppColors.info,
+            ),
+          ],
+        ),
+        _ModuleCategory(
+          title: 'Analytics & Reports',
+          modules: [
+            _Module(
+              title: 'Financial & Sales Reports',
+              description: 'Sales summaries, stock aging & customer ledgers',
+              icon: Icons.bar_chart_rounded,
+              route: '/reports',
+              color: AppColors.brandPurple,
+            ),
+          ],
+        ),
+      ]);
+    }
 
     // Filter categories & modules by search query
     final filteredCategories = allCategories
