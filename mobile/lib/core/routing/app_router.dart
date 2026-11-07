@@ -16,6 +16,8 @@ import '../../features/operations/presentation/driver_surrender_screen.dart';
 import '../../features/operations/presentation/plant_refill_screen.dart';
 import '../../features/operations/presentation/spot_audit_screen.dart';
 import '../../features/operations/presentation/tanker_trip_screen.dart';
+import '../../features/products/presentation/product_form_screen.dart';
+import '../../features/products/presentation/products_catalog_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/purchases/presentation/purchase_bills_screen.dart';
 import '../../features/reports/presentation/reports_screen.dart';
@@ -131,6 +133,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/inventory/stock-count',
         builder: (context, state) => const StockCountScreen(),
+      ),
+      GoRoute(
+        path: '/products',
+        builder: (context, state) => const ProductsCatalogScreen(),
+      ),
+      GoRoute(
+        path: '/products/new',
+        builder: (context, state) => const ProductFormScreen(),
       ),
       GoRoute(
         path: '/accounting/books',

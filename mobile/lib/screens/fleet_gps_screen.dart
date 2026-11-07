@@ -7,7 +7,6 @@ import '../core/network/api_endpoints.dart';
 import '../core/providers.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
-import '../widgets/glass_card.dart';
 
 enum FleetViewMode { tankers, packagedWater }
 
@@ -491,34 +490,33 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
             const SizedBox(height: 14),
 
             // High-Tech Interactive Radar Map Box
-            ClipRRect(
-              borderRadius: BorderRadius.circular(22),
-              child: Container(
-                height: 250,
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF030A16) : const Color(0xFF0F172A),
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(
-                    color: isDark ? Colors.white.withOpacity(0.15) : AppColors.brandNavy.withOpacity(0.4),
-                    width: 1.2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: (_mode == FleetViewMode.tankers ? AppColors.roleTankerDriver : AppColors.brandSky)
-                          .withOpacity(0.25),
-                      blurRadius: 24,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
+            Container(
+              height: 250,
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF030A16) : const Color(0xFF0F172A),
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(
+                  color: isDark ? Colors.white.withOpacity(0.15) : AppColors.brandNavy.withOpacity(0.4),
+                  width: 1.2,
                 ),
-                child: Stack(
-                  children: [
-                    // Radar Animated Canvas
-                    AnimatedBuilder(
+                boxShadow: [
+                  BoxShadow(
+                    color: (_mode == FleetViewMode.tankers ? AppColors.roleTankerDriver : AppColors.brandSky)
+                        .withOpacity(0.25),
+                    blurRadius: 24,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Stack(
+                children: [
+                  // Radar Animated Canvas
+                  Positioned.fill(
+                    child: AnimatedBuilder(
                       animation: _radarController,
                       builder: (context, child) {
                         return CustomPaint(
-                          size: const Size(double.infinity, 250),
                           painter: FleetRadarPainter(
                             sweepAngle: _radarController.value * 2 * math.pi,
                             isDark: isDark,
@@ -529,6 +527,7 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
                         );
                       },
                     ),
+                  ),
 
                     // Borewell Hub Origin Landmark
                     Positioned(
@@ -751,7 +750,6 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
                   ],
                 ),
               ),
-            ),
 
             const SizedBox(height: 16),
 
@@ -874,10 +872,23 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
                 ),
               )
             else
-              GlassCard(
+              Container(
                 padding: const EdgeInsets.all(18),
-                borderRadius: 22,
-                tintColor: selectedVehicle['statusColor'] as Color,
+                decoration: BoxDecoration(
+                  color: AppColors.card(context),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(
+                    color: (selectedVehicle['statusColor'] as Color).withOpacity(0.35),
+                    width: 1.2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (selectedVehicle['statusColor'] as Color).withOpacity(0.08),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
                 child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

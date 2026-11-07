@@ -54,6 +54,14 @@ class QuickActionSheet extends ConsumerWidget {
         enabled: true,
       ),
       _ActionItem(
+        title: 'New Product',
+        subtitle: 'Item configuration',
+        icon: Icons.add_box_rounded,
+        color: AppColors.brandPurple,
+        route: '/products/new',
+        enabled: true,
+      ),
+      _ActionItem(
         title: 'Mark Attendance',
         subtitle: 'Geofenced punch',
         icon: Icons.fingerprint_rounded,

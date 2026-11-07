@@ -134,6 +134,38 @@ class ApiClient {
     }
   }
 
+  Future<ApiResult<T>> put<T>(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    required T Function(dynamic data) fromJson,
+  }) async {
+    try {
+      final response = await _dio.put(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+      );
+      if (response.statusCode != null &&
+          response.statusCode! >= 200 &&
+          response.statusCode! < 300) {
+        return ApiSuccess(fromJson(response.data));
+      }
+      return ApiFailure(
+        NetworkFailure(
+          statusCode: response.statusCode,
+          message: 'Server error: ${response.statusCode}',
+        ),
+      );
+    } on DioException catch (e) {
+      return ApiFailure(_mapDioError(e));
+    } catch (e) {
+      return ApiFailure(
+        NetworkFailure(message: 'Unexpected client error: $e'),
+      );
+    }
+  }
+
   NetworkFailure _mapDioError(DioException e) {
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout ||

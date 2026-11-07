@@ -91,3 +91,4 @@
     - Deleted hardcoded mock lists `_tankers` and `_waterTrucks`.
     - Deleted simulated periodic telemetry timer.
     - Connected to live backend API `GET /api/v1/mobile/fleet/live`. Renders truthful GPS coordinates and status.
+

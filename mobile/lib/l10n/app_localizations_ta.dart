@@ -235,4 +235,94 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get errorStateMessage => 'சேவையகத்திலிருந்து தரவைப் பெற முடியவில்லை';
+
+  @override
+  String get productCatalog => 'பொருட்கள் பட்டியல் & அமைப்புகள்';
+
+  @override
+  String get productConfig => 'பொருள் வடிவமைப்பு & விவரங்கள்';
+
+  @override
+  String get newProduct => 'புதிய பொருள் சேர்த்தல்';
+
+  @override
+  String get editProduct => 'பொருள் விவரங்களை திருத்து';
+
+  @override
+  String get tabGeneral => 'பொது';
+
+  @override
+  String get tabPricing => 'விலை & வரிகள்';
+
+  @override
+  String get tabInventory => 'இருப்பு & கிடங்கு';
+
+  @override
+  String get tabVariants => 'மாறுபாடுகள்';
+
+  @override
+  String get tabVerticals => 'சிறப்பு & தொழில்கள்';
+
+  @override
+  String get productName => 'பொருள் பெயர்';
+
+  @override
+  String get printName => 'அச்சுப் பெயர்';
+
+  @override
+  String get productCode => 'பொருள் குறியீடு / SKU';
+
+  @override
+  String get barcodeSymbology => 'பார்-கோடு முறை';
+
+  @override
+  String get productType => 'பொருள் வகை';
+
+  @override
+  String get productCategory => 'வகைப்பாடு';
+
+  @override
+  String get productBrand => 'பிராண்ட்';
+
+  @override
+  String get productUnit => 'அடிப்படை அலகு';
+
+  @override
+  String get productCost => 'கொள்முதல் விலை (₹)';
+
+  @override
+  String get profitMargin => 'இலாப விளிம்பு';
+
+  @override
+  String get productPrice => 'விற்பனை விலை / MRP (₹)';
+
+  @override
+  String get wholesalePrice => 'மொத்த விலை (₹)';
+
+  @override
+  String get taxRate => 'வரி விகிதம்';
+
+  @override
+  String get taxMethod => 'வரி முறை';
+
+  @override
+  String get alertQuantity => 'எச்சரிக்கை அளவு';
+
+  @override
+  String get initialStock => 'தொடக்க இருப்பு';
+
+  @override
+  String get hasVariants => 'மாறுபாடுகள் கொண்ட பொருள்';
+
+  @override
+  String get isBatch => 'பேட்ச் & காலாவதி தேதி';
+
+  @override
+  String get isImei => 'வரிசை எண் / IMEI முறை';
+
+  @override
+  String get featuredProduct => 'முக்கிய பொருள்';
+
+  @override
+  String get sellOnline => 'ஆன்லைன் விற்பனைக்கு கிடைக்கும்';
 }

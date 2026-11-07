@@ -1,5 +1,40 @@
 # zoloERP Pro — Persistent Session Memory & State
 
+## Active Session & Follow-up — 2026-11-07: Full-Featured 5-Tab Product Configuration System & Mouse Tracker / RenderClipRRect Crash Elimination (branch main)
+
+- **User Requests Addressed:**
+  1. *"Where can i make the product configurations and other details in mobile? this is going to be a full featured mobile application, so Bring all the options from the web app. never miss single element. they use tab to organize this, so make sure the UI is responsive to both mobile and web app. bring the theme colors of zolo erp. never hardcode. also check the tamil, english conversion."*
+  2. Fixed Render & Mouse Tracker loop crash:
+     `Another exception was thrown: RenderBox was not laid out: RenderClipRRect#3d8fd relayoutBoundary=up17`
+     `Another exception was thrown: 'package:flutter/src/rendering/mouse_tracker.dart': Failed assertion: line 199 pos 12: '!_debugDuringDeviceUpdate': is not true.`
+- **Implementation & Architectural Highlights:**
+  1. **Render & Mouse Tracker Crash Elimination:**
+     - Removed crash-prone `BackdropFilter` inside `ClipRRect` in `mobile/lib/widgets/glass_card.dart` and `mobile/lib/screens/role_selector_sheet.dart`. Replaced with flat, high-performance translucent containers with 1px border.
+     - In `mobile/lib/screens/fleet_gps_screen.dart`: replaced unconstrained `ClipRRect` with bounded `Container(height: 250, clipBehavior: Clip.antiAlias)` and wrapped animated radar canvas in `Positioned.fill` to eliminate `double.infinity` layout collision inside `SingleChildScrollView`.
+  2. **Full-Featured 5-Tab Product Configuration & Details Screen (`product_form_screen.dart`):**
+     - Organized into 5 responsive tabs matching the complete web app product architecture:
+       - **Tab 1: General Info (பொதுத் தகவல்கள்):** Product Name, Print Name for POS vouchers, Code / SKU with auto-generate button, Barcode Symbology (C128, C39, UPCA, UPCE, EAN8, EAN13), Product Type (standard, combo, digital, service), Product Usage (composite, sale, purchase), Category dropdown, Brand dropdown, Base Unit dropdown, Tags, Details & Specifications.
+       - **Tab 2: Pricing & Tax (விலை & வரிகள்):** Cost price (₹), Profit Margin (% or fixed ₹), MRP Selling Price with auto-computation from Cost + Margin, Wholesale Price, GST Tax Rate dropdown, Tax Method (Exclusive vs Inclusive), Daily Sales Objective, Promotional Pricing with Promo Price, Start Date and End Date pickers.
+       - **Tab 3: Stock & Godown (இருப்பு & கிடங்கு):** Initial Stock and Warehouse selector (for new items), Minimum Alert Quantity, In Stock availability toggle, Track Inventory toggle, Batch & Expiry Date tracking toggle, IMEI / Serial Number tracking toggle, Warehouse Differential Pricing toggle.
+       - **Tab 4: Variants (மாறுபாடுகள்):** "This product has variants" toggle, Variant Option Attribute (Size, Volume, Weight, Color), Variant Values chips list (20L, 1L, 500ml, etc.).
+       - **Tab 5: Verticals & Special (சிறப்பு & தொழில்கள்):** Packaged Water Jar Deposit (₹) and Nominal Capacity (L), Restaurant/Cafe Kitchen Station ID, Menu Type (regular, breakfast, evening, special), Is Topping / Addon toggle, Featured Product toggle, Online POS / Delivery availability toggle, Warranty and Guarantee duration specifications.
+  3. **Product Catalog Screen (`products_catalog_screen.dart`):**
+     - Live searchable SKU list with real-time text filter and status badges (`IN STOCK`, `VARIANTS`, `BATCH EXPIRY`).
+     - Tap any item to open full product configuration in Edit Mode.
+     - Floating Action Button (+) and Top Bar (+) to launch New Product Configuration.
+  4. **Backend API Enhancements (`ProductApiController.php`, `ProductResource.php`, `routes/api.php`):**
+     - `GET /api/v1/products/metadata`: Returns categories, brands, units, taxes, warehouses, symbologies, and margin types scoped by active company (`X-Company-ID`).
+     - `POST /api/v1/products`: Stores new product with initial warehouse allocation and unique code validation.
+     - `PUT /api/v1/products/{id}`: Updates product master data scoped to active tenant.
+     - `ProductResource.php`: Fully exposes all 40+ attributes matching web ERP.
+  5. **Bilingual Localization (English & Tamil):**
+     - Updated `app_en.arb` and `app_ta.arb` with product catalog, configuration, and tab titles.
+- **Verification Status:**
+  - `ThreeCompaniesWorkflowAndFraudTest`: 18/18 passed (100%).
+  - `MobileApiSecurityAndMeTest`: 9/9 passed (100%).
+  - `mobile/test/`: 10/10 passed (100%).
+  - `mobile` flutter analyze: 0 errors.
+
 ## Active Session & Follow-up — 2026-11-07: Multi-Entity Strict Isolation, Backend Dynamic Calculations, Real Fleet GPS Telematics & Audit Spec Execution (branch main)
 
 - **User Requests Addressed:**

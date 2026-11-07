@@ -235,4 +235,94 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorStateMessage => 'Unable to load data from server';
+
+  @override
+  String get productCatalog => 'Product Catalog & Config';
+
+  @override
+  String get productConfig => 'Product Configuration';
+
+  @override
+  String get newProduct => 'Add New Product';
+
+  @override
+  String get editProduct => 'Edit Product Details';
+
+  @override
+  String get tabGeneral => 'General';
+
+  @override
+  String get tabPricing => 'Pricing & Tax';
+
+  @override
+  String get tabInventory => 'Stock & Warehouse';
+
+  @override
+  String get tabVariants => 'Variants';
+
+  @override
+  String get tabVerticals => 'Verticals & Special';
+
+  @override
+  String get productName => 'Product Name';
+
+  @override
+  String get printName => 'Print Name';
+
+  @override
+  String get productCode => 'Product Code / SKU';
+
+  @override
+  String get barcodeSymbology => 'Barcode Symbology';
+
+  @override
+  String get productType => 'Product Type';
+
+  @override
+  String get productCategory => 'Category';
+
+  @override
+  String get productBrand => 'Brand';
+
+  @override
+  String get productUnit => 'Base Unit';
+
+  @override
+  String get productCost => 'Purchase Cost (₹)';
+
+  @override
+  String get profitMargin => 'Profit Margin';
+
+  @override
+  String get productPrice => 'Selling Price / MRP (₹)';
+
+  @override
+  String get wholesalePrice => 'Wholesale Price (₹)';
+
+  @override
+  String get taxRate => 'Tax Rate';
+
+  @override
+  String get taxMethod => 'Tax Method';
+
+  @override
+  String get alertQuantity => 'Alert Quantity';
+
+  @override
+  String get initialStock => 'Initial Stock';
+
+  @override
+  String get hasVariants => 'Has Product Variants';
+
+  @override
+  String get isBatch => 'Batch & Expiry Date Tracking';
+
+  @override
+  String get isImei => 'Serial / IMEI Tracking';
+
+  @override
+  String get featuredProduct => 'Featured Product';
+
+  @override
+  String get sellOnline => 'Available for Online POS';
 }

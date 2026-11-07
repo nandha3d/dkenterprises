@@ -25,6 +25,9 @@ abstract final class ApiEndpoints {
   static const String customerOnboard = '/mobile/customer-onboard';
   static const String suppliers = '/suppliers';
   static const String products = '/mobile/products';
+  static const String productMetadata = '/products/metadata';
+  static const String productCatalog = '/products';
+  static String productDetail(int id) => '/products/$id';
 
   // Sales & Invoices
   static const String sales = '/sales';

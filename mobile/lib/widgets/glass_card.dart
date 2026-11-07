@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
@@ -89,15 +88,6 @@ class _GlassCardState extends State<GlassCard> {
       child: Material(
         type: MaterialType.transparency,
         child: widget.child,
-      ),
-    );
-
-    // Apply BackdropFilter blur
-    content = ClipRRect(
-      borderRadius: BorderRadius.circular(widget.borderRadius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: widget.blurSigma, sigmaY: widget.blurSigma),
-        child: content,
       ),
     );
 

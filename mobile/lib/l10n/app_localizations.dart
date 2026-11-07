@@ -553,6 +553,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to load data from server'**
   String get errorStateMessage;
+
+  /// No description provided for @productCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Product Catalog & Config'**
+  String get productCatalog;
+
+  /// No description provided for @productConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Product Configuration'**
+  String get productConfig;
+
+  /// No description provided for @newProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Product'**
+  String get newProduct;
+
+  /// No description provided for @editProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Product Details'**
+  String get editProduct;
+
+  /// No description provided for @tabGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get tabGeneral;
+
+  /// No description provided for @tabPricing.
+  ///
+  /// In en, this message translates to:
+  /// **'Pricing & Tax'**
+  String get tabPricing;
+
+  /// No description provided for @tabInventory.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock & Warehouse'**
+  String get tabInventory;
+
+  /// No description provided for @tabVariants.
+  ///
+  /// In en, this message translates to:
+  /// **'Variants'**
+  String get tabVariants;
+
+  /// No description provided for @tabVerticals.
+  ///
+  /// In en, this message translates to:
+  /// **'Verticals & Special'**
+  String get tabVerticals;
+
+  /// No description provided for @productName.
+  ///
+  /// In en, this message translates to:
+  /// **'Product Name'**
+  String get productName;
+
+  /// No description provided for @printName.
+  ///
+  /// In en, this message translates to:
+  /// **'Print Name'**
+  String get printName;
+
+  /// No description provided for @productCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Product Code / SKU'**
+  String get productCode;
+
+  /// No description provided for @barcodeSymbology.
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode Symbology'**
+  String get barcodeSymbology;
+
+  /// No description provided for @productType.
+  ///
+  /// In en, this message translates to:
+  /// **'Product Type'**
+  String get productType;
+
+  /// No description provided for @productCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get productCategory;
+
+  /// No description provided for @productBrand.
+  ///
+  /// In en, this message translates to:
+  /// **'Brand'**
+  String get productBrand;
+
+  /// No description provided for @productUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Base Unit'**
+  String get productUnit;
+
+  /// No description provided for @productCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase Cost (₹)'**
+  String get productCost;
+
+  /// No description provided for @profitMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit Margin'**
+  String get profitMargin;
+
+  /// No description provided for @productPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Selling Price / MRP (₹)'**
+  String get productPrice;
+
+  /// No description provided for @wholesalePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Wholesale Price (₹)'**
+  String get wholesalePrice;
+
+  /// No description provided for @taxRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax Rate'**
+  String get taxRate;
+
+  /// No description provided for @taxMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax Method'**
+  String get taxMethod;
+
+  /// No description provided for @alertQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert Quantity'**
+  String get alertQuantity;
+
+  /// No description provided for @initialStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial Stock'**
+  String get initialStock;
+
+  /// No description provided for @hasVariants.
+  ///
+  /// In en, this message translates to:
+  /// **'Has Product Variants'**
+  String get hasVariants;
+
+  /// No description provided for @isBatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch & Expiry Date Tracking'**
+  String get isBatch;
+
+  /// No description provided for @isImei.
+  ///
+  /// In en, this message translates to:
+  /// **'Serial / IMEI Tracking'**
+  String get isImei;
+
+  /// No description provided for @featuredProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured Product'**
+  String get featuredProduct;
+
+  /// No description provided for @sellOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Available for Online POS'**
+  String get sellOnline;
 }
 
 class _AppLocalizationsDelegate

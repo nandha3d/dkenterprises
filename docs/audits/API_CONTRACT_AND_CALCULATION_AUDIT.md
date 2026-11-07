@@ -67,3 +67,4 @@ fromJson: (data) {
 }
 ```
 This safely unwraps both wrapped payloads (`{"data": [...]}`) and raw arrays (`[...]`), guaranteeing 100% data fidelity between Laravel and Flutter.
+

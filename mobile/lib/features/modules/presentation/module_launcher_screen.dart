@@ -83,6 +83,20 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
         title: 'Inventory & Godowns',
         modules: [
           _Module(
+            title: 'Product Catalog & Config',
+            description: 'Item master, barcode symbology, pricing & vertical setup',
+            icon: Icons.category_rounded,
+            route: '/products',
+            color: AppColors.primary,
+          ),
+          _Module(
+            title: 'New Product Configuration',
+            description: 'Tabbed master configuration for standard, combo & services',
+            icon: Icons.add_box_rounded,
+            route: '/products/new',
+            color: AppColors.brandPurple,
+          ),
+          _Module(
             title: 'Stock Valuation',
             description: 'Real-time stock valuation by warehouse',
             icon: Icons.inventory_2_rounded,

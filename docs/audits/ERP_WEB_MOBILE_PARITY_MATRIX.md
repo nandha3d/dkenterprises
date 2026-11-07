@@ -39,3 +39,4 @@
    - Standardized `{"code": 200, "data": [...]}` envelope unwrapping across all mobile feature screens.
 3. **No Fabricated Fallbacks:**
    - Empty data returns truthful `EmptyState`; network timeouts return retryable error states.
+

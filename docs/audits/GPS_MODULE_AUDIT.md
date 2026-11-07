@@ -98,3 +98,4 @@ The fleet endpoints are now exposed in `routes/api.php` under `Route::prefix('fl
      `"No live GPS telemetry received yet. Waiting for vehicle tracker or driver device ping."`
 3. **Company Scoping:**
    - Respects active company: TMWS monitors bulk tankers; DK Waters monitors 20L can vans.
+

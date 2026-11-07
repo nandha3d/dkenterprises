@@ -117,9 +117,12 @@ Route::prefix('v1')->group(function () {
 
         // Products & Catalog
         Route::prefix('products')->group(function () {
+            Route::get('metadata', [ProductApiController::class, 'metadata'])->middleware('company.context')->name('api.v1.products.metadata');
             Route::get('/', [ProductApiController::class, 'index'])->middleware('company.context')->name('api.v1.products.index');
+            Route::post('/', [ProductApiController::class, 'store'])->middleware('company.context')->name('api.v1.products.store');
             Route::get('search/{term}', [ProductApiController::class, 'search'])->middleware('company.context')->name('api.v1.products.search');
             Route::get('{id}', [ProductApiController::class, 'show'])->middleware('company.context')->name('api.v1.products.show');
+            Route::put('{id}', [ProductApiController::class, 'update'])->middleware('company.context')->name('api.v1.products.update');
         });
 
         // Inventory & Warehouse Logistics

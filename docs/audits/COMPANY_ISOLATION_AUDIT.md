@@ -97,3 +97,4 @@ The following automated test suites verify 100% adherence to company isolation:
   - `get_me_returns_identity_permissions_and_companies`
   - `financials_returns_live_ledger_structure`
   - `workspace_insights_returns_multi_company_directory`
+

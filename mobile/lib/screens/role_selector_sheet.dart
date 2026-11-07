@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../services/api_service.dart';
@@ -31,30 +30,26 @@ class _RoleSelectorSheetState extends State<RoleSelectorSheet> {
     final t = widget.isTamil;
     final isDark = AppColors.isDark(context);
 
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF021840).withOpacity(0.92) : Colors.white.withOpacity(0.94),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-            border: Border(
-              top: BorderSide(
-                color: Colors.white.withOpacity(isDark ? 0.2 : 0.6),
-                width: 1.5,
-              ),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.4),
-                blurRadius: 30,
-                offset: const Offset(0, -10),
-              ),
-            ],
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        border: Border(
+          top: BorderSide(
+            color: isDark ? Colors.white.withOpacity(0.12) : const Color(0xFF0F172A).withOpacity(0.08),
+            width: 1.5,
           ),
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-          child: Column(
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.25),
+            blurRadius: 30,
+            offset: const Offset(0, -10),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -225,8 +220,6 @@ class _RoleSelectorSheetState extends State<RoleSelectorSheet> {
               ),
             ],
           ),
-        ),
-      ),
-    );
+        );
   }
 }
