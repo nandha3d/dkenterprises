@@ -23,6 +23,7 @@ import '../../features/sales/presentation/new_sale_bill_screen.dart';
 import '../../features/sales/presentation/sales_invoices_screen.dart';
 import '../../features/tasks/presentation/tasks_screen.dart';
 import '../../features/workspace/presentation/workspace_screen.dart';
+import '../../screens/fleet_gps_screen.dart';
 import '../providers.dart';
 import '../ui/app_scaffold.dart';
 
@@ -161,6 +162,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/operations/cafe-pos',
         builder: (context, state) => const CafePosScreen(),
+      ),
+      GoRoute(
+        path: '/fleet/gps',
+        builder: (context, state) {
+          final modeStr = state.uri.queryParameters['mode'];
+          final initialMode = modeStr == 'packaged_water'
+              ? FleetViewMode.packagedWater
+              : FleetViewMode.tankers;
+          final isTamil = ref.watch(localeProvider).languageCode == 'ta';
+          return FleetGpsScreen(
+            isTamil: isTamil,
+            initialMode: initialMode,
+            lockMode: true,
+          );
+        },
       ),
     ],
   );

@@ -322,10 +322,19 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
           else if (industry == 'bulk_water') ...[
             _buildWorkflowActionCard(
               context: context,
+              title: 'Live Tanker GPS Fleet Telematics',
+              description: 'Radar tracking, decanting flow rate, dwell time & fuel',
+              icon: Icons.share_location_rounded,
+              color: const Color(0xFF0284C7),
+              onTap: () => context.push('/fleet/gps?mode=bulk_water'),
+            ),
+            const SizedBox(height: 10),
+            _buildWorkflowActionCard(
+              context: context,
               title: 'Bulk Tanker Fleet Operations',
               description: 'Trip sheets, motor pumping & waiting surcharges',
               icon: Icons.local_shipping_rounded,
-              color: const Color(0xFF0284C7),
+              color: const Color(0xFF0369A1),
               onTap: () => context.push('/operations/tanker-trip'),
             ),
             const SizedBox(height: 10),
@@ -349,6 +358,15 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
           ]
           // 3. 20L Can Route Distribution Vertical (DK Waters)
           else if (industry == 'packaged_water') ...[
+            _buildWorkflowActionCard(
+              context: context,
+              title: 'Live Tata Ace Beat GPS Radar',
+              description: 'Route beat perimeter, delivery stops & van jar balance',
+              icon: Icons.share_location_rounded,
+              color: const Color(0xFF0284C7),
+              onTap: () => context.push('/fleet/gps?mode=packaged_water'),
+            ),
+            const SizedBox(height: 10),
             _buildWorkflowActionCard(
               context: context,
               title: '20L Can Distribution Beat',
