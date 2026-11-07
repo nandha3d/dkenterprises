@@ -35,7 +35,7 @@ class TextileMasterSeeder extends Seeder
     /**
      * Seed textile suppliers, categories, units, brands, and products for a given company.
      */
-    public function seedCompany(?Company $company): void
+    public function seedCompany(?Company $company, bool $catalogOnly = false): void
     {
         $companyId = $company ? $company->id : 1;
 
@@ -49,10 +49,10 @@ class TextileMasterSeeder extends Seeder
         $categories = $this->ensureCategories($companyId);
 
         // 4. Seed Textile Suppliers
-        $suppliers = $this->seedSuppliers($companyId);
+        $suppliers = $this->seedSuppliers($companyId, $catalogOnly);
 
         // 5. Seed Textile Products & Inventory Stock
-        $products = $this->seedProducts($companyId, $units, $brands, $categories);
+        $products = $this->seedProducts($companyId, $units, $brands, $categories, $catalogOnly);
     }
 
     /**
@@ -197,7 +197,7 @@ class TextileMasterSeeder extends Seeder
     /**
      * Seed realistic textile suppliers across spinning, weaving, processing and trims.
      */
-    private function seedSuppliers(int $companyId): array
+    private function seedSuppliers(int $companyId, bool $catalogOnly): array
     {
         $supplierData = [
             [
@@ -346,7 +346,7 @@ class TextileMasterSeeder extends Seeder
                 ->where('company_id', $companyId)
                 ->where(function ($q) use ($data) {
                     $q->where('company_name', $data['company_name'])
-                      ->orWhere('vat_number', $data['vat_number']);
+                        ->orWhere('vat_number', $data['vat_number']);
                 })->first();
 
             if (!$supplier) {
@@ -354,7 +354,7 @@ class TextileMasterSeeder extends Seeder
                     'company_id' => $companyId,
                     'is_active' => true,
                 ]));
-            } else {
+            } elseif (!$catalogOnly) {
                 $supplier->forceFill(array_merge($data, [
                     'company_id' => $companyId,
                     'is_active' => true,
@@ -370,7 +370,7 @@ class TextileMasterSeeder extends Seeder
     /**
      * Seed comprehensive textile products across raw yarn, grey fabrics, dyed fabrics, garments, and trims.
      */
-    private function seedProducts(int $companyId, array $units, array $brands, array $categories): array
+    private function seedProducts(int $companyId, array $units, array $brands, array $categories, bool $catalogOnly): array
     {
         // Taxes
         $gst5 = Tax::where('rate', 5)->first();
@@ -569,6 +569,12 @@ class TextileMasterSeeder extends Seeder
                 ->where('company_id', $companyId)
                 ->where('code', $item['code'])
                 ->first();
+            if ($catalogOnly && $product) {
+                continue;
+            }
+
+            // Opening quantities must enter production through the stock and accounting ledgers.
+            $quantity = $catalogOnly ? 0 : $item['stock'];
 
             $data = [
                 'name' => $item['name'],
@@ -584,7 +590,7 @@ class TextileMasterSeeder extends Seeder
                 'price' => $price,
                 'profit_margin_type' => 'percentage',
                 'profit_margin' => $margin,
-                'qty' => $item['stock'],
+                'qty' => $quantity,
                 'alert_quantity' => $item['alert_qty'],
                 'tax_id' => $item['tax_id'],
                 'tax_method' => 1,
@@ -596,7 +602,7 @@ class TextileMasterSeeder extends Seeder
             ];
 
             if (!$product) {
-                $product = Product::create($data);
+                $product = Product::forceCreate($data);
             } else {
                 $product->forceFill($data)->save();
             }
@@ -606,7 +612,7 @@ class TextileMasterSeeder extends Seeder
                 'product_id' => $product->id,
                 'warehouse_id' => $warehouseId,
             ], [
-                'qty' => $item['stock'],
+                'qty' => $quantity,
                 'price' => $price,
                 'company_id' => $companyId,
             ]);

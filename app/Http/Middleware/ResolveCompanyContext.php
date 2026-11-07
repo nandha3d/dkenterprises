@@ -34,12 +34,6 @@ class ResolveCompanyContext
                 $this->id($request, 'X-Branch-ID', 'branch_id', $useSessionDependents),
                 $this->id($request, 'X-Financial-Year-ID', 'financial_year_id', $useSessionDependents),
             );
-        } catch (AuthorizationException $e) {
-            if (!$request->expectsJson() && $request->hasSession() && \Illuminate\Support\Facades\Route::has('company.select')) {
-                $request->session()->forget(['company_id', 'branch_id', 'financial_year_id']);
-                return redirect()->route('company.select')->with('status', 'Please select an active company to continue.');
-            }
-            throw $e;
         } catch (\App\Exceptions\CompanyFinancialYearSetupRequired $error) {
             $admin = $this->resolver->canManageFinancialYears($user->id, $error->companyId);
             if (!$request->expectsJson() && $admin) {

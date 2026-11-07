@@ -231,6 +231,22 @@
                         </div>
                     </div>
 
+                                        <!-- Sleek Item Search Strip (Positioned Above Items Table) -->
+                    <div class="table-search-strip" id="table-search-row">
+                        <div class="table-search-strip-inner">
+                            <span class="table-search-barcode-icon" title="Scan Barcode (Alt+I)">
+                                <i class="fa fa-barcode"></i>
+                            </span>
+                            <div class="table-search-input-wrap">
+                                <i class="fa fa-search table-search-icon"></i>
+                                <input type="text" id="lims_productcodeSearch" class="form-control" placeholder="Scan barcode or enter item code / name... (Alt+I)" autocomplete="off">
+                                <span class="table-search-f2-badge">Alt+I</span>
+                            </div>
+                            <div class="table-search-hint">
+                                <span class="d-none d-md-inline">&larr; Scan barcode or type above to add item to voucher. Press Enter to add.</span>
+                            </div>
+                        </div>
+                    </div>
                     <!-- Items Grid Table (Expands to bottom summary bar) -->
                     <div class="table-responsive u-flex-1-1-auto u-ovy-auto u-minh-200px u-h-100pct u-m-0">
                         <table class="desk-grid-table cozy table table-sm mb-0 u-w-100pct" id="order-table">
@@ -249,22 +265,6 @@
                                 </tr>
                             </thead>
                             <tbody id="order-table-body">
-                                <!-- Integrated In-Table Item Search Row -->
-                                <tr class="table-search-row" id="table-search-row">
-                                    <td class="u-ta-center u-va-middle u-w-36px">
-                                        <i class="fa fa-barcode u-fs-15px u-c-primary" title="Scan Barcode (Alt+I)"></i>
-                                    </td>
-                                    <td class="u-va-middle">
-                                        <div class="table-search-input-wrap">
-                                            <i class="fa fa-search u-pos-absolute u-left-9px u-top-50pct u-tf-translatey-50pct u-fs-11px u-c-primary u-pe-none"></i>
-                                            <input type="text" id="lims_productcodeSearch" class="form-control" placeholder="Scan barcode or enter item code / name... (Alt+I)" autocomplete="off">
-                                            <span class="table-search-f2-badge">Alt+I</span>
-                                        </div>
-                                    </td>
-                                    <td colspan="8" class="u-va-middle u-fs-11px u-c-primary-hover u-fst-italic">
-                                        <span class="d-none d-md-inline">&larr; Scan barcode or type above to add item to voucher. Press Enter to add.</span>
-                                    </td>
-                                </tr>
                                 <tr class="empty-placeholder-row">
                                     <td colspan="10" class="text-center text-muted py-4 u-fs-12px">
                                         No items added yet. Scan barcode or search above, or click "+ Add row".
@@ -286,7 +286,7 @@
                         <span class="text-muted d-none d-lg-inline u-fs-11px" id="remarks-summary-preview">Remarks: Add transport, LR and bale details</span>
                     </div>
 
-                    <div class="bottom-action-buttons">
+                    <div class="bottom-action-buttons standard-mode-actions">
                         <button type="button" class="btn btn-outline-secondary comm-bottom-btn" id="btn-form-discard">
                             <i class="dripicons-clockwise"></i> Discard
                         </button>
@@ -298,6 +298,21 @@
                         </button>
                         <button type="button" class="btn btn-outline-secondary comm-bottom-btn" id="btn-form-review">
                             Review
+                        </button>
+                    </div>
+
+                    <div class="bottom-action-buttons view-mode-actions" style="display:none;">
+                        <button type="button" class="btn btn-primary comm-bottom-btn comm-bottom-btn-primary" id="btn-view-to-edit" title="Switch to edit mode">
+                            <i class="dripicons-document-edit"></i> Edit this Bill
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary comm-bottom-btn" id="btn-view-to-duplicate" title="Duplicate as a new draft">
+                            <i class="dripicons-copy"></i> Duplicate
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary comm-bottom-btn" id="btn-view-to-print" title="Print this bill">
+                            <i class="dripicons-print"></i> Print
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary comm-bottom-btn" id="btn-view-close" title="Close view and start new bill">
+                            <i class="dripicons-cross"></i> Close View
                         </button>
                     </div>
 
@@ -473,14 +488,14 @@
                                     <i class="dripicons-document-edit"></i> Edit
                                 </a>
                                 @endunless
-                                <a href="javascript:void(0)" class="side-action-btn view btn-side-view" data-id="{{ $bill->id }}" title="View purchase details">
+                                <a href="javascript:void(0)" class="side-action-btn view btn-side-view" data-id="{{ $bill->id }}" title="View purchase details in single view">
                                     <i class="dripicons-preview"></i> View
+                                </a>
+                                <a href="javascript:void(0)" class="side-action-btn copy btn-side-copy" data-id="{{ $bill->id }}" title="Duplicate this purchase into a new draft in single view">
+                                    <i class="dripicons-copy"></i> Duplicate
                                 </a>
                                 <a href="javascript:void(0)" class="side-action-btn print btn-side-print" data-id="{{ $bill->id }}" title="Print purchase">
                                     <i class="dripicons-print"></i> Print
-                                </a>
-                                <a href="javascript:void(0)" class="side-action-btn copy btn-side-copy" data-id="{{ $bill->id }}" title="Copy this purchase into a new draft" hidden>
-                                    <i class="dripicons-copy"></i> Copy
                                 </a>
                                 @if($returnsTab && $bill->posted_at && !$bill->reversed_at)
                                 <a href="javascript:void(0)" class="side-action-btn edit btn-side-return" data-id="{{ $bill->id }}" title="Return goods or adjust value: make a debit note against this bill">
@@ -491,6 +506,19 @@
                                 <a href="{{ url('/commercial/purchase/'.$bill->id.'/reverse') }}" class="side-action-btn reverse" title="Reverse: cancel this purchase, its stock goes out and its journal is reversed; the bill stays in history" aria-label="Reverse purchase">
                                     <i class="dripicons-return"></i>
                                 </a>
+                                @endif
+                                @if(!$bill->reversed_at && $bill->posted_at && $bill->grand_total > $bill->paid_amount)
+                                @can('purchase-payment-add')
+                                <button type="button" class="btn btn-primary bill-payment-action side-payment-action add-payment"
+                                    data-toggle="modal" data-target="#add-payment"
+                                    data-id="{{ $bill->id }}"
+                                    data-reference="{{ $bill->reference_no }}"
+                                    data-party="{{ $supplierName }}"
+                                    data-due="{{ max(0, $bill->grand_total - $bill->paid_amount) }}"
+                                    title="Pay this supplier bill in popup">
+                                    <i class="dripicons-wallet" aria-hidden="true"></i> Add payment
+                                </button>
+                                @endcan
                                 @endif
                             </div>
                         </div>
@@ -536,7 +564,7 @@
                     <i class="dripicons-view-thumb mr-1"></i> ⇄ Split View
                 </button>
                 <button type="button" class="btn btn-sm btn-outline-success py-1 px-3 font-weight-bold" id="btn-fullwidth-new" title="Create New Purchase Bill">
-                    <i class="dripicons-plus"></i> New Purchase
+                    <i class="dripicons-plus"></i> + New Purchase
                 </button>
                 <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" id="toggle-filter" title="Toggle Filters">
                     <i class="dripicons-experiment"></i> Filter
@@ -838,47 +866,139 @@
     </div>
 </div>
 
-<!-- VIEW DETAILS MODAL -->
-<div id="purchase-details" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
-    <div role="document" class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="container mt-3 pb-2 border-bottom">
-            <div class="row">
-                <div class="col-md-6 d-print-none">
-                    <button id="print-btn" type="button" class="btn btn-default btn-sm"><i class="dripicons-print"></i> {{__('db.Print')}}</button>
+<!-- Modal: Purchase Details Preview (Neat & Beautiful Unified Voucher Card) -->
+<div id="purchase-details" tabindex="-1" role="dialog" aria-labelledby="purchaseDetailsLabel" aria-hidden="true" class="modal fade text-left">
+    <div role="document" class="modal-dialog voucher-modal-dialog">
+        <div class="voucher-preview-card">
+            <!-- Modal Header -->
+            <div class="voucher-preview-header">
+                <div class="voucher-header-main">
+                    <div class="voucher-icon-badge purchase">
+                        <i class="dripicons-download"></i>
+                    </div>
+                    <div>
+                        <h4 class="voucher-doc-title">
+                            <span>Purchase Bill</span>
+                            <span id="purchase-details-ref-badge" class="voucher-ref-badge">#REF</span>
+                        </h4>
+                        <div class="voucher-badges-strip">
+                            <span id="purchase-details-status-badge" class="badge badge-success">Received</span>
+                            <span id="purchase-details-date-text" class="text-muted small"></span>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6 d-print-none">
-                    <button type="button" id="close-btn" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
+                <div class="voucher-actions-toolbar">
+                    <a href="#" id="purchase-details-edit-btn" class="voucher-edit-btn" title="Open Full Bill in Edit Mode">
+                        <i class="dripicons-document-edit"></i> Edit Bill
+                    </a>
+                    <button type="button" id="purchase-print-btn" class="voucher-print-btn" title="Print Purchase Voucher">
+                        <i class="dripicons-print"></i> {{__('db.Print')}}
+                    </button>
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="close ml-2">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <div class="col-md-12">
-                    <h3 id="exampleModalLabel" class="modal-title text-center container-fluid">{{$general_setting->site_title}}</h3>
+            </div>
+
+            <!-- Modal Body -->
+            <div id="purchase-details-print-area" class="voucher-preview-body">
+                <!-- Two-column info cards -->
+                <div class="voucher-info-grid">
+                    <div class="voucher-info-card">
+                        <div class="voucher-info-card-title">
+                            <i class="dripicons-user-id text-primary"></i> Supplier (Billed From)
+                        </div>
+                        <div id="purchase-details-supplier-name" class="voucher-party-name">—</div>
+                        <div id="purchase-details-supplier-company" class="voucher-info-line text-muted"></div>
+                        <div id="purchase-details-supplier-gstin" class="voucher-info-line text-primary font-weight-bold" style="display: none;"></div>
+                        <div id="purchase-details-supplier-phone" class="voucher-info-line"></div>
+                        <div id="purchase-details-supplier-address" class="voucher-info-line"></div>
+                    </div>
+
+                    <div class="voucher-info-card">
+                        <div class="voucher-info-card-title">
+                            <i class="dripicons-clipboard text-primary"></i> Purchase &amp; Warehouse Details
+                        </div>
+                        <div class="voucher-meta-row">
+                            <span class="voucher-meta-label">Bill Date:</span>
+                            <span id="purchase-details-date-val" class="voucher-meta-val">—</span>
+                        </div>
+                        <div class="voucher-meta-row">
+                            <span class="voucher-meta-label">Receiving Godown:</span>
+                            <span id="purchase-details-warehouse-val" class="voucher-meta-val">—</span>
+                        </div>
+                        <div class="voucher-meta-row">
+                            <span class="voucher-meta-label">Godown Contact:</span>
+                            <span id="purchase-details-warehouse-phone" class="voucher-meta-val">—</span>
+                        </div>
+                        <div class="voucher-meta-row">
+                            <span class="voucher-meta-label">Recorded By:</span>
+                            <span id="purchase-details-user-val" class="voucher-meta-val">—</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-12 text-center">
-                    <i class="u-fs-15px">{{__('db.Purchase Details')}}</i>
+
+                <!-- Products Table -->
+                <div class="voucher-table-wrap">
+                    <table class="table voucher-items-table product-purchase-list">
+                        <thead>
+                            <tr>
+                                <th style="width: 45px;" class="text-center">#</th>
+                                <th>{{__('db.product')}}</th>
+                                <th style="width: 110px;">{{__('db.Batch No')}}</th>
+                                <th style="width: 95px;" class="text-right">Qty</th>
+                                <th style="width: 110px;" class="text-right">{{__('db.Unit Cost')}}</th>
+                                <th style="width: 110px;" class="text-right">{{__('db.Tax')}}</th>
+                                <th style="width: 95px;" class="text-right">{{__('db.Discount')}}</th>
+                                <th style="width: 120px;" class="text-right">{{__('db.Subtotal')}}</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <!-- Financial Totals & Notes -->
+                <div class="voucher-bottom-grid">
+                    <div class="voucher-notes-card">
+                        <div class="voucher-notes-title">
+                            <i class="dripicons-document text-muted"></i> Purchase Remarks &amp; Notes
+                        </div>
+                        <p id="purchase-details-notes-val" class="voucher-notes-text">No remarks recorded for this bill.</p>
+                    </div>
+
+                    <div class="voucher-totals-card">
+                        <div class="voucher-totals-row">
+                            <span>Total Items Cost:</span>
+                            <strong id="purchase-details-items-cost">₹0.00</strong>
+                        </div>
+                        <div class="voucher-totals-row">
+                            <span>Order Tax:</span>
+                            <span id="purchase-details-order-tax">₹0.00</span>
+                        </div>
+                        <div class="voucher-totals-row">
+                            <span>Order Discount:</span>
+                            <span id="purchase-details-order-discount">₹0.00</span>
+                        </div>
+                        <div class="voucher-totals-row">
+                            <span>Shipping / Freight:</span>
+                            <span id="purchase-details-shipping-cost">₹0.00</span>
+                        </div>
+                        <div class="voucher-totals-row grand-total-row">
+                            <span>Grand Total:</span>
+                            <span id="purchase-details-grand-total">₹0.00</span>
+                        </div>
+                        <div class="voucher-totals-row">
+                            <span>Paid Amount:</span>
+                            <span id="purchase-details-paid-amount" class="text-success font-weight-bold">₹0.00</span>
+                        </div>
+                        <div class="voucher-totals-row due-row" id="purchase-details-due-row">
+                            <span>Balance Due:</span>
+                            <span id="purchase-details-due-amount">₹0.00</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div id="purchase-content" class="modal-body"></div>
-        <br>
-        <div class="table-responsive document-lines px-3" tabindex="0" role="region" aria-label="{{__('db.Purchase Details')}}">
-            <table class="table table-bordered product-purchase-list">
-                <thead>
-                    <th>#</th>
-                    <th>{{__('db.product')}}</th>
-                    <th>{{__('db.Batch No')}}</th>
-                    <th>Qty</th>
-                    <th>{{__('db.Returned')}}</th>
-                    <th>{{__('db.Unit Cost')}}</th>
-                    <th>{{__('db.Tax')}}</th>
-                    <th>{{__('db.Discount')}}</th>
-                    <th>{{__('db.Subtotal')}}</th>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-        <div id="purchase-footer" class="modal-body"></div>
-      </div>
     </div>
 </div>
 
@@ -913,11 +1033,27 @@
 <div id="add-payment" tabindex="-1" role="dialog" aria-labelledby="addPaymentLabel" aria-hidden="true" class="modal fade text-left">
     <div role="document" class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 id="addPaymentLabel" class="modal-title font-weight-bold">{{__('db.Add Payment')}}</h5>
-                <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <h5 id="addPaymentLabel" class="modal-title font-weight-bold mb-0">{{__('db.Add Payment')}}</h5>
+                    <span id="add-payment-purchase-ref" class="badge badge-primary px-2 py-1 ml-2 font-weight-bold"></span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="{{ route('dues.index', ['tab' => 'purchases']) }}" id="modal-goto-due-page-btn-purchase" class="btn btn-outline-primary btn-sm font-weight-bold" target="_blank" title="Open in Payment & Due Management Command Center">
+                        <i class="fa fa-external-link mr-1"></i> Go to Payment & Due Page →
+                    </a>
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="close ml-2"><span aria-hidden="true">&times;</span></button>
+                </div>
             </div>
             <div class="modal-body">
+                <div class="p-2 mb-3 rounded bg-light border d-flex justify-content-between align-items-center" id="add-payment-purchase-info-bar">
+                    <div>
+                        <span class="text-muted small">Supplier:</span> <strong id="add-payment-supplier-name">—</strong>
+                    </div>
+                    <div>
+                        <span class="text-muted small">Outstanding Due:</span> <strong class="text-danger" id="add-payment-purchase-due-val">₹0.00</strong>
+                    </div>
+                </div>
                 {!! Form::open(['route' => 'purchase.add-payment', 'method' => 'post', 'class' => 'payment-form' ]) !!}
                 @if(config('commercial.enabled'))<input type="hidden" name="idempotency_key" value="{{ (string) Illuminate\Support\Str::uuid() }}">@endif
                     <div class="row">
@@ -1165,7 +1301,7 @@
 </div>
 
 <!-- Unified Executive Add Product Modal (Catalog Master) -->
-@include('backend.product.partials.quick_create_modal')
+@include('backend.product.partials.quick_create_modal', ['billUsage' => 'purchase'])
 
 <!-- Quick Create Category Modal (Inline) -->
 <div id="quick-create-category-modal" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade text-left u-z-1065">
@@ -1493,11 +1629,19 @@
     });
 
     // Register "Add Payment": the bill's id and due amount (restored after the command-center redesign dropped it).
-    $(document).on('click', 'table.purchase-list tbody .add-payment', function () {
+    $(document).on('click', 'table.purchase-list tbody .add-payment, .bill-payment-action.add-payment', function () {
         var due = parseFloat($(this).data('due')) || 0, $form = $('#add-payment');
+        var ref = $(this).data('reference') || '';
+        var party = $(this).data('party') || '';
         $form.find('input[name="purchase_id"]').val(String($(this).data('id')));
         $form.find('input[name="balance"], input[name="amount"], input[name="paying_amount"]').val(due.toFixed(2));
         $form.find('.change').text('0.00');
+        $form.find('#add-payment-purchase-ref').text(ref);
+        $form.find('#add-payment-supplier-name').text(party || 'Supplier');
+        $form.find('#add-payment-purchase-due-val').text('₹' + due.toLocaleString('en-IN', {minimumFractionDigits: 2}));
+        var dueUrl = "{{ route('dues.index', ['tab' => 'purchases']) }}";
+        if (ref) dueUrl += '&search=' + encodeURIComponent(ref);
+        $form.find('#modal-goto-due-page-btn-purchase').attr('href', dueUrl);
         $('#currency_id').val($(this).data('currency_id')); $('#exchange_rate').val(parseFloat($(this).data('exchange_rate')) || 1);
     });
 
@@ -1651,6 +1795,10 @@
 
     // --- Apply Selected Product to an Existing Table Row ---
     function applyProductToRow(tr, p) {
+        if (String(tr.find('.row-product-id').val()) !== String(p.id)) {
+            tr.removeAttr('data-tracking data-batch-id data-variant-id data-order-item-id data-order-batch-no data-material-item-id data-material-document-id data-material-unit-id data-material-base-factor');
+            tr.find('.row-batch-val, .row-expire-val, .row-imei-val').val('');
+        }
         tr.attr('data-product-id', p.id);
         tr.find('.row-product-id').val(p.id);
         tr.find('.row-product-code').val(p.code);
@@ -2529,7 +2677,7 @@
         formData.set('name', name);
         formData.set('code', code);
         formData.set('cost', cost);
-        formData.set('price', price);
+        formData.set('price', this.elements.product_usage.value === 'purchase' ? 0 : price);
         formData.set('unit_id', unitId || '');
         formData.set('sale_unit_id', $('#quick-item-sale-unit').val() || unitId || '');
         formData.set('purchase_unit_id', $('#quick-item-purchase-unit').val() || unitId || '');
@@ -3101,6 +3249,7 @@
             }
         });
 
+        // DataTables sums and filters
         function datatable_sum(dt_selector, is_calling_first) {
             var baseCol = (show_purchase_product_details == 1) ? 8 : 6;
             for (var c = baseCol; c <= baseCol + 3; c++) {
@@ -3118,18 +3267,62 @@
         $('#btn-quick-refresh').on('click', function() {
             purchaseTable.draw();
         });
+    }
 
-        // Clicking Edit on any row in DataTables switches to Voucher Entry mode and loads that bill
-        $(document).on('click', '#purchase-table a', function(e) {
+    // --- Global Row Action Listeners for Full View Register (Single View Setup: View, Edit, Duplicate) ---
+    $(document).on('click', '#purchase-table .btn-table-view, #purchase-table button.view, #purchase-table .view', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var id = $(this).data('id');
+        if (!id) {
+            var tr = $(this).closest('tr');
+            var rowData = $('#purchase-table').DataTable().row(tr).data();
+            id = rowData ? (rowData.id || (rowData.purchase && rowData.purchase[3])) : null;
+        }
+        if (id) {
+            openPurchaseDetailsModal(id);
+        }
+    });
+
+    $(document).on('click', '#purchase-table .btn-table-edit, #purchase-table a[href*="/edit"]', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var id = $(this).data('id');
+        if (!id) {
             var href = $(this).attr('href') || '';
             var match = href.match(/purchases\/(\d+)\/edit/);
-            if (match && match[1]) {
-                e.preventDefault();
-                switchWorkspaceMode('voucher');
-                loadPurchaseToForm(match[1]);
-            }
-        });
-    }
+            if (match && match[1]) id = match[1];
+        }
+        if (!id) {
+            var tr = $(this).closest('tr');
+            var rowData = $('#purchase-table').DataTable().row(tr).data();
+            id = rowData ? rowData.id : null;
+        }
+        if (id) {
+            switchWorkspaceMode('voucher');
+            loadPurchaseToForm(id, 'edit');
+        }
+    });
+
+    $(document).on('click', '#purchase-table .btn-table-duplicate, #purchase-table a[href*="/duplicate"]', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var id = $(this).data('id');
+        if (!id) {
+            var href = $(this).attr('href') || '';
+            var match = href.match(/purchases\/duplicate\/(\d+)/);
+            if (match && match[1]) id = match[1];
+        }
+        if (!id) {
+            var tr = $(this).closest('tr');
+            var rowData = $('#purchase-table').DataTable().row(tr).data();
+            id = rowData ? rowData.id : null;
+        }
+        if (id) {
+            switchWorkspaceMode('voucher');
+            loadPurchaseToForm(id, 'duplicate');
+        }
+    });
 
     // --- Auto-retract all dropdowns when clicking anywhere outside ---
     $(document).on('click', function(e) {
@@ -3156,8 +3349,17 @@
         $('.bootstrap-select.show, .dropdown.show').not($(e.target).closest('.bootstrap-select, .dropdown')).removeClass('show open').find('.dropdown-menu.show').removeClass('show');
     });
 
-    // --- Load Purchase To Form for In-Place Editing ---
-    window.loadPurchaseToForm = function(id) {
+    var currentLoadedPurchaseId = null;
+
+    // --- Load Purchase To Form: Unified Single View Setup (View, Edit, Duplicate) ---
+    window.loadPurchaseToForm = function(id, mode) {
+        mode = mode || 'edit';
+        currentLoadedPurchaseId = id;
+
+        if ($('#fullwidth-register-view').is(':visible')) {
+            switchWorkspaceMode('voucher');
+        }
+
         $('#comm-split-grid').removeClass('panel-fullwidth');
         $('#fullscreen-icon').text('⛶');
         $('#fullscreen-tooltip').text('Full Width');
@@ -3177,21 +3379,64 @@
                 }
 
                 var p = res.purchase;
-                // Switch Form to Update Mode
-                $('#entry-form-method').val('PUT');
-                $('#edit-purchase-id').val(p.id);
-                $('#purchase-entry-form').attr('action', '{{ url("purchases") }}/' + p.id);
 
-                // Update UI Labels
-                $('#doc-breadcrumb-mode').text('Edit: ' + (p.reference_no || '#' + p.id)).removeClass('text-primary').addClass('text-success');
-                $('#doc-title-text').text((Number(p.status) === 4 ? 'Edit Purchase Order: ' : 'Edit Purchase Bill: ') + (p.reference_no || '#' + p.id));
-                $('#doc-sub-text').text('Editing saved purchase record');
+                if (mode === 'view') {
+                    // --- Single View Setup: View Mode (Read-Only Preview in Desk, No Dialog Box) ---
+                    $('#entry-form-method').val('GET');
+                    $('#edit-purchase-id').val(p.id);
+                    $('#purchase-entry-form').attr('action', 'javascript:void(0)');
+
+                    $('#doc-breadcrumb-mode').text('View: ' + (p.reference_no || '#' + p.id))
+                        .removeClass('badge-primary badge-success').addClass('badge-info');
+                    $('#doc-title-text').text((Number(p.status) === 4 ? 'View Purchase Order: ' : 'View Purchase Bill: ') + (p.reference_no || '#' + p.id));
+                    $('#doc-sub-text').text('Viewing purchase record (Single View Mode)');
+
+                    $('#comm-entry-workspace').addClass('is-view-mode');
+                    $('.standard-mode-actions').hide();
+                    $('.view-mode-actions').show();
+                } else if (mode === 'duplicate') {
+                    // --- Single View Setup: Duplicate Mode (Clone into New Bill) ---
+                    $('#entry-form-method').val('POST');
+                    $('#edit-purchase-id').val('');
+                    $('#purchase-entry-form').attr('action', '{{ route("purchases.store") }}');
+
+                    $('#doc-breadcrumb-mode').text('New (Duplicate)')
+                        .removeClass('badge-success badge-info').addClass('badge-primary');
+                    $('#doc-title-text').text('New Purchase Bill (Copy of ' + (p.reference_no || '#' + p.id) + ')');
+                    $('#doc-sub-text').text('Duplicate purchase • Review and save as new bill');
+
+                    $('#comm-entry-workspace').removeClass('is-view-mode');
+                    $('.view-mode-actions').hide();
+                    $('.standard-mode-actions').show();
+                } else {
+                    // --- Single View Setup: Edit Mode (Update Saved Record) ---
+                    $('#entry-form-method').val('PUT');
+                    $('#edit-purchase-id').val(p.id);
+                    $('#purchase-entry-form').attr('action', '{{ url("purchases") }}/' + p.id);
+
+                    $('#doc-breadcrumb-mode').text('Edit: ' + (p.reference_no || '#' + p.id))
+                        .removeClass('badge-primary badge-info').addClass('badge-success');
+                    $('#doc-title-text').text((Number(p.status) === 4 ? 'Edit Purchase Order: ' : 'Edit Purchase Bill: ') + (p.reference_no || '#' + p.id));
+                    $('#doc-sub-text').text('Editing saved purchase record');
+
+                    $('#comm-entry-workspace').removeClass('is-view-mode');
+                    $('.view-mode-actions').hide();
+                    $('.standard-mode-actions').show();
+                }
 
                 // Populate Header Inputs
-                $('#reference_no').val(p.reference_no || '');
-                $('#supplier_invoice_no').val(p.supplier_invoice_no || '');
-                if (p.supplier_invoice_date) $('#supplier_invoice_date').val(p.supplier_invoice_date.slice(0, 10));
-                if (res.business_date || p.created_at) $('#created_at').val(res.business_date || p.created_at.slice(0, 10));
+                if (mode === 'duplicate') {
+                    $('#reference_no').val('');
+                    $('#supplier_invoice_no').val(p.supplier_invoice_no ? p.supplier_invoice_no + ' (Copy)' : '');
+                    var today = '{{ date("Y-m-d") }}';
+                    $('#supplier_invoice_date').val(today);
+                    $('#created_at').val(today);
+                } else {
+                    $('#reference_no').val(p.reference_no || '');
+                    $('#supplier_invoice_no').val(p.supplier_invoice_no || '');
+                    if (p.supplier_invoice_date) $('#supplier_invoice_date').val(p.supplier_invoice_date.slice(0, 10));
+                    if (res.business_date || p.created_at) $('#created_at').val(res.business_date || p.created_at.slice(0, 10));
+                }
                 
                 $('#supplier_id').val(p.supplier_id).trigger('change');
                 $('.selectpicker').selectpicker('refresh');
@@ -3203,8 +3448,12 @@
                 }
 
                 // Highlight active card in side list
-                $('.side-bill-card').removeClass('active-editing');
-                $('.side-bill-card[data-bill-id="' + id + '"]').addClass('active-editing');
+                $('.side-bill-card').removeClass('active-editing active-viewing');
+                if (mode === 'view') {
+                    $('.side-bill-card[data-bill-id="' + id + '"]').addClass('active-viewing');
+                } else {
+                    $('.side-bill-card[data-bill-id="' + id + '"]').addClass('active-editing');
+                }
 
                 // Populate Items
                 $('#order-table-body .order-item-row, #order-table-body .empty-placeholder-row').remove();
@@ -3226,8 +3475,34 @@
                     reindexRows();
                 }
 
+                // Populate drawer / charges
+                if (p.note) {
+                    $('#drawer-note, #hidden-note').val(p.note);
+                    $('#remarks-summary-preview').text('Remarks: ' + p.note.slice(0, 40) + (p.note.length > 40 ? '...' : ''));
+                }
+                if (p.shipping_cost) {
+                    $('#drawer-shipping-cost, #hidden-shipping-cost').val(p.shipping_cost);
+                }
+                if (p.order_discount) {
+                    $('#drawer-order-discount, #hidden-order-discount').val(p.order_discount);
+                }
+                var attr = p.attributes_json;
+                if (typeof attr === 'string') { try { attr = JSON.parse(attr); } catch(e){ attr = {}; } }
+                if (attr) {
+                    if (attr.bale_no) $('#drawer-bale-no, #hidden-bale-no').val(attr.bale_no);
+                    if (attr.no_of_bales) $('#drawer-no-of-bales, #hidden-no-of-bales').val(attr.no_of_bales);
+                    if (attr.bundle_count) $('#drawer-bundle-count, #hidden-bundle-count').val(attr.bundle_count);
+                    if (attr.vehicle_number) $('#drawer-vehicle-number, #hidden-vehicle-number').val(attr.vehicle_number);
+                    if (attr.lr_no) $('#drawer-lr-no, #hidden-lr-no').val(attr.lr_no);
+                    if (attr.lr_date) $('#drawer-lr-date, #hidden-lr-date').val(attr.lr_date);
+                    if (attr.transporter_name) $('#drawer-transporter-name, #hidden-transporter-name').val(attr.transporter_name);
+                    if (attr.station_to) $('#drawer-station-to, #hidden-station-to').val(attr.station_to);
+                    if (attr.order_no) $('#drawer-order-no, #hidden-order-no').val(attr.order_no);
+                    if (attr.credit_days) setCreditDays(attr.credit_days);
+                }
+
                 recalcTableSummary();
-                $(document).trigger("command-center-loaded", [res.purchase]);
+                $(document).trigger("command-center-loaded", [res.purchase, mode]);
 
                 // Scroll smoothly to top of form
                 $('#comm-entry-workspace').animate({ scrollTop: 0 }, 200);
@@ -3241,15 +3516,20 @@
 
     // --- Reset Form to Blank New Purchase ---
     window.resetFormToNew = function() {
+        currentLoadedPurchaseId = null;
         $('#comm-split-grid').removeClass('panel-fullwidth');
         $('#fullscreen-icon').text('⛶');
         $('#fullscreen-tooltip').text('Full Width');
+
+        $('#comm-entry-workspace').removeClass('is-view-mode');
+        $('.view-mode-actions').hide();
+        $('.standard-mode-actions').show();
 
         $('#entry-form-method').val('POST');
         $('#edit-purchase-id').val('');
         $('#purchase-entry-form').attr('action', '{{ route("purchases.store") }}');
 
-        $('#doc-breadcrumb-mode').text('New').removeClass('text-success').addClass('text-primary');
+        $('#doc-breadcrumb-mode').text('New').removeClass('badge-success badge-info').addClass('badge-primary');
         $('#doc-title-text').text('New Purchase Bill');
         $('#doc-sub-text').text('Purchase • New bill');
 
@@ -3261,7 +3541,7 @@
         $('.selectpicker').selectpicker('refresh');
         $('#purchase_type_id').val('0');
 
-        $('.side-bill-card').removeClass('active-editing');
+        $('.side-bill-card').removeClass('active-editing active-viewing');
         $('#order-table-body .order-item-row, #order-table-body .empty-placeholder-row').remove();
         $productSearch.val('');
         rowCounter = 0;
@@ -3277,18 +3557,60 @@
         resetFormToNew();
     });
 
-    // Card click & edit button click
+    // View Mode Interactive Transition Handlers
+    $(document).on('click', '#btn-view-to-edit', function(e) {
+        e.preventDefault();
+        if (currentLoadedPurchaseId) {
+            loadPurchaseToForm(currentLoadedPurchaseId, 'edit');
+        }
+    });
+
+    $(document).on('click', '#btn-view-to-duplicate', function(e) {
+        e.preventDefault();
+        if (currentLoadedPurchaseId) {
+            loadPurchaseToForm(currentLoadedPurchaseId, 'duplicate');
+        }
+    });
+
+    $(document).on('click', '#btn-view-to-print', function(e) {
+        e.preventDefault();
+        if (currentLoadedPurchaseId) {
+            window.open('{{ url("purchases/gen_invoice") }}/' + currentLoadedPurchaseId, '_blank');
+        }
+    });
+
+    $(document).on('click', '#btn-view-close', function(e) {
+        e.preventDefault();
+        resetFormToNew();
+    });
+
+    // Side bill list card actions: View, Edit, Duplicate in Single View Setup
     $(document).on('click', '.side-bill-card', function(e) {
         if ($(this).data('reversed')) return;
-        if ($(e.target).closest('.side-action-btn.view, .side-action-btn.print, .side-action-btn.reverse').length) return;
+        if ($(e.target).closest('a, button').length) return;
         var id = $(this).data('bill-id');
-        if (id) loadPurchaseToForm(id);
+        if (id) loadPurchaseToForm(id, 'view');
+    });
+
+    $(document).on('click', '.btn-side-view', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var id = $(this).data('id');
+        if (id) loadPurchaseToForm(id, 'view');
     });
 
     $(document).on('click', '.btn-side-load-edit', function(e) {
+        e.preventDefault();
         e.stopPropagation();
         var id = $(this).data('id');
-        if (id) loadPurchaseToForm(id);
+        if (id) loadPurchaseToForm(id, 'edit');
+    });
+
+    $(document).on('click', '.btn-side-copy', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var id = $(this).data('id');
+        if (id) loadPurchaseToForm(id, 'duplicate');
     });
 
     // --- Slideover Drawer Handlers ---
@@ -3540,8 +3862,275 @@
         switchWorkspaceMode('register');
     }
 
+    // --- Check URL query params for initial load in Single View Setup (Edit, View, Duplicate) ---
+    var editParam = urlParams.get('edit');
+    var viewParam = urlParams.get('view_id') || urlParams.get('show_bill');
+    var duplicateParam = urlParams.get('duplicate');
+
+    if (editParam) {
+        loadPurchaseToForm(editParam, 'edit');
+    } else if (viewParam) {
+        loadPurchaseToForm(viewParam, 'view');
+    } else if (duplicateParam) {
+        loadPurchaseToForm(duplicateParam, 'duplicate');
+    } else if (searchParam) {
+        $('#side-search-input').val(searchParam);
+        filterSideBills();
+        var $exactCard = $('.side-bill-card').filter(function() {
+            var ref = String($(this).data('reference') || '').toLowerCase();
+            return ref === searchParam.toLowerCase();
+        }).first();
+        if ($exactCard.length) {
+            $exactCard.trigger('click');
+        }
+    }
+
+    // --- Detailed Purchase Bill Modal (Neat & Beautiful Preview with Live Server Fetch & Edit Option) ---
+    window.openPurchaseDetailsModal = function(purchaseOrId) {
+        if (!purchaseOrId) return;
+
+        // Resolve purchaseId from number, string, object or array
+        var purchaseId = null;
+        if (typeof purchaseOrId === 'number' || (typeof purchaseOrId === 'string' && /^\d+$/.test(purchaseOrId.trim()))) {
+            purchaseId = parseInt(purchaseOrId, 10);
+        } else if (typeof purchaseOrId === 'object' && purchaseOrId !== null) {
+            if (purchaseOrId.id) {
+                purchaseId = parseInt(purchaseOrId.id, 10);
+            } else if (Array.isArray(purchaseOrId)) {
+                var rawId = purchaseOrId[3] || '';
+                var m = String(rawId).replace(/[^0-9]/g, '');
+                if (m) purchaseId = parseInt(m, 10);
+            }
+        } else if (typeof purchaseOrId === 'string') {
+            try {
+                var parsed = JSON.parse(purchaseOrId);
+                return window.openPurchaseDetailsModal(parsed);
+            } catch (e) {
+                var m = purchaseOrId.replace(/[^0-9]/g, '');
+                if (m) purchaseId = parseInt(m, 10);
+            }
+        }
+
+        if (!purchaseId) {
+            console.error('Could not resolve purchase ID for modal', purchaseOrId);
+            return;
+        }
+
+        // Show modal immediately with loading indicators
+        $('#purchase-details-ref-badge').text('Loading...');
+        $('#purchase-details-status-badge').text('...');
+        $('#purchase-details-date-text').text('');
+        $('#purchase-details-supplier-name').text('Loading supplier details...');
+        $('#purchase-details-supplier-company').hide();
+        $('#purchase-details-supplier-gstin').hide();
+        $('#purchase-details-supplier-phone').hide();
+        $('#purchase-details-supplier-address').hide();
+        $('#purchase-details-date-val').text('—');
+        $('#purchase-details-warehouse-val').text('—');
+        $('#purchase-details-warehouse-phone').text('—');
+        $('#purchase-details-user-val').text('—');
+        $('#purchase-details table.product-purchase-list tbody').html(
+            '<tr><td colspan="8" class="text-center text-muted py-3"><i class="fa fa-spinner fa-spin mr-1"></i> Loading items...</td></tr>'
+        );
+        $('#purchase-details-items-cost').text('₹0.00');
+        $('#purchase-details-order-tax').text('₹0.00');
+        $('#purchase-details-order-discount').text('₹0.00');
+        $('#purchase-details-shipping-cost').text('₹0.00');
+        $('#purchase-details-grand-total').text('₹0.00');
+        $('#purchase-details-paid-amount').text('₹0.00');
+        $('#purchase-details-due-amount').text('₹0.00');
+        $('#purchase-details-notes-val').text('Loading...');
+        $('#purchase-details').modal('show');
+
+        // Fetch live authoritative purchase JSON
+        $.ajax({
+            url: "{{ url('purchases') }}/" + purchaseId,
+            type: "GET",
+            dataType: "json",
+            headers: { "X-Requested-With": "XMLHttpRequest", "Accept": "application/json" },
+            success: function(res) {
+                if (!res || !res.purchase) {
+                    $('#purchase-details-ref-badge').text('Error');
+                    $('#purchase-details table.product-purchase-list tbody').html(
+                        '<tr><td colspan="8" class="text-center text-danger py-3">Failed to load purchase details.</td></tr>'
+                    );
+                    return;
+                }
+
+                var p = res.purchase;
+                var ref = p.reference_no || ('#' + p.id);
+                var statusMap = { 1: 'Received', 2: 'Partial', 3: 'Pending', 4: 'Ordered' };
+                var statusText = statusMap[p.status] || (p.status == 1 ? 'Received' : 'Ordered');
+                var rawDate = res.business_date || (p.created_at ? p.created_at.split('T')[0] : '');
+                var formattedDate = rawDate;
+                if (rawDate && rawDate.indexOf('-') > -1) {
+                    var dp = rawDate.split('-');
+                    if (dp.length === 3) formattedDate = dp[2] + '-' + dp[1] + '-' + dp[0];
+                }
+
+                // Header & Edit Button
+                $('#purchase-details-ref-badge').text(ref);
+                $('#purchase-details-status-badge').text(statusText);
+                $('#purchase-details-date-text').text(formattedDate);
+                var editUrl = "{{ url('purchases') }}/" + p.id + "/edit";
+                $('#purchase-details-edit-btn').attr('href', editUrl);
+
+                // Supplier Card
+                var s = p.supplier || {};
+                var supplierName = s.name || 'Walk-in / Cash Supplier';
+                var supplierCompany = s.company_name || '';
+                var supplierGstin = s.vat_number || s.tax_no || '';
+                var supplierPhone = s.phone_number ? ('📞 ' + s.phone_number) : '';
+                var addressParts = [s.address, s.city, s.postal_code].filter(Boolean);
+                var supplierAddress = addressParts.length ? ('📍 ' + addressParts.join(', ')) : '';
+
+                $('#purchase-details-supplier-name').text(supplierName);
+                if (supplierCompany) {
+                    $('#purchase-details-supplier-company').text('Company: ' + supplierCompany).show();
+                } else {
+                    $('#purchase-details-supplier-company').hide();
+                }
+                if (supplierGstin) {
+                    $('#purchase-details-supplier-gstin').text('GSTIN: ' + supplierGstin).show();
+                } else {
+                    $('#purchase-details-supplier-gstin').hide();
+                }
+                if (supplierPhone) {
+                    $('#purchase-details-supplier-phone').text(supplierPhone).show();
+                } else {
+                    $('#purchase-details-supplier-phone').hide();
+                }
+                if (supplierAddress) {
+                    $('#purchase-details-supplier-address').text(supplierAddress).show();
+                } else {
+                    $('#purchase-details-supplier-address').hide();
+                }
+
+                // Warehouse & Metadata Card
+                var w = p.warehouse || {};
+                var warehouseName = w.name || 'Main Godown';
+                var warehousePhone = w.phone || w.email || '—';
+                var userName = (p.user && p.user.name) ? p.user.name : 'Admin';
+
+                $('#purchase-details-date-val').text(formattedDate || '—');
+                $('#purchase-details-warehouse-val').text(warehouseName);
+                $('#purchase-details-warehouse-phone').text(warehousePhone);
+                $('#purchase-details-user-val').text(userName);
+
+                // Items Table (8 Columns 1:1)
+                var $tbody = $('#purchase-details table.product-purchase-list tbody');
+                $tbody.empty();
+                var items = res.items || [];
+                var itemsCostTotal = 0;
+
+                if (items.length > 0) {
+                    items.forEach(function(item, idx) {
+                        var name = item.product_name || 'Product';
+                        var code = item.product_code || '';
+                        var batch = item.batch_no ? item.batch_no : '—';
+                        var qty = Number(item.qty || 0);
+                        var unit = item.unit_code || 'PCS';
+                        var unitCost = Number(item.net_unit_cost || (qty > 0 ? (item.total / qty) : 0));
+                        var tax = Number(item.tax || 0);
+                        var taxRate = Number(item.tax_rate || 0);
+                        var discount = Number(item.discount || 0);
+                        var subtotal = Number(item.total || 0);
+                        itemsCostTotal += subtotal;
+
+                        var rowHtml = '<tr>' +
+                            '<td class="text-center align-middle">' + (idx + 1) + '</td>' +
+                            '<td class="align-middle">' +
+                                '<div class="font-weight-bold text-dark">' + name + '</div>' +
+                                (code ? '<span class="badge badge-light border text-muted mt-1">' + code + '</span>' : '') +
+                            '</td>' +
+                            '<td class="align-middle">' +
+                                (batch !== '—' ? '<span class="badge badge-secondary px-2 py-1">' + batch + '</span>' : '<span class="text-muted">—</span>') +
+                            '</td>' +
+                            '<td class="text-right align-middle"><span class="badge badge-info px-2 py-1 font-weight-bold">' + qty + ' ' + unit + '</span></td>' +
+                            '<td class="text-right align-middle font-weight-bold">₹' + unitCost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '</td>' +
+                            '<td class="text-right align-middle">₹' + tax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + (taxRate > 0 ? ' <small class="text-muted">(' + taxRate + '%)</small>' : '') + '</td>' +
+                            '<td class="text-right align-middle">₹' + discount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '</td>' +
+                            '<td class="text-right align-middle font-weight-bold text-primary">₹' + subtotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '</td>' +
+                            '</tr>';
+                        $tbody.append(rowHtml);
+                    });
+                } else {
+                    $tbody.html('<tr><td colspan="8" class="text-center text-muted py-3">No products recorded on this voucher.</td></tr>');
+                }
+
+                // Financial Totals
+                var totalCost = Number(p.total_cost || itemsCostTotal || 0);
+                var orderTax = Number(p.order_tax || 0);
+                var orderTaxRate = Number(p.order_tax_rate || 0);
+                var orderDiscount = Number(p.order_discount || 0);
+                var shippingCost = Number(p.shipping_cost || 0);
+                var grandTotal = Number(p.grand_total || (totalCost + orderTax + shippingCost - orderDiscount));
+                var paidAmount = Number(p.paid_amount || 0);
+                var dueAmount = Math.max(0, grandTotal - paidAmount);
+
+                $('#purchase-details-items-cost').text('₹' + totalCost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                $('#purchase-details-order-tax').text('₹' + orderTax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + (orderTaxRate > 0 ? ' (' + orderTaxRate + '%)' : ''));
+                $('#purchase-details-order-discount').text('₹' + orderDiscount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                $('#purchase-details-shipping-cost').text('₹' + shippingCost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                $('#purchase-details-grand-total').text('₹' + grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                $('#purchase-details-paid-amount').text('₹' + paidAmount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                $('#purchase-details-due-amount').text('₹' + dueAmount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+
+                if (dueAmount > 0.01) {
+                    $('#purchase-details-due-row').removeClass('settled').addClass('has-due');
+                } else {
+                    $('#purchase-details-due-row').removeClass('has-due').addClass('settled');
+                }
+
+                var note = (p.note || '').trim();
+                $('#purchase-details-notes-val').text(note || 'No remarks recorded for this bill.');
+            },
+            error: function() {
+                $('#purchase-details-ref-badge').text('Error');
+                $('#purchase-details table.product-purchase-list tbody').html(
+                    '<tr><td colspan="8" class="text-center text-danger py-3">Unable to retrieve bill data from server.</td></tr>'
+                );
+            }
+        });
+    };
+
+    // Click handler for Action > View on datatable rows and cards
+    $(document).on('click', 'table.purchase-list tbody .view, #purchase-table tbody .view, .purchase-link .view', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var id = $(this).data('id');
+        if (!id) {
+            var tr = $(this).closest('tr');
+            id = tr.data('id') || tr.attr('data-id');
+            if (!id) {
+                var rowData = $('#purchase-table').DataTable().row(tr).data();
+                id = rowData ? (rowData.id || (rowData.purchase && rowData.purchase[3])) : null;
+            }
+        }
+        if (id) {
+            openPurchaseDetailsModal(id);
+        } else {
+            var purchaseData = $(this).closest('tr').data('purchase') || $(this).closest('tr').attr('data-purchase');
+            if (purchaseData) openPurchaseDetailsModal(purchaseData);
+        }
+    });
+
+    // Print button handler
+    $(document).on('click', '#purchase-print-btn', function() {
+        var printArea = document.getElementById('purchase-details-print-area');
+        var ref = $('#purchase-details-ref-badge').text() || 'Voucher';
+        var printWindow = window.open('', 'Print-Window');
+        printWindow.document.open();
+        printWindow.document.write('<html><head><title>Purchase Bill ' + ref + '</title>' +
+            '<link rel="stylesheet" href="{{ asset("vendor/bootstrap/css/bootstrap.min.css") }}">' +
+            '<link rel="stylesheet" href="{{ versioned_asset("css/pages/voucher-preview-modal.css") }}">' +
+            '</head><body onload="window.print()">' + printArea.innerHTML + '</body></html>');
+        printWindow.document.close();
+        setTimeout(function() { printWindow.close(); }, 500);
+    });
+
     initPanelState();
-    window.commandCenterGrid = {addProductRow, resetFormToNew, recalcTableSummary, switchWorkspaceMode, products: allProducts};
+    window.commandCenterGrid = {addProductRow, applyProductToRow, resetFormToNew, recalcTableSummary, switchWorkspaceMode, products: allProducts};
 })();
 </script>
 @include('backend.partials.gst-entry', ['kind' => 'purchase'])
@@ -3550,6 +4139,7 @@
 @include('backend.partials.command-center-form', ['kind' => 'purchase'])
 
 @push('css')
+    <link rel="stylesheet" href="{{ versioned_asset('css/pages/voucher-preview-modal.css') }}">
     <link rel="stylesheet" href="{{ versioned_asset('css/pages/shared-purchase-index.css') }}">
     @if($returnsTab)<link rel="stylesheet" href="{{ versioned_asset('css/pages/commercial-returns.css') }}">@endif
     <link rel="stylesheet" href="<?php echo asset('css/commercial-entry.css') . '?v=' . (file_exists(public_path('css/commercial-entry.css')) ? filemtime(public_path('css/commercial-entry.css')) : time()) ?>" type="text/css">

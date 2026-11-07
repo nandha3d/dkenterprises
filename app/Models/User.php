@@ -28,4 +28,10 @@ class User extends Authenticatable
     public function holiday() {
         return $this->hasMany('App\Models\Holiday');
     }
+
+    public function companies(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Company::class, 'company_user')
+            ->withPivot(['is_default', 'role_id_override'])->withTimestamps();
+    }
 }

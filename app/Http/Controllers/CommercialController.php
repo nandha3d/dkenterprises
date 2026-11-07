@@ -475,6 +475,7 @@ class CommercialController extends Controller
     public function quickStoreProduct(Request $request)
     {
         $validated = $request->validate([
+            'product_usage' => Product::USAGE_RULE,
             'name' => 'required|string|max:255',
             'code' => 'nullable|string|max:100',
             'type' => 'nullable|string',
@@ -526,14 +527,6 @@ class CommercialController extends Controller
             'imei_number' => 'nullable|array',
             'variant_option' => 'nullable|array',
             'variant_value' => 'nullable|array',
-            'is_water_logistics' => 'nullable|boolean',
-            'water_vertical_type' => 'nullable|string',
-            'water_capacity_spec' => 'nullable|string',
-            'water_compartment_config' => 'nullable|string',
-            'base_km_limit' => 'nullable|numeric',
-            'excess_km_rate' => 'nullable|numeric',
-            'motor_pump_rate' => 'nullable|numeric',
-            'waiting_charge_rate' => 'nullable|numeric',
         ]);
 
         $context = $request->attributes->get(CompanyContext::class) ?? abort(409, 'Choose a company first.');
@@ -545,7 +538,7 @@ class CommercialController extends Controller
         $name = trim($validated['name']);
         $code = !empty($validated['code']) ? trim($validated['code']) : ('ITM-' . mt_rand(100000, 999999));
         $cost = isset($validated['cost']) ? (float)$validated['cost'] : 0;
-        $price = isset($validated['price']) && $validated['price'] !== '' ? (float)$validated['price'] : ($cost > 0 ? $cost : 0);
+        $price = (float) ($validated['price'] ?? (($validated['product_usage'] ?? null) === 'purchase' ? 0 : $cost));
         $type = !empty($validated['type']) ? strtolower(trim($validated['type'])) : 'standard';
         $barcodeSymbology = !empty($validated['barcode_symbology']) ? trim($validated['barcode_symbology']) : 'C128';
         if (!empty($validated['hsn_code'])) {
@@ -610,18 +603,10 @@ class CommercialController extends Controller
             'is_imei' => !empty($validated['is_imei']) ? 1 : 0,
             'featured' => !empty($validated['featured']) ? 1 : 0,
             'is_embeded' => !empty($validated['is_embeded']) ? 1 : 0,
-            'is_water_logistics' => !empty($validated['is_water_logistics']) ? 1 : 0,
-            'water_vertical_type' => $validated['water_vertical_type'] ?? null,
-            'water_capacity_spec' => $validated['water_capacity_spec'] ?? null,
-            'water_compartment_config' => $validated['water_compartment_config'] ?? null,
-            'base_km_limit' => $validated['base_km_limit'] ?? 10.0,
-            'excess_km_rate' => $validated['excess_km_rate'] ?? 45.0,
-            'motor_pump_rate' => $validated['motor_pump_rate'] ?? 10.0,
-            'waiting_charge_rate' => $validated['waiting_charge_rate'] ?? 15.0,
             'product_details' => $validated['product_details'] ?? null,
             'qty' => 0,
             'is_active' => 1,
-        ], $validated, $context);
+        ] + array_intersect_key($validated, ['product_usage' => true]), $validated, $context);
 
         // Extended promotional pricing
         if (!empty($validated['promotion'])) {

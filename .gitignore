@@ -21,14 +21,8 @@
 !/storage/framework/sessions/.gitignore
 !/storage/framework/views/.gitignore
 !/storage/logs/.gitignore
-/bootstrap/cache/*.php
-/bootstrap/cache/*.tmp
-!/bootstrap/cache/.gitignore
 /vendor
 *.zip
-*.apk
-/public/downloads/*
-!/public/downloads/.gitkeep
 .env
 .env.backup
 .phpunit.result.cache
@@ -42,6 +36,8 @@ yarn-error.log
 /public/stock_count
 # Local database dumps never belong in the repository
 /database/backups/
+*.apk
+/public/downloads/*.apk
 
 # Playwright temp run outputs
 /test-results/

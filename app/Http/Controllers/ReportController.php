@@ -18,6 +18,7 @@ use App\Models\Product;
 use App\Models\Returns;
 use App\Models\Variant;
 use App\Models\Customer;
+use App\Models\Company;
 use App\Models\Purchase;
 use App\Models\Supplier;
 use App\Models\Transfer;
@@ -3364,8 +3365,221 @@ class ReportController extends Controller
             $start_date = date("Y-m-d", strtotime(date('Y-m-d', strtotime('-1 year', strtotime(date('Y-m-d') )))));
             $end_date = date("Y-m-d");
         }
+        $transaction_type = $request->input('transaction_type', 'all');
         $lims_customer_list = Customer::where('is_active', true)->get();
-        return view('backend.report.customer_report',compact('start_date', 'end_date', 'customer_id', 'lims_customer_list'));
+        if(!$customer_id && $lims_customer_list->isNotEmpty()) {
+            $firstCustomer = $lims_customer_list->firstWhere('type', '!=', 'walkin') ?? $lims_customer_list->first();
+            $customer_id = $firstCustomer?->id;
+        }
+        $ledgerData = $this->getCustomerLedgerData($customer_id, $start_date, $end_date, $transaction_type);
+        return view('backend.report.customer_report',compact('start_date', 'end_date', 'customer_id', 'lims_customer_list', 'ledgerData', 'transaction_type'));
+    }
+
+    public function getCustomerLedgerData($customerId, $startDate, $endDate, $transactionType = 'all')
+    {
+        $customer = Customer::find($customerId);
+        if (!$customer) {
+            return [
+                'party' => null,
+                'opening_balance' => 0.0,
+                'total_debit' => 0.0,
+                'total_credit' => 0.0,
+                'closing_balance' => 0.0,
+                'items' => collect(),
+            ];
+        }
+
+        $regOpening = (float) ($customer->opening_balance ?? 0);
+
+        $priorSales = DB::table('sales')
+            ->where('customer_id', $customerId)
+            ->whereNull('deleted_at')
+            ->whereDate('created_at', '<', $startDate)
+            ->sum('grand_total');
+
+        $priorPayments = DB::table('payments')
+            ->join('sales', 'payments.sale_id', '=', 'sales.id')
+            ->where('sales.customer_id', $customerId)
+            ->whereNull('sales.deleted_at')
+            ->whereDate('payments.created_at', '<', $startDate)
+            ->sum('payments.amount');
+
+        $priorReturns = DB::table('returns')
+            ->where('customer_id', $customerId)
+            ->whereDate('created_at', '<', $startDate)
+            ->sum('grand_total');
+
+        $priorDeposits = DB::table('deposits')
+            ->where('customer_id', $customerId)
+            ->whereDate('created_at', '<', $startDate)
+            ->sum('amount');
+
+        $openingBalance = $regOpening + $priorSales - $priorPayments - $priorReturns - $priorDeposits;
+
+        $items = collect();
+
+        // 1. Sales
+        $sales = DB::table('sales')
+            ->leftJoin('warehouses', 'sales.warehouse_id', '=', 'warehouses.id')
+            ->where('sales.customer_id', $customerId)
+            ->whereNull('sales.deleted_at')
+            ->whereDate('sales.created_at', '>=', $startDate)
+            ->whereDate('sales.created_at', '<=', $endDate)
+            ->select('sales.*', 'warehouses.name as warehouse_name')
+            ->get();
+
+        foreach ($sales as $sale) {
+            $items->push((object)[
+                'id' => 'sale_' . $sale->id,
+                'raw_id' => $sale->id,
+                'date' => $sale->created_at,
+                'type' => 'sale',
+                'type_label' => 'Sale Invoice',
+                'badge_class' => 'badge-primary',
+                'reference_no' => $sale->reference_no,
+                'warehouse' => $sale->warehouse_name ?? 'Main Godown',
+                'description' => 'Sales Invoice (' . ($sale->sale_status ?? 'Completed') . ')',
+                'debit' => (float) $sale->grand_total,
+                'credit' => 0.0,
+                'status' => $sale->sale_status ?? 'Completed',
+            ]);
+        }
+
+        // 2. Payments
+        $payments = DB::table('payments')
+            ->join('sales', 'payments.sale_id', '=', 'sales.id')
+            ->leftJoin('warehouses', 'sales.warehouse_id', '=', 'warehouses.id')
+            ->where('sales.customer_id', $customerId)
+            ->whereNull('sales.deleted_at')
+            ->whereDate('payments.created_at', '>=', $startDate)
+            ->whereDate('payments.created_at', '<=', $endDate)
+            ->select('payments.*', 'sales.reference_no as sale_ref', 'warehouses.name as warehouse_name')
+            ->get();
+
+        foreach ($payments as $payment) {
+            $desc = 'Payment Received (' . ucfirst($payment->paying_method) . ')';
+            if (!empty($payment->sale_ref)) {
+                $desc .= ' for ' . $payment->sale_ref;
+            }
+            if (!empty($payment->payment_note)) {
+                $desc .= ' - ' . $payment->payment_note;
+            }
+
+            $items->push((object)[
+                'id' => 'payment_' . $payment->id,
+                'raw_id' => $payment->id,
+                'date' => $payment->created_at,
+                'type' => 'payment',
+                'type_label' => 'Payment Received',
+                'badge_class' => 'badge-success',
+                'reference_no' => $payment->payment_reference,
+                'warehouse' => $payment->warehouse_name ?? '-',
+                'description' => $desc,
+                'debit' => 0.0,
+                'credit' => (float) $payment->amount,
+                'status' => 'Received',
+            ]);
+        }
+
+        // 3. Returns
+        $returns = DB::table('returns')
+            ->leftJoin('warehouses', 'returns.warehouse_id', '=', 'warehouses.id')
+            ->where('returns.customer_id', $customerId)
+            ->whereDate('returns.created_at', '>=', $startDate)
+            ->whereDate('returns.created_at', '<=', $endDate)
+            ->select('returns.*', 'warehouses.name as warehouse_name')
+            ->get();
+
+        foreach ($returns as $ret) {
+            $items->push((object)[
+                'id' => 'return_' . $ret->id,
+                'raw_id' => $ret->id,
+                'date' => $ret->created_at,
+                'type' => 'return',
+                'type_label' => 'Sales Return',
+                'badge_class' => 'badge-danger',
+                'reference_no' => $ret->reference_no,
+                'warehouse' => $ret->warehouse_name ?? '-',
+                'description' => 'Sales Return / Credit Note' . (!empty($ret->return_note) ? ' - ' . $ret->return_note : ''),
+                'debit' => 0.0,
+                'credit' => (float) $ret->grand_total,
+                'status' => 'Returned',
+            ]);
+        }
+
+        // 4. Deposits
+        $deposits = DB::table('deposits')
+            ->where('customer_id', $customerId)
+            ->whereDate('created_at', '>=', $startDate)
+            ->whereDate('created_at', '<=', $endDate)
+            ->get();
+
+        foreach ($deposits as $dep) {
+            $items->push((object)[
+                'id' => 'deposit_' . $dep->id,
+                'raw_id' => $dep->id,
+                'date' => $dep->created_at,
+                'type' => 'deposit',
+                'type_label' => 'Advance Deposit',
+                'badge_class' => 'badge-info',
+                'reference_no' => 'DEP-' . str_pad($dep->id, 5, '0', STR_PAD_LEFT),
+                'warehouse' => '-',
+                'description' => 'Customer Deposit / Advance' . (!empty($dep->note) ? ' - ' . $dep->note : ''),
+                'debit' => 0.0,
+                'credit' => (float) $dep->amount,
+                'status' => 'Deposited',
+            ]);
+        }
+
+        // 5. Quotations
+        $quotations = DB::table('quotations')
+            ->leftJoin('warehouses', 'quotations.warehouse_id', '=', 'warehouses.id')
+            ->where('quotations.customer_id', $customerId)
+            ->whereDate('quotations.created_at', '>=', $startDate)
+            ->whereDate('quotations.created_at', '<=', $endDate)
+            ->select('quotations.*', 'warehouses.name as warehouse_name')
+            ->get();
+
+        foreach ($quotations as $quotation) {
+            $items->push((object)[
+                'id' => 'quotation_' . $quotation->id,
+                'raw_id' => $quotation->id,
+                'date' => $quotation->created_at,
+                'type' => 'quotation',
+                'type_label' => 'Quotation',
+                'badge_class' => 'badge-secondary',
+                'reference_no' => $quotation->reference_no,
+                'warehouse' => $quotation->warehouse_name ?? '-',
+                'description' => 'Sales Quotation (Non-posting)',
+                'debit' => 0.0,
+                'credit' => 0.0,
+                'status' => $quotation->quotation_status ?? 'Sent',
+            ]);
+        }
+
+        // Sort chronologically ascending
+        $sorted = $items->sortBy('date')->values();
+
+        $running = $openingBalance;
+        $totalDebit = 0.0;
+        $totalCredit = 0.0;
+
+        foreach ($sorted as $it) {
+            $totalDebit += $it->debit;
+            $totalCredit += $it->credit;
+            $running += ($it->debit - $it->credit);
+            $it->balance = $running;
+            $it->balance_indicator = $running >= 0 ? 'Dr' : 'Cr';
+        }
+
+        return [
+            'party' => $customer,
+            'opening_balance' => $openingBalance,
+            'total_debit' => $totalDebit,
+            'total_credit' => $totalCredit,
+            'closing_balance' => $running,
+            'items' => $sorted,
+        ];
     }
 
     public function customerSaleData(Request $request)
@@ -4288,8 +4502,194 @@ class ReportController extends Controller
             $start_date = date("Y-m-d", strtotime(date('Y-m-d', strtotime('-1 year', strtotime(date('Y-m-d') )))));
             $end_date = date("Y-m-d");
         }
+        $transaction_type = $request->input('transaction_type', 'all');
         $lims_supplier_list = Supplier::where('is_active', true)->get();
-        return view('backend.report.supplier_report',compact('start_date', 'end_date', 'supplier_id', 'lims_supplier_list'));
+        if(!$supplier_id && $lims_supplier_list->isNotEmpty()) {
+            $supplier_id = $lims_supplier_list->first()?->id;
+        }
+        $ledgerData = $this->getSupplierLedgerData($supplier_id, $start_date, $end_date, $transaction_type);
+        return view('backend.report.supplier_report',compact('start_date', 'end_date', 'supplier_id', 'lims_supplier_list', 'ledgerData', 'transaction_type'));
+    }
+
+    public function getSupplierLedgerData($supplierId, $startDate, $endDate, $transactionType = 'all')
+    {
+        $supplier = Supplier::find($supplierId);
+        if (!$supplier) {
+            return [
+                'party' => null,
+                'opening_balance' => 0.0,
+                'total_debit' => 0.0,
+                'total_credit' => 0.0,
+                'closing_balance' => 0.0,
+                'items' => collect(),
+            ];
+        }
+
+        $regOpening = (float) ($supplier->opening_balance ?? 0);
+
+        // Prior Purchases (Credit +)
+        $priorPurchases = DB::table('purchases')
+            ->where('supplier_id', $supplierId)
+            ->whereNull('deleted_at')
+            ->whereDate('created_at', '<', $startDate)
+            ->sum('grand_total');
+
+        // Prior Payments (Debit -)
+        $priorPayments = DB::table('payments')
+            ->join('purchases', 'payments.purchase_id', '=', 'purchases.id')
+            ->where('purchases.supplier_id', $supplierId)
+            ->whereNull('purchases.deleted_at')
+            ->whereDate('payments.created_at', '<', $startDate)
+            ->sum('payments.amount');
+
+        // Prior Returns (Debit -)
+        $priorReturns = DB::table('return_purchases')
+            ->where('supplier_id', $supplierId)
+            ->whereDate('created_at', '<', $startDate)
+            ->sum('grand_total');
+
+        $openingBalance = $regOpening + $priorPurchases - $priorPayments - $priorReturns;
+
+        $items = collect();
+
+        // 1. Purchases (Bills)
+        $purchases = DB::table('purchases')
+            ->leftJoin('warehouses', 'purchases.warehouse_id', '=', 'warehouses.id')
+            ->where('purchases.supplier_id', $supplierId)
+            ->whereNull('purchases.deleted_at')
+            ->whereDate('purchases.created_at', '>=', $startDate)
+            ->whereDate('purchases.created_at', '<=', $endDate)
+            ->select('purchases.*', 'warehouses.name as warehouse_name')
+            ->get();
+
+        foreach ($purchases as $purchase) {
+            $items->push((object)[
+                'id' => 'purchase_' . $purchase->id,
+                'raw_id' => $purchase->id,
+                'date' => $purchase->created_at,
+                'type' => 'purchase',
+                'type_label' => 'Purchase Bill',
+                'badge_class' => 'badge-primary',
+                'reference_no' => $purchase->reference_no,
+                'warehouse' => $purchase->warehouse_name ?? 'Main Godown',
+                'description' => 'Purchase Bill (' . ($purchase->status ?? 'Received') . ')',
+                'debit' => 0.0,
+                'credit' => (float) $purchase->grand_total,
+                'status' => $purchase->status ?? 'Received',
+            ]);
+        }
+
+        // 2. Payments (Disbursements)
+        $payments = DB::table('payments')
+            ->join('purchases', 'payments.purchase_id', '=', 'purchases.id')
+            ->leftJoin('warehouses', 'purchases.warehouse_id', '=', 'warehouses.id')
+            ->where('purchases.supplier_id', $supplierId)
+            ->whereNull('purchases.deleted_at')
+            ->whereDate('payments.created_at', '>=', $startDate)
+            ->whereDate('payments.created_at', '<=', $endDate)
+            ->select('payments.*', 'purchases.reference_no as purchase_ref', 'warehouses.name as warehouse_name')
+            ->get();
+
+        foreach ($payments as $payment) {
+            $desc = 'Payment Paid (' . ucfirst($payment->paying_method) . ')';
+            if (!empty($payment->purchase_ref)) {
+                $desc .= ' for ' . $payment->purchase_ref;
+            }
+            if (!empty($payment->payment_note)) {
+                $desc .= ' - ' . $payment->payment_note;
+            }
+
+            $items->push((object)[
+                'id' => 'payment_' . $payment->id,
+                'raw_id' => $payment->id,
+                'date' => $payment->created_at,
+                'type' => 'payment',
+                'type_label' => 'Payment Paid',
+                'badge_class' => 'badge-success',
+                'reference_no' => $payment->payment_reference,
+                'warehouse' => $payment->warehouse_name ?? '-',
+                'description' => $desc,
+                'debit' => (float) $payment->amount,
+                'credit' => 0.0,
+                'status' => 'Paid',
+            ]);
+        }
+
+        // 3. Returns (Debit Notes)
+        $returns = DB::table('return_purchases')
+            ->leftJoin('warehouses', 'return_purchases.warehouse_id', '=', 'warehouses.id')
+            ->where('return_purchases.supplier_id', $supplierId)
+            ->whereDate('return_purchases.created_at', '>=', $startDate)
+            ->whereDate('return_purchases.created_at', '<=', $endDate)
+            ->select('return_purchases.*', 'warehouses.name as warehouse_name')
+            ->get();
+
+        foreach ($returns as $ret) {
+            $items->push((object)[
+                'id' => 'return_' . $ret->id,
+                'raw_id' => $ret->id,
+                'date' => $ret->created_at,
+                'type' => 'return',
+                'type_label' => 'Purchase Return',
+                'badge_class' => 'badge-danger',
+                'reference_no' => $ret->reference_no,
+                'warehouse' => $ret->warehouse_name ?? '-',
+                'description' => 'Purchase Return (Debit Note)' . (!empty($ret->return_note) ? ' - ' . $ret->return_note : ''),
+                'debit' => (float) $ret->grand_total,
+                'credit' => 0.0,
+                'status' => 'Returned',
+            ]);
+        }
+
+        // 4. Quotations / POs
+        $quotations = DB::table('quotations')
+            ->leftJoin('warehouses', 'quotations.warehouse_id', '=', 'warehouses.id')
+            ->where('quotations.supplier_id', $supplierId)
+            ->whereDate('quotations.created_at', '>=', $startDate)
+            ->whereDate('quotations.created_at', '<=', $endDate)
+            ->select('quotations.*', 'warehouses.name as warehouse_name')
+            ->get();
+
+        foreach ($quotations as $quotation) {
+            $items->push((object)[
+                'id' => 'quotation_' . $quotation->id,
+                'raw_id' => $quotation->id,
+                'date' => $quotation->created_at,
+                'type' => 'quotation',
+                'type_label' => 'Quotation / PO',
+                'badge_class' => 'badge-secondary',
+                'reference_no' => $quotation->reference_no,
+                'warehouse' => $quotation->warehouse_name ?? '-',
+                'description' => 'Purchase Quotation / PO (Non-posting)',
+                'debit' => 0.0,
+                'credit' => 0.0,
+                'status' => $quotation->quotation_status ?? 'Sent',
+            ]);
+        }
+
+        // Sort chronologically ascending
+        $sorted = $items->sortBy('date')->values();
+
+        $running = $openingBalance;
+        $totalDebit = 0.0;
+        $totalCredit = 0.0;
+
+        foreach ($sorted as $it) {
+            $totalDebit += $it->debit;
+            $totalCredit += $it->credit;
+            $running += ($it->credit - $it->debit); // Credit increases payable, Debit decreases
+            $it->balance = $running;
+            $it->balance_indicator = $running >= 0 ? 'Cr' : 'Dr';
+        }
+
+        return [
+            'party' => $supplier,
+            'opening_balance' => $openingBalance,
+            'total_debit' => $totalDebit,
+            'total_credit' => $totalCredit,
+            'closing_balance' => $running,
+            'items' => $sorted,
+        ];
     }
 
     public function supplierPurchaseData(Request $request)
@@ -4706,9 +5106,8 @@ class ReportController extends Controller
 
     public function customerDueReportByDate(Request $request)
     {
-        $data = $request->all();
-        $start_date = $data['start_date'];
-        $end_date = $data['end_date'];
+        $start_date = $request->input('start_date', date('Y-m-d', strtotime('-90 days')));
+        $end_date = $request->input('end_date', date('Y-m-d'));
         $customer_id = $request->customer_id ?? 0;
 
         // $q = Sale::where('payment_status', '!=', 4)
@@ -4827,10 +5226,9 @@ class ReportController extends Controller
 
     public function supplierDueReportByDate(Request $request)
     {
-        $data = $request->all();
-        $supplier_id = null;
-        $start_date = $data['start_date'];
-        $end_date = $data['end_date'];
+        $supplier_id = $request->supplier_id ?? null;
+        $start_date = $request->input('start_date', date('Y-m-d', strtotime('-90 days')));
+        $end_date = $request->input('end_date', date('Y-m-d'));
         $q = Purchase::where('payment_status', 1)
             ->whereNull('deleted_at')
             ->whereDate('updated_at', '>=' , $start_date)
@@ -4843,5 +5241,298 @@ class ReportController extends Controller
         $lims_supplier_list = Supplier::where('is_active', true)->get();
 
         return view('backend.report.supplier_due_report', compact('lims_purchase_data', 'start_date', 'end_date', 'lims_supplier_list', 'supplier_id'));
+    }
+
+    /**
+     * Outstanding Payments (Dues) Report — Fully featured, filterable, company-scoped
+     */
+    public function outstandingDuesReport(Request $request)
+    {
+        $context = $request->attributes->get(\App\Services\Platform\CompanyContext::class) 
+            ?? app(\App\Services\Platform\CompanyContextResolver::class)->forActor();
+        $companyId = $context?->companyId ?? session('company_id') ?? 1;
+
+        $type = $request->input('type', 'receivables');
+        if (!in_array($type, ['receivables', 'payables', 'expenses'], true)) {
+            $type = 'receivables';
+        }
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date', date('Y-m-d'));
+        $customerId = $request->filled('customer_id') ? (int) $request->customer_id : null;
+        $supplierId = $request->filled('supplier_id') ? (int) $request->supplier_id : null;
+        $warehouseId = $request->filled('warehouse_id') ? (int) $request->warehouse_id : null;
+        $dueStatus = $request->input('due_status', 'all_dues');
+        $searchTerm = trim((string) $request->input('search', ''));
+
+        $today = Carbon::today();
+
+        $rows = collect();
+        $kpiBilled = 0.0;
+        $kpiReturned = 0.0;
+        $kpiPaid = 0.0;
+        $kpiDue = 0.0;
+        $kpiOverdue = 0.0;
+
+        if ($type === 'receivables') {
+            $query = DB::table('sales')
+                ->leftJoin('customers', 'sales.customer_id', '=', 'customers.id')
+                ->leftJoin('warehouses', 'sales.warehouse_id', '=', 'warehouses.id')
+                ->where('sales.company_id', $companyId)
+                ->whereNull('sales.deleted_at')
+                ->select([
+                    'sales.id',
+                    'sales.reference_no',
+                    'sales.created_at',
+                    'sales.grand_total',
+                    'sales.paid_amount',
+                    'sales.payment_status',
+                    'sales.credit_days as sale_credit_days',
+                    'sales.customer_id',
+                    'sales.warehouse_id',
+                    'customers.name as party_name',
+                    'customers.phone_number as party_phone',
+                    'customers.city as party_city',
+                    'customers.credit_days as party_credit_days',
+                    'warehouses.name as warehouse_name',
+                    DB::raw('(SELECT COALESCE(SUM(grand_total / COALESCE(exchange_rate, 1)), 0) FROM returns WHERE returns.sale_id = sales.id) as returned_amount'),
+                ]);
+
+            if (!empty($startDate)) {
+                $query->whereDate('sales.created_at', '>=', $startDate);
+            }
+            if (!empty($endDate)) {
+                $query->whereDate('sales.created_at', '<=', $endDate);
+            }
+            if ($customerId) {
+                $query->where('sales.customer_id', $customerId);
+            }
+            if ($warehouseId) {
+                $query->where('sales.warehouse_id', $warehouseId);
+            }
+            if (!empty($searchTerm)) {
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('sales.reference_no', 'like', "%{$searchTerm}%")
+                      ->orWhere('customers.name', 'like', "%{$searchTerm}%")
+                      ->orWhere('customers.phone_number', 'like', "%{$searchTerm}%");
+                });
+            }
+
+            $rawRecords = $query->orderBy('sales.created_at', 'desc')->get();
+
+            foreach ($rawRecords as $record) {
+                $billed = (float) $record->grand_total;
+                $returned = (float) $record->returned_amount;
+                $paid = (float) ($record->paid_amount ?? 0);
+                $due = max(0.0, $billed - $returned - $paid);
+
+                $creditDays = (int) ($record->sale_credit_days ?? $record->party_credit_days ?? 30);
+                $invoiceDate = Carbon::parse($record->created_at);
+                $dueDate = (clone $invoiceDate)->addDays($creditDays);
+                $isOverdue = ($due > 0.009) && $today->greaterThan($dueDate);
+                $daysOverdue = $isOverdue ? $today->diffInDays($dueDate) : 0;
+                $daysLeft = (!$isOverdue && $due > 0.009) ? $dueDate->diffInDays($today) : 0;
+
+                if ($dueStatus === 'all_dues' && $due <= 0.009) continue;
+                if ($dueStatus === 'unpaid' && ($paid > 0.009 || $due <= 0.009)) continue;
+                if ($dueStatus === 'partial' && ($paid <= 0.009 || $due <= 0.009)) continue;
+                if ($dueStatus === 'overdue' && !$isOverdue) continue;
+
+                $kpiBilled += $billed;
+                $kpiReturned += $returned;
+                $kpiPaid += $paid;
+                $kpiDue += $due;
+                if ($isOverdue) {
+                    $kpiOverdue += $due;
+                }
+
+                $record->billed = $billed;
+                $record->returned = $returned;
+                $record->paid = $paid;
+                $record->due = $due;
+                $record->due_date = $dueDate->format('Y-m-d');
+                $record->is_overdue = $isOverdue;
+                $record->days_overdue = $daysOverdue;
+                $record->days_left = $daysLeft;
+                $record->action_url = route('selling.payments', ['sale_id' => $record->id, 'customer_id' => $record->customer_id]);
+                $record->action_label = 'Collect';
+
+                $rows->push($record);
+            }
+        } elseif ($type === 'payables') {
+            // Payables (Purchases)
+            $query = DB::table('purchases')
+                ->leftJoin('suppliers', 'purchases.supplier_id', '=', 'suppliers.id')
+                ->leftJoin('warehouses', 'purchases.warehouse_id', '=', 'warehouses.id')
+                ->where('purchases.company_id', $companyId)
+                ->whereNull('purchases.deleted_at')
+                ->select([
+                    'purchases.id',
+                    'purchases.reference_no',
+                    'purchases.supplier_invoice_no',
+                    'purchases.created_at',
+                    'purchases.grand_total',
+                    'purchases.paid_amount',
+                    'purchases.payment_status',
+                    'purchases.supplier_id',
+                    'purchases.warehouse_id',
+                    'suppliers.name as party_name',
+                    'suppliers.phone_number as party_phone',
+                    'suppliers.city as party_city',
+                    'suppliers.credit_days as party_credit_days',
+                    'warehouses.name as warehouse_name',
+                    DB::raw('(SELECT COALESCE(SUM(grand_total), 0) FROM return_purchases WHERE return_purchases.purchase_id = purchases.id) as returned_amount'),
+                ]);
+
+            if (!empty($startDate)) {
+                $query->whereDate('purchases.created_at', '>=', $startDate);
+            }
+            if (!empty($endDate)) {
+                $query->whereDate('purchases.created_at', '<=', $endDate);
+            }
+            if ($supplierId) {
+                $query->where('purchases.supplier_id', $supplierId);
+            }
+            if ($warehouseId) {
+                $query->where('purchases.warehouse_id', $warehouseId);
+            }
+            if (!empty($searchTerm)) {
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('purchases.reference_no', 'like', "%{$searchTerm}%")
+                      ->orWhere('purchases.supplier_invoice_no', 'like', "%{$searchTerm}%")
+                      ->orWhere('suppliers.name', 'like', "%{$searchTerm}%")
+                      ->orWhere('suppliers.phone_number', 'like', "%{$searchTerm}%");
+                });
+            }
+
+            $rawRecords = $query->orderBy('purchases.created_at', 'desc')->get();
+
+            foreach ($rawRecords as $record) {
+                $billed = (float) $record->grand_total;
+                $returned = (float) $record->returned_amount;
+                $paid = (float) ($record->paid_amount ?? 0);
+                $due = max(0.0, $billed - $returned - $paid);
+
+                $creditDays = (int) ($record->party_credit_days ?? 30);
+                $invoiceDate = Carbon::parse($record->created_at);
+                $dueDate = (clone $invoiceDate)->addDays($creditDays);
+                $isOverdue = ($due > 0.009) && $today->greaterThan($dueDate);
+                $daysOverdue = $isOverdue ? $today->diffInDays($dueDate) : 0;
+                $daysLeft = (!$isOverdue && $due > 0.009) ? $dueDate->diffInDays($today) : 0;
+
+                if ($dueStatus === 'all_dues' && $due <= 0.009) continue;
+                if ($dueStatus === 'unpaid' && ($paid > 0.009 || $due <= 0.009)) continue;
+                if ($dueStatus === 'partial' && ($paid <= 0.009 || $due <= 0.009)) continue;
+                if ($dueStatus === 'overdue' && !$isOverdue) continue;
+
+                $kpiBilled += $billed;
+                $kpiReturned += $returned;
+                $kpiPaid += $paid;
+                $kpiDue += $due;
+                if ($isOverdue) {
+                    $kpiOverdue += $due;
+                }
+
+                $record->billed = $billed;
+                $record->returned = $returned;
+                $record->paid = $paid;
+                $record->due = $due;
+                $record->due_date = $dueDate->format('Y-m-d');
+                $record->is_overdue = $isOverdue;
+                $record->days_overdue = $daysOverdue;
+                $record->days_left = $daysLeft;
+                $record->action_url = route('buying.payments', ['purchase_id' => $record->id, 'supplier_id' => $record->supplier_id]);
+                $record->action_label = 'Pay';
+
+                $rows->push($record);
+            }
+        } elseif ($type === 'expenses') {
+            $query = Expense::where('company_id', $companyId)
+                ->with(['expenseCategory', 'warehouse'])
+                ->whereNull('account_id');
+
+            if (!empty($startDate)) {
+                $query->whereDate('created_at', '>=', $startDate);
+            }
+            if (!empty($endDate)) {
+                $query->whereDate('created_at', '<=', $endDate);
+            }
+            if ($warehouseId) {
+                $query->where('warehouse_id', $warehouseId);
+            }
+            if (!empty($searchTerm)) {
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('reference_no', 'like', "%{$searchTerm}%")
+                      ->orWhere('note', 'like', "%{$searchTerm}%");
+                });
+            }
+
+            $rawRecords = $query->orderBy('created_at', 'desc')->get();
+
+            foreach ($rawRecords as $record) {
+                $amount = (float) $record->amount;
+                $kpiBilled += $amount;
+                $kpiDue += $amount;
+
+                $row = (object) [
+                    'id' => $record->id,
+                    'reference_no' => $record->reference_no,
+                    'created_at' => $record->created_at,
+                    'party_name' => $record->expenseCategory?->name ?? 'Operating Expense',
+                    'party_phone' => '',
+                    'warehouse_name' => $record->warehouse?->name ?? '—',
+                    'billed' => $amount,
+                    'returned' => 0.0,
+                    'paid' => 0.0,
+                    'due' => $amount,
+                    'due_date' => Carbon::parse($record->created_at)->format('Y-m-d'),
+                    'is_overdue' => false,
+                    'days_overdue' => 0,
+                    'days_left' => 0,
+                ];
+
+                $rows->push($row);
+            }
+        }
+
+        $customers = Customer::where('is_active', true)
+            ->where(fn($q) => $q->where('company_id', $companyId)->orWhereNull('company_id'))
+            ->orderBy('name')
+            ->get(['id', 'name', 'phone_number']);
+
+        $suppliers = Supplier::where('is_active', true)
+            ->where(fn($q) => $q->where('company_id', $companyId)->orWhereNull('company_id'))
+            ->orderBy('name')
+            ->get(['id', 'name', 'phone_number']);
+
+        $warehouses = Warehouse::where('is_active', true)
+            ->where('company_id', $companyId)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        $company = Company::find($companyId);
+        $generalSetting = cache()->get('general_setting') ?? DB::table('general_settings')->first();
+
+        return view('backend.report.outstanding_dues', compact(
+            'rows',
+            'type',
+            'startDate',
+            'endDate',
+            'customerId',
+            'supplierId',
+            'warehouseId',
+            'dueStatus',
+            'searchTerm',
+            'kpiBilled',
+            'kpiReturned',
+            'kpiPaid',
+            'kpiDue',
+            'kpiOverdue',
+            'customers',
+            'suppliers',
+            'warehouses',
+            'company',
+            'generalSetting'
+        ));
     }
 }

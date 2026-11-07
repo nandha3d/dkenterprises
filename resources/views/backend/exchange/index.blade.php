@@ -17,7 +17,7 @@
             </div>
             <div class="col-md-6 text-right">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exchangePromptModal">
-                    <i class="dripicons-plus"></i> Add Sale Exchange
+                    <i class="dripicons-plus"></i> + Add Sale Exchange
                 </button>
             </div>
         </div>

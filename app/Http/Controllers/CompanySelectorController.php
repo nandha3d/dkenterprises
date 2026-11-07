@@ -62,7 +62,6 @@ class CompanySelectorController extends Controller
             'company_id' => 'required|integer|min:1',
             'branch_id' => 'nullable|integer|min:1',
             'financial_year_id' => 'nullable|integer|min:1',
-            'return_to' => 'nullable|string',
         ]);
 
         return $this->enter($request, $data['company_id'], $data['branch_id'] ?? null, $data['financial_year_id'] ?? null);
@@ -77,6 +76,13 @@ class CompanySelectorController extends Controller
 
     public function storeCompany(Request $request)
     {
+        if (!$request->has('registration_type') && $request->filled('gstin')) {
+            $request->merge(['registration_type' => 'regular']);
+        }
+        $request->validate([
+            'registration_type' => 'required|in:regular,composition,unregistered',
+        ]);
+
         $company = $this->directory->createCompany($request->user()->id, $request->only([
             'company_group_id', 'legal_name', 'trade_name', 'code', 'industry', 'subtype',
             'state_code', 'base_currency_id', 'timezone', 'fy_start', 'fy_end',
@@ -89,6 +95,13 @@ class CompanySelectorController extends Controller
 
     public function updateCompany(Request $request, int $company)
     {
+        if (!$request->has('registration_type') && $request->filled('gstin')) {
+            $request->merge(['registration_type' => 'regular']);
+        }
+        $request->validate([
+            'registration_type' => 'required|in:regular,composition,unregistered',
+        ]);
+
         $updated = $this->directory->updateCompany($request->user()->id, $company, $request->only([
             'company_group_id', 'legal_name', 'trade_name', 'code', 'state_code', 'base_currency_id',
             'address', 'city', 'postal_code', 'phone', 'email', 'website', 'pan', 'gstin', 'registration_type',
@@ -148,12 +161,6 @@ class CompanySelectorController extends Controller
         $request->session()->forget(self::SESSION_KEYS);
         $request->session()->put(['company_id' => $context->companyId, 'branch_id' => $context->branchId,
             'financial_year_id' => $context->financialYearId]);
-
-        if ($returnTo = $request->input('return_to')) {
-            if (str_starts_with($returnTo, '/') || str_starts_with($returnTo, url('/'))) {
-                return redirect($returnTo);
-            }
-        }
 
         // A switch started from the workspace lands on the new company's workspace.
         return $request->input('return') === 'workspace' ? redirect('/workspace') : redirect()->intended('/dashboard');

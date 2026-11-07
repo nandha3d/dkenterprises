@@ -26,12 +26,13 @@
                         </div>
                     </div>
                     <div class="card-body p-2">
-                        <form id="product-form">
+                        <form id="product-form" data-product-usage="{{ old('product_usage', 'composite') }}">
                             <div class="zolo-product-grid">
 
                                 <!-- BOX 1: Primary Identity & Categorization (Blue) -->
                                 <x-ui.section-box variant="blue" title="{{__('db.Product Details')}}" icon="box">
                                     <div class="row">
+                                        @include('backend.product.partials.usage-options', ['productUsage' => 'composite'])
                                         <div class="col-6">
                                             <div class="form-group">
                                                 <label>{{__('db.Product Type')}} *</label>
@@ -125,11 +126,11 @@
                                                     </div>
                                                     <span class="validation-msg text-danger small"></span>
                                                 </div>
-                                                <div class="col-6 form-group">
+                                                <div data-usage-side="sale" class="col-6 form-group">
                                                     <label>{{__('db.Sale Unit')}}</label>
                                                     <select class="form-control selectpicker" name="sale_unit_id"></select>
                                                 </div>
-                                                <div class="col-6 form-group">
+                                                <div data-usage-side="purchase" class="col-6 form-group">
                                                     <label>{{__('db.Purchase Unit')}}</label>
                                                     <select class="form-control selectpicker" name="purchase_unit_id"></select>
                                                 </div>
@@ -150,7 +151,7 @@
                                     <div class="row">
                                         <div id="cost" class="col-6">
                                             <div class="form-group">
-                                                <label>{{__('db.Product Cost')}} *</label>
+                                                <label>{{__('db.Product Cost')}} <span data-usage-cost-required>*</span></label>
                                                 <input type="number" name="cost" required class="form-control" step="any" placeholder="0.00">
                                                 <div class="alert alert-warning very-small-text d-none p-1 position-absolute" id="product-cost-warning">
                                                     Cost must be higher than 0!
@@ -158,7 +159,7 @@
                                                 <span class="validation-msg text-danger small"></span>
                                             </div>
                                         </div>
-                                        <div class="col-6">
+                                        <div data-usage-side="sale" class="col-6">
                                             <div class="form-group">
                                                 <label>{{ __('db.Profit Margin Type') }}</label>
                                                 <select name="profit_margin_type" class="form-control selectpicker" required>
@@ -168,14 +169,14 @@
                                                 <span class="validation-msg text-danger small"></span>
                                             </div>
                                         </div>
-                                        <div id="profit_margin" class="col-6">
+                                        <div data-usage-side="sale" id="profit_margin" class="col-6">
                                             <div class="form-group">
                                                 <label>{{__('db.Profit Margin')}}</label>
                                                 <input type="number" name="profit_margin" class="form-control" step="0.01" placeholder="0.00">
                                                 <span class="validation-msg text-danger small"></span>
                                             </div>
                                         </div>
-                                        <div class="col-6">
+                                        <div data-usage-side="sale" class="col-6">
                                             <div class="form-group">
                                                 <label>{{__('db.Product Price')}} *</label>
                                                 <input type="number" name="price" required class="form-control" step="any" placeholder="0.00">
@@ -186,13 +187,13 @@
                                             </div>
                                             <input type="hidden" name="qty" value="{{number_format(0, $general_setting->decimal, '.', '')}}">
                                         </div>
-                                        <div class="col-6">
+                                        <div data-usage-side="sale" class="col-6">
                                             <div class="form-group">
                                                 <label>{{__('db.Wholesale Price')}}</label>
                                                 <input type="number" name="wholesale_price" class="form-control" step="any" placeholder="0.00">
                                             </div>
                                         </div>
-                                        <div class="col-6">
+                                        <div data-usage-side="sale" class="col-6">
                                             <div class="form-group">
                                                 <label>{{__('db.Daily Sale Objective')}}</label>
                                                 <input type="number" name="daily_sale_objective" class="form-control" step="any" placeholder="0">
@@ -233,7 +234,7 @@
                                         @include('backend.product.partials.stock-policy', ['product' => null, 'colClass' => 'col-6'])
 
                                         <!-- Warranty and Guarantee -->
-                                        <div class="col-6">
+                                        <div data-usage-side="sale" class="col-6">
                                             <div class="form-group">
                                                 <label>{{ __('db.Warranty') }}</label>
                                                 <div class="input-group">
@@ -246,7 +247,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-6">
+                                        <div data-usage-side="sale" class="col-6">
                                             <div class="form-group">
                                                 <label>{{ __('db.Guarantee') }}</label>
                                                 <div class="input-group">
@@ -385,7 +386,7 @@
                                         <span>{{__('db.This product has variant')}}</span>
                                     </label>
 
-                                    <label id="diffPrice-option" class="zolo-toggle-pill" data-role="emerald" for="is-diffPrice" title="{{ __('db.Different price by warehouse') }}">
+                                    <label data-usage-side="sale" id="diffPrice-option" class="zolo-toggle-pill" data-role="emerald" for="is-diffPrice" title="{{ __('db.Different price by warehouse') }}">
                                         <input name="is_diffPrice" type="checkbox" id="is-diffPrice" value="1">
                                         <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
                                         <span>{{__('db.Different price by warehouse')}}</span>
@@ -403,13 +404,13 @@
                                         <span>{{__('db.IMEI / Serial numbers')}}</span>
                                     </label>
 
-                                    <label class="zolo-toggle-pill" data-role="blue" for="promotion" title="{{ __('db.Promotional Price') }}">
+                                    <label data-usage-side="sale" class="zolo-toggle-pill" data-role="blue" for="promotion" title="{{ __('db.Promotional Price') }}">
                                         <input name="promotion" type="checkbox" id="promotion" value="1">
                                         <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
                                         <span>{{__('db.Promotional Price')}}</span>
                                     </label>
 
-                                    <label id="featured" class="zolo-toggle-pill" data-role="purple" for="chk_featured" title="{{ __('db.Featured') }}">
+                                    <label data-usage-side="sale" id="featured" class="zolo-toggle-pill" data-role="purple" for="chk_featured" title="{{ __('db.Featured') }}">
                                         <input type="checkbox" name="featured" id="chk_featured" value="1">
                                         <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
                                         <span>{{__('db.Featured')}}</span>
@@ -444,12 +445,6 @@
                                         <span>Disable WooCommerce</span>
                                     </label>
                                     @endif
-
-                                    <label id="water-logistics-pill" class="zolo-toggle-pill" data-role="blue" for="is_water_logistics" title="Water Logistics & Custom Sizing (20L, 25L, 1L, Tanker Compartments)">
-                                        <input name="is_water_logistics" type="checkbox" id="is_water_logistics" value="1">
-                                        <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
-                                        <span>💧 Water Logistics</span>
-                                    </label>
 
                                     @if(in_array('restaurant',explode(',',$general_setting->modules)))
                                     <label class="zolo-toggle-pill" data-role="blue" for="is_addon" title="{{ __('db.This is topping') }}">
@@ -491,7 +486,7 @@
                                 </div>
 
                                 <!-- Warehouse Differential Price Section (1 grid column) -->
-                                <div id="diffPrice-section">
+                                <div data-usage-side="sale" id="diffPrice-section">
                                     <x-ui.section-box variant="emerald" title="{{__('db.Different Warehouse Price')}}" icon="pricing">
                                         <div class="table-responsive">
                                             <table id="diffPrice-table" class="table table-hover table-sm">
@@ -620,7 +615,7 @@
                                 </div>
 
                                 <!-- Promotional Price Section -->
-                                <div id="promo-container">
+                                <div data-usage-side="sale" id="promo-container">
                                     <x-ui.section-box variant="blue" title="{{__('db.Promotional Price')}}" icon="pricing">
                                         <div class="zolo-promo-vertical-form">
                                             <div class="form-group mb-2" id="promotion_price">
@@ -673,54 +668,6 @@
                                                 </thead>
                                                 <tbody class="combo_product_list_table"></tbody>
                                             </table>
-                                        </div>
-                                    </x-ui.section-box>
-                                </div>
-
-                                <!-- Water Logistics & Custom Sizing Section -->
-                                <div id="water-logistics-section" style="display: none;">
-                                    <x-ui.section-box variant="blue" title="💧 Water Logistics & Custom Package Sizing" icon="box">
-                                        <div class="row">
-                                            <div class="col-md-6 form-group">
-                                                <label class="font-weight-bold">Water Vertical Type *</label>
-                                                <select name="water_vertical_type" id="water_vertical_type" class="form-control form-control-sm selectpicker">
-                                                    <option value="packaged_water">Packaged Drinking Water (Cans & Bottles)</option>
-                                                    <option value="bulk_water">Commercial Bulk Water Supply (Heavy Tankers)</option>
-                                                </select>
-                                                <small class="text-muted d-block mt-1">Packaged water handles customizable can & bottle sizes (20L, 25L, 10L, 1L). Bulk water handles tanker compartments & logistics costs.</small>
-                                            </div>
-
-                                            <div class="col-md-6 form-group">
-                                                <label class="font-weight-bold">Custom Capacity / Package Spec *</label>
-                                                <input type="text" name="water_capacity_spec" id="water_capacity_spec" class="form-control form-control-sm" placeholder="e.g. 20L, 25L, 10L, 1L, 20KL, 10KL" value="20L">
-                                                <small class="text-muted d-block mt-1">Specify package or vehicle size (e.g. 20L, 25L, 10L, 1L Bottle Box, 20KL Tanker).</small>
-                                            </div>
-
-                                            <div class="col-md-12 form-group" id="tanker_compartment_group" style="display: none;">
-                                                <label class="font-weight-bold">Tanker Compartment / Segment Configuration</label>
-                                                <input type="text" name="water_compartment_config" id="water_compartment_config" class="form-control form-control-sm" placeholder="e.g. Single Tank, 2 Chambers (10KL + 10KL), 3 Chambers (10KL + 5KL + 5KL)">
-                                                <small class="text-muted d-block mt-1">Configures internal tank chambers for multi-customer split deliveries (e.g. 10KL + 10KL or 10KL + 5KL + 5KL) & remaining tank water tracking.</small>
-                                            </div>
-
-                                            <div class="col-md-3 form-group tanker-metric-field" id="base_km_group" style="display: none;">
-                                                <label class="font-weight-bold">Base Free Distance (KM)</label>
-                                                <input type="number" step="0.1" name="base_km_limit" id="base_km_limit" class="form-control form-control-sm" value="10.0" placeholder="10.0">
-                                            </div>
-
-                                            <div class="col-md-3 form-group tanker-metric-field" id="excess_km_group" style="display: none;">
-                                                <label class="font-weight-bold">Excess Distance Rate (₹/KM)</label>
-                                                <input type="number" step="0.5" name="excess_km_rate" id="excess_km_rate" class="form-control form-control-sm" value="45.0" placeholder="45.0">
-                                            </div>
-
-                                            <div class="col-md-3 form-group tanker-metric-field" id="motor_pump_group" style="display: none;">
-                                                <label class="font-weight-bold">Motor Pumping Rate (₹/min)</label>
-                                                <input type="number" step="0.5" name="motor_pump_rate" id="motor_pump_rate" class="form-control form-control-sm" value="10.0" placeholder="10.0">
-                                            </div>
-
-                                            <div class="col-md-3 form-group tanker-metric-field" id="waiting_charge_group" style="display: none;">
-                                                <label class="font-weight-bold">Site Waiting Charge (₹/min)</label>
-                                                <input type="number" step="0.5" name="waiting_charge_rate" id="waiting_charge_rate" class="form-control form-control-sm" value="15.0" placeholder="15.0">
-                                            </div>
                                         </div>
                                     </x-ui.section-box>
                                 </div>
@@ -1460,7 +1407,7 @@
             $("#variant-section, #variant-option, #diffPrice-option, #diffPrice-section, #batch-option, #imei-option").hide(300);
         }
         else if($(this).val() == 'standard') {
-            $("input[name='cost']").prop('required',true);
+            $("input[name='cost']").prop('required', $('#product-form').attr('data-product-usage') !== 'sale');
             $("select[name='unit_id']").prop('required',true);
             $("input[name='file']").prop('required',false);
             $("#stock-section").show(300);
@@ -1705,6 +1652,7 @@
 
     // Recalc price function
     function recalcPrice() {
+        if ($('#product-form').attr('data-product-usage') === 'purchase') return;
         let cost   = parseFloat($('input[name="cost"]').val()) || 0;
         let margin = parseFloat($('input[name="profit_margin"]').val()) || 0;
 
@@ -1718,6 +1666,7 @@
 
     // Recalc margin when price edited manually
     function recalcMargin() {
+        if ($('#product-form').attr('data-product-usage') === 'purchase') return;
         let price = parseFloat($('input[name="price"]').val()) || 0;
         let cost  = parseFloat($('input[name="cost"]').val()) || 0;
         // Without a cost a percentage margin has no meaning (it would be Infinity and blank the field): keep it as is.
@@ -1797,35 +1746,6 @@
             $("#imei-section").hide(300);
         }
         applyDynamicGridSpans();
-    });
-
-    $("input[name='is_water_logistics']").on("change", function () {
-        if ($(this).is(':checked')) {
-            $("#water-logistics-section").show(300);
-            updateWaterLogisticsFields();
-        } else {
-            $("#water-logistics-section").hide(300);
-        }
-        applyDynamicGridSpans();
-    });
-
-    function updateWaterLogisticsFields() {
-        var vType = $('#water_vertical_type').val();
-        if (vType === 'bulk_water') {
-            $('#tanker_compartment_group, .tanker-metric-field').show(200);
-            if (!$('#water_capacity_spec').val() || $('#water_capacity_spec').val() === '20L') {
-                $('#water_capacity_spec').val('20KL');
-            }
-        } else {
-            $('#tanker_compartment_group, .tanker-metric-field').hide(200);
-            if (!$('#water_capacity_spec').val() || $('#water_capacity_spec').val() === '20KL') {
-                $('#water_capacity_spec').val('20L');
-            }
-        }
-    }
-
-    $('#water_vertical_type').on('change', function() {
-        updateWaterLogisticsFields();
     });
 
     // Synchronize toggle pill visual active state

@@ -1,133 +1,52 @@
-name: CI/CD Pipeline - DK Enterprises ERP
+name: Deploy to MilesWeb
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  # Deploy only the main commits that passed the acceptance suites.
+  workflow_run:
+    workflows: [ERP completion acceptance]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
-      deploy_target:
-        description: 'Deployment Environment'
-        required: true
-        default: 'milesweb-production'
-        type: choice
-        options:
-          - 'milesweb-production'
+      ref:
+        description: Commit SHA or branch to deploy (default is the selected branch head, use an older SHA to roll back)
+        required: false
+
+permissions:
+  contents: read
 
 concurrency:
-  group: deploy-dkenterprises
+  group: deploy-production
   cancel-in-progress: false
 
 jobs:
-  # ==========================================
-  # 1. CONTINUOUS INTEGRATION (CI)
-  # ==========================================
-  test:
-    name: "Automated Test Suite & Fraud Audit Verification"
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: dk_enterprises_erp_test
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup PHP Environment
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, bcmath, zip, gd
-          coverage: none
-
-      - name: Copy Environment Configuration
-        run: |
-          cp .env.example .env || true
-          sed -i 's/DB_DATABASE=.*/DB_DATABASE=dk_enterprises_erp_test/' .env
-          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=root/' .env
-          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env
-          sed -i 's/DB_PORT=.*/DB_PORT=3306/' .env
-
-      - name: Install Composer Dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
-
-      - name: Generate Application Key
-        run: php artisan key:generate
-
-      - name: Execute Database Migrations
-        run: php artisan migrate --force
-
-      - name: Run Multi-Company & Operational Fraud Test Suite
-        run: php artisan test tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php
-
-  # ==========================================
-  # 2. CONTINUOUS DEPLOYMENT (CD)
-  # ==========================================
   deploy:
-    name: "Deploy to MilesWeb Production Server"
-    needs: test
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    name: dkenterprises.animazon.in
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     timeout-minutes: 20
-
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - name: Deploy over SSH
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+          APP_DIR: /var/www/2928957e-908a-4326-a64d-a58ad5b99ca0/dkenterprises.animazon.in
+          REF: ${{ inputs.ref || github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          [[ "$REF" =~ ^[A-Za-z0-9._/-]+$ ]] || { echo "Invalid ref: $REF"; exit 1; }
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/deploy_key ~/.ssh/known_hosts
+          # Move the checkout first, so deploy.sh always runs from the version being deployed.
+          ssh -i ~/.ssh/deploy_key -p "${VPS_PORT:-22}" -o BatchMode=yes "$VPS_USER@$VPS_HOST" \
+            "set -e; cd $APP_DIR; git fetch --prune origin; git checkout --force --detach \$(git rev-parse --verify '$REF^{commit}' 2>/dev/null || git rev-parse --verify 'origin/$REF^{commit}'); bash deploy/deploy.sh"
 
-      - name: Deploy to MilesWeb over SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.MILESWEB_HOST || vars.MILESWEB_HOST || '45.199.139.25' }}
-          username: ${{ secrets.MILESWEB_USER || vars.MILESWEB_USER || 'animazon1' }}
-          password: ${{ secrets.MILESWEB_PASSWORD || vars.MILESWEB_PASSWORD }}
-          key: ${{ secrets.MILESWEB_SSH_KEY }}
-          port: ${{ secrets.MILESWEB_PORT || vars.MILESWEB_PORT || 22 }}
-          script_stop: true
-          envs: GITHUB_SHA
-          script: |
-            echo "=== Starting DK Enterprises Deployment on MilesWeb ==="
-            APP_DIR="/var/www/2928957e-908a-4326-a64d-a58ad5b99ca0/dkenterprises.animazon.in"
-            
-            # Ensure application directory exists
-            if [ ! -d "$APP_DIR" ]; then
-              echo "Cloning repository for the first time..."
-              git clone https://github.com/nandha3d/dkenterprises.git "$APP_DIR"
-            fi
-            
-            cd "$APP_DIR"
-            
-            echo "Fetching latest changes..."
-            git fetch origin main
-            git reset --hard origin/main
-            
-            # Ensure storage directories exist with proper permissions
-            mkdir -p storage/framework/{sessions,views,cache} storage/logs bootstrap/cache
-            chmod -R 775 storage bootstrap/cache
-            
-            # Install production dependencies if composer is present
-            if command -v composer &> /dev/null; then
-              echo "Installing composer dependencies..."
-              composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
-            fi
-            
-            # Run migrations and optimize Laravel caches
-            if [ -f "artisan" ]; then
-              echo "Running migrations and clearing cache..."
-              php artisan optimize:clear
-              php artisan config:cache
-              php artisan route:cache
-              php artisan view:cache
-            fi
-            
-            echo "=== Deployment Completed Successfully ==="
+      - name: Smoke check
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' https://dkenterprises.animazon.in/login)
+          echo "GET /login -> $code"
+          test "$code" = 200

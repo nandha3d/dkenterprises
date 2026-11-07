@@ -323,7 +323,7 @@
                         <span class="text-muted d-none d-lg-inline u-fs-11px" id="remarks-summary-preview">Remarks: Add transport, LR and bale details</span>
                     </div>
 
-                    <div class="bottom-action-buttons">
+                    <div class="bottom-action-buttons standard-mode-actions">
                         <button type="button" class="btn btn-outline-secondary comm-bottom-btn" id="btn-form-discard">
                             <i class="dripicons-clockwise"></i> Discard
                         </button>
@@ -335,6 +335,21 @@
                         </button>
                         <button type="button" class="btn btn-outline-secondary comm-bottom-btn" id="btn-form-review">
                             Review
+                        </button>
+                    </div>
+
+                    <div class="bottom-action-buttons view-mode-actions" style="display:none;">
+                        <button type="button" class="btn btn-primary comm-bottom-btn comm-bottom-btn-primary" id="btn-view-to-edit" title="Switch to edit mode">
+                            <i class="dripicons-document-edit"></i> Edit this Bill
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary comm-bottom-btn" id="btn-view-to-duplicate" title="Duplicate as a new draft">
+                            <i class="dripicons-copy"></i> Duplicate
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary comm-bottom-btn" id="btn-view-to-print" title="Print invoice">
+                            <i class="dripicons-print"></i> Print
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary comm-bottom-btn" id="btn-view-close" title="Close view and start new bill">
+                            <i class="dripicons-cross"></i> Close View
                         </button>
                     </div>
 
@@ -512,14 +527,14 @@
                                     <i class="dripicons-document-edit"></i> Edit
                                 </a>
                                 @endunless
-                                <a href="javascript:void(0)" class="side-action-btn view btn-side-view" data-id="{{ $bill->id }}" title="View bill details">
+                                <a href="javascript:void(0)" class="side-action-btn view btn-side-view" data-id="{{ $bill->id }}" title="View bill details in single view">
                                     <i class="dripicons-preview"></i> View
+                                </a>
+                                <a href="javascript:void(0)" class="side-action-btn copy btn-side-copy" data-id="{{ $bill->id }}" title="Duplicate this bill into a new draft in single view">
+                                    <i class="dripicons-copy"></i> Duplicate
                                 </a>
                                 <a href="javascript:void(0)" class="side-action-btn print btn-side-print" data-id="{{ $bill->id }}" title="Print invoice">
                                     <i class="dripicons-print"></i> Print
-                                </a>
-                                <a href="javascript:void(0)" class="side-action-btn copy btn-side-copy" data-id="{{ $bill->id }}" title="Copy this bill into a new draft" hidden>
-                                    <i class="dripicons-copy"></i> Copy
                                 </a>
                                 @if($returnsTab && $bill->posted_at && !$bill->reversed_at)
                                 <a href="javascript:void(0)" class="side-action-btn edit btn-side-return" data-id="{{ $bill->id }}" title="Return goods or adjust value: make a credit note against this bill">
@@ -889,44 +904,139 @@
     </div>
 </div>
 
-<!-- Modal: Sale Details Preview -->
+<!-- Modal: Sale Details Preview (Neat & Beautiful Unified Voucher Card) -->
 <div id="sale-details" tabindex="-1" role="dialog" aria-labelledby="saleDetailsLabel" aria-hidden="true" class="modal fade text-left">
-    <div role="document" class="modal-dialog modal-lg">
-      <div class="modal-content u-r-10px u-b-none u-sh-0-10px-25px-rgba-0-0-0-0_15">
-        <div class="container mt-3 pb-2 border-bottom">
-            <div class="row align-items-center">
-                <div class="col-md-3">
-                    <button id="sale-print-btn" type="button" class="btn btn-outline-secondary btn-sm"><i class="dripicons-print"></i> {{__('db.Print')}}</button>
+    <div role="document" class="modal-dialog voucher-modal-dialog">
+        <div class="voucher-preview-card">
+            <!-- Modal Header -->
+            <div class="voucher-preview-header">
+                <div class="voucher-header-main">
+                    <div class="voucher-icon-badge sales">
+                        <i class="dripicons-cart"></i>
+                    </div>
+                    <div>
+                        <h4 class="voucher-doc-title">
+                            <span>Sales Invoice</span>
+                            <span id="sale-details-ref-badge" class="voucher-ref-badge">#REF</span>
+                        </h4>
+                        <div class="voucher-badges-strip">
+                            <span id="sale-details-status-badge" class="badge badge-success">Completed</span>
+                            <span id="sale-details-date-text" class="text-muted small"></span>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6 text-center">
-                    <h3 id="saleDetailsLabel" class="modal-title font-weight-bold u-fs-16px">Sale Voucher Details</h3>
+                <div class="voucher-actions-toolbar">
+                    <a href="#" id="sale-details-edit-btn" class="voucher-edit-btn" title="Open Full Bill in Edit Mode">
+                        <i class="dripicons-document-edit"></i> Edit Bill
+                    </a>
+                    <button type="button" id="sale-print-btn" class="voucher-print-btn" title="Print Invoice">
+                        <i class="dripicons-print"></i> {{__('db.Print')}}
+                    </button>
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="close ml-2">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <div class="col-md-3 text-right">
-                    <button type="button" id="close-sale-modal-btn" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">&times;</span></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div id="sale-details-print-area" class="voucher-preview-body">
+                <!-- Two-column info cards -->
+                <div class="voucher-info-grid">
+                    <div class="voucher-info-card">
+                        <div class="voucher-info-card-title">
+                            <i class="dripicons-user text-primary"></i> Customer (Billed To)
+                        </div>
+                        <div id="sale-details-customer-name" class="voucher-party-name">—</div>
+                        <div id="sale-details-customer-company" class="voucher-info-line text-muted"></div>
+                        <div id="sale-details-customer-gstin" class="voucher-info-line text-primary font-weight-bold" style="display: none;"></div>
+                        <div id="sale-details-customer-phone" class="voucher-info-line"></div>
+                        <div id="sale-details-customer-address" class="voucher-info-line"></div>
+                    </div>
+
+                    <div class="voucher-info-card">
+                        <div class="voucher-info-card-title">
+                            <i class="dripicons-clipboard text-primary"></i> Voucher Meta &amp; Dispatch
+                        </div>
+                        <div class="voucher-meta-row">
+                            <span class="voucher-meta-label">Invoice Date:</span>
+                            <span id="sale-details-date-val" class="voucher-meta-val">—</span>
+                        </div>
+                        <div class="voucher-meta-row">
+                            <span class="voucher-meta-label">Warehouse / Godown:</span>
+                            <span id="sale-details-warehouse-val" class="voucher-meta-val">—</span>
+                        </div>
+                        <div class="voucher-meta-row">
+                            <span class="voucher-meta-label">Biller / Store:</span>
+                            <span id="sale-details-biller-val" class="voucher-meta-val">—</span>
+                        </div>
+                        <div class="voucher-meta-row">
+                            <span class="voucher-meta-label">Created By:</span>
+                            <span id="sale-details-user-val" class="voucher-meta-val">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <div class="voucher-table-wrap">
+                    <table class="table voucher-items-table product-sale-list">
+                        <thead>
+                            <tr>
+                                <th style="width: 45px;" class="text-center">#</th>
+                                <th>{{__('db.product')}}</th>
+                                <th style="width: 110px;">{{__('db.Batch No')}}</th>
+                                <th style="width: 95px;" class="text-right">Qty</th>
+                                <th style="width: 110px;" class="text-right">{{__('db.Unit Price')}}</th>
+                                <th style="width: 110px;" class="text-right">{{__('db.Tax')}}</th>
+                                <th style="width: 95px;" class="text-right">{{__('db.Discount')}}</th>
+                                <th style="width: 120px;" class="text-right">{{__('db.Subtotal')}}</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <!-- Financial Totals & Notes -->
+                <div class="voucher-bottom-grid">
+                    <div class="voucher-notes-card">
+                        <div class="voucher-notes-title">
+                            <i class="dripicons-document text-muted"></i> Voucher Notes &amp; Remarks
+                        </div>
+                        <p id="sale-details-notes-val" class="voucher-notes-text">No remarks recorded for this bill.</p>
+                    </div>
+
+                    <div class="voucher-totals-card">
+                        <div class="voucher-totals-row">
+                            <span>Total Items Price:</span>
+                            <strong id="sale-details-items-price">₹0.00</strong>
+                        </div>
+                        <div class="voucher-totals-row">
+                            <span>Order Tax:</span>
+                            <span id="sale-details-order-tax">₹0.00</span>
+                        </div>
+                        <div class="voucher-totals-row">
+                            <span>Order Discount:</span>
+                            <span id="sale-details-order-discount">₹0.00</span>
+                        </div>
+                        <div class="voucher-totals-row">
+                            <span>Shipping / Freight:</span>
+                            <span id="sale-details-shipping-cost">₹0.00</span>
+                        </div>
+                        <div class="voucher-totals-row grand-total-row">
+                            <span>Grand Total:</span>
+                            <span id="sale-details-grand-total">₹0.00</span>
+                        </div>
+                        <div class="voucher-totals-row">
+                            <span>Paid Amount:</span>
+                            <span id="sale-details-paid-amount" class="text-success font-weight-bold">₹0.00</span>
+                        </div>
+                        <div class="voucher-totals-row due-row" id="sale-details-due-row">
+                            <span>Balance Due:</span>
+                            <span id="sale-details-due-amount">₹0.00</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div id="sale-content" class="modal-body"></div>
-        <br>
-        <div class="table-responsive document-lines px-3" tabindex="0" role="region" aria-label="{{__('db.Sale Details')}}">
-            <table class="table table-bordered product-sale-list">
-                <thead>
-                    <th>#</th>
-                    <th>{{__('db.product')}}</th>
-                    <th>{{__('db.Batch No')}}</th>
-                    <th>Qty</th>
-                    <th>{{__('db.Returned')}}</th>
-                    <th>{{__('db.Unit Price')}}</th>
-                    <th>{{__('db.Tax')}}</th>
-                    <th>{{__('db.Discount')}}</th>
-                    <th>{{__('db.Subtotal')}}</th>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-        <div id="sale-footer" class="modal-body"></div>
-      </div>
     </div>
 </div>
 
@@ -3936,8 +4046,17 @@
         $('.bootstrap-select.show, .dropdown.show').not($(e.target).closest('.bootstrap-select, .dropdown')).removeClass('show open').find('.dropdown-menu.show').removeClass('show');
     });
 
-    // --- Load Sale To Form for In-Place Editing ---
-    window.loadSaleToForm = function(id) {
+    var currentLoadedSaleId = null;
+
+    // --- Load Sale To Form: Unified Single View Setup (View, Edit, Duplicate) ---
+    window.loadSaleToForm = function(id, mode) {
+        mode = mode || 'edit';
+        currentLoadedSaleId = id;
+
+        if ($('#fullwidth-register-view').is(':visible')) {
+            switchWorkspaceMode('voucher');
+        }
+
         $('#comm-split-grid').removeClass('panel-fullwidth');
         $('#fullscreen-icon').text('⛶');
         $('#fullscreen-tooltip').text('Full Width');
@@ -3957,22 +4076,65 @@
                 }
 
                 var s = res.sale;
-                // Switch Form to Update Mode
-                $('#entry-form-method').val('PUT');
-                $('#edit-sale-id').val(s.id);
-                $('#sale-entry-form').attr('action', '{{ url("sales") }}/' + s.id);
 
-                // Update UI Labels
-                $('#doc-breadcrumb-mode').text('Edit: ' + (s.reference_no || '#' + s.id)).removeClass('text-primary').addClass('text-success');
-                $('#doc-title-text').text('Edit Sales Bill: ' + (s.reference_no || '#' + s.id));
-                $('#doc-sub-text').text('Editing saved sale record');
+                if (mode === 'view') {
+                    // --- Single View Setup: View Mode (Read-Only Preview in Desk, No Dialog Box) ---
+                    $('#entry-form-method').val('GET');
+                    $('#edit-sale-id').val(s.id);
+                    $('#sale-entry-form').attr('action', 'javascript:void(0)');
+
+                    $('#doc-breadcrumb-mode').text('View: ' + (s.reference_no || '#' + s.id))
+                        .removeClass('badge-primary badge-success').addClass('badge-info');
+                    $('#doc-title-text').text('View Sales Bill: ' + (s.reference_no || '#' + s.id));
+                    $('#doc-sub-text').text('Viewing sale record (Single View Mode)');
+
+                    $('#comm-entry-workspace').addClass('is-view-mode');
+                    $('.standard-mode-actions').hide();
+                    $('.view-mode-actions').show();
+                } else if (mode === 'duplicate') {
+                    // --- Single View Setup: Duplicate Mode (Clone into New Bill) ---
+                    $('#entry-form-method').val('POST');
+                    $('#edit-sale-id').val('');
+                    $('#sale-entry-form').attr('action', '{{ route("sales.store") }}');
+
+                    $('#doc-breadcrumb-mode').text('New (Duplicate)')
+                        .removeClass('badge-success badge-info').addClass('badge-primary');
+                    $('#doc-title-text').text('New Sales Bill (Copy of ' + (s.reference_no || '#' + s.id) + ')');
+                    $('#doc-sub-text').text('Duplicate sale • Review and save as new bill');
+
+                    $('#comm-entry-workspace').removeClass('is-view-mode');
+                    $('.view-mode-actions').hide();
+                    $('.standard-mode-actions').show();
+                } else {
+                    // --- Single View Setup: Edit Mode (Update Saved Record) ---
+                    $('#entry-form-method').val('PUT');
+                    $('#edit-sale-id').val(s.id);
+                    $('#sale-entry-form').attr('action', '{{ url("sales") }}/' + s.id);
+
+                    $('#doc-breadcrumb-mode').text('Edit: ' + (s.reference_no || '#' + s.id))
+                        .removeClass('badge-primary badge-info').addClass('badge-success');
+                    $('#doc-title-text').text('Edit Sales Bill: ' + (s.reference_no || '#' + s.id));
+                    $('#doc-sub-text').text('Editing saved sale record');
+
+                    $('#comm-entry-workspace').removeClass('is-view-mode');
+                    $('.view-mode-actions').hide();
+                    $('.standard-mode-actions').show();
+                }
 
                 // Populate Header Inputs
-                $('#reference_no').val(s.reference_no || '');
-                $('#customer_po_no').val(s.customer_po_no || '');
-                if (res.business_date || s.created_at) {
-                    $('#bill_date').val(res.business_date || s.created_at.slice(0, 10));
-                    $('#entry_date').val(res.business_date || s.created_at.slice(0, 10));
+                if (mode === 'duplicate') {
+                    $('#reference_no').val('');
+                    $('#customer_po_no').val(s.customer_po_no ? s.customer_po_no + ' (Copy)' : '');
+                    var today = '{{ date("Y-m-d") }}';
+                    $('#bill_date').val(today);
+                    $('#entry_date').val(today);
+                } else {
+                    $('#reference_no').val(s.reference_no || '');
+                    $('#customer_po_no').val(s.customer_po_no || '');
+                    if (res.business_date || s.created_at) {
+                        $('#bill_date').val(res.business_date || s.created_at.slice(0, 10));
+                        $('#entry_date').val(res.business_date || s.created_at.slice(0, 10));
+                    }
                 }
                 
                 $('#customer_id').val(s.customer_id).trigger('change');
@@ -3986,8 +4148,12 @@
                 }
 
                 // Highlight active card in side list
-                $('.side-bill-card').removeClass('active-editing');
-                $('.side-bill-card[data-bill-id="' + id + '"]').addClass('active-editing');
+                $('.side-bill-card').removeClass('active-editing active-viewing');
+                if (mode === 'view') {
+                    $('.side-bill-card[data-bill-id="' + id + '"]').addClass('active-viewing');
+                } else {
+                    $('.side-bill-card[data-bill-id="' + id + '"]').addClass('active-editing');
+                }
 
                 // Populate Items
                 $('#order-table-body .order-item-row, #order-table-body .empty-placeholder-row').remove();
@@ -4009,8 +4175,34 @@
                     reindexRows();
                 }
 
+                // Populate drawer / charges
+                if (s.note) {
+                    $('#drawer-note, #hidden-note').val(s.note);
+                    $('#remarks-summary-preview').text('Remarks: ' + s.note.slice(0, 40) + (s.note.length > 40 ? '...' : ''));
+                }
+                if (s.shipping_cost) {
+                    $('#drawer-shipping-cost, #hidden-shipping-cost').val(s.shipping_cost);
+                }
+                if (s.order_discount) {
+                    $('#drawer-order-discount, #hidden-order-discount').val(s.order_discount);
+                }
+                var attr = s.attributes_json;
+                if (typeof attr === 'string') { try { attr = JSON.parse(attr); } catch(e){ attr = {}; } }
+                if (attr) {
+                    if (attr.bale_no) $('#drawer-bale-no, #hidden-bale-no').val(attr.bale_no);
+                    if (attr.no_of_bales) $('#drawer-no-of-bales, #hidden-no-of-bales').val(attr.no_of_bales);
+                    if (attr.bundle_count) $('#drawer-bundle-count, #hidden-bundle-count').val(attr.bundle_count);
+                    if (attr.vehicle_number) $('#drawer-vehicle-number, #hidden-vehicle-number').val(attr.vehicle_number);
+                    if (attr.lr_no) $('#drawer-lr-no, #hidden-lr-no').val(attr.lr_no);
+                    if (attr.lr_date) $('#drawer-lr-date, #hidden-lr-date').val(attr.lr_date);
+                    if (attr.transporter_name) $('#drawer-transporter-name, #hidden-transporter-name').val(attr.transporter_name);
+                    if (attr.station_to) $('#drawer-station-to, #hidden-station-to').val(attr.station_to);
+                    if (attr.order_no) $('#drawer-order-no, #hidden-order-no').val(attr.order_no);
+                    if (attr.credit_days) setCreditDays(attr.credit_days);
+                }
+
                 recalcTableSummary();
-                $(document).trigger("command-center-loaded", [res.sale]);
+                $(document).trigger("command-center-loaded", [res.sale, mode]);
 
                 // Scroll smoothly to top of form
                 $('#comm-entry-workspace').animate({ scrollTop: 0 }, 200);
@@ -4024,15 +4216,20 @@
 
     // --- Reset Form to Blank New Sale ---
     window.resetFormToNew = function() {
+        currentLoadedSaleId = null;
         $('#comm-split-grid').removeClass('panel-fullwidth');
         $('#fullscreen-icon').text('⛶');
         $('#fullscreen-tooltip').text('Full Width');
+
+        $('#comm-entry-workspace').removeClass('is-view-mode');
+        $('.view-mode-actions').hide();
+        $('.standard-mode-actions').show();
 
         $('#entry-form-method').val('POST');
         $('#edit-sale-id').val('');
         $('#sale-entry-form').attr('action', '{{ route("sales.store") }}');
 
-        $('#doc-breadcrumb-mode').text('New').removeClass('text-success').addClass('text-primary');
+        $('#doc-breadcrumb-mode').text('New').removeClass('badge-success badge-info').addClass('badge-primary');
         $('#doc-title-text').text('New Sales Bill');
         $('#doc-sub-text').text('Sale • New bill');
 
@@ -4044,7 +4241,7 @@
         $('.selectpicker').selectpicker('refresh');
         $('#sale_type_id').val('0');
 
-        $('.side-bill-card').removeClass('active-editing');
+        $('.side-bill-card').removeClass('active-editing active-viewing');
         $('#order-table-body .order-item-row, #order-table-body .empty-placeholder-row').remove();
         $productSearch.val('');
         rowCounter = 0;
@@ -4060,18 +4257,60 @@
         resetFormToNew();
     });
 
-    // Card click & edit button click
+    // View Mode Interactive Transition Handlers
+    $(document).on('click', '#btn-view-to-edit', function(e) {
+        e.preventDefault();
+        if (currentLoadedSaleId) {
+            loadSaleToForm(currentLoadedSaleId, 'edit');
+        }
+    });
+
+    $(document).on('click', '#btn-view-to-duplicate', function(e) {
+        e.preventDefault();
+        if (currentLoadedSaleId) {
+            loadSaleToForm(currentLoadedSaleId, 'duplicate');
+        }
+    });
+
+    $(document).on('click', '#btn-view-to-print', function(e) {
+        e.preventDefault();
+        if (currentLoadedSaleId) {
+            window.open('{{ url("sales/gen_invoice") }}/' + currentLoadedSaleId, '_blank');
+        }
+    });
+
+    $(document).on('click', '#btn-view-close', function(e) {
+        e.preventDefault();
+        resetFormToNew();
+    });
+
+    // Side bill list card actions: View, Edit, Duplicate in Single View Setup
     $(document).on('click', '.side-bill-card', function(e) {
         if ($(this).data('reversed')) return;
-        if ($(e.target).closest('.side-action-btn.view, .side-action-btn.print, .side-action-btn.reverse').length) return;
+        if ($(e.target).closest('a, button').length) return;
         var id = $(this).data('bill-id');
-        if (id) loadSaleToForm(id);
+        if (id) loadSaleToForm(id, 'view');
+    });
+
+    $(document).on('click', '.btn-side-view', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var id = $(this).data('id');
+        if (id) loadSaleToForm(id, 'view');
     });
 
     $(document).on('click', '.btn-side-load-edit', function(e) {
+        e.preventDefault();
         e.stopPropagation();
         var id = $(this).data('id');
-        if (id) loadSaleToForm(id);
+        if (id) loadSaleToForm(id, 'edit');
+    });
+
+    $(document).on('click', '.btn-side-copy', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var id = $(this).data('id');
+        if (id) loadSaleToForm(id, 'duplicate');
     });
 
     // --- Slideover Drawer Handlers ---
@@ -4325,8 +4564,253 @@
         switchWorkspaceMode('register');
     }
 
+    // --- Detailed Sales Bill Modal (Neat & Beautiful Preview with Live Server Fetch & Edit Option) ---
+    window.openSaleDetailsModal = function(saleOrId) {
+        if (!saleOrId) return;
+
+        // Resolve saleId from number, string, object or array
+        var saleId = null;
+        if (typeof saleOrId === 'number' || (typeof saleOrId === 'string' && /^\d+$/.test(saleOrId.trim()))) {
+            saleId = parseInt(saleOrId, 10);
+        } else if (typeof saleOrId === 'object' && saleOrId !== null) {
+            if (saleOrId.id) {
+                saleId = parseInt(saleOrId.id, 10);
+            } else if (Array.isArray(saleOrId)) {
+                var rawId = saleOrId[13] || '';
+                var m = String(rawId).replace(/[^0-9]/g, '');
+                if (m) saleId = parseInt(m, 10);
+            }
+        } else if (typeof saleOrId === 'string') {
+            try {
+                var parsed = JSON.parse(saleOrId);
+                return window.openSaleDetailsModal(parsed);
+            } catch (e) {
+                var m = saleOrId.replace(/[^0-9]/g, '');
+                if (m) saleId = parseInt(m, 10);
+            }
+        }
+
+        if (!saleId) {
+            console.error('Could not resolve sale ID for modal', saleOrId);
+            return;
+        }
+
+        // Show modal immediately with loading state
+        $('#sale-details-ref-badge').text('Loading...');
+        $('#sale-details-status-badge').text('...');
+        $('#sale-details-date-text').text('');
+        $('#sale-details-customer-name').text('Loading customer details...');
+        $('#sale-details-customer-company').hide();
+        $('#sale-details-customer-gstin').hide();
+        $('#sale-details-customer-phone').hide();
+        $('#sale-details-customer-address').hide();
+        $('#sale-details-date-val').text('—');
+        $('#sale-details-warehouse-val').text('—');
+        $('#sale-details-biller-val').text('—');
+        $('#sale-details-user-val').text('—');
+        $('#sale-details table.product-sale-list tbody').html(
+            '<tr><td colspan="8" class="text-center text-muted py-3"><i class="fa fa-spinner fa-spin mr-1"></i> Loading items...</td></tr>'
+        );
+        $('#sale-details-items-price').text('₹0.00');
+        $('#sale-details-order-tax').text('₹0.00');
+        $('#sale-details-order-discount').text('₹0.00');
+        $('#sale-details-shipping-cost').text('₹0.00');
+        $('#sale-details-grand-total').text('₹0.00');
+        $('#sale-details-paid-amount').text('₹0.00');
+        $('#sale-details-due-amount').text('₹0.00');
+        $('#sale-details-notes-val').text('Loading...');
+        $('#sale-details').modal('show');
+
+        // Fetch live authoritative sale JSON
+        $.ajax({
+            url: "{{ url('sales') }}/" + saleId,
+            type: "GET",
+            dataType: "json",
+            headers: { "X-Requested-With": "XMLHttpRequest", "Accept": "application/json" },
+            success: function(res) {
+                if (!res || !res.sale) {
+                    $('#sale-details-ref-badge').text('Error');
+                    $('#sale-details table.product-sale-list tbody').html(
+                        '<tr><td colspan="8" class="text-center text-danger py-3">Failed to load invoice details.</td></tr>'
+                    );
+                    return;
+                }
+
+                var s = res.sale;
+                var ref = s.reference_no || ('#' + s.id);
+                var statusMap = { 1: 'Completed', 2: 'Draft', 3: 'Ordered', 4: 'Returned' };
+                var statusText = statusMap[s.sale_status] || (s.sale_status == 1 ? 'Completed' : 'Draft');
+                var rawDate = res.business_date || (s.created_at ? s.created_at.split('T')[0] : '');
+                var formattedDate = rawDate;
+                if (rawDate && rawDate.indexOf('-') > -1) {
+                    var dp = rawDate.split('-');
+                    if (dp.length === 3) formattedDate = dp[2] + '-' + dp[1] + '-' + dp[0];
+                }
+
+                // Header & Edit Button
+                $('#sale-details-ref-badge').text(ref);
+                $('#sale-details-status-badge').text(statusText);
+                $('#sale-details-date-text').text(formattedDate);
+                var editUrl = "{{ url('sales') }}/" + s.id + "/edit";
+                $('#sale-details-edit-btn').attr('href', editUrl);
+
+                // Customer Card
+                var c = s.customer || {};
+                var custName = c.name || 'Walk-in Customer';
+                var custCompany = c.company_name || '';
+                var custGstin = c.tax_no || c.vat_number || '';
+                var custPhone = c.phone_number ? ('📞 ' + c.phone_number) : '';
+                var addressParts = [c.address, c.city, c.postal_code].filter(Boolean);
+                var custAddress = addressParts.length ? ('📍 ' + addressParts.join(', ')) : '';
+
+                $('#sale-details-customer-name').text(custName);
+                if (custCompany) {
+                    $('#sale-details-customer-company').text('Company: ' + custCompany).show();
+                } else {
+                    $('#sale-details-customer-company').hide();
+                }
+                if (custGstin) {
+                    $('#sale-details-customer-gstin').text('GSTIN: ' + custGstin).show();
+                } else {
+                    $('#sale-details-customer-gstin').hide();
+                }
+                if (custPhone) {
+                    $('#sale-details-customer-phone').text(custPhone).show();
+                } else {
+                    $('#sale-details-customer-phone').hide();
+                }
+                if (custAddress) {
+                    $('#sale-details-customer-address').text(custAddress).show();
+                } else {
+                    $('#sale-details-customer-address').hide();
+                }
+
+                // Voucher Meta Card
+                var w = s.warehouse || {};
+                var warehouseName = w.name || 'Main Warehouse';
+                var b = s.biller || {};
+                var billerName = b.name || 'Store';
+                var userName = (s.user && s.user.name) ? s.user.name : 'Admin';
+
+                $('#sale-details-date-val').text(formattedDate || '—');
+                $('#sale-details-warehouse-val').text(warehouseName);
+                $('#sale-details-biller-val').text(billerName);
+                $('#sale-details-user-val').text(userName);
+
+                // Items Table (8 Columns 1:1)
+                var $tbody = $('#sale-details table.product-sale-list tbody');
+                $tbody.empty();
+                var items = res.items || [];
+                var itemsPriceTotal = 0;
+
+                if (items.length > 0) {
+                    items.forEach(function(item, idx) {
+                        var name = item.product_name || 'Product';
+                        var code = item.product_code || '';
+                        var batch = item.batch_no ? item.batch_no : '—';
+                        var qty = Number(item.qty || 0);
+                        var unit = item.unit_code || 'PCS';
+                        var unitPrice = Number(item.net_unit_price || (qty > 0 ? (item.total / qty) : 0));
+                        var tax = Number(item.tax || 0);
+                        var taxRate = Number(item.tax_rate || 0);
+                        var discount = Number(item.discount || 0);
+                        var subtotal = Number(item.total || 0);
+                        itemsPriceTotal += subtotal;
+
+                        var rowHtml = '<tr>' +
+                            '<td class="text-center align-middle">' + (idx + 1) + '</td>' +
+                            '<td class="align-middle">' +
+                                '<div class="font-weight-bold text-dark">' + name + '</div>' +
+                                (code ? '<span class="badge badge-light border text-muted mt-1">' + code + '</span>' : '') +
+                            '</td>' +
+                            '<td class="align-middle">' +
+                                (batch !== '—' ? '<span class="badge badge-secondary px-2 py-1">' + batch + '</span>' : '<span class="text-muted">—</span>') +
+                            '</td>' +
+                            '<td class="text-right align-middle"><span class="badge badge-primary px-2 py-1 font-weight-bold">' + qty + ' ' + unit + '</span></td>' +
+                            '<td class="text-right align-middle font-weight-bold">₹' + unitPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '</td>' +
+                            '<td class="text-right align-middle">₹' + tax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + (taxRate > 0 ? ' <small class="text-muted">(' + taxRate + '%)</small>' : '') + '</td>' +
+                            '<td class="text-right align-middle">₹' + discount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '</td>' +
+                            '<td class="text-right align-middle font-weight-bold text-primary">₹' + subtotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '</td>' +
+                            '</tr>';
+                        $tbody.append(rowHtml);
+                    });
+                } else {
+                    $tbody.html('<tr><td colspan="8" class="text-center text-muted py-3">No products recorded on this voucher.</td></tr>');
+                }
+
+                // Financial Totals
+                var totalPrice = Number(s.total_price || itemsPriceTotal || 0);
+                var orderTax = Number(s.order_tax || 0);
+                var orderTaxRate = Number(s.order_tax_rate || 0);
+                var orderDiscount = Number(s.order_discount || 0);
+                var shippingCost = Number(s.shipping_cost || 0);
+                var grandTotal = Number(s.grand_total || (totalPrice + orderTax + shippingCost - orderDiscount));
+                var paidAmount = Number(s.paid_amount || 0);
+                var dueAmount = Math.max(0, grandTotal - paidAmount);
+
+                $('#sale-details-items-price').text('₹' + totalPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                $('#sale-details-order-tax').text('₹' + orderTax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + (orderTaxRate > 0 ? ' (' + orderTaxRate + '%)' : ''));
+                $('#sale-details-order-discount').text('₹' + orderDiscount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                $('#sale-details-shipping-cost').text('₹' + shippingCost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                $('#sale-details-grand-total').text('₹' + grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                $('#sale-details-paid-amount').text('₹' + paidAmount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                $('#sale-details-due-amount').text('₹' + dueAmount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+
+                if (dueAmount > 0.01) {
+                    $('#sale-details-due-row').removeClass('settled').addClass('has-due');
+                } else {
+                    $('#sale-details-due-row').removeClass('has-due').addClass('settled');
+                }
+
+                var note = (s.sale_note || s.staff_note || '').trim();
+                $('#sale-details-notes-val').text(note || 'No remarks recorded for this bill.');
+            },
+            error: function() {
+                $('#sale-details-ref-badge').text('Error');
+                $('#sale-details table.product-sale-list tbody').html(
+                    '<tr><td colspan="8" class="text-center text-danger py-3">Unable to retrieve invoice data from server.</td></tr>'
+                );
+            }
+        });
+    };
+
+    // Click handler for Action > View on datatable rows and cards
+    $(document).on('click', 'table.sale-list tbody .view, #sale-table tbody .view, .sale-link .view', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var id = $(this).data('id');
+        if (!id) {
+            var tr = $(this).closest('tr');
+            id = tr.data('id') || tr.attr('data-id');
+            if (!id) {
+                var rowData = $('#sale-table').DataTable().row(tr).data();
+                id = rowData ? (rowData.id || (rowData.sale && rowData.sale[13])) : null;
+            }
+        }
+        if (id) {
+            openSaleDetailsModal(id);
+        } else {
+            var saleData = $(this).closest('tr').data('sale') || $(this).closest('tr').attr('data-sale');
+            if (saleData) openSaleDetailsModal(saleData);
+        }
+    });
+
+    // Print button handler
+    $(document).on('click', '#sale-print-btn', function() {
+        var printArea = document.getElementById('sale-details-print-area');
+        var ref = $('#sale-details-ref-badge').text() || 'Voucher';
+        var printWindow = window.open('', 'Print-Window');
+        printWindow.document.open();
+        printWindow.document.write('<html><head><title>Sales Bill ' + ref + '</title>' +
+            '<link rel="stylesheet" href="{{ asset("vendor/bootstrap/css/bootstrap.min.css") }}">' +
+            '<link rel="stylesheet" href="{{ versioned_asset("css/pages/voucher-preview-modal.css") }}">' +
+            '</head><body onload="window.print()">' + printArea.innerHTML + '</body></html>');
+        printWindow.document.close();
+        setTimeout(function() { printWindow.close(); }, 500);
+    });
+
     initPanelState();
-    window.commandCenterGrid = {addProductRow, resetFormToNew, recalcTableSummary, switchWorkspaceMode, products: allProducts};
+    window.commandCenterGrid = {addProductRow, applyProductToRow, resetFormToNew, recalcTableSummary, switchWorkspaceMode, products: allProducts};
 })();
 </script>
 @include('backend.partials.gst-entry', ['kind' => 'sale'])
@@ -4335,6 +4819,7 @@
 @include('backend.partials.command-center-form', ['kind' => 'sale'])
 
 @push('css')
+    <link rel="stylesheet" href="{{ versioned_asset('css/pages/voucher-preview-modal.css') }}">
     <link rel="stylesheet" href="{{ versioned_asset('css/pages/shared-purchase-index.css') }}">
     @if($returnsTab)<link rel="stylesheet" href="{{ versioned_asset('css/pages/commercial-returns.css') }}">@endif
     <link rel="stylesheet" href="<?php echo asset('css/commercial-entry.css') . '?v=' . (file_exists(public_path('css/commercial-entry.css')) ? filemtime(public_path('css/commercial-entry.css')) : time()) ?>" type="text/css">

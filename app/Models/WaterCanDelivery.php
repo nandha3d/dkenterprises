@@ -6,7 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class WaterCanDelivery extends Model
 {
-    protected $guarded = ['id'];
+    protected $fillable = [
+        'delivery_no',
+        'delivery_date',
+        'route_id',
+        'customer_id',
+        'morning_loaded_cans',
+        'cans_delivered',
+        'empty_cans_returned',
+        'can_rate',
+        'total_amount',
+        'paid_amount',
+        'payment_mode',
+        'balance_cans_held',
+        'status',
+        'created_by'
+    ];
 
     public function route()
     {

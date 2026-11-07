@@ -1,9 +1,8 @@
 {
-    "Woocommerce": false,
-    "Ecommerce": false,
+    "Woocommerce": true,
+    "Ecommerce": true,
     "Middleware": true,
-    "Manufacturing": false,
-    "Restaurant": false,
-    "Project": false,
-    "DkTrack": false
+    "Manufacturing": true,
+    "Restaurant": true,
+    "Project": true
 }

@@ -1,25 +1,24 @@
 @php
     // Layout: documents/ZOLOERP_SIDEBAR_INFORMATION_ARCHITECTURE_PLAN.md — business domains, capability/permission gated.
     $nav = new \App\Services\Platform\NavigationAccess($role_has_permissions_list ?? null);
-    $role = $role ?? (\Spatie\Permission\Models\Role::find(Auth::user()?->role_id ?? 1));
+    $role = $role ?? (\Spatie\Permission\Models\Role::find(Auth::user()->role_id ?? 1));
     $navigationContext = $nav->context;
+    $activeCompany = $navigationContext ? \App\Models\Company::find($navigationContext->companyId) : null;
+    $companyIndustry = $activeCompany?->industry;
     $isAdmin = $nav->isAdmin;
     $canNavigate = fn ($permission) => $nav->can($permission);
     $documentShortcuts = app(\App\Services\Platform\DocumentShortcutRegistry::class)->forUser($canNavigate, $isAdmin);
     // Visibility only: a module that is switched off hides its links. Links never fall back to an older page.
     $complianceOn = config('commercial.enabled') && config('compliance.enabled');
     $canMasters = $nav->allows('sidebar_product');
-    $canSelling = $nav->allows('sidebar_sale', 'packing_slip_challan', 'delivery', 'delivery-challans-index', 'quotes-index');
+    $canSelling = $nav->allows('sidebar_sale', 'packing_slip_challan', 'delivery', 'delivery-challans-index', 'quotes-index', 'sale-payment-add');
     $canJobWork = config('operations.enabled') && $nav->has('operations.job_work');
     $canDistribution = (config('commercial.enabled') && $nav->has('sales.route_distribution') && $nav->allows('sales-index')) || $nav->has('operations.water_logistics');
     $canHrm = $nav->has('hrm.enabled') && $nav->allows('sidebar_hrm');
     $hasOperations = $canJobWork || $canDistribution || $nav->has('operations.scheduling') || $nav->has('manufacturing.production')
         || $nav->has('operations.projects') || $nav->has('service.repair') || $nav->has('operations.cafe_bakery')
-        || ($nav->allows('addons') && \Auth::user()?->role_id != 5 && ($nav->has('sales.ecommerce') || $nav->has('operations.restaurant')));
+        || ($nav->allows('addons') && \Auth::user()->role_id != 5 && ($nav->has('sales.ecommerce') || $nav->has('operations.restaurant')));
     $settingsSections = \App\Services\Platform\SettingsCatalog::sections($nav);
-    $sidebarCompanyId = $navigationContext?->companyId ?? session('company_id');
-    $sidebarCompany = $sidebarCompanyId ? \App\Models\Company::find($sidebarCompanyId) : null;
-    $sidebarIndustry = $sidebarCompany?->industry;
 @endphp
 
 <div class="side-search d-print-none" role="search">
@@ -65,7 +64,7 @@
             </ul>
         </li>
     @endif
-    @if($canMasters || $nav->allows('customers-index', 'suppliers-index'))
+    @if($canMasters || $nav->allows('customers-index', 'suppliers-index', 'customer_group'))
         <li>
             <a href="#parties" aria-expanded="false" data-toggle="collapse">
                 <i class="dripicons-user"></i>
@@ -75,12 +74,15 @@
                 @if($nav->allows('customers-index'))
                     <li id="customer-list-menu"><a href="{{route('customer.index')}}">Customers</a></li>
                 @endif
+                @if($canMasters || $nav->allows('customer_group'))
+                    <li id="customer-group-menu"><a href="{{route('customer_group.index')}}">Customer Groups</a></li>
+                @endif
                 @if($nav->allows('suppliers-index'))
                     <li id="supplier-list-menu"><a href="{{route('supplier.index')}}">Suppliers</a></li>
                 @endif
                 @if($canMasters)
-                    <li><a href="{{route('agent.index')}}">Agents / Brokers</a></li>
-                    <li><a href="{{route('area.index')}}">Areas / Routes</a></li>
+                    <li id="agent-list-menu"><a href="{{route('agent.index')}}">Agents / Brokers</a></li>
+                    <li id="area-list-menu"><a href="{{route('area.index')}}">Areas / Routes</a></li>
                 @endif
             </ul>
         </li>
@@ -110,27 +112,21 @@
                 <span>Inventory</span>
             </a>
             <ul id="inventory" class="collapse list-unstyled">
-                @if(config('operations.enabled') && $nav->has('core.inventory') && $nav->allows('products-index'))
-                    <li id="stock-menu"><a href="{{ url('/operations/stock') }}">Stock</a></li>
-                @endif
-                @if($nav->has('inventory.lot_report') && $nav->allows('products-index'))
-                    <li id="stock-by-lot-menu"><a href="{{route('inventory-reports.stock-by-lot')}}" data-keywords="batch">Stock By Lot</a></li>
-                @endif
-                @if($canMasters && $nav->allows('stock_count'))
-                    <li id="stock-count-menu"><a href="{{route('stock-count.index')}}" data-keywords="physical">Stock Count</a></li>
-                @endif
-                @if($canMasters && $nav->allows('adjustment'))
-                    <li id="adjustment-list-menu"><a href="{{route('qty_adjustment.index')}}" data-keywords="damage shrinkage write-off">Stock Adjustments</a></li>
-                @endif
-                @if($canMasters && $nav->has('inventory.damage_stock'))
-                    <li id="damage-stock-menu"><a href="{{route('damage-stock.index')}}">Damage Stock Audit</a></li>
-                @endif
-                @if($nav->allows('transfers-index') && $nav->allows('sidebar_transfer'))
-                    <li id="transfer-list-menu"><a href="{{route('transfers.index')}}" data-keywords="godown warehouse">Transfers</a></li>
-                @endif
-                @if($nav->allows('transfers-import') && $nav->allows('sidebar_transfer'))
-                    <li id="transfer-import-menu"><a href="{{url('transfers/transfer_by_csv')}}" data-keywords="csv">Import Transfers</a></li>
-                @endif
+                @foreach(app(\App\Services\Platform\InventoryNavigation::class)->sections($nav) as $key => $item)
+                    @php
+                        $inventoryActive = match ($key) {
+                            'stock' => request()->is('inventory-reports/*', 'operations/stock*'),
+                            'corrections' => request()->is('stock-count*', 'qty_adjustment*', 'damage-stock*'),
+                            'transfers' => request()->is('transfers*'),
+                        };
+                        $inventoryKeywords = match ($key) {
+                            'stock' => 'stock by lot batch balances warehouse godown',
+                            'corrections' => 'stock count physical stocktake stock adjustments damage shrinkage write-off',
+                            'transfers' => 'import transfers csv godown warehouse',
+                        };
+                    @endphp
+                    <li id="{{ $item['id'] }}" @class(['active' => $inventoryActive])><a href="{{ $item['url'] }}" data-keywords="{{ $inventoryKeywords }}">{{ $item['label'] }}</a></li>
+                @endforeach
             </ul>
         </li>
     @endif
@@ -139,7 +135,7 @@
     @if($nav->allows('sidebar_purchase') || $canSelling)
         <li class="sidebar-heading"><span>Transactions</span></li>
     @endif
-    @if($nav->allows('sidebar_purchase'))
+    @if($nav->allows('sidebar_purchase', 'purchase-payment-add'))
         <li>
             <a href="#purchase" aria-expanded="false" data-toggle="collapse">
                 <i class="dripicons-card"></i>
@@ -149,6 +145,9 @@
                 @if($nav->allows('purchases-index'))
                     <li id="purchase-list-menu"><a href="{{route('purchases.index')}}" data-keywords="grn purchase">Purchase Bills</a></li>
                     <li><a href="{{ route('purchases.index', ['orders' => 1]) }}" data-keywords="po">Purchase Orders</a></li>
+                @endif
+                @if($nav->allows('purchase-payment-add'))
+                    <li id="purchase-payment-menu"><a href="{{ route('dues.index', ['tab' => 'purchases']) }}" data-keywords="payment voucher supplier due">Payments &amp; Vouchers</a></li>
                 @endif
                 @if($nav->allows('purchase-return-index'))
                     <li id="purchase-return-menu"><a href="{{ route('purchases.index', ['returns' => 1]) }}">Purchase Returns &amp; Debit Notes</a></li>
@@ -169,6 +168,9 @@
                 @if($nav->allows('sales-index'))
                     <li id="sale-list-menu"><a href="{{route('sales.index')}}" data-keywords="invoice sale">Sales Bills</a></li>
                     @if(config('commercial.enabled'))<li><a href="{{ route('sales.index', ['orders' => 1]) }}" data-keywords="so">Sales Orders</a></li>@endif
+                @endif
+                @if($nav->allows('sale-payment-add'))
+                    <li id="sale-payment-menu"><a href="{{ route('dues.index', ['tab' => 'sales']) }}" data-keywords="payment receipt customer due">Payments &amp; Receipts</a></li>
                 @endif
                 @if($nav->allows('returns-index'))
                     <li id="sale-return-menu"><a href="{{ route('sales.index', ['returns' => 1]) }}">Sales Returns &amp; Credit Notes</a></li>
@@ -205,6 +207,14 @@
             </ul>
         </li>
     @endif
+
+        <!-- Centralized Due Clearance Hub -->
+    <li id="dues-management-menu" class="{{ request()->is('transactions/dues*') ? 'active' : '' }}">
+        <a href="{{ route('dues.index') }}" data-keywords="dues settlement collections payables receivables clearance payment receipt">
+            <i class="dripicons-wallet"></i>
+            <span>Payments &amp; Due Management</span>
+        </a>
+    </li>
 
     <!-- OPERATIONS (each module only when its capability is on) -->
     @if($hasOperations)
@@ -246,48 +256,35 @@
         <li>
             <a href="#distribution" aria-expanded="false" data-toggle="collapse">
                 <i class="dripicons-map"></i>
-                <span>Distribution</span>
+                @if($companyIndustry === 'bulk_water')
+                    <span>Bulk Water Tankers</span>
+                @elseif($companyIndustry === 'packaged_water')
+                    <span>20L Can Distribution</span>
+                @else
+                    <span>Distribution</span>
+                @endif
             </a>
             <ul id="distribution" class="collapse list-unstyled">
-                @if(config('commercial.enabled') && $nav->has('sales.route_distribution') && $nav->allows('sales-index'))
-                    <li id="route-sheet-menu"><a href="{{ url('/trade/routes') }}" data-keywords="route sheet van">Routes</a></li>
-                @endif
-                @if($nav->has('operations.water_logistics'))
-                    @if($sidebarIndustry === 'bulk_water')
-                        <li class="{{ request()->is('water-logistics') ? 'active' : '' }}">
-                            <a href="{{route('water-logistics.index')}}"><i class="dripicons-truck mr-1 text-primary"></i> Tanker Trips &amp; Dispatch</a>
-                        </li>
-                        <li class="{{ request()->is('fleet/tracking*') ? 'active' : '' }}">
-                            <a href="{{route('fleet.tracking')}}"><i class="fa fa-map-marker mr-1 text-primary"></i> Live Fleet GPS Tracking</a>
-                        </li>
-                        <li class="{{ request()->is('*credit-aging*') ? 'active' : '' }}">
-                            <a href="{{route('water-logistics.credit-aging')}}"><i class="dripicons-time-reverse mr-1 text-warning"></i> Corporate Credit Aging</a>
-                        </li>
-                    @elseif($sidebarIndustry === 'packaged_water')
-                        <li class="{{ request()->is('water-logistics') ? 'active' : '' }}">
-                            <a href="{{route('water-logistics.index')}}"><i class="dripicons-drop mr-1 text-info"></i> Packaged Drinking Water Routes</a>
-                        </li>
-                        <li class="{{ request()->is('fleet/tracking*') ? 'active' : '' }}">
-                            <a href="{{route('fleet.tracking')}}"><i class="fa fa-map-marker mr-1 text-info"></i> Live Route GPS Tracking</a>
-                        </li>
-                        <li class="{{ request()->is('*credit-aging*') ? 'active' : '' }}">
-                            <a href="{{route('water-logistics.credit-aging')}}"><i class="dripicons-time-reverse mr-1 text-warning"></i> Customer Credit Aging</a>
-                        </li>
-                    @else
-                        <li class="{{ request()->is('water-logistics') ? 'active' : '' }}">
-                            <a href="{{route('water-logistics.index')}}"><i class="dripicons-map mr-1 text-primary"></i> Fleet Logistics &amp; Routes</a>
-                        </li>
-                        <li class="{{ request()->is('fleet/tracking*') ? 'active' : '' }}">
-                            <a href="{{route('fleet.tracking')}}"><i class="fa fa-map-marker mr-1 text-primary"></i> Live Fleet GPS Tracking</a>
-                        </li>
-                        <li class="{{ request()->is('*credit-aging*') ? 'active' : '' }}">
-                            <a href="{{route('water-logistics.credit-aging')}}"><i class="dripicons-time-reverse mr-1 text-warning"></i> Corporate Credit Aging</a>
-                        </li>
+                @if($companyIndustry === 'bulk_water')
+                    <li><a href="{{route('water-logistics.index')}}">Tanker Fleet &amp; Trip Sheets</a></li>
+                    <li><a href="{{route('fleet.tracking')}}"><i class="fa fa-map-marker mr-1"></i> Live Fleet Telematics</a></li>
+                    <li><a href="{{route('water-logistics.credit-aging')}}">Corporate Credit Aging</a></li>
+                @elseif($companyIndustry === 'packaged_water')
+                    <li><a href="{{route('water-logistics.index')}}">Deliveries &amp; Manifests</a></li>
+                    <li><a href="{{route('water-logistics.index')}}#tab-can-inventory">Customer Can Balances &amp; Deposits</a></li>
+                    @if(config('commercial.enabled') && $nav->has('sales.route_distribution') && $nav->allows('sales-index'))
+                        <li id="route-sheet-menu"><a href="{{ url('/trade/routes') }}" data-keywords="route sheet van">Beat Routes &amp; Tata Ace</a></li>
+                    @endif
+                    <li><a href="{{route('water-logistics.credit-aging')}}">Corporate Credit Aging</a></li>
+                @else
+                    @if(config('commercial.enabled') && $nav->has('sales.route_distribution') && $nav->allows('sales-index'))
+                        <li id="route-sheet-menu"><a href="{{ url('/trade/routes') }}" data-keywords="route sheet van">Routes</a></li>
+                    @endif
+                    @if($nav->has('operations.water_logistics'))
+                        <li><a href="{{route('water-logistics.index')}}">Fleet Trips &amp; Can Routes</a></li>
+                        <li><a href="{{route('water-logistics.credit-aging')}}">Corporate Credit Aging</a></li>
                     @endif
                 @endif
-                <li class="{{ request()->is('mobile*') ? 'active' : '' }}">
-                    <a href="{{ route('mobile.index') }}" target="_blank"><i class="dripicons-device-mobile mr-1 text-success"></i> <strong>Mobile Field App (All Roles)</strong> <span class="badge badge-success ml-1">PWA</span></a>
-                </li>
             </ul>
         </li>
     @endif
@@ -363,7 +360,7 @@
                 <li id="inv-close-menu"><a href="{{route('accounting.inventory-close')}}">Periodic Inventory Close</a></li>
                 <li id="semantic-map-menu"><a href="{{route('accounting.semantic-mappings')}}">Semantic Account Mapping</a></li>
                 @if($nav->allows('account-index'))
-                    <li id="account-list-menu"><a href="{{route('accounts.index')}}">{{__('db.Account List')}} (Cash)</a></li>
+                    <li id="account-list-menu"><a href="{{route('accounts.index')}}">Cash &amp; Bank Accounts</a></li>
                 @endif
                 @if($nav->allows('money-transfer'))
                     <li id="money-transfer-menu"><a href="{{route('money-transfers.index')}}">{{__('db.Money Transfer')}}</a></li>
@@ -463,6 +460,23 @@
                 @if($nav->allows('monthly-purchase'))
                     <li id="monthly-purchase-report-menu"><a href="{{url('report/monthly_purchase/'.date('Y'))}}">{{__('db.Monthly Purchase')}}</a></li>
                 @endif
+                <li class="sidebar-sublabel">Customers &amp; Suppliers</li>
+                @if($nav->allows('customer-report'))
+                    <li id="customer-report-menu"><a href="{{route('report.customer')}}" data-keywords="customer report statement ledger">{{__('db.Customer Report')}}</a></li>
+                @endif
+                @if($nav->allows('due-report'))
+                    <li id="due-report-menu"><a href="{{route('report.customerDueByDate')}}" data-keywords="customer dues receivables">{{__('db.Customer Due Report')}}</a></li>
+                @endif
+                @if($nav->allows('customer_group'))
+                    <li id="customer-group-report-menu"><a href="{{route('report.customer_group')}}" data-keywords="customer group">{{__('db.Customer Group Report')}}</a></li>
+                @endif
+                @if($nav->allows('supplier-report'))
+                    <li id="supplier-report-menu"><a href="{{route('report.supplier')}}" data-keywords="supplier report statement ledger">{{__('db.Supplier Report')}}</a></li>
+                @endif
+                @if($nav->allows('supplier-due-report'))
+                    <li id="supplier-due-report-menu"><a href="{{route('report.supplierDueByDate')}}" data-keywords="supplier dues payables">{{__('db.Supplier Due Report')}}</a></li>
+                @endif
+                <li id="outstanding-due-report-menu"><a href="{{ route('report.outstandingDues') }}" data-keywords="customer supplier dues receivables payables outstanding">{{ __('db.Outstanding Dues') }}</a></li>
                 <li class="sidebar-sublabel">Inventory</li>
                 @if($nav->allows('product-report'))
                     <li id="product-report-menu"><a href="{{route('report.product')}}">{{__('db.Product Report')}}</a></li>
@@ -487,7 +501,7 @@
                     <li id="biller-report-menu"><a href="{{route('report.biller')}}">{{__('db.Biller Report')}}</a></li>
                 @endif
                 <li id="cash-register-report-menu"><a href="{{route('cashRegister.index')}}">{{__('db.Cash Register')}}</a></li>
-                @if($isAdmin || ($role?->id ?? 1) <= 2)
+                @if($isAdmin || $role->id <= 2)
                     <li id="activity-log-menu"><a href="{{route('setting.activityLog')}}" data-keywords="audit history">{{__('db.Activity Log')}}</a></li>
                 @endif
             </ul>

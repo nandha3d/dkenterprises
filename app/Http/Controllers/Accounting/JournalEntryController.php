@@ -44,7 +44,7 @@ class JournalEntryController extends Controller
             $query->whereDate('entry_date', '>=', $request->start_date)->whereDate('entry_date', '<=', $request->end_date);
         }
 
-        $entries = $query->orderBy('id', 'desc')->paginate(25);
+        $entries = $query->orderBy('id', 'desc')->paginate(25)->withQueryString();
         $accounts = ChartOfAccount::forCompany($context)->where('is_active', true)->orderBy('code')->get();
         $reversedIds = JournalEntry::forCompany($context)->whereIn('reversal_of_id', $entries->pluck('id'))->pluck('reversal_of_id')->all();
 
@@ -76,7 +76,7 @@ class JournalEntryController extends Controller
         $series = DocumentSeries::forCompany($context)
             ->where('branch_id', $context->branchId)
             ->where('financial_year_id', $context->financialYearId)
-            ->whereIn('document_type', ['journal', 'sale_payment', 'purchase_payment'])
+            ->where('document_type', 'journal')
             ->get();
 
         $customers = Customer::forCompany($context)->where('is_active', true)->orderBy('name')->get(['id', 'name', 'city']);
@@ -111,7 +111,7 @@ class JournalEntryController extends Controller
 
         $account = DB::transaction(function () use ($validated, $openingBal, $context) {
             app(CompanyWriteGuard::class)->begin($context, null);
-            return ChartOfAccount::forceCreate([
+            $account = ChartOfAccount::forceCreate([
                 'company_id' => $context->companyId,
                 'code' => $validated['code'],
                 'name' => $validated['name'],
@@ -125,6 +125,8 @@ class JournalEntryController extends Controller
                 'is_system' => false,
                 'is_active' => true,
             ]);
+            app(\App\Services\Accounting\SettlementAccountService::class)->syncFromLedger($account, $context);
+            return $account->refresh();
         });
 
         $bal = (float) $account->current_balance;
@@ -148,6 +150,7 @@ class JournalEntryController extends Controller
         $series = DocumentSeries::forCompany($context)
             ->where('branch_id', $context->branchId)
             ->where('financial_year_id', $context->financialYearId)
+            ->where('document_type', 'journal')
             ->when($code, fn ($q) => $q->where('code', $code), fn ($q) => $q->where('is_default', true))
             ->first();
 
@@ -166,8 +169,8 @@ class JournalEntryController extends Controller
     public function show(Request $request, $id)
     {
         $context = $this->authorizedContext('accounting.reports.view');
-        $entry = JournalEntry::withOwnedItems($context)->with(['creator' => fn ($q) => $q->whereIn('id', DB::table('company_user')->select('user_id')->where('company_id', $context->companyId))])->findOrFail($id);
-        abort_if($entry->branch_id && (int) $entry->branch_id !== $context->branchId, 404);
+        $query = JournalEntry::withOwnedItems($context)->with(['creator' => fn ($q) => $q->whereIn('id', DB::table('company_user')->select('user_id')->where('company_id', $context->companyId))]);
+        $entry = app(\App\Services\Accounting\FinancialReportService::class)->scopeEntries($query, $context)->findOrFail($id);
         return response()->json($entry);
     }
 

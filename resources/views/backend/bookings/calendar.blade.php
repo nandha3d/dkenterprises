@@ -17,7 +17,7 @@
             </div>
             <div class="col-md-5 text-right">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createBookingModal">
-                    <i class="dripicons-plus"></i> Add Booking
+                    <i class="dripicons-plus"></i> + Add Booking
                 </button>
             </div>
         </div>

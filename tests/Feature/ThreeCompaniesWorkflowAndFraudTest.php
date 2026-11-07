@@ -433,7 +433,7 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
     }
 
     /**
-     * Test 12: Executive Dashboard - Multi-Company Live Insights Cards Rendering.
+     * Test 12: Separate Company Dashboard & Overall Master Workspace Dashboard.
      */
     public function test_dashboard_displays_all_three_company_insight_cards(): void
     {
@@ -445,17 +445,22 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
             'financial_year_id' => 1,
         ]);
 
+        // 1. Company Dashboard is separate for active company (Aran Cafe)
         $response = $this->get('/dashboard');
         $response->assertStatus(200);
+        $response->assertSee('Financial overview');
+        $response->assertSee('Master Group Insight');
+        $response->assertSee('POS Terminal');
 
-        // Assert company insights cards are present in the response
-        $response->assertSee('Multi-Enterprise Command Deck');
-        $response->assertSee('Aran Cafe');
-        $response->assertSee('Tiruchendur Murugan Water Supply');
-        $response->assertSee('DK Waters');
-        $response->assertSee('2 Active Outlets');
-        $response->assertSee('Heavy Tanker Fleet');
-        $response->assertSee('Empty Can Recovery', false);
+        // 2. Overall Dashboard is at the Workspace level (same as zolo ERP Pro)
+        $workspaceResponse = $this->get('/workspace');
+        $workspaceResponse->assertStatus(200);
+        $workspaceResponse->assertSee('DK Enterprises');
+        $workspaceResponse->assertSee('Master Group Rollup');
+        $workspaceResponse->assertSee('Aran Cafe');
+        $workspaceResponse->assertSee('Tiruchendur Murugan Water Supply');
+        $workspaceResponse->assertSee('DK Waters');
+        $workspaceResponse->assertSee('Group Monthly Performance');
     }
 
     /**
@@ -518,7 +523,9 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
      */
     public function test_mobile_api_bootstrap_and_role_dashboard_endpoints(): void
     {
-        // 1. Mobile bootstrap data
+        $user = \App\Models\User::find(1);
+
+        // 1. Mobile bootstrap data (Public)
         $response = $this->getJson('/api/v1/mobile/bootstrap');
         $response->assertStatus(200);
         $response->assertJsonPath('success', true);
@@ -532,8 +539,8 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
             ]
         ]);
 
-        // 2. Role dashboard for super_admin
-        $responseRole = $this->getJson('/api/v1/mobile/dashboard/super_admin');
+        // 2. Role dashboard for super_admin (Authenticated with Sanctum)
+        $responseRole = $this->actingAs($user, 'sanctum')->getJson('/api/v1/mobile/dashboard/super_admin');
         $responseRole->assertStatus(200);
         $responseRole->assertJsonPath('success', true);
         $responseRole->assertJsonPath('data.role', 'super_admin');
@@ -544,7 +551,9 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
      */
     public function test_field_agent_customer_kyc_and_collection_flow(): void
     {
-        // 1. Onboard new customer with opening container deposit
+        $user = \App\Models\User::find(1);
+
+        // 1. Onboard new customer with opening container deposit (Authenticated)
         $onboardPayload = [
             'name' => 'Sri Annapoorna Restaurant',
             'phone_number' => '9842199887',
@@ -555,7 +564,7 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
             'deposit_held' => 1500.0,
         ];
 
-        $responseOnboard = $this->postJson('/api/v1/mobile/customer-onboard', $onboardPayload);
+        $responseOnboard = $this->actingAs($user, 'sanctum')->postJson('/api/v1/mobile/customer-onboard', $onboardPayload);
         $responseOnboard->assertStatus(201);
         $responseOnboard->assertJsonPath('success', true);
         $newCustomerId = $responseOnboard->json('data.customer.id');
@@ -572,7 +581,7 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
             'deposit_held' => 1500.0,
         ]);
 
-        // 2. Collect outstanding payment & verify receipt
+        // 2. Collect outstanding payment & verify receipt (Authenticated)
         $collectPayload = [
             'customer_id' => $newCustomerId,
             'amount_collected' => 750.0,
@@ -580,7 +589,7 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
             'receipt_number' => 'REC-TEST-20261101-01',
         ];
 
-        $responseCollect = $this->postJson('/api/v1/mobile/collect-payment', $collectPayload);
+        $responseCollect = $this->actingAs($user, 'sanctum')->postJson('/api/v1/mobile/collect-payment', $collectPayload);
         $responseCollect->assertStatus(201);
         $responseCollect->assertJsonPath('success', true);
         $responseCollect->assertJsonPath('data.receipt_number', 'REC-TEST-20261101-01');
@@ -591,7 +600,9 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
      */
     public function test_mobile_driver_surrender_and_admin_settlement_reconciliation(): void
     {
-        // 1. Driver surrenders shift cash and empty return cans
+        $user = \App\Models\User::find(1);
+
+        // 1. Driver surrenders shift cash and empty return cans (Authenticated)
         $surrenderPayload = [
             'route_id' => 1,
             'surrender_date' => date('Y-m-d'),
@@ -599,12 +610,12 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
             'empty_cans_returned' => 80,
         ];
 
-        $responseSurrender = $this->postJson('/api/v1/mobile/driver-surrender', $surrenderPayload);
+        $responseSurrender = $this->actingAs($user, 'sanctum')->postJson('/api/v1/mobile/driver-surrender', $surrenderPayload);
         $responseSurrender->assertStatus(200);
         $responseSurrender->assertJsonPath('success', true);
         $responseSurrender->assertJsonPath('data.cash_surrendered', 2800);
 
-        // 2. Physical spot audit verification
+        // 2. Physical spot audit verification (Authenticated)
         $auditPayload = [
             'vehicle_number' => 'TN-59-WA-1011',
             'driver_name' => 'Murugan',
@@ -613,7 +624,7 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
             'is_fraud_suspected' => true,
         ];
 
-        $responseAudit = $this->postJson('/api/v1/mobile/spot-audit', $auditPayload);
+        $responseAudit = $this->actingAs($user, 'sanctum')->postJson('/api/v1/mobile/spot-audit', $auditPayload);
         $responseAudit->assertStatus(201);
         $responseAudit->assertJsonPath('success', true);
         $responseAudit->assertJsonPath('data.unit_difference', -2);
@@ -641,7 +652,7 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
      */
     public function test_mobile_role_login_and_erp_directory_endpoints(): void
     {
-        // 1. Mobile Role Login
+        // 1. Mobile Role Login with real Sanctum authentication
         $loginResponse = $this->postJson('/api/v1/mobile/login', [
             'username' => 'driver',
             'password' => 'driver123',
@@ -652,28 +663,36 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
         $loginResponse->assertJsonPath('data.role', 'deliveryDriver');
         $loginResponse->assertJsonPath('data.user.company_id', 3);
 
-        // 2. Customers Directory
-        $customersResponse = $this->getJson('/api/v1/mobile/customers');
+        $token = $loginResponse->json('data.token');
+        $this->assertNotEmpty($token);
+
+        // 2. Customers Directory (Authenticated via Sanctum Bearer token)
+        $customersResponse = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/mobile/customers');
         $customersResponse->assertStatus(200);
         $customersResponse->assertJsonPath('success', true);
 
-        // 3. Products Catalog
-        $productsResponse = $this->getJson('/api/v1/mobile/products');
+        // 3. Products Catalog (Authenticated)
+        $productsResponse = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/mobile/products');
         $productsResponse->assertStatus(200);
         $productsResponse->assertJsonPath('success', true);
 
-        // 4. Invoices & Deliveries
-        $invoicesResponse = $this->getJson('/api/v1/mobile/invoices');
+        // 4. Invoices & Deliveries (Authenticated)
+        $invoicesResponse = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/mobile/invoices');
         $invoicesResponse->assertStatus(200);
         $invoicesResponse->assertJsonPath('success', true);
 
-        // 5. Financial GL Balances
-        $finResponse = $this->getJson('/api/v1/mobile/financials');
+        // 5. Financial GL Balances (Authenticated with company context)
+        $finResponse = $this->withHeader('Authorization', "Bearer {$token}")
+            ->withHeader('X-Company-ID', '3')
+            ->getJson('/api/v1/mobile/financials');
         $finResponse->assertStatus(200);
         $finResponse->assertJsonPath('success', true);
-        $finResponse->assertJsonPath('data.cash_in_hand_1010', 48250);
-        $finResponse->assertJsonPath('data.bank_account_1020', 184500);
-        $finResponse->assertJsonPath('data.accounts_receivable_1030', 74200);
+        $this->assertArrayHasKey('cash_in_hand_1010', $finResponse->json('data'));
+        $this->assertArrayHasKey('bank_account_1020', $finResponse->json('data'));
+        $this->assertArrayHasKey('accounts_receivable_1030', $finResponse->json('data'));
     }
 }
 

@@ -30,7 +30,8 @@ class CapabilityServiceProvider extends ServiceProvider
                 };
                 if ($readPermission) $route->middleware(\App\Http\Middleware\RequireCompanyPermission::class.':'.implode(',', $readPermission));
                 $key = match ($controller) {
-                    'WaterLogisticsController', 'WaterLogisticsApiController' => 'operations.water_logistics',
+                    'WaterLogisticsController' => 'operations.water_logistics',
+                    'WaterLogisticsApiController' => str_starts_with($route->uri(), 'api/v1/mobile/') ? null : 'operations.water_logistics',
                     'CafeOperationsController', 'CafeApiController' => 'operations.cafe_bakery',
                     'RepairController', 'RepairApiController' => 'service.repair',
                     'ProjectManagementController' => 'operations.projects',
@@ -60,7 +61,7 @@ class CapabilityServiceProvider extends ServiceProvider
                 if ($route->getName() === 'sale.wappnotification') {
                     $key = 'communications.whatsapp';
                 }
-                if ($key && !str_starts_with($route->uri(), 'api/v1/mobile/')) {
+                if ($key) {
                     $auth = str_starts_with($route->uri(), 'api/') ? 'auth:sanctum' : 'auth';
                     $route->middleware([$auth, 'company.context', RequireCapability::class.':'.$key]);
                     $operationsArea = match ($controller) {

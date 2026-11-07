@@ -16,7 +16,10 @@ trap '"$PHP" artisan up' EXIT
 "$PHP" artisan optimize:clear
 "$PHP" artisan view:cache
 
-# Drop OPcache so PHP-FPM picks up the new code.
-sudo /usr/bin/systemctl reload php8.3-fpm
+# Drop OPcache so PHP-FPM / LiteSpeed picks up the new code.
+if command -v systemctl >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
+    sudo /usr/bin/systemctl reload php8.3-fpm || true
+fi
+touch .htaccess server.php || true
 
 echo "Deployed $(git rev-parse --short HEAD)"

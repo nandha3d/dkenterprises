@@ -37,13 +37,14 @@
                     <x-error-message key="not_permitted" />
 
                     <div class="card-body p-2">
-                        <form id="product-form">
+                        <form id="product-form" data-product-usage="{{ old('product_usage', $lims_product_data->product_usage ?? 'composite') }}">
                             <input type="hidden" name="id" value="{{$lims_product_data->id}}" />
                             <div class="zolo-product-grid">
 
                                 <!-- BOX 1: Primary Identity & Categorization (Blue) -->
                                 <x-ui.section-box variant="blue" title="{{__('db.Product Details')}}" icon="box">
                                     <div class="row">
+                                        @include('backend.product.partials.usage-options', ['productUsage' => $lims_product_data->product_usage ?? 'composite'])
                                         <div class="col-6">
                                             <div class="form-group">
                                                 <label>{{__('db.Product Type')}} *</label>
@@ -70,11 +71,17 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-12">
+                                        <div class="col-md-6 col-12">
                                             <div class="form-group">
                                                 <label>{{__('db.Product Name')}} *</label>
                                                 <input type="text" name="name" value="{{$lims_product_data->name}}" required class="form-control" id="name">
                                                 <span class="validation-msg text-danger small" id="name-error"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-12">
+                                            <div class="form-group">
+                                                <label>{{__('db.Print Name / Invoice Display Name')}}</label>
+                                                <input type="text" name="print_name" value="{{$lims_product_data->print_name ?? ''}}" class="form-control" id="print_name" placeholder="{{ __('db.Display name on invoices (optional)') }}">
                                             </div>
                                         </div>
                                         <div class="col-12">
@@ -93,22 +100,32 @@
                                             <div class="form-group">
                                                 <label>{{__('db.Brand')}}</label>
                                                 <input type="hidden" name="brand" value="{{ $lims_product_data->brand_id}}">
-                                                <select name="brand_id" class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="{{ __('db.Select Brand...') }}">
-                                                    @foreach($lims_brand_list as $brand)
-                                                        <option value="{{$brand->id}}">{{$brand->title}}</option>
-                                                    @endforeach
-                                                </select>
+                                                <div class="input-group">
+                                                    <select name="brand_id" class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="{{ __('db.Select Brand...') }}">
+                                                        @foreach($lims_brand_list as $brand)
+                                                            <option value="{{$brand->id}}">{{$brand->title}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <div class="input-group-append">
+                                                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addBrand" title="{{ __('db.Add Brand') }}"><i class="dripicons-plus"></i></button>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="col-6">
                                             <div class="form-group">
                                                 <label>{{__('db.category')}} *</label>
                                                 <input type="hidden" name="category" value="{{$lims_product_data->category_id}}">
-                                                <select name="category_id" required class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="{{ __('db.Select Category...') }}">
-                                                    @foreach($lims_category_list as $category)
-                                                        <option value="{{$category->id}}">{{$category->name}}</option>
-                                                    @endforeach
-                                                </select>
+                                                <div class="input-group">
+                                                    <select name="category_id" required class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="{{ __('db.Select Category...') }}">
+                                                        @foreach($lims_category_list as $category)
+                                                            <option value="{{$category->id}}">{{$category->name}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <div class="input-group-append">
+                                                        <button type="button" class="btn btn-default btn-sm category-model" data-toggle="modal" data-target="#category-modal" title="{{ __('db.Add Category') }}"><i class="dripicons-plus"></i></button>
+                                                    </div>
+                                                </div>
                                                 <span class="validation-msg text-danger small"></span>
                                             </div>
                                         </div>
@@ -116,22 +133,27 @@
                                             <div class="row">
                                                 <div class="col-12 form-group">
                                                     <label>{{__('db.Product Unit')}} *</label>
-                                                    <select required class="form-control selectpicker" data-live-search="true" data-live-search-style="begins" title="{{ __('db.Select Product Unit...') }}" name="unit_id">
-                                                        @foreach($lims_unit_list as $unit)
-                                                            @if($unit->base_unit==null)
-                                                                <option value="{{$unit->id}}">{{$unit->unit_name}}</option>
-                                                            @endif
-                                                        @endforeach
-                                                    </select>
+                                                    <div class="input-group">
+                                                        <select required class="form-control selectpicker" data-live-search="true" data-live-search-style="begins" title="{{ __('db.Select Product Unit...') }}" name="unit_id">
+                                                            @foreach($lims_unit_list as $unit)
+                                                                @if($unit->base_unit==null)
+                                                                    <option value="{{$unit->id}}">{{$unit->unit_name}}</option>
+                                                                @endif
+                                                            @endforeach
+                                                        </select>
+                                                        <div class="input-group-append">
+                                                            <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#createUnitModal" title="{{ __('db.Add Unit') }}"><i class="dripicons-plus"></i></button>
+                                                        </div>
+                                                    </div>
                                                     <input type="hidden" name="unit" value="{{ $lims_product_data->unit_id}}">
                                                     <span class="validation-msg text-danger small"></span>
                                                 </div>
-                                                <div class="col-6 form-group">
+                                                <div data-usage-side="sale" class="col-6 form-group">
                                                     <label>{{__('db.Sale Unit')}}</label>
                                                     <select class="form-control selectpicker" name="sale_unit_id" id="sale-unit"></select>
                                                     <input type="hidden" name="sale_unit" value="{{ $lims_product_data->sale_unit_id}}">
                                                 </div>
-                                                <div class="col-6 form-group">
+                                                <div data-usage-side="purchase" class="col-6 form-group">
                                                     <label>{{__('db.Purchase Unit')}}</label>
                                                     <select class="form-control selectpicker" name="purchase_unit_id"></select>
                                                     <input type="hidden" name="purchase_unit" value="{{ $lims_product_data->purchase_unit_id}}">
@@ -153,7 +175,7 @@
                                     <div class="row">
                                         <div id="cost" class="col-6 @if(Auth::user()->role_id > 2) d-none @endif">
                                             <div class="form-group">
-                                                <label>{{__('db.Product Cost')}} *</label>
+                                                <label>{{__('db.Product Cost')}} <span data-usage-cost-required>*</span></label>
                                                 <input type="number" name="cost" value="{{$lims_product_data->cost}}" required class="form-control product_cost" step="any">
                                                 <div class="alert alert-warning very-small-text d-none p-1 position-absolute" id="product-cost-warning">
                                                     Cost must be higher than 0!
@@ -161,7 +183,7 @@
                                                 <span class="validation-msg text-danger small"></span>
                                             </div>
                                         </div>
-                                        <div class="col-6">
+                                        <div data-usage-side="sale" class="col-6">
                                             <div class="form-group">
                                                 <label>{{ __('db.Profit Margin Type') }}</label>
                                                 <select name="profit_margin_type" class="form-control selectpicker" required>
@@ -171,14 +193,14 @@
                                                 <span class="validation-msg text-danger small"></span>
                                             </div>
                                         </div>
-                                        <div id="profit_margin" class="col-6">
+                                        <div data-usage-side="sale" id="profit_margin" class="col-6">
                                             <div class="form-group">
                                                 <label>{{__('db.Profit Margin')}}</label>
                                                 <input type="number" name="profit_margin" value="{{$lims_product_data->profit_margin}}" class="form-control" step="0.01">
                                                 <span class="validation-msg text-danger small"></span>
                                             </div>
                                         </div>
-                                        <div class="col-6">
+                                        <div data-usage-side="sale" class="col-6">
                                             <div class="form-group">
                                                 <label>{{__('db.Product Price')}} *</label>
                                                 <input type="number" name="price" value="{{$lims_product_data->price}}" required class="form-control" step="any">
@@ -189,13 +211,13 @@
                                             </div>
                                             <input type="hidden" name="qty" value="{{ $lims_product_data->qty }}">
                                         </div>
-                                        <div class="col-6">
+                                        <div data-usage-side="sale" class="col-6">
                                             <div class="form-group">
                                                 <label>{{__('db.Wholesale Price')}}</label>
                                                 <input type="number" name="wholesale_price" class="form-control" value="{{$lims_product_data->wholesale_price}}" step="any">
                                             </div>
                                         </div>
-                                        <div class="col-6">
+                                        <div data-usage-side="sale" class="col-6">
                                             <div class="form-group">
                                                 <label>{{__('db.Daily Sale Objective')}}</label>
                                                 <input type="number" name="daily_sale_objective" class="form-control" step="any" value="{{$lims_product_data->daily_sale_objective}}">
@@ -209,12 +231,17 @@
                                         <div class="col-6">
                                             <div class="form-group">
                                                 <label>{{__('db.Product Tax')}}</label>
-                                                <select name="tax_id" class="selectpicker form-control">
-                                                    <option value="">No Tax</option>
-                                                    @foreach($lims_tax_list as $tax)
-                                                        <option value="{{$tax->id}}">{{$tax->name}}</option>
-                                                    @endforeach
-                                                </select>
+                                                <div class="input-group">
+                                                    <select name="tax_id" class="selectpicker form-control">
+                                                        <option value="">No Tax</option>
+                                                        @foreach($lims_tax_list as $tax)
+                                                            <option value="{{$tax->id}}">{{$tax->name}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <div class="input-group-append">
+                                                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addTax" title="{{ __('db.Add Tax') }}"><i class="dripicons-plus"></i></button>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         @endif
@@ -232,7 +259,7 @@
 
                                         @include('backend.product.partials.stock-policy', ['product' => $lims_product_data, 'colClass' => 'col-6'])
 
-                                        <div class="col-6">
+                                        <div data-usage-side="sale" class="col-6">
                                             <div class="form-group">
                                                 <label>{{ __('db.Warranty') }}</label>
                                                 <div class="input-group">
@@ -245,7 +272,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-6">
+                                        <div data-usage-side="sale" class="col-6">
                                             <div class="form-group">
                                                 <label>{{ __('db.Guarantee') }}</label>
                                                 <div class="input-group">
@@ -431,12 +458,19 @@
                                 <div class="zolo-inventory-stripe-divider"></div>
 
                                 <div class="zolo-inventory-stripe-toggles">
-                                    {{-- Variants are set when the product is created; an existing variant product keeps the flag. --}}
-                                    @if($lims_product_data->is_variant)
-                                    <span id="variant-option" hidden><input name="is_variant" type="checkbox" id="is-variant" value="1" checked></span>
-                                    @endif
+                                    <label id="stock-section" class="zolo-toggle-pill @if($lims_product_data->is_initial_stock ?? false) is-active @endif" data-role="amber" for="chk_initial_stock" title="{{ __('db.Initial Stock') }}">
+                                        <input type="checkbox" name="is_initial_stock" id="chk_initial_stock" value="1">
+                                        <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
+                                        <span>{{__('db.Initial Stock')}}</span>
+                                    </label>
 
-                                    <label id="diffPrice-option" class="zolo-toggle-pill @if($lims_product_data->is_diffPrice) is-active @endif" data-role="emerald" for="is-diffPrice" title="{{ __('db.Different price by warehouse') }}">
+                                    <label id="variant-option" class="zolo-toggle-pill @if($lims_product_data->is_variant) is-active @endif" data-role="purple" for="is-variant" title="{{ __('db.This product has variant') }}">
+                                        <input name="is_variant" type="checkbox" id="is-variant" value="1" @checked($lims_product_data->is_variant)>
+                                        <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
+                                        <span>{{__('db.This product has variant')}}</span>
+                                    </label>
+
+                                    <label data-usage-side="sale" id="diffPrice-option" class="zolo-toggle-pill @if($lims_product_data->is_diffPrice) is-active @endif" data-role="emerald" for="is-diffPrice" title="{{ __('db.Different price by warehouse') }}">
                                         <input name="is_diffPrice" type="checkbox" id="is-diffPrice" value="1" @checked($lims_product_data->is_diffPrice)>
                                         <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
                                         <span>{{__('db.Different price by warehouse')}}</span>
@@ -454,14 +488,14 @@
                                         <span>{{__('db.IMEI / Serial numbers')}}</span>
                                     </label>
 
-                                    <label class="zolo-toggle-pill @if($lims_product_data->promotion) is-active @endif" data-role="blue" for="promotion" title="{{ __('db.Promotional Price') }}">
+                                    <label data-usage-side="sale" class="zolo-toggle-pill @if($lims_product_data->promotion) is-active @endif" data-role="blue" for="promotion" title="{{ __('db.Promotional Price') }}">
                                         <input type="hidden" name="promotion_hidden" value="{{$lims_product_data->promotion}}">
                                         <input name="promotion" type="checkbox" id="promotion" value="1" @checked($lims_product_data->promotion)>
                                         <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
                                         <span>{{__('db.Promotional Price')}}</span>
                                     </label>
 
-                                    <label id="featured" class="zolo-toggle-pill @if($lims_product_data->featured) is-active @endif" data-role="purple" for="chk_featured" title="{{ __('db.Featured product will be displayed in POS') }}">
+                                    <label data-usage-side="sale" id="featured" class="zolo-toggle-pill @if($lims_product_data->featured) is-active @endif" data-role="purple" for="chk_featured" title="{{ __('db.Featured product will be displayed in POS') }}">
                                         <input type="checkbox" name="featured" id="chk_featured" value="1" @checked($lims_product_data->featured)>
                                         <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
                                         <span>{{__('db.Featured')}}</span>
@@ -497,12 +531,6 @@
                                     </label>
                                     @endif
 
-                                    <label id="water-logistics-pill" class="zolo-toggle-pill @if(!empty($lims_product_data->is_water_logistics)) is-active @endif" data-role="blue" for="is_water_logistics" title="Water Logistics & Custom Sizing (20L, 25L, 1L, Tanker Compartments)">
-                                        <input name="is_water_logistics" type="checkbox" id="is_water_logistics" value="1" @checked(!empty($lims_product_data->is_water_logistics))>
-                                        <span class="zolo-switch-track"><span class="zolo-switch-thumb"></span></span>
-                                        <span>💧 Water Logistics</span>
-                                    </label>
-
                                     @if($restaurant && $lims_product_data->extras == null)
                                     <label class="zolo-toggle-pill @if($lims_product_data->is_addon == 1) is-active @endif" data-role="blue" for="is_addon" title="{{__('db.Check this if the item is a topping or extra or add-on only to be served with a main course')}}">
                                         <input name="is_addon" type="checkbox" id="is_addon" value="1" @checked($lims_product_data->is_addon == 1)>
@@ -515,8 +543,36 @@
 
                             <!-- Extended Conditional Details Container (4-column grid mirroring top primary boxes) -->
                             <div class="product-extended-details-container mt-2">
+                                <!-- Warehouse Initial Stock Section -->
+                                <div id="initial-stock-section" style="display:none;">
+                                    <x-ui.section-box variant="amber" title="{{__('db.Warehouse Initial Stock')}}" icon="inventory">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>{{__('db.Warehouse')}}</th>
+                                                        <th>{{__('db.qty')}}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($lims_warehouse_list as $warehouse)
+                                                    @php $existing_pw = \App\Models\Product_Warehouse::FindProductWithoutVariant($lims_product_data->id, $warehouse->id)->first(); @endphp
+                                                    <tr>
+                                                        <td>
+                                                            <input type="hidden" name="stock_warehouse_id[]" value="{{$warehouse->id}}">
+                                                            {{$warehouse->name}}
+                                                        </td>
+                                                        <td><input type="number" name="stock[]" min="0" value="{{ $existing_pw ? $existing_pw->qty : '' }}" class="form-control form-control-sm" placeholder="0"></td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </x-ui.section-box>
+                                </div>
+
                                 <!-- Warehouse Differential Price Section -->
-                                <div id="diffPrice-section">
+                                <div data-usage-side="sale" id="diffPrice-section">
                                     <x-ui.section-box variant="emerald" title="{{__('db.Different Warehouse Price')}}" icon="pricing">
                                         <div class="table-responsive">
                                             <table id="diffPrice-table" class="table table-hover table-sm">
@@ -609,7 +665,7 @@
                                 </div>
 
                                 <!-- Promotional Price Section -->
-                                <div id="promo-container">
+                                <div data-usage-side="sale" id="promo-container">
                                     <x-ui.section-box variant="blue" title="{{__('db.Promotional Price')}}" icon="pricing">
                                         <div class="zolo-promo-vertical-form">
                                             <div class="form-group mb-2" id="promotion_price">
@@ -719,54 +775,6 @@
                                         </div>
                                     </x-ui.section-box>
                                 </div>
-
-                                <!-- Water Logistics & Custom Sizing Section -->
-                                <div id="water-logistics-section" style="@if(empty($lims_product_data->is_water_logistics)) display: none; @endif">
-                                    <x-ui.section-box variant="blue" title="💧 Water Logistics & Custom Package Sizing" icon="box">
-                                        <div class="row">
-                                            <div class="col-md-6 form-group">
-                                                <label class="font-weight-bold">Water Vertical Type *</label>
-                                                <select name="water_vertical_type" id="water_vertical_type" class="form-control form-control-sm selectpicker">
-                                                    <option value="packaged_water" @selected(($lims_product_data->water_vertical_type ?? 'packaged_water') === 'packaged_water')>Packaged Drinking Water (Cans & Bottles)</option>
-                                                    <option value="bulk_water" @selected(($lims_product_data->water_vertical_type ?? '') === 'bulk_water')>Commercial Bulk Water Supply (Heavy Tankers)</option>
-                                                </select>
-                                                <small class="text-muted d-block mt-1">Packaged water handles customizable can & bottle sizes (20L, 25L, 10L, 1L). Bulk water handles tanker compartments & logistics costs.</small>
-                                            </div>
-
-                                            <div class="col-md-6 form-group">
-                                                <label class="font-weight-bold">Custom Capacity / Package Spec *</label>
-                                                <input type="text" name="water_capacity_spec" id="water_capacity_spec" class="form-control form-control-sm" placeholder="e.g. 20L, 25L, 10L, 1L, 20KL, 10KL" value="{{ $lims_product_data->water_capacity_spec ?? '20L' }}">
-                                                <small class="text-muted d-block mt-1">Specify package or vehicle size (e.g. 20L, 25L, 10L, 1L Bottle Box, 20KL Tanker).</small>
-                                            </div>
-
-                                            <div class="col-md-12 form-group" id="tanker_compartment_group" style="@if(($lims_product_data->water_vertical_type ?? '') !== 'bulk_water') display: none; @endif">
-                                                <label class="font-weight-bold">Tanker Compartment / Segment Configuration</label>
-                                                <input type="text" name="water_compartment_config" id="water_compartment_config" class="form-control form-control-sm" placeholder="e.g. Single Tank, 2 Chambers (10KL + 10KL), 3 Chambers (10KL + 5KL + 5KL)" value="{{ $lims_product_data->water_compartment_config ?? '' }}">
-                                                <small class="text-muted d-block mt-1">Configures internal tank chambers for multi-customer split deliveries (e.g. 10KL + 10KL or 10KL + 5KL + 5KL) & remaining tank water tracking.</small>
-                                            </div>
-
-                                            <div class="col-md-3 form-group tanker-metric-field" id="base_km_group" style="@if(($lims_product_data->water_vertical_type ?? '') !== 'bulk_water') display: none; @endif">
-                                                <label class="font-weight-bold">Base Free Distance (KM)</label>
-                                                <input type="number" step="0.1" name="base_km_limit" id="base_km_limit" class="form-control form-control-sm" value="{{ $lims_product_data->base_km_limit ?? 10.0 }}" placeholder="10.0">
-                                            </div>
-
-                                            <div class="col-md-3 form-group tanker-metric-field" id="excess_km_group" style="@if(($lims_product_data->water_vertical_type ?? '') !== 'bulk_water') display: none; @endif">
-                                                <label class="font-weight-bold">Excess Distance Rate (₹/KM)</label>
-                                                <input type="number" step="0.5" name="excess_km_rate" id="excess_km_rate" class="form-control form-control-sm" value="{{ $lims_product_data->excess_km_rate ?? 45.0 }}" placeholder="45.0">
-                                            </div>
-
-                                            <div class="col-md-3 form-group tanker-metric-field" id="motor_pump_group" style="@if(($lims_product_data->water_vertical_type ?? '') !== 'bulk_water') display: none; @endif">
-                                                <label class="font-weight-bold">Motor Pumping Rate (₹/min)</label>
-                                                <input type="number" step="0.5" name="motor_pump_rate" id="motor_pump_rate" class="form-control form-control-sm" value="{{ $lims_product_data->motor_pump_rate ?? 10.0 }}" placeholder="10.0">
-                                            </div>
-
-                                            <div class="col-md-3 form-group tanker-metric-field" id="waiting_charge_group" style="@if(($lims_product_data->water_vertical_type ?? '') !== 'bulk_water') display: none; @endif">
-                                                <label class="font-weight-bold">Site Waiting Charge (₹/min)</label>
-                                                <input type="number" step="0.5" name="waiting_charge_rate" id="waiting_charge_rate" class="form-control form-control-sm" value="{{ $lims_product_data->waiting_charge_rate ?? 15.0 }}" placeholder="15.0">
-                                            </div>
-                                        </div>
-                                    </x-ui.section-box>
-                                </div>
                             </div>
 
                         </form>
@@ -775,6 +783,81 @@
             </div>
         </div>
     </div>
+    <!-- Brand Create Modal Start -->
+    <div id="addBrand" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+        <div role="document" class="modal-dialog">
+          <div class="modal-content">
+            <form id="brand-form">
+            <div class="modal-header">
+              <h5 id="exampleModalLabel" class="modal-title">{{__('db.Add Brand')}}</h5>
+              <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
+            </div>
+            <div class="modal-body">
+              <p class="italic"><small>{{__('db.The field labels marked with * are required input fields')}}.</small></p>
+                <div class="form-group">
+                    <label>{{__('db.Title')}} *</label>
+                    <input type="text" name="title" class="form-control" placeholder="{{ __('db.Type brand title') }}" required>
+                </div>
+                <div class="form-group">
+                    <label>{{__('db.Image')}}</label>
+                    <input type="file" name="image" class="form-control">
+                </div>
+                @if(in_array('ecommerce',explode(',',$general_setting->modules)) || in_array('restaurant',explode(',',$general_setting->modules)))
+                <div class="row">
+                    <div class="col-md-12 mt-3">
+                        <h6><strong>{{ __('For SEO') }}</strong></h6>
+                        <hr>
+                    </div>
+                    <div class="col-md-12 form-group">
+                        <label>{{ __('Meta Title') }}</label>
+                        {{Form::text('page_title',null,array('class' => 'form-control', 'placeholder' => __('db.Meta Title')))}}
+                    </div>
+                    <div class="col-md-12 form-group">
+                        <label>{{ __('Meta Description') }}</label>
+                        {{Form::text('short_description',null,array('class' => 'form-control', 'placeholder' => __('db.Meta Description')))}}
+                    </div>
+                </div>
+                @endif
+                <div class="form-group">
+                    <input type="hidden" name="ajax" value="1">
+                    <button type="button" class="btn btn-primary brand-submit-btn">{{__('db.submit')}}</button>
+                </div>
+            </div>
+            </form>
+          </div>
+        </div>
+    </div>
+    <!-- Brand Create Modal End -->
+    <!-- Tax Create Modal Start -->
+    <div id="addTax" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+        <div role="document" class="modal-dialog">
+            <div class="modal-content">
+                {!! Form::open(['route' => 'tax.store', 'method' => 'post', 'id' => 'tax-form']) !!}
+                <div class="modal-header">
+                    <h5 id="exampleModalLabel" class="modal-title">{{__('db.Add Tax')}}</h5>
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
+                </div>
+                <div class="modal-body">
+                    <p class="italic"><small>{{__('db.The field labels marked with * are required input fields')}}.</small></p>
+                    <div class="form-group">
+                        <label>{{__('db.Tax Name')}} *</label>
+                        {{Form::text('name',null,array('required' => 'required', 'class' => 'form-control'))}}
+                    </div>
+                    <div class="form-group">
+                        <label>{{__('db.Rate')}}(%) *</label>
+                        {{Form::number('rate',null,array('required' => 'required', 'class' => 'form-control', 'step' => 'any'))}}
+                    </div>
+                    <input type="hidden" name="ajax" value="1">
+                    <button type="button" class="btn btn-primary tax-submit-btn">{{__('db.submit')}}</button>
+                </div>
+                {{ Form::close() }}
+            </div>
+        </div>
+    </div>
+    <!-- Tax Create Modal End -->
+
+    <!-- Unit Create Modal Start -->
+    @include('backend.unit.add_unit_modal')
 </section>
 
 @endsection
@@ -1519,7 +1602,7 @@
             $("#variant-section, #variant-option").hide(300);
         }
         else if($(this).val() == 'standard'){
-            $("input[name='cost']").prop('required',true);
+            $("input[name='cost']").prop('required', $('#product-form').attr('data-product-usage') !== 'sale');
             $("select[name='unit_id']").prop('required',true);
             $("input[name='file']").prop('required',false);
             $("#cost").show();
@@ -1758,6 +1841,7 @@
 
     // Recalculate price based on cost & margin
     function recalcPrice() {
+        if ($('#product-form').attr('data-product-usage') === 'purchase') return;
         let cost = parseFloat($('input[name="cost"]').val()) || 0;
         let margin = parseFloat($('input[name="profit_margin"]').val()) || 0;
 
@@ -1771,6 +1855,7 @@
 
     // Recalculate margin when price changes manually
     function recalcMargin() {
+        if ($('#product-form').attr('data-product-usage') === 'purchase') return;
         let cost = parseFloat($('input[name="cost"]').val()) || 0;
         let price = parseFloat($('input[name="price"]').val()) || 0;
         // Without a cost a percentage margin has no meaning (it would be Infinity and blank the field): keep it as is.
@@ -1833,35 +1918,6 @@
         diffPriceShowHide();
     });
 
-    $("input[name='is_water_logistics']").on("change", function () {
-        if ($(this).is(':checked')) {
-            $("#water-logistics-section").show(300);
-            updateWaterLogisticsFields();
-        } else {
-            $("#water-logistics-section").hide(300);
-        }
-        applyDynamicGridSpans();
-    });
-
-    function updateWaterLogisticsFields() {
-        var vType = $('#water_vertical_type').val();
-        if (vType === 'bulk_water') {
-            $('#tanker_compartment_group, .tanker-metric-field').show(200);
-            if (!$('#water_capacity_spec').val() || $('#water_capacity_spec').val() === '20L') {
-                $('#water_capacity_spec').val('20KL');
-            }
-        } else {
-            $('#tanker_compartment_group, .tanker-metric-field').hide(200);
-            if (!$('#water_capacity_spec').val() || $('#water_capacity_spec').val() === '20KL') {
-                $('#water_capacity_spec').val('20L');
-            }
-        }
-    }
-
-    $('#water_vertical_type').on('change', function() {
-        updateWaterLogisticsFields();
-    });
-
     function variantShowHide() {
          if ($("#is-variant").is(':checked')) {
             $("#variant-section").show(300);
@@ -1899,6 +1955,7 @@
     function applyDynamicGridSpans() {
         var isCombo = $('select[name="type"]').val() === 'combo';
         var sections = [
+            {$el: $('#initial-stock-section'), isWide: false, active: !isCombo && $("#chk_initial_stock").is(':checked')},
             {$el: $('#diffPrice-section'), isWide: false, active: !isCombo && $("#is-diffPrice").is(':checked')},
             {$el: $('#promo-container'), isWide: false, active: $("#promotion").is(':checked')},
             {$el: $('#variant-section'), isWide: true, active: !isCombo && $("#is-variant").is(':checked')},
@@ -2158,6 +2215,122 @@
         }
     });
 
+
+    // Toggle listeners for Initial Stock and Variant
+    $("#chk_initial_stock").on("change", function () {
+        if ($(this).is(':checked')) {
+            $("#initial-stock-section").show(300);
+        } else {
+            $("#initial-stock-section").hide(300);
+        }
+        applyDynamicGridSpans();
+    });
+
+    $("#is-variant").on("change", function () {
+        variantShowHide();
+    });
+
+    // Quick-add (brand / category / unit / tax): modal handling and AJAX saves
+    function quickAddError(modal, xhr) {
+        var json = (xhr && xhr.responseJSON) || {};
+        var message = json.errors ? Object.values(json.errors)[0][0] : (json.message || 'Could not save. Check the fields and try again.');
+        var $box = $(modal).find('.quick-add-error');
+        if (!$box.length) $box = $('<div class="alert alert-danger small quick-add-error" role="alert"></div>').prependTo($(modal).find('.modal-body'));
+        $box.text(message).show();
+    }
+    function quickAddDone(modal, form) {
+        $(modal).find('.quick-add-error').remove();
+        if (form) form.reset();
+        $(modal).modal('hide');
+    }
+    function pickOption(name, id, label) {
+        var $select = $('select[name="' + name + '"]');
+        if (!$select.find('option[value="' + id + '"]').length) $select.append($('<option>').val(id).text(label));
+        $select.val(String(id)).selectpicker('refresh').trigger('change');
+    }
+    $('#addBrand, #category-modal, #createUnitModal, #addTax').on('hidden.bs.modal', function () { $(this).find('.quick-add-error').remove(); });
+
+    // Brand create ajax
+    $('.brand-submit-btn').on("click", function() {
+        $.ajax({
+            type:'POST',
+            url:'{{route('brand.store')}}',
+            data: $("#brand-form").serialize(),
+            success:function(response) {
+                pickOption('brand_id', response['id'], response['title']);
+                quickAddDone('#addBrand', $("#brand-form")[0]);
+            },
+            error: function (xhr) { quickAddError('#addBrand', xhr); }
+        });
+    });
+
+    $('.category-model').on("click", function() {
+        $('.category-submit-btn').prop('type', 'button');
+        $('.category-ajax-check').val(1);
+    });
+
+    // Category create ajax
+    $('.category-submit-btn').on("click", function() {
+        $.ajax({
+            type:'POST',
+            url:'{{route('category.store')}}',
+            data: $("#category-form").serialize(),
+            success:function(response) {
+                pickOption('category_id', response['id'], response['name']);
+                $('select[name="category_id"] option[value="' + response['id'] + '"]').attr('data-hsn', response['default_hsn_code'] || '');
+                $('select[name="category_id"]').trigger('change');
+                quickAddDone('#category-modal', $("#category-form")[0]);
+            },
+            error: function (xhr) { quickAddError('#category-modal', xhr); }
+        });
+    });
+
+    // Tax create ajax
+    $('.tax-submit-btn').on("click", function() {
+        $.ajax({
+            type:'POST',
+            url:'{{route('tax.store')}}',
+            data: $("#tax-form").serialize(),
+            success:function(response) {
+                var key = response['id'];
+                var value = response['name'];
+                $('select[name="tax_id"]').append('<option value="'+ key +'">'+ value +'</option>');
+                $('select[name="tax_id"]').val(key);
+                $('.selectpicker').selectpicker('refresh');
+                $("#addTax").modal('hide');
+            }
+        });
+    });
+
+    // Unit create ajax
+    $(document).on('click', '#create_unit', function (e) {
+        e.preventDefault();
+        let form = $(this).closest('form');
+        let formData = form.serialize();
+
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: formData,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function (response) {
+                if (!response.success || !response.unit) { quickAddError('#createUnitModal', null); return; }
+                var unit = response.unit;
+                if (!unit.base_unit) {
+                    pickOption('unit_id', unit.id, unit.unit_name);
+                    $('#base_unit_create').append($('<option>').val(unit.id).text(unit.unit_name)).selectpicker('refresh');
+                } else {
+                    $("select[name='unit_id']").val(String(unit.base_unit)).selectpicker('refresh').trigger('change');
+                }
+                quickAddDone('#createUnitModal', form[0]);
+                $('#base_unit_create').selectpicker('refresh');
+            },
+            error: function (xhr) { quickAddError('#createUnitModal', xhr); }
+        });
+        applyDynamicGridSpans();
+    });
 
 </script>
 @endpush

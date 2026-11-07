@@ -228,6 +228,7 @@ class SaleController extends Controller
                 $water_can_routes = collect();
                 $packaged_water_products = collect();
             }
+
             $documentContext = app(\App\Services\Commercial\DocumentContextResolver::class)->fromRequest($request, 'sale', request()->attributes->get(\App\Services\Platform\CompanyContext::class), (int) \Auth::id());
             return view('backend.sale.index', compact('starting_date', 'ending_date', 'warehouse_id', 'sale_status', 'payment_status', 'sale_type', 'payment_method', 'lims_gift_card_list', 'lims_pos_setting_data', 'lims_reward_point_setting_data', 'lims_account_list', 'lims_warehouse_list', 'all_permission','options', 'numberOfInvoice', 'custom_fields', 'field_name', 'lims_courier_list','smsTemplates', 'currency_list', 'todaySalesAmount', 'todaySalesCount', 'totalPaid', 'totalDue', 'lims_customer_list', 'recent_bills', 'lims_tax_list', 'lims_biller_list', 'currency', 'saleTypes', 'documentSeries', 'billSundries', 'standardRemarks', 'agents', 'areas', 'lims_product_list_without_variant', 'lims_product_list_with_variant', 'pending_challans', 'lims_brand_list', 'lims_category_list', 'lims_unit_list', 'lims_customer_group_all', 'water_tankers', 'water_can_routes', 'packaged_water_products'))->with('documentContext', $documentContext)->with('catalogCostVisible', $this->salesCatalogCostVisible());
 
@@ -236,14 +237,17 @@ class SaleController extends Controller
             return redirect()->back()->with('not_permitted', __('db.Sorry! You are not allowed to access this module'));
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
+        if (!$request->wantsJson() && !$request->ajax()) {
+            return redirect()->route('sales.index', ['view_id' => $id]);
+        }
         return $this->getSaleJson($id);
     }
 
     public function productWithoutVariant()
     {
-        $query = Product::where('products.is_active', true)->whereIn('products.type', ['standard', 'service', 'digital'])
+        $query = Product::forBill('sale')->where('products.is_active', true)->whereIn('products.type', ['standard', 'service', 'digital'])
             ->leftJoin('units', 'products.unit_id', '=', 'units.id')
             ->select('products.id', 'products.type', 'products.name', 'products.code', 'products.price', 'products.tax_id', 'products.tax_category_id', 'products.tax_method', 'products.unit_id', 'units.unit_name', 'units.unit_code')
             ->where(fn ($query) => $query->whereNull('products.is_variant')->orWhere('products.is_variant', false));
@@ -254,6 +258,7 @@ class SaleController extends Controller
     public function productWithVariant()
     {
         $query = Product::join('product_variants', 'products.id', 'product_variants.product_id')
+            ->forBill('sale')
             ->leftJoin('units', 'products.unit_id', '=', 'units.id')
             ->ActiveStandard()
             ->whereNotNull('is_variant')
@@ -272,7 +277,7 @@ class SaleController extends Controller
 
     public function getSaleJson($id)
     {
-        $sale = Sale::with(['customer', 'warehouse', 'biller', 'payments'])->find($id);
+        $sale = Sale::with(['customer', 'warehouse', 'biller', 'user', 'payments'])->find($id);
         if (!$sale) {
             return response()->json(['success' => false, 'message' => 'Sale not found'], 404);
         }
@@ -288,7 +293,7 @@ class SaleController extends Controller
                 'product_name' => $product->name ?? 'Unknown',
                 'product_code' => $product->code ?? '',
                 'qty' => (float)$ps->qty,
-                'net_unit_price' => (float)$ps->net_unit_price,
+                'net_unit_price' => (float)($ps->net_unit_price > 0 ? $ps->net_unit_price : ($ps->qty > 0 ? ($ps->total / $ps->qty) : 0)),
                 'discount' => (float)$ps->discount,
                 'tax_rate' => (float)$ps->tax_rate,
                 'tax' => (float)$ps->tax,
@@ -662,12 +667,16 @@ class SaleController extends Controller
                     <ul class="dropdown-menu edit-options dropdown-menu-right dropdown-default" user="menu">
                         <li><a href="'.route('sale.invoice', $sale->id).'" class="btn btn-link gen-invoice"><i class="fa fa-copy"></i> '.__('db.Generate Invoice').'</a></li>
                         <li>
-                            <button type="button" class="btn btn-link view"><i class="fa fa-eye"></i> '.__('db.View').'</button>
+                            <button type="button" class="btn btn-link view btn-table-view" data-id="'.$sale->id.'"><i class="fa fa-eye"></i> '.__('db.View').'</button>
+                        </li>';
+                if(in_array("sales-add", $request['all_permission']))
+                    $nestedData['options'] .= '<li>
+                        <button type="button" class="btn btn-link duplicate btn-table-duplicate" data-id="'.$sale->id.'"><i class="fa fa-copy"></i> '.__('db.Duplicate').'</button>
                         </li>';
                 if(in_array("sales-edit", $request['all_permission'])){
                     if($sale->sale_status != 3)
                         $nestedData['options'] .= '<li>
-                            <a href="'.route('sales.edit', $sale->id).'" class="btn btn-link"><i class="dripicons-document-edit"></i> '.__('db.edit').'</a>
+                            <button type="button" class="btn btn-link edit btn-table-edit" data-id="'.$sale->id.'"><i class="dripicons-document-edit"></i> '.__('db.edit').'</button>
                             </li>';
                     else
                         $nestedData['options'] .= '<li>
@@ -692,7 +701,12 @@ class SaleController extends Controller
                             </li>';
                 if(in_array("sale-payment-add", $request['all_permission']) && ($sale->payment_status != 4) && ($sale->sale_status != 3)) {
                     $currency_code_name = $sale->currency->code ?? 'USD';
-                    $nestedData['options'] .=
+                    if (config('commercial.enabled')) {
+                        if ($sale->posted_at && !$sale->reversed_at && $sale->grand_total > $sale->paid_amount) {
+                            $nestedData['options'] .= '<li><a class="btn btn-link" href="'.e(route('selling.payments', ['bill' => $sale->id])).'"><i class="dripicons-wallet"></i> Add payment</a></li>';
+                        }
+                    } else {
+                        $nestedData['options'] .=
                             ' <li>
                                 <button
                                     type="button"
@@ -707,6 +721,7 @@ class SaleController extends Controller
                                     <i class="fa fa-plus"></i> '.__('db.Add Payment').'
                                 </button>
                             </li>';
+                    }
                 }
                 if($sale->sale_status !== 4)
                     $nestedData['options'] .=
@@ -891,12 +906,10 @@ class SaleController extends Controller
                 }
                 $data['document'] = $documentName;
             }
-            if(!empty($data['coupon_active']) && empty($data['draft'])) {
-                $lims_coupon_data = Coupon::find($data['coupon_id'] ?? null);
-                if ($lims_coupon_data) {
-                    $lims_coupon_data->used += 1;
-                    $lims_coupon_data->save();
-                }
+            if($data['coupon_active'] && !$data['draft']) {
+                $lims_coupon_data = Coupon::find($data['coupon_id']);
+                $lims_coupon_data->used += 1;
+                $lims_coupon_data->save();
             }
             if(isset($data['table_id'])) {
                 $latest_sale = Sale::whereNotNull('table_id')->whereNull('deleted_at')->whereDate('created_at', date('Y-m-d'))->where('warehouse_id', $data['warehouse_id'])->select('queue')->orderBy('id', 'desc')->first();
@@ -916,90 +929,6 @@ class SaleController extends Controller
                     'status' => 'converted_to_sale',
                     'sale_id' => $lims_sale_data->id,
                 ]);
-            }
-
-            // Water Logistics & Tanker Trip Sheet Integration
-            if ($request->filled('tanker_id') && class_exists(\App\Models\WaterTankerTrip::class)) {
-                try {
-                    $tanker = \App\Models\WaterTanker::find($request->tanker_id);
-                    $tripNumber = $lims_sale_data->reference_no ?: ('TRIP-' . date('Ymd') . '-' . rand(100, 999));
-                    \App\Models\WaterTankerTrip::create([
-                        'sale_id' => $lims_sale_data->id,
-                        'trip_number' => $tripNumber,
-                        'tanker_id' => $request->tanker_id,
-                        'customer_id' => $lims_sale_data->customer_id,
-                        'trip_date' => $lims_sale_data->created_at ? date('Y-m-d', strtotime($lims_sale_data->created_at)) : date('Y-m-d'),
-                        'source_plant' => $request->source_plant ?? 'Borewell Source Plant',
-                        'destination_site' => $request->destination_site ?? ($request->address ?? 'Customer Delivery Site'),
-                        'water_quantity_kl' => (float)($request->water_quantity_kl ?: ($tanker->capacity_kl ?? 40)),
-                        'trip_rate' => (float)$lims_sale_data->grand_total,
-                        'start_km' => $request->start_km ? (int)$request->start_km : null,
-                        'end_km' => $request->end_km ? (int)$request->end_km : null,
-                        'total_km' => $request->total_km ? (int)$request->total_km : null,
-                        'motor_pumping_minutes' => $request->motor_pumping_minutes ? (int)$request->motor_pumping_minutes : 0,
-                        'motor_pumping_charge' => $request->motor_pumping_charge ? (float)$request->motor_pumping_charge : 0,
-                        'waiting_minutes' => $request->waiting_minutes ? (int)$request->waiting_minutes : 0,
-                        'waiting_charge' => $request->waiting_charge ? (float)$request->waiting_charge : 0,
-                        'excess_km' => $request->excess_km ? (int)$request->excess_km : 0,
-                        'excess_km_charge' => $request->excess_km_charge ? (float)$request->excess_km_charge : 0,
-                        'discount_amount' => $request->order_discount ? (float)$request->order_discount : 0,
-                        'diesel_expense' => $request->diesel_expense ? (float)$request->diesel_expense : 0,
-                        'driver_batta' => $request->driver_batta ? (float)$request->driver_batta : 0,
-                        'site_receiver_name' => $request->site_receiver_name ?? ($request->contact_person ?? 'Site Manager'),
-                        'status' => 'delivered',
-                        'notes' => $request->staff_note ?? $request->sale_note,
-                        'created_by' => Auth::id() ?? 1,
-                    ]);
-
-                    if ($tanker && $request->end_km) {
-                        $tanker->update([
-                            'current_odometer_km' => (int)$request->end_km,
-                            'last_ping_at' => now(),
-                        ]);
-                    }
-                } catch (\Throwable $e) {
-                    \Log::warning('Tanker trip auto-link: ' . $e->getMessage());
-                }
-            }
-
-            // 20L Water Can Distribution Delivery Link
-            if (($request->filled('route_id') || $request->filled('cans_delivered')) && class_exists(\App\Models\WaterCanDelivery::class)) {
-                try {
-                    $delNumber = $lims_sale_data->reference_no ?: ('CAN-' . date('Ymd') . '-' . rand(100, 999));
-                    $cansDelivered = (int)($request->cans_delivered ?: ($data['total_qty'] ?? 1));
-                    $emptyReturned = (int)($request->empty_cans_returned ?: 0);
-                    $prevHeld = DB::table('water_can_inventories')->where('customer_id', $lims_sale_data->customer_id)->value('total_cans_held') ?? 0;
-                    $newHeld = max(0, $prevHeld + $cansDelivered - $emptyReturned);
-
-                    \App\Models\WaterCanDelivery::create([
-                        'sale_id' => $lims_sale_data->id,
-                        'delivery_no' => $delNumber,
-                        'delivery_date' => $lims_sale_data->created_at ? date('Y-m-d', strtotime($lims_sale_data->created_at)) : date('Y-m-d'),
-                        'route_id' => $request->route_id ?: 1,
-                        'customer_id' => $lims_sale_data->customer_id,
-                        'morning_loaded_cans' => (int)($request->morning_loaded_cans ?: 80),
-                        'cans_delivered' => $cansDelivered,
-                        'empty_cans_returned' => $emptyReturned,
-                        'can_rate' => $request->can_rate ?: 35,
-                        'total_amount' => (float)$lims_sale_data->grand_total,
-                        'paid_amount' => (float)$lims_sale_data->paid_amount,
-                        'payment_mode' => $data['paying_method'] ?? 'Cash',
-                        'balance_cans_held' => $newHeld,
-                        'status' => 'delivered',
-                        'created_by' => Auth::id() ?? 1,
-                    ]);
-
-                    DB::table('water_can_inventories')->updateOrInsert(
-                        ['customer_id' => $lims_sale_data->customer_id],
-                        [
-                            'total_cans_held' => $newHeld,
-                            'last_delivery_date' => now(),
-                            'updated_at' => now(),
-                        ]
-                    );
-                } catch (\Throwable $e) {
-                    \Log::warning('Can delivery auto-link: ' . $e->getMessage());
-                }
             }
 
 
@@ -1089,8 +1018,8 @@ class SaleController extends Controller
             $mail_data['paid_amount'] = $lims_sale_data->paid_amount;
 
             $product_id = $data['product_id'];
-            $product_batch_id = $data['product_batch_id'] ?? [];
-            $imei_number = $data['imei_number'] ?? [];
+            $product_batch_id = $data['product_batch_id'];
+            $imei_number = $data['imei_number'];
             $product_code = $data['product_code'];
             $qty = $data['qty'];
             $sale_unit = $data['sale_unit'];
@@ -1106,7 +1035,7 @@ class SaleController extends Controller
                 $lims_product_data = Product::where('id', $id)->first();
                 if (!$lims_product_data && !empty($data['product_name_text'][$i])) {
                     $manualName = trim($data['product_name_text'][$i]);
-                    $lims_product_data = Product::firstOrCreate(
+                    $lims_product_data = Product::lockForUpdate()->firstOrCreate(
                         ['name' => $manualName],
                         [
                             'code' => 'ITM-' . mt_rand(100000, 999999),
@@ -1120,6 +1049,7 @@ class SaleController extends Controller
                             'is_active' => true,
                         ]
                     );
+                    $lims_product_data->assertAllowedOnBill('sale', 'product_id');
                     $id = $lims_product_data->id;
                     $product_id[$i] = $id;
                 }
@@ -1129,7 +1059,7 @@ class SaleController extends Controller
                 $product_sale['product_batch_id'] = null;
 
                 if($sale_unit[$i] != 'n/a' && $lims_product_data->type != 'combo') {
-                    $lims_sale_unit_data = Unit::when($lims_product_data->company_id, fn($q) => $q->where('company_id', $lims_product_data->company_id))->where(fn($q) => $q->where('unit_name', $sale_unit[$i])->orWhere('unit_code', $sale_unit[$i]))->first() ?? Unit::find($lims_product_data->sale_unit_id ?: $lims_product_data->unit_id);
+                    $lims_sale_unit_data = Unit::where('unit_name', $sale_unit[$i])->orWhere('unit_code', $sale_unit[$i])->first() ?? Unit::find($lims_product_data->sale_unit_id ?: $lims_product_data->unit_id);
                     // A named unit that does not exist is refused rather than swapped for another unit.
                     if (!$lims_sale_unit_data || (trim((string) $sale_unit[$i]) !== '' && strcasecmp($lims_sale_unit_data->unit_name, $sale_unit[$i]) !== 0 && strcasecmp($lims_sale_unit_data->unit_code, $sale_unit[$i]) !== 0)) {
                         throw \Illuminate\Validation\ValidationException::withMessages(['sale_unit' => 'Sale unit does not exist ('.$sale_unit[$i].').']);
@@ -1139,7 +1069,7 @@ class SaleController extends Controller
                         $lims_product_variant_data = ProductVariant::select('id', 'variant_id')->FindExactProductWithCode($id, $product_code[$i])->first();
                         $product_sale['variant_id'] = $lims_product_variant_data->variant_id;
                     }
-                    if($lims_product_data->is_batch && !empty($product_batch_id[$i])) {
+                    if($lims_product_data->is_batch && $product_batch_id[$i]) {
                         $product_sale['product_batch_id'] = $product_batch_id[$i];
                     }
                 }
@@ -1173,7 +1103,7 @@ class SaleController extends Controller
 
                 $product_sale['sale_id'] = $lims_sale_data->id ;
                 $product_sale['product_id'] = $id;
-                if(!empty($imei_number[$i]) && !str_contains($imei_number[$i], "null")) {
+                if($imei_number[$i] && !str_contains($imei_number[$i], "null")) {
                     $product_sale['imei_number'] = $imei_number[$i];
                 } else {
                     $product_sale['imei_number'] = null;
@@ -1242,7 +1172,7 @@ class SaleController extends Controller
                 }
             }
 
-            if (!empty($data['paid_by_id']) && is_array($data['paid_by_id']) && in_array('razorpay', $data['paid_by_id'])) {
+            if (in_array('razorpay', $data['paid_by_id'])) {
                 foreach ($data['paid_by_id'] as $key => $value) {
                     if ($value == 'razorpay') {
                         $lims_payment_data = new Payment();
@@ -1269,10 +1199,10 @@ class SaleController extends Controller
                     }
                 }
             }
-            else if(!empty($data['paid_by_id']) && is_array($data['paid_by_id']) && ($data['payment_status'] == 3 || $data['payment_status'] == 4 || ($data['payment_status'] == 2 && !empty($data['pos']) && ($data['paid_amount'] ?? 0) > 0))) {
+            else if($data['payment_status'] == 3 || $data['payment_status'] == 4 || ($data['payment_status'] == 2 && $data['pos'] && $data['paid_amount'] > 0)) {
                 foreach($data['paid_by_id'] as $key=>$value)
                 {
-                    if(!empty($data['paid_amount'][$key]) && $data['paid_amount'][$key] > 0) {
+                    if($data['paid_amount'][$key] > 0) {
                         $lims_payment_data = new Payment();
 
                         $lims_payment_data->user_id = Auth::id();
@@ -1802,7 +1732,7 @@ class SaleController extends Controller
 
     public function getProduct($id)
     {
-        $query = Product::join('product_warehouse', 'products.id', '=', 'product_warehouse.product_id');
+        $query = Product::forBill('sale')->join('product_warehouse', 'products.id', '=', 'product_warehouse.product_id');
         if(config('without_stock') == 'no') {
             $query = $query->where([
                 ['products.is_active', true],
@@ -1826,7 +1756,7 @@ class SaleController extends Controller
         config()->set('database.connections.mysql.strict', false);
         \DB::reconnect(); //important as the existing connection if any would be in strict mode
 
-        $query = Product::join('product_warehouse', 'products.id', '=', 'product_warehouse.product_id');
+        $query = Product::forBill('sale')->join('product_warehouse', 'products.id', '=', 'product_warehouse.product_id');
 
         if(config('without_stock') == 'no') {
             $query = $query->where([
@@ -1852,7 +1782,7 @@ class SaleController extends Controller
         config()->set('database.connections.mysql.strict', true);
         \DB::reconnect();
 
-        $query = Product::join('product_warehouse', 'products.id', '=', 'product_warehouse.product_id');
+        $query = Product::forBill('sale')->join('product_warehouse', 'products.id', '=', 'product_warehouse.product_id');
         if(config('without_stock') == 'no') {
             $query = $query->where([
                 ['products.is_active', true],
@@ -1867,7 +1797,7 @@ class SaleController extends Controller
             ]);
         }
 
-        $lims_product_with_imei_warehouse_data = Product::join('product_warehouse', 'products.id', '=', 'product_warehouse.product_id')
+        $lims_product_with_imei_warehouse_data = Product::forBill('sale')->join('product_warehouse', 'products.id', '=', 'product_warehouse.product_id')
         ->where([
             ['products.is_active', true],
             ['products.is_imei', true],
@@ -2009,7 +1939,7 @@ class SaleController extends Controller
         }
 
         //retrieve product with type of digital and service
-        $lims_product_data = Product::whereNotIn('type', ['standard', 'combo'])->where('is_active', true)->get();
+        $lims_product_data = Product::forBill('sale')->whereNotIn('type', ['standard', 'combo'])->where('is_active', true)->get();
         foreach ($lims_product_data as $product)
         {
             if (!isset($product->is_imei)) {
@@ -2257,7 +2187,7 @@ class SaleController extends Controller
             $lims_tax_list = Tax::where('is_active', true)->get();
             $lims_sale_data = Sale::findOrFail($id);
             $lims_product_sale_data = Product_Sale::where('sale_id', $id)->get();
-            $lims_product_list = Product::where([
+            $lims_product_list = Product::forBill('sale')->where([
                                     ['featured', 1],
                                     ['is_active', true]
                                 ])->get();
@@ -2284,7 +2214,7 @@ class SaleController extends Controller
 
     public function getProducts($warehouse_id, $key, $cat_or_brand_id)
     {
-        $query = Product::join('product_warehouse', 'products.id', '=', 'product_warehouse.product_id')->where('products.is_active', true);
+        $query = Product::forBill('sale')->join('product_warehouse', 'products.id', '=', 'product_warehouse.product_id')->where('products.is_active', true);
 
         if ($key == 'category') {
             $query = $query->join('categories', 'products.category_id', '=', 'categories.id')
@@ -2299,7 +2229,7 @@ class SaleController extends Controller
         }
 
         $query = $query->where('products.type', '!=', 'combo')
-               ->where('products.is_imei', null)->orWhere('products.is_imei', 0);
+               ->where(fn ($query) => $query->whereNull('products.is_imei')->orWhere('products.is_imei', false));
 
         if (config('without_stock') == 'no') {
             $query = $query->where('products.is_active', true)
@@ -2433,15 +2363,16 @@ class SaleController extends Controller
         }
         if ($general_setting && in_array('restaurant', explode(',', $general_setting->modules))) {
             // Try to find base product
-            $product = Product::select('id','name','code','is_variant','is_batch','is_imei','qty','price','wholesale_price','cost','promotion','promotion_price','last_date','tax_id','tax_category_id','tax_method','type','unit_id','sale_unit_id','extras')->where('code', $code)->where('is_active', true)->first();
+            $product = Product::forBill('sale')->select('id','name','code','is_variant','is_batch','is_imei','qty','price','wholesale_price','cost','promotion','promotion_price','last_date','tax_id','tax_category_id','tax_method','type','unit_id','sale_unit_id','extras')->where('code', $code)->where('is_active', true)->first();
         } else {
             // Try to find base product
-            $product = Product::select('id','name','code','is_variant','is_batch','is_imei','qty','price','wholesale_price','cost','promotion','promotion_price','last_date','tax_id','tax_category_id','tax_method','type','unit_id','sale_unit_id')->where('code', $code)->where('is_active', true)->first();
+            $product = Product::forBill('sale')->select('id','name','code','is_variant','is_batch','is_imei','qty','price','wholesale_price','cost','promotion','promotion_price','last_date','tax_id','tax_category_id','tax_method','type','unit_id','sale_unit_id')->where('code', $code)->where('is_active', true)->first();
         }
 
         // Try to find variant if base product not found
         if (!$product) {
             $variantProduct = Product::join('product_variants', 'products.id', '=', 'product_variants.product_id')
+                ->forBill('sale')
                 ->select('products.*', 'product_variants.id as product_variant_id', 'product_variants.item_code')
                 ->where('product_variants.item_code', $code)
                 ->where('products.is_active', true)
@@ -2823,11 +2754,12 @@ class SaleController extends Controller
             while (!feof($file_handle) ) {
                 $current_line = fgetcsv($file_handle);
                 if($current_line && $i > 0){
-                    $product_data[] = Product::where('code', $current_line[0])->first();
+                    $product_data[] = Product::where('code', $current_line[0])->lockForUpdate()->first();
                     if(!$product_data[$i-1]) {
                         throw new \Exception(__('db.Product does not exist!'));
                         // return redirect()->back()->with('message', __('db.Product does not exist!'));
                     }
+                    $product_data[$i-1]->assertAllowedOnBill('sale', 'file');
                     $unit[] = Unit::where('unit_code', $current_line[2])->first();
                     if(!$unit[$i-1] && $current_line[2] == 'n/a')
                         $unit[$i-1] = 'n/a';
@@ -2977,19 +2909,7 @@ class SaleController extends Controller
     {
         $role = Role::find(Auth::user()->role_id);
         if($role->hasPermissionTo('sales-edit')){
-            $lims_customer_list = Customer::where('is_active', true)->get();
-            $lims_warehouse_list = Warehouse::where('is_active', true)->get();
-            $lims_biller_list = Biller::where('is_active', true)->get();
-            $lims_tax_list = Tax::where('is_active', true)->get();
-            $numberOfInvoice = Sale::whereNull('deleted_at')->count();
-            $lims_sale_data = Sale::findOrFail($id);
-            $lims_product_sale_data = Product_Sale::where('sale_id', $id)->get();
-            if($lims_sale_data->exchange_rate)
-                $currency_exchange_rate = $lims_sale_data->exchange_rate;
-            else
-                $currency_exchange_rate = 1;
-            $custom_fields = CustomField::where('belongs_to', 'sale')->get();
-            return view('backend.sale.edit',compact('lims_customer_list', 'lims_warehouse_list', 'lims_biller_list', 'lims_tax_list', 'lims_sale_data','lims_product_sale_data', 'currency_exchange_rate', 'custom_fields', 'numberOfInvoice'));
+            return redirect()->route('sales.index', ['edit' => $id]);
         }else{
             return redirect()->back()->with('not_permitted', __('db.Sorry! You are not allowed to access this module'));
         }
@@ -3105,7 +3025,7 @@ class SaleController extends Controller
             $lims_product_data = Product::find($pro_id);
             if (!$lims_product_data && !empty($data['product_name_text'][$key])) {
                 $manualName = trim($data['product_name_text'][$key]);
-                $lims_product_data = Product::firstOrCreate(
+                $lims_product_data = Product::lockForUpdate()->firstOrCreate(
                     ['name' => $manualName],
                     [
                         'code' => 'ITM-' . mt_rand(100000, 999999),
@@ -3119,6 +3039,7 @@ class SaleController extends Controller
                         'is_active' => true,
                     ]
                 );
+                $lims_product_data->assertAllowedOnBill('sale', 'product_id');
                 $pro_id = $lims_product_data->id;
                 $product_id[$key] = $pro_id;
             }
@@ -5032,7 +4953,7 @@ class SaleController extends Controller
         $product_embed_code = null;
         if (preg_match('/^\d{13}$/', $search)) {
             $product_embed_code = $search;
-            $product = Product::where('is_embeded', true)
+            $product = Product::forBill('sale')->where('is_embeded', true)
                 ->where(function ($q) use ($product_embed_code) {
                     $q->where('code', 'like', $product_embed_code . '%')
                     ->orWhere('name', 'like', '%' . $product_embed_code . '%');
@@ -5045,6 +4966,7 @@ class SaleController extends Controller
 
         // 🔹 Step 1: Exact variant match (quick path)
         $exactVariant = ProductVariant::join('products', 'product_variants.product_id', '=', 'products.id')
+            ->whereIn('products.id', Product::forBill('sale')->select('products.id'))
             ->join('product_warehouse', function ($join) use ($warehouse_id) {
                 $join->on('product_variants.variant_id', '=', 'product_warehouse.variant_id')
                     ->on('product_variants.product_id', '=', 'product_warehouse.product_id')
@@ -5133,7 +5055,7 @@ class SaleController extends Controller
 
         if ($byCode->isEmpty()) {
 
-            $byName = Product::leftJoin('product_warehouse', function($j) use ($warehouse_id){
+            $byName = Product::forBill('sale')->leftJoin('product_warehouse', function($j) use ($warehouse_id){
                     $j->on('products.id','=','product_warehouse.product_id')
                     ->where('product_warehouse.warehouse_id',$warehouse_id);
                 })
@@ -5159,20 +5081,8 @@ class SaleController extends Controller
 
         if ($byCode->isEmpty() && $byName->isEmpty()) {
 
-            $byIMEI = Product_Warehouse::where('warehouse_id',$warehouse_id)
-                ->whereRaw("imei_number LIKE ? ESCAPE '!'", ['%'.$escapedSearch.'%'])
-                ->limit(5)
-                ->get()
-                ->map(function($pw){
-                    return Product::find($pw->product_id);
-                });
-        }
-
-        $byIMEI = collect();
-
-        if ($byCode->isEmpty() && $byName->isEmpty()) {
-
             $imeiMatch = Product_Warehouse::where('warehouse_id',$warehouse_id)
+                ->whereIn('product_id', Product::forBill('sale')->select('products.id'))
                 ->whereRaw("imei_number LIKE ? ESCAPE '!'", ['%'.$escapedSearch.'%'])
                 ->first();
 
@@ -5206,7 +5116,7 @@ class SaleController extends Controller
         $ranks = array_flip($rankedIds);
         $baseProducts = $baseProducts->sortBy(fn ($product) => $ranks[$product->id] ?? PHP_INT_MAX)->values();
         // 🔹 Step 4: Add combo products
-        $combos = Product::where('products.is_active', true)
+        $combos = Product::forBill('sale')->where('products.is_active', true)
             ->where('products.type', 'combo')
             ->where(function ($q) use ($escapedSearch) {
                 $q->whereRaw("products.code LIKE ? ESCAPE '!'", [$escapedSearch.'%'])

@@ -70,12 +70,16 @@ class CommercialApplicationService
                 }
             }
             // Validate the original contract before any profile expands its lines.
-            $guard->products($data['items'], $context, $kind === 'sale' ? 'sale_unit_id' : 'purchase_unit_id');
+            $unitField = $kind === 'sale' ? 'sale_unit_id' : 'purchase_unit_id';
+            $products = $guard->products($data['items'], $context, $unitField);
+            foreach ($products as $product) {
+                $product->assertAllowedOnBill($kind);
+            }
             if ($kind === 'sale') {
                 $data['items'] = app(\App\Services\Industry\FmcgInventoryService::class)->prepareSale($data['items'], (int) $data['warehouse_id'], $date, $context, $actor);
                 if (count($data['items']) > 500) throw ValidationException::withMessages(['items' => 'Expanded invoice exceeds 500 lines.']);
             }
-            $products = $guard->products($data['items'], $context, $kind === 'sale' ? 'sale_unit_id' : 'purchase_unit_id')->all();
+            $products = $guard->products($data['items'], $context, $unitField)->all();
             foreach ($data['items'] as &$line) {
                 validator($line, ['attributes' => 'nullable|array', 'serials' => 'nullable|array', 'serials.*' => 'string|max:255',
                     'batch' => 'nullable|array', 'batch.batch_no' => 'required_with:batch|string|max:255',
@@ -88,6 +92,7 @@ class CommercialApplicationService
                     throw ValidationException::withMessages(['batch.mfg_date' => 'Manufacturing date cannot follow expiry.']);
                 }
                 $product = $products[$line['product_id']];
+                $product->assertAllowedOnBill($kind);
                 if ((isset($product->is_active) && !$product->is_active) || !in_array($product->type, ['standard', 'service', 'digital'], true)) {
                     throw ValidationException::withMessages(['items' => 'This product needs its reviewed posting path.']);
                 }
@@ -167,6 +172,14 @@ class CommercialApplicationService
                 ? app(SaleService::class)->createSale($data, $actor, $context, deferPosting: true)
                 : app(PurchaseService::class)->createPurchase($data, $actor, $context, deferPosting: true);
             $attributes = $this->attributes($data);
+            if ($replacesId) {
+                $original = ($kind === 'sale' ? Sale::class : Purchase::class)::visibleIn($context)->findOrFail($replacesId);
+                $relation = $kind === 'sale' ? 'productSales' : 'productPurchases';
+                $snapshot = fn ($lines) => $lines->map(fn ($line) => ['product_id' => $line->product_id,
+                    'name' => $line->product?->name, 'qty' => (float) $line->qty])->all();
+                $attributes['item_change_history'] = ['original_bill' => $original->reference_no,
+                    'before' => $snapshot($original->$relation), 'after' => $snapshot($document->$relation)];
+            }
             // Cash discount terms typed on the bill win; otherwise the party master's standard terms apply.
             if (!isset($attributes['cash_discount_percent']) && (float) ($party->cd_percent ?? 0) > 0) {
                 $attributes += ['cash_discount_percent' => (float) $party->cd_percent, 'cash_discount_days' => (int) ($party->cd_days ?? 0)];

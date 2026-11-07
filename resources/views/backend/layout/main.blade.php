@@ -311,6 +311,12 @@ $activeYear = $companyContext ? \Illuminate\Support\Facades\DB::table('fiscal_ye
           <li class="nav-item"><a class="btn-pos btn-sm" href="{{route('sale.pos') }}"><i class="dripicons-shopping-bag"></i><span> POS</span></a></li>
           @endif
           --}}
+          <li class="nav-item">
+            <button type="button" class="topbar-shortcuts topbar-guided-tour-btn" id="btn-open-guided-tour" title="Interactive Setup Guided Tour">
+              <i class="dripicons-lightbulb" aria-hidden="true"></i>
+              <span>Guided Tour</span>
+            </button>
+          </li>
           <li class="nav-item"><button type="button" class="topbar-shortcuts" data-shortcut-help title="Keyboard shortcuts (?)"><i class="dripicons-information" aria-hidden="true"></i><span>Shortcuts</span><kbd>?</kbd></button></li>
           <li class="nav-item d-none d-lg-block"><a id="switch-theme" data-toggle="tooltip" title="{{ __('Switch Theme') }}"><i class="dripicons-brightness-max"></i></a></li>
           @if(config('database.connections.zoloerp_landlord'))
@@ -323,7 +329,7 @@ $activeYear = $companyContext ? \Illuminate\Support\Facades\DB::table('fiscal_ye
           --}}
             @unless($companyContext)
             @php
-            $total_notifications = $alert_product + $dso_alert_product_no + $expire_alert_products + (Auth::check() ? Auth::user()->unreadNotifications->where('data.reminder_date', date('Y-m-d'))->count() : 0);
+            $total_notifications = $alert_product + $dso_alert_product_no + $expire_alert_products + Auth::user()->unreadNotifications->where('data.reminder_date', date('Y-m-d'))->count();
             @endphp
 
             <li class="nav-item" id="notification-icon">
@@ -373,7 +379,6 @@ $activeYear = $companyContext ? \Illuminate\Support\Facades\DB::table('fiscal_ye
                         @endif
 
                         {{-- Reminder Notifications --}}
-                        @if(Auth::check())
                         @foreach(Auth::user()->unreadNotifications->where('data.reminder_date', date('Y-m-d')) as $notification)
                         <li class="notifications">
                             @if($notification->data['document_name'])
@@ -385,7 +390,6 @@ $activeYear = $companyContext ? \Illuminate\Support\Facades\DB::table('fiscal_ye
                             @endif
                         </li>
                         @endforeach
-                        @endif
 
                     @endif
 
@@ -413,11 +417,11 @@ $activeYear = $companyContext ? \Illuminate\Support\Facades\DB::table('fiscal_ye
             </li>
             --}}
             <li class="nav-item">
-              <a rel="nofollow" data-toggle="tooltip" class="nav-link dropdown-item"><i class="dripicons-user"></i> <span>{{ucfirst(Auth::user()?->name ?? 'DK Admin')}}</span> <i class="fa fa-angle-down"></i>
+              <a rel="nofollow" data-toggle="tooltip" class="nav-link dropdown-item"><i class="dripicons-user"></i> <span>{{ucfirst(Auth::user()->name)}}</span> <i class="fa fa-angle-down"></i>
               </a>
               <ul class="right-sidebar">
                 <li>
-                  <a href="{{route('user.profile', ['id' => Auth::id() ?? 1])}}"><i class="dripicons-user"></i> {{ __('db.profile') }}</a>
+                  <a href="{{route('user.profile', ['id' => Auth::id()])}}"><i class="dripicons-user"></i> {{ __('db.profile') }}</a>
                 </li>
                 @if($general_setting_permission_active)
                 <li>
@@ -427,7 +431,7 @@ $activeYear = $companyContext ? \Illuminate\Support\Facades\DB::table('fiscal_ye
                 <li>
                   <a href="{{url('my-transactions/'.date('Y').'/'.date('m'))}}"><i class="dripicons-swap"></i> {{ __('db.My Transaction') }}</a>
                 </li>
-                @if((Auth::user()?->role_id ?? 1) != 5)
+                @if(Auth::user()->role_id != 5)
                 <li>
                   <a href="{{url('holidays/my-holiday/'.date('Y').'/'.date('m'))}}"><i class="dripicons-vibrate"></i> {{ __('db.My Holiday') }}</a>
                 </li>
@@ -488,7 +492,7 @@ $activeYear = $companyContext ? \Illuminate\Support\Facades\DB::table('fiscal_ye
               $notifyCompany = request()->attributes->get(\App\Services\Platform\CompanyContext::class)?->companyId ?? session('company_id');
               $lims_user_list = DB::table('users')->where([
                 ['is_active', true],
-                ['id', '!=', \Auth::id() ?? 0]
+                ['id', '!=', \Auth::user()->id]
               ])->when(\Illuminate\Support\Facades\Schema::hasTable('company_user'), fn ($query) => $query->whereIn('id',
                   DB::table('company_user')->where('company_id', $notifyCompany ?? 0)->select('user_id')))->get();
               ?>
@@ -524,6 +528,8 @@ $activeYear = $companyContext ? \Illuminate\Support\Facades\DB::table('fiscal_ye
     </div>
     <!-- end notification modal -->
     @endif
+
+    <x-guided-tutorial-modal />
 
     <!-- Category Modal -->
     <div id="category-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
@@ -1278,7 +1284,7 @@ $activeYear = $companyContext ? \Illuminate\Support\Facades\DB::table('fiscal_ye
   <script type="text/javascript" src="{{ versioned_asset('js/table-polish.js') }}"></script>
   <script type="text/javascript" src="{{ versioned_asset('js/erp-print.js') }}" data-css="{{ versioned_asset('css/zolo-tokens.css') }} {{ versioned_asset('css/erp-print.css') }}"></script>
 
-  {{-- <script type="text/javascript" src="{{ versioned_asset('js/barcode-qrcode-scanner_plugin.js') }}"></script> --}}
+  <script type="text/javascript" src="{{ versioned_asset('js/barcode-qrcode-scanner_plugin.js') }}"></script>
 
   @endif
   @endif

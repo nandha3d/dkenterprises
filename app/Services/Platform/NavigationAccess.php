@@ -23,8 +23,8 @@ final class NavigationAccess
         $this->capabilities = app(CapabilityService::class)->forNavigation();
         $this->context = request()->attributes->get(CompanyContext::class);
         $roleId = $this->context
-            ? (DB::table('company_user')->where('company_id', $this->context->companyId)->where('user_id', Auth::id())->value('role_id_override') ?? (Auth::user()?->role_id ?? 1))
-            : (Auth::user()?->role_id ?? 1);
+            ? (DB::table('company_user')->where('company_id', $this->context->companyId)->where('user_id', Auth::id())->value('role_id_override') ?? Auth::user()->role_id)
+            : Auth::user()->role_id;
         $this->isAdmin = Auth::check() && in_array((int) $roleId, [1, 2], true);
         $this->permissions = $this->context
             ? ($permissionsList ?? DB::table('permissions')
@@ -36,7 +36,7 @@ final class NavigationAccess
 
     public function can(string $permission): bool
     {
-        return $this->context ? $this->permissions->has($permission) : (Auth::user()?->can($permission) ?? false);
+        return $this->context ? $this->permissions->has($permission) : Auth::user()->can($permission);
     }
 
     /** Admin, or any one of the permissions. */

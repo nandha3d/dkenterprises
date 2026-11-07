@@ -22,8 +22,8 @@ class Common
         // Scoped reads stay fresh while legacy installation caches retain their invalidation keys.
         $remember = fn ($key, $ttl, $read) => $context ? $read() : Cache::remember($key, $ttl, $read);
         $roleId = $context
-            ? (DB::table('company_user')->where('company_id', $context->companyId)->where('user_id', Auth::id())->value('role_id_override') ?? (Auth::user()?->role_id ?? 1))
-            : (Auth::user()?->role_id ?? 1);
+            ? (DB::table('company_user')->where('company_id', $context->companyId)->where('user_id', Auth::id())->value('role_id_override') ?? Auth::user()->role_id)
+            : Auth::user()->role_id;
 
         // Installation settings remain shared; company identity comes from trusted context.
         //get general setting value: installation-wide, so it stays cached even under a company context; the legacy

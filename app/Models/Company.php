@@ -39,23 +39,11 @@ class Company extends Model
 
     public function getIndustryAttribute(): ?string
     {
-        if (\Illuminate\Support\Facades\Schema::hasTable('company_industry_settings')) {
-            $profile = \Illuminate\Support\Facades\DB::table('company_industry_settings')
-                ->where('company_id', $this->id)
-                ->value('profile_key');
-            if ($profile) {
-                return $profile;
-            }
-        }
-        if ($this->code === 'TMWS' || str_contains(strtolower($this->trade_name ?? ''), 'tanker') || str_contains(strtolower($this->trade_name ?? ''), 'murugan')) {
-            return 'bulk_water';
-        }
-        if ($this->code === 'DKWATERS' || str_contains(strtolower($this->trade_name ?? ''), 'water')) {
-            return 'packaged_water';
-        }
-        if ($this->code === 'ARANCAFE' || str_contains(strtolower($this->trade_name ?? ''), 'cafe')) {
-            return 'cafe_bakery';
-        }
-        return null;
+        return $this->attributes['industry'] ?? \Illuminate\Support\Facades\DB::table('company_industry_settings')->where('company_id', $this->id)->value('profile_key');
+    }
+
+    public function getSubtypeAttribute(): ?string
+    {
+        return $this->attributes['subtype'] ?? \Illuminate\Support\Facades\DB::table('company_industry_settings')->where('company_id', $this->id)->value('subtype');
     }
 }

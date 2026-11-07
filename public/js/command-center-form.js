@@ -30,7 +30,12 @@
             const $row = $(row);
             let id = $row.find('.row-product-id').val();
             if (!Number(id)) {
-                id = grid.products.find(p => p.name.toLowerCase() === $row.find('.row-item-name').val().trim().toLowerCase())?.id;
+                const matches = grid.products.filter(p => p.name.toLowerCase() === $row.find('.row-item-name').val().trim().toLowerCase());
+                if (matches.length > 1) throw new Error('Several products have this name. Select the correct product code from the list.');
+                if (matches.length === 1) {
+                    grid.applyProductToRow($row, matches[0]);
+                    id = matches[0].id;
+                }
             }
             if (!Number(id)) {
                 const name = $row.find('.row-item-name').val().trim();
@@ -132,7 +137,10 @@
         } catch (error) { busy = false; $(form).find('[type="submit"]').prop('disabled', false); failure(error); }
     });
     $(document).on('input', '.row-item-name', function () {
-        $(this).closest('tr').attr('data-product-id', 0).attr('data-batch-id', '').find('.row-product-id').val(0);
+        const row = $(this).closest('tr');
+        row.attr('data-product-id', 0).attr('data-batch-id', '').find('.row-product-id').val(0);
+        row.removeAttr('data-tracking data-variant-id data-order-item-id data-order-batch-no data-material-item-id data-material-document-id data-material-unit-id data-material-base-factor');
+        row.find('.row-batch-val, .row-expire-val, .row-imei-val').val('');
     });
 
     const $details = $('#' + config.kind + '-details').appendTo('body');
@@ -150,9 +158,9 @@
     // Purchase orders (status 4) print on the same A4 layout, built from their current lines.
     const invoiceUrl = doc => config.printUrl && ((doc?.posted_at && doc.document_snapshot_json) || (purchase && Number(doc?.status) === 4 && !doc.reversed_at))
         ? config.printUrl + '/' + doc.id + '/print?format=a4' : null;
-    $(document).on('click', '.btn-side-view, .btn-side-print', function (event) {
+    $(document).on('click', '.btn-side-print', function (event) {
         event.preventDefault(); event.stopPropagation();
-        const print = $(this).hasClass('btn-side-print');
+        const print = true;
         // Opened during the click so popup blockers allow it; filled or closed once the document is known.
         const tab = print && config.printUrl ? window.open('', '_blank') : null;
         $.getJSON(config.listUrl + '/' + $(this).data('id') + (purchase ? '' : '/json')).done(result => {
@@ -174,6 +182,12 @@
             });
             $('#' + config.kind + '-footer').text('Grand total: ₹ ' + Number(doc.grand_total).toFixed(2) + (order ? '' : ' · Paid: ₹ ' + Number(doc.paid_amount || 0).toFixed(2)));
             if (doc.attributes_json?.source_documents?.length) $('#' + config.kind + '-footer').append($('<p>').text('Sources: ' + doc.attributes_json.source_documents.map(source => source.reference_no).join(', ')));
+            const history = doc.attributes_json?.item_change_history;
+            if (history) $('#' + config.kind + '-footer').append($('<p>').text('Replaces ' + history.original_bill + '. Previous items: ' + history.before.map(item => item.name).join(', ') + '. Current items: ' + history.after.map(item => item.name).join(', ')));
+            if (config.canPayment && doc.posted_at && !doc.reversed_at && Number(doc.grand_total) > Number(doc.paid_amount || 0)) {
+                const actions = $('<div class="command-center-detail-actions">').appendTo('#' + config.kind + '-footer');
+                $('<a class="btn btn-primary bill-payment-action">').attr('href', config.paymentUrl + '?bill=' + doc.id).append($('<i class="dripicons-wallet" aria-hidden="true">'), document.createTextNode(' Add payment')).appendTo(actions);
+            }
             if (print) $details.one('shown.bs.modal', printDetails);
             $details.modal('show');
         }).fail(xhr => { tab?.close(); failure(xhr); });

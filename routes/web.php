@@ -1,5 +1,5 @@
 <?php
-require __DIR__.'/operations.php';
+require __DIR__ . '/operations.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -92,11 +92,11 @@ use App\Http\Controllers\SaleAgentController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\WhatsappController;
 
-require __DIR__.'/commercial.php';
-require __DIR__.'/orders.php';
-require __DIR__.'/inventory-reports.php';
-require __DIR__.'/product-aliases.php';
-require __DIR__.'/compliance.php';
+require __DIR__ . '/commercial.php';
+require __DIR__ . '/orders.php';
+require __DIR__ . '/inventory-reports.php';
+require __DIR__ . '/product-aliases.php';
+require __DIR__ . '/compliance.php';
 
 Route::get('webview/auth', WebviewAuthController::class)->name('webview.auth');
 
@@ -140,9 +140,11 @@ if (!$isInstalled) {
 
     // Jika user mengakses halaman lain (bukan installer), redirect ke installer
     Route::get('/', function () {
-        return redirect()->route('install-step-1'); });
+        return redirect()->route('install-step-1');
+    });
     Route::get('/dashboard', function () {
-        return redirect()->route('install-step-1'); });
+        return redirect()->route('install-step-1');
+    });
     // Note: Kita tidak me-redirect semua route (*) untuk menghindari conflict dengan asset/static files
 } else {
     // Jika sudah terinstall, disable installer routes
@@ -406,6 +408,7 @@ Route::group(['middleware' => ['common', 'auth', 'active', 'legacy.company']], f
         Route::get('sales/product_sale/{id}', 'productSaleData');
         Route::get('sales/get-sale/{id}', 'getSale');
         Route::get('sales/{id}/json', 'getSaleJson');
+        Route::get('sales/{id}', 'show')->name('sales.show');
         Route::post('importsale', 'importSale')->name('sale.import');
         Route::get('pos/{id?}', 'posSale')->name('sale.pos');
         Route::get('sales/recent-sale', 'recentSale');
@@ -581,8 +584,10 @@ Route::group(['middleware' => ['common', 'auth', 'active', 'legacy.company']], f
 
     Route::controller(ReportController::class)->group(function () {
         Route::prefix('report')->group(function () {
-            Route::get('product_quantity_alert', 'productQuantityAlert')->name('report.qtyAlert');
-            Route::get('daily-sale-objective', 'dailySaleObjective')->name('report.dailySaleObjective');
+            Route::match(['get', 'post'], 'product_quantity_alert', 'productQuantityAlert')->name('report.qtyAlert');
+            Route::match(['get', 'post'], 'qty_alert_report', 'productQuantityAlert');
+            Route::match(['get', 'post'], 'daily-sale-objective', 'dailySaleObjective')->name('report.dailySaleObjective');
+            Route::match(['get', 'post'], 'daily_sale_objective', 'dailySaleObjective');
             Route::post('daily-sale-objective-data', 'dailySaleObjectiveData');
             Route::get('product-expiry', 'productExpiry')->name('report.productExpiry');
             Route::get('warehouse_stock', 'warehouseStock')->name('report.warehouseStock');
@@ -599,11 +604,13 @@ Route::group(['middleware' => ['common', 'auth', 'active', 'legacy.company']], f
             Route::get('product_report', 'productReport')->name('report.product');
             Route::post('product_report_data', 'productReportData');
             Route::match(['get', 'post'], 'purchase', 'purchaseReport')->name('report.purchase');
+            Route::match(['get', 'post'], 'purchase_report', 'purchaseReport');
             Route::post('purchase_report_data', 'purchaseReportData');
             Route::match(['get', 'post'], 'sale_report', 'saleReport')->name('report.sale');
             Route::post('sale_report_data', 'saleReportData');
             Route::get('challan-report', 'challanReport')->name('report.challan');
             Route::match(['get', 'post'], 'sale-report-chart', 'saleReportChart')->name('report.saleChart');
+            Route::match(['get', 'post'], 'sale_report_chart', 'saleReportChart');
             Route::match(['get', 'post'], 'payment_report_by_date', 'paymentReportByDate')->name('report.paymentByDate');
             Route::match(['get', 'post'], 'warehouse_report', 'warehouseReport')->name('report.warehouse');
             Route::post('warehouse-sale-data', 'warehouseSaleData');
@@ -620,27 +627,32 @@ Route::group(['middleware' => ['common', 'auth', 'active', 'legacy.company']], f
             Route::post('user-transfer-data', 'userTransferData');
             Route::post('user-payroll-data', 'userPayrollData');
             Route::match(['get', 'post'], 'biller_report', 'billerReport')->name('report.biller');
+            Route::match(['get', 'post'], 'biller', 'billerReport');
             Route::post('biller-sale-data', 'billerSaleData');
             Route::post('biller-quotation-data', 'billerQuotationData');
             Route::post('biller-payment-data', 'billerPaymentData');
-            Route::post('customer_report', 'customerReport')->name('report.customer');
+            Route::match(['get', 'post'], 'customer_report', 'customerReport')->name('report.customer');
             Route::post('customer-sale-data', 'customerSaleData');
             Route::post('customer-payment-data', 'customerPaymentData');
             Route::post('customer-quotation-data', 'customerQuotationData');
             Route::post('customer-return-data', 'customerReturnData');
-            Route::post('customer-group', 'customerGroupReport')->name('report.customer_group');
+            Route::match(['get', 'post'], 'customer-group', 'customerGroupReport')->name('report.customer_group');
+            Route::match(['get', 'post'], 'customer_group', 'customerGroupReport');
             Route::post('customer-group-sale-data', 'customerGroupSaleData');
             Route::post('customer-group-payment-data', 'customerGroupPaymentData');
             Route::post('customer-group-quotation-data', 'customerGroupQuotationData');
             Route::post('customer-group-return-data', 'customerGroupReturnData');
-            Route::post('supplier', 'supplierReport')->name('report.supplier');
+            Route::match(['get', 'post'], 'supplier', 'supplierReport')->name('report.supplier');
+            Route::match(['get', 'post'], 'supplier_report', 'supplierReport');
             Route::post('supplier-purchase-data', 'supplierPurchaseData');
             Route::post('supplier-payment-data', 'supplierPaymentData');
             Route::post('supplier-return-data', 'supplierReturnData');
             Route::post('supplier-quotation-data', 'supplierQuotationData');
-            Route::post('customer-due-report', 'customerDueReportByDate')->name('report.customerDueByDate');
+            Route::match(['get', 'post'], 'outstanding-due-report', 'outstandingDuesReport')->name('report.outstandingDues');
+            Route::match(['get', 'post'], 'outstanding-dues', 'outstandingDuesReport');
+            Route::match(['get', 'post'], 'customer-due-report', 'customerDueReportByDate')->name('report.customerDueByDate');
             Route::post('customer-due-report-data', 'customerDueReportData');
-            Route::post('supplier-due-report', 'supplierDueReportByDate')->name('report.supplierDueByDate');
+            Route::match(['get', 'post'], 'supplier-due-report', 'supplierDueReportByDate')->name('report.supplierDueByDate');
             Route::post('supplier-due-report-data', 'supplierDueReportData');
         });
     });
@@ -760,7 +772,7 @@ Route::group(['middleware' => ['common', 'auth', 'active', 'legacy.company']], f
 
     //accounting routes
     Route::controller(AccountsController::class)->group(function () {
-        Route::get('make-default/{id}', 'makeDefault');
+        Route::post('make-default/{id}', 'makeDefault');
         Route::post('account-statement', 'accountStatement')->name('accounts.statement');
         Route::get('accounts/all', 'accountsAll')->name('account.all');
     });
@@ -895,6 +907,7 @@ Route::group(['middleware' => ['common', 'auth', 'active', 'legacy.company']], f
     Route::prefix('accounting')->middleware('company.context')->group(function () {
         Route::controller(\App\Http\Controllers\Accounting\VoucherController::class)->group(function () {
             Route::get('vouchers', 'index')->name('accounting.vouchers');
+            Route::get('vouchers/{id}', 'show')->whereNumber('id')->name('accounting.vouchers.show');
             Route::post('vouchers', 'store')->name('accounting.vouchers.store');
             Route::post('journal-entries/{id}/reverse', 'reverse')->name('accounting.journal.reverse');
             Route::get('open-items', 'openItems')->name('accounting.open-items');
@@ -946,10 +959,6 @@ Route::group(['middleware' => ['common', 'auth', 'active', 'legacy.company']], f
         Route::post('cafe/raw-materials', 'storeRawMaterial')->name('cafe.raw-materials.store');
         Route::post('cafe/raw-material', 'storeRawMaterial')->name('cafe.raw-material.store');
     });
-
-    // Module: Interactive Multi-Role Mobile Application Suite
-    Route::get('mobile', [\App\Http\Controllers\MobileAppController::class, 'index'])->name('mobile.index');
-    Route::get('mobile-app', [\App\Http\Controllers\MobileAppController::class, 'index'])->name('mobile.app');
 
     // Module: Dynamic Catalogue QR
     Route::controller(\App\Http\Controllers\CatalogueQrController::class)->group(function () {
@@ -1011,5 +1020,6 @@ Route::group(['middleware' => ['common', 'auth', 'active', 'legacy.company']], f
 
 // Mobile Application (PWA / Field Driver Suite)
 Route::get('mobile', [\App\Http\Controllers\MobileAppController::class, 'index'])->name('mobile.index');
+Route::get('mobile-app', [\App\Http\Controllers\MobileAppController::class, 'index'])->name('mobile.app');
 
-require __DIR__.'/product-imports.php';
+require __DIR__ . '/product-imports.php';

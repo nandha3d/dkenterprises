@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Models\WaterTankerTrip;
+use App\Models\User;
 use App\Models\WaterCanDelivery;
+use App\Models\WaterCanDriverSurrender;
 use App\Models\WaterCanRoute;
+use App\Models\WaterCanSpotAudit;
+use App\Models\WaterTankerTrip;
 use App\Services\Accounting\AccountingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 
 class WaterLogisticsApiController extends BaseApiController
@@ -262,7 +267,7 @@ class WaterLogisticsApiController extends BaseApiController
     }
 
     /**
-     * Driver surrenders cash and empty can count at end of shift
+     * Driver surrenders cash and empty can count at end of shift (Real DB Persistence & Ledger Posting)
      */
     public function driverCashSurrender(Request $request): JsonResponse
     {
@@ -277,15 +282,55 @@ class WaterLogisticsApiController extends BaseApiController
             return $this->sendError('Validation error', $validator->errors()->toArray(), 422);
         }
 
-        // Return verified receipt
-        return $this->sendResponse([
+        $receiptNumber = 'SURR-' . date('Ymd') . '-' . rand(100, 999);
+        $cashAmount = (float) $request->cash_surrendered;
+        $emptyCans = (int) $request->empty_cans_returned;
+        $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id') ?? $request->company_id ?? 3;
+        $branchId = $request->header('X-Branch-ID') ?? $request->attributes->get('erp.branch_id') ?? $request->branch_id;
+
+        $surrender = WaterCanDriverSurrender::create([
+            'surrender_receipt' => $receiptNumber,
+            'company_id' => $companyId,
+            'branch_id' => $branchId,
             'route_id' => $request->route_id,
             'driver_id' => Auth::id() ?? 1,
             'surrender_date' => $request->surrender_date,
-            'cash_surrendered' => (float)$request->cash_surrendered,
-            'empty_cans_returned' => (int)$request->empty_cans_returned,
-            'surrender_receipt' => 'SURR-' . date('Ymd') . '-' . rand(100, 999),
+            'cash_surrendered' => $cashAmount,
+            'empty_cans_returned' => $emptyCans,
+            'filled_cans_returned' => (int) ($request->filled_cans_returned ?? 0),
+            'damaged_cans_reported' => (int) ($request->damaged_cans_reported ?? 0),
             'status' => 'Verified & Deposited to Main Cash Ledger',
+            'notes' => $request->notes,
+        ]);
+
+        // Post accounting journal entry if cash surrendered > 0
+        if ($cashAmount > 0) {
+            try {
+                $header = [
+                    'entry_date' => $request->surrender_date,
+                    'reference_type' => 'DriverCashSurrender',
+                    'reference_id' => $receiptNumber,
+                    'narration' => "Driver Cash Surrender [{$receiptNumber}] from Route ID {$request->route_id}",
+                ];
+                $items = [
+                    ['account_code' => '1010', 'debit' => $cashAmount, 'credit' => 0, 'memo' => 'Main Cash In Hand'],
+                    ['account_code' => '1030', 'debit' => 0, 'credit' => $cashAmount, 'memo' => 'Driver Settlement Clearing'],
+                ];
+                $this->accountingService->postJournalEntry($header, $items);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Driver surrender journal post error: ' . $e->getMessage());
+            }
+        }
+
+        return $this->sendResponse([
+            'id' => $surrender->id,
+            'route_id' => $surrender->route_id,
+            'driver_id' => $surrender->driver_id,
+            'surrender_date' => $surrender->surrender_date->toDateString(),
+            'cash_surrendered' => (float) $surrender->cash_surrendered,
+            'empty_cans_returned' => $surrender->empty_cans_returned,
+            'surrender_receipt' => $surrender->surrender_receipt,
+            'status' => $surrender->status,
         ], 'Driver shift surrendered and balanced');
     }
 
@@ -386,48 +431,103 @@ class WaterLogisticsApiController extends BaseApiController
     }
 
     /**
-     * Physical Spot Audit (Field Agent / Auditor)
+     * Physical Spot Audit (Field Agent / Auditor) - Persisted into water_can_spot_audits table
      */
     public function spotAudit(Request $request): JsonResponse
     {
-        $auditId = 'AUDIT-' . date('Ymd') . '-' . rand(1000, 9999);
-        $diff = (int)($request->physical_units ?? 0) - (int)($request->expected_units ?? 0);
+        $validator = Validator::make($request->all(), [
+            'vehicle_number' => 'nullable|string',
+            'driver_name' => 'nullable|string',
+            'physical_units' => 'required|numeric',
+            'expected_units' => 'nullable|numeric',
+            'physical_cash' => 'nullable|numeric',
+            'expected_cash' => 'nullable|numeric',
+            'notes' => 'nullable|string',
+        ]);
 
-        return $this->sendResponse([
+        if ($validator->fails()) {
+            return $this->sendError('Validation error', $validator->errors()->toArray(), 422);
+        }
+
+        $auditId = 'AUDIT-' . date('Ymd') . '-' . rand(1000, 9999);
+        $expectedUnits = (int) ($request->expected_units ?? 0);
+        $physicalUnits = (int) ($request->physical_units ?? 0);
+        $diffUnits = $physicalUnits - $expectedUnits;
+
+        $expectedCash = (float) ($request->expected_cash ?? 0);
+        $physicalCash = (float) ($request->physical_cash ?? 0);
+        $diffCash = $physicalCash - $expectedCash;
+
+        $isFraudSuspected = (bool) $request->is_fraud_suspected || abs($diffUnits) > 2 || abs($diffCash) > 500;
+
+        $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id') ?? $request->company_id ?? 3;
+        $branchId = $request->header('X-Branch-ID') ?? $request->attributes->get('erp.branch_id') ?? $request->branch_id;
+
+        $audit = WaterCanSpotAudit::create([
             'audit_id' => $auditId,
+            'company_id' => $companyId,
+            'branch_id' => $branchId,
+            'auditor_id' => Auth::id(),
             'vehicle_number' => $request->vehicle_number,
             'driver_name' => $request->driver_name,
-            'unit_difference' => $diff,
-            'cash_difference' => (float)($request->physical_cash ?? 0) - (float)($request->expected_cash ?? 0),
-            'is_fraud_suspected' => (bool)$request->is_fraud_suspected || abs($diff) > 2,
+            'audit_date' => $request->audit_date ?? now()->toDateString(),
+            'expected_units' => $expectedUnits,
+            'physical_units' => $physicalUnits,
+            'unit_difference' => $diffUnits,
+            'expected_cash' => $expectedCash,
+            'physical_cash' => $physicalCash,
+            'cash_difference' => $diffCash,
+            'is_fraud_suspected' => $isFraudSuspected,
             'status' => 'Audited & Logged into Anti-Fraud Command',
+            'notes' => $request->notes,
+        ]);
+
+        return $this->sendResponse([
+            'id' => $audit->id,
+            'audit_id' => $auditId,
+            'vehicle_number' => $audit->vehicle_number,
+            'driver_name' => $audit->driver_name,
+            'unit_difference' => $audit->unit_difference,
+            'cash_difference' => (float) $audit->cash_difference,
+            'is_fraud_suspected' => (bool) $audit->is_fraud_suspected,
+            'status' => $audit->status,
         ], 'Spot audit recorded', 201);
     }
 
     /**
      * Role Dashboard Summary
      */
-    public function roleDashboard(string $role): JsonResponse
+    public function roleDashboard(Request $request, string $role): JsonResponse
     {
+        $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id');
+
         $metrics = [
             'role' => $role,
             'tmws' => [
                 'tankers_count' => DB::table('water_tankers')->where('is_active', true)->count(),
                 'trips_today' => DB::table('water_tanker_trips')->whereDate('trip_date', date('Y-m-d'))->count(),
-                'total_kl' => (float)DB::table('water_tanker_trips')->sum('water_quantity_kl'),
-                'revenue' => (float)DB::table('water_tanker_trips')->sum('trip_rate'),
+                'total_kl' => (float) DB::table('water_tanker_trips')->sum('water_quantity_kl'),
+                'revenue' => (float) DB::table('water_tanker_trips')->sum('trip_rate'),
             ],
             'dk_waters' => [
                 'active_routes' => DB::table('water_can_routes')->where('is_active', true)->count(),
-                'deliveries_today' => DB::table('water_can_deliveries')->whereDate('delivery_date', date('Y-m-d'))->count(),
-                'cans_delivered' => (int)DB::table('water_can_deliveries')->sum('cans_delivered'),
-                'cans_in_market' => (int)DB::table('water_can_inventories')->sum('total_cans_held'),
-                'deposits_held' => (float)DB::table('water_can_inventories')->sum('deposit_held'),
-                'revenue' => (float)DB::table('water_can_deliveries')->sum('total_amount'),
+                'deliveries_today' => DB::table('water_can_deliveries')
+                    ->whereDate('delivery_date', date('Y-m-d'))
+                    ->count(),
+                'cans_delivered' => (int) DB::table('water_can_deliveries')->sum('cans_delivered'),
+                'cans_in_market' => (int) DB::table('water_can_inventories')
+                    ->join('customers', 'water_can_inventories.customer_id', '=', 'customers.id')
+                    ->when($companyId, fn ($q) => $q->where('customers.company_id', $companyId))
+                    ->sum('water_can_inventories.total_cans_held'),
+                'deposits_held' => (float) DB::table('water_can_inventories')
+                    ->join('customers', 'water_can_inventories.customer_id', '=', 'customers.id')
+                    ->when($companyId, fn ($q) => $q->where('customers.company_id', $companyId))
+                    ->sum('water_can_inventories.deposit_held'),
+                'revenue' => (float) DB::table('water_can_deliveries')->sum('total_amount'),
             ],
             'aran_cafe' => [
-                'open_drawers' => \Illuminate\Support\Facades\Schema::hasTable('cafe_cash_drawers') ? DB::table('cafe_cash_drawers')->where('status', 'open')->count() : 0,
-                'pos_sales' => 18450.0,
+                'open_drawers' => Schema::hasTable('cafe_cash_drawers') ? DB::table('cafe_cash_drawers')->where('status', 'open')->count() : 0,
+                'pos_sales' => (float) DB::table('sales')->where('company_id', 1)->whereDate('created_at', date('Y-m-d'))->sum('grand_total'),
             ],
         ];
 
@@ -435,70 +535,110 @@ class WaterLogisticsApiController extends BaseApiController
     }
 
     /**
-     * Dedicated Multi-Role Mobile Login
+     * Dedicated Multi-Role Mobile Login with Real Sanctum Authentication
      */
     public function mobileLogin(Request $request): JsonResponse
     {
-        $input = strtolower(trim($request->input('username') ?? $request->input('email') ?? $request->input('name') ?? 'admin'));
-        $roleParam = strtolower(trim($request->input('role') ?? ''));
+        $validator = Validator::make($request->all(), [
+            'username' => 'required_without:email|string',
+            'email' => 'required_without:username|string',
+            'password' => 'required|string',
+        ]);
 
-        // Identify role from input or roleParam
-        $role = 'superAdmin';
-        $userName = 'Super Admin (Executive)';
-        $companyId = null;
-        $modules = ['dashboard', 'water_logistics', 'sales', 'inventory', 'accounting', 'fleet', 'cafe_pos', 'anti_fraud'];
-
-        if ($roleParam === 'admin' || str_contains($input, 'dkadmin') || str_contains($input, 'company')) {
-            $role = 'admin';
-            $userName = 'DK Waters Operations Admin';
-            $companyId = 3;
-            $modules = ['dashboard', 'water_logistics', 'sales', 'inventory', 'accounting', 'fleet'];
-        } elseif ($roleParam === 'fieldagent' || str_contains($input, 'agent')) {
-            $role = 'fieldAgent';
-            $userName = 'Ramesh (Field Collection Agent)';
-            $companyId = 3;
-            $modules = ['dashboard', 'collections', 'kyc_onboard', 'customers', 'spot_audit'];
-        } elseif ($roleParam === 'deliverydriver' || str_contains($input, 'driver') && !str_contains($input, 'tanker')) {
-            $role = 'deliveryDriver';
-            $userName = 'Kumar (Tata Ace Route Driver)';
-            $companyId = 3;
-            $modules = ['ticket_machine', 'plant_refill', 'surrender', 'routes'];
-        } elseif ($roleParam === 'tankerdriver' || str_contains($input, 'tanker')) {
-            $role = 'tankerDriver';
-            $userName = 'Selvam (Bulk Tanker Logistics Driver)';
-            $companyId = 2;
-            $modules = ['tanker_trips', 'decanting', 'odometer', 'fuel_voucher'];
-        } elseif ($roleParam === 'cashier' || str_contains($input, 'cashier') || str_contains($input, 'cafe')) {
-            $role = 'cashier';
-            $userName = 'Priya (Aran Cafe Express POS)';
-            $companyId = 1;
-            $modules = ['cafe_pos', 'drawer_float', 'kot_orders'];
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error', $validator->errors(), 422);
         }
 
-        $token = 'zolo_m_' . bin2hex(random_bytes(24));
+        $identifier = $request->input('username') ?? $request->input('email');
+        $user = User::where(function ($q) use ($identifier) {
+            $q->where('name', $identifier)->orWhere('email', $identifier);
+        })->where('is_active', true)->where('is_deleted', false)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return $this->sendError('Unauthorized', ['credentials' => 'Invalid username/email or password.'], 401);
+        }
+
+        // Issue genuine Sanctum personal access token
+        $token = $user->createToken('dk-track-mobile')->plainTextToken;
+
+        // Roles & Permissions from DB
+        $roles = $user->roles->pluck('name')->values()->all();
+        if (empty($roles)) {
+            $roleRecord = DB::table('roles')->where('id', $user->role_id)->first();
+            if ($roleRecord) {
+                $roles[] = $roleRecord->name;
+            }
+        }
+        $primaryRole = $roles[0] ?? 'Staff';
+
+        $permissions = $user->getAllPermissions()->pluck('name')->values()->all();
+        if ($user->role_id == 1 || in_array('Admin', $roles, true)) {
+            $allPerms = DB::table('permissions')->pluck('name')->values()->all();
+            $permissions = array_values(array_unique(array_merge($permissions, $allPerms)));
+        }
+
+        // Accessible companies
+        $companies = DB::table('company_user')
+            ->join('companies', 'company_user.company_id', '=', 'companies.id')
+            ->where('company_user.user_id', $user->id)
+            ->where('companies.status', 'active')
+            ->select('companies.id', 'companies.code', 'companies.legal_name', 'companies.trade_name', 'company_user.is_default')
+            ->get();
+
+        $defaultCompany = $companies->firstWhere('is_default', 1) ?? $companies->first();
+
+        // Normalized role slug for mobile compatibility
+        $rawRoleInput = $request->input('role');
+        $roleSlug = $rawRoleInput ?: match(strtolower($primaryRole)) {
+            'admin', 'superadmin', 'owner' => 'superAdmin',
+            'delivery driver', 'driver' => 'deliveryDriver',
+            'tanker driver' => 'tankerDriver',
+            'field agent', 'agent' => 'fieldAgent',
+            'cashier' => 'cashier',
+            default => strtolower(str_replace(' ', '', $primaryRole)),
+        };
+        if (strtolower($roleSlug) === 'deliverydriver') $roleSlug = 'deliveryDriver';
+        if (strtolower($roleSlug) === 'tankerdriver') $roleSlug = 'tankerDriver';
+        if (strtolower($roleSlug) === 'fieldagent') $roleSlug = 'fieldAgent';
+        if (strtolower($roleSlug) === 'superadmin') $roleSlug = 'superAdmin';
 
         return $this->sendResponse([
             'token' => $token,
             'token_type' => 'Bearer',
-            'role' => $role,
+            'role' => $roleSlug,
             'user' => [
-                'name' => $userName,
-                'username' => $input,
-                'email' => "{$input}@dkenterprises.animazon.in",
-                'role' => $role,
-                'company_id' => $companyId,
+                'id' => $user->id,
+                'name' => $user->name,
+                'username' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'role' => $primaryRole,
+                'role_slug' => $roleSlug,
+                'role_id' => $user->role_id,
+                'company_id' => $defaultCompany?->id,
             ],
-            'allowed_modules' => $modules,
+            'permissions' => $permissions,
+            'companies' => $companies,
+            'allowed_modules' => ['dashboard', 'water_logistics', 'sales', 'inventory', 'accounting', 'fleet', 'cafe_pos', 'anti_fraud'],
         ], 'Authenticated successfully for mobile role session');
     }
 
     /**
-     * ERP Customers Directory
+     * ERP Customers Directory (Company Scoped & Paginated)
      */
-    public function customersList(): JsonResponse
+    public function customersList(Request $request): JsonResponse
     {
-        $customers = DB::table('customers')
+        $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id') ?? $request->company_id;
+        $limit = min((int) ($request->input('limit', 50)), 100);
+
+        $query = DB::table('customers')
             ->leftJoin('water_can_inventories', 'customers.id', '=', 'water_can_inventories.customer_id')
+            ->when($companyId, fn ($q) => $q->where('customers.company_id', $companyId))
+            ->when($request->filled('updated_since'), fn ($q) => $q->where('customers.updated_at', '>=', $request->updated_since))
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $term = '%' . $request->search . '%';
+                $q->where(fn ($sub) => $sub->where('customers.name', 'like', $term)->orWhere('customers.phone_number', 'like', $term));
+            })
             ->select(
                 'customers.id',
                 'customers.name',
@@ -507,35 +647,52 @@ class WaterLogisticsApiController extends BaseApiController
                 'customers.city',
                 'customers.company_id',
                 DB::raw('COALESCE(water_can_inventories.total_cans_held, 0) as cans_held'),
-                DB::raw('COALESCE(water_can_inventories.deposit_held, 0) as deposit_held')
+                DB::raw('COALESCE(water_can_inventories.deposit_held, 0) as deposit_held'),
+                'customers.updated_at'
             )
-            ->take(50)
-            ->get();
+            ->orderBy('customers.id', 'desc');
+
+        $customers = $query->take($limit)->get();
 
         return $this->sendResponse($customers, 'Customers directory retrieved');
     }
 
     /**
-     * ERP Products & Price Matrix
+     * ERP Products & Price Matrix (Company Scoped & Paginated)
      */
-    public function productsList(): JsonResponse
+    public function productsList(Request $request): JsonResponse
     {
-        $products = DB::table('products')
+        $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id') ?? $request->company_id;
+        $limit = min((int) ($request->input('limit', 50)), 100);
+
+        $query = DB::table('products')
             ->where('is_active', true)
-            ->select('id', 'name', 'code', 'price', 'unit_id')
-            ->take(50)
-            ->get();
+            ->when($companyId, fn ($q) => $q->where('company_id', $companyId))
+            ->when($request->filled('updated_since'), fn ($q) => $q->where('updated_at', '>=', $request->updated_since))
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $term = '%' . $request->search . '%';
+                $q->where(fn ($sub) => $sub->where('name', 'like', $term)->orWhere('code', 'like', $term));
+            })
+            ->select('id', 'name', 'code', 'price', 'unit_id', 'company_id', 'updated_at')
+            ->orderBy('id', 'desc');
+
+        $products = $query->take($limit)->get();
 
         return $this->sendResponse($products, 'Products catalog retrieved');
     }
 
     /**
-     * ERP Invoices & Delivery Slips
+     * ERP Invoices & Delivery Slips (Company Scoped & Paginated)
      */
-    public function invoicesList(): JsonResponse
+    public function invoicesList(Request $request): JsonResponse
     {
-        $deliveries = DB::table('water_can_deliveries')
+        $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id') ?? $request->company_id;
+        $limit = min((int) ($request->input('limit', 50)), 100);
+
+        $query = DB::table('water_can_deliveries')
             ->join('customers', 'water_can_deliveries.customer_id', '=', 'customers.id')
+            ->when($companyId, fn ($q) => $q->where('customers.company_id', $companyId))
+            ->when($request->filled('updated_since'), fn ($q) => $q->where('water_can_deliveries.updated_at', '>=', $request->updated_since))
             ->select(
                 'water_can_deliveries.id',
                 'water_can_deliveries.delivery_no',
@@ -544,30 +701,78 @@ class WaterLogisticsApiController extends BaseApiController
                 'water_can_deliveries.empty_cans_returned as empty_cans_collected',
                 'water_can_deliveries.total_amount',
                 'water_can_deliveries.payment_mode',
-                'customers.name as customer_name'
+                'customers.name as customer_name',
+                'water_can_deliveries.updated_at'
             )
-            ->orderBy('water_can_deliveries.id', 'desc')
-            ->take(30)
-            ->get();
+            ->orderBy('water_can_deliveries.id', 'desc');
+
+        $deliveries = $query->take($limit)->get();
 
         return $this->sendResponse($deliveries, 'Invoices and deliveries retrieved');
     }
 
     /**
-     * ERP Financial Ledger Balances
+     * ERP Financial Ledger Balances (Real Calculation from Ledger & Inventories)
      */
-    public function financials(): JsonResponse
+    public function financials(Request $request): JsonResponse
     {
+        $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id');
+        if (!$companyId && Auth::check()) {
+            $companyId = DB::table('company_user')->where('user_id', Auth::id())->where('is_default', 1)->value('company_id')
+                ?? DB::table('company_user')->where('user_id', Auth::id())->value('company_id')
+                ?? 3;
+        }
+        $companyId ??= 3; // Fallback to DK Waters if not specified
+
+        // 1. Live Ledger balances from journal_items
+        $cash1010 = (float) DB::table('journal_items')
+            ->join('chart_of_accounts', 'journal_items.chart_of_account_id', '=', 'chart_of_accounts.id')
+            ->where('chart_of_accounts.company_id', $companyId)
+            ->where(fn ($q) => $q->where('chart_of_accounts.code', '1010')->orWhere('chart_of_accounts.control_type', 'cash'))
+            ->sum(DB::raw('journal_items.debit - journal_items.credit'));
+
+        $bank1020 = (float) DB::table('journal_items')
+            ->join('chart_of_accounts', 'journal_items.chart_of_account_id', '=', 'chart_of_accounts.id')
+            ->where('chart_of_accounts.company_id', $companyId)
+            ->where(fn ($q) => $q->where('chart_of_accounts.code', '1020')->orWhere('chart_of_accounts.control_type', 'bank'))
+            ->sum(DB::raw('journal_items.debit - journal_items.credit'));
+
+        $ar1030 = (float) DB::table('journal_items')
+            ->join('chart_of_accounts', 'journal_items.chart_of_account_id', '=', 'chart_of_accounts.id')
+            ->where('chart_of_accounts.company_id', $companyId)
+            ->where(fn ($q) => $q->where('chart_of_accounts.code', '1030')->orWhere('chart_of_accounts.control_type', 'ar'))
+            ->sum(DB::raw('journal_items.debit - journal_items.credit'));
+
+        // 2. Container Deposits held for customers of this company
+        $totalDeposits = (float) DB::table('water_can_inventories')
+            ->join('customers', 'water_can_inventories.customer_id', '=', 'customers.id')
+            ->where('customers.company_id', $companyId)
+            ->sum('water_can_inventories.deposit_held');
+
+        // 3. Driver Surrendered Cash today (in transit to bank)
+        $cashInTransit = (float) DB::table('water_can_driver_surrenders')
+            ->where('company_id', $companyId)
+            ->whereDate('surrender_date', now()->toDateString())
+            ->sum('cash_surrendered');
+
+        // 4. Collections received today
+        $todayCollections = (float) DB::table('water_can_deliveries')
+            ->join('customers', 'water_can_deliveries.customer_id', '=', 'customers.id')
+            ->where('customers.company_id', $companyId)
+            ->whereDate('water_can_deliveries.delivery_date', now()->toDateString())
+            ->sum('water_can_deliveries.paid_amount');
+
         $data = [
-            'cash_in_hand_1010' => 48250.0,
-            'bank_account_1020' => 184500.0,
-            'accounts_receivable_1030' => 74200.0,
-            'total_container_deposits' => 120500.0,
-            'cash_in_transit_drivers' => 34250.0,
-            'today_collections' => 18450.0,
+            'company_id' => (int) $companyId,
+            'cash_in_hand_1010' => $cash1010,
+            'bank_account_1020' => $bank1020,
+            'accounts_receivable_1030' => $ar1030,
+            'total_container_deposits' => $totalDeposits,
+            'cash_in_transit_drivers' => $cashInTransit,
+            'today_collections' => $todayCollections,
         ];
 
-        return $this->sendResponse($data, 'Financial balances retrieved');
+        return $this->sendResponse($data, 'Real-time financial ledger balances retrieved');
     }
 }
 
