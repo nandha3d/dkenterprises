@@ -151,10 +151,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Demo credentials loaded: $roleName ($username)'),
+        content: Text('Signing in as $roleName ($username)...'),
         duration: const Duration(seconds: 2),
       ),
     );
+    _handleLogin();
   }
 
   Widget _buildDemoChip(String roleName, String username, String password, IconData icon, bool isDark) {

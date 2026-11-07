@@ -33,6 +33,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       ApiEndpoints.login,
       data: {
         'username': username,
+        'email': username,
+        'name': username,
         'password': password,
       },
       fromJson: (data) => data as Map<String, dynamic>,
@@ -49,10 +51,24 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
 
     final rawData = loginResult.dataOrNull!;
+    if (rawData['success'] == false) {
+      final message = rawData['message']?.toString() ?? 'Authentication failed.';
+      state = state.copyWith(
+        isLoading: false,
+        isAuthenticated: false,
+        errorMessage: message,
+      );
+      return false;
+    }
+
     final data = rawData['data'] is Map<String, dynamic>
         ? rawData['data'] as Map<String, dynamic>
         : (rawData['data'] is Map ? Map<String, dynamic>.from(rawData['data'] as Map) : rawData);
-    final token = data['token']?.toString() ?? rawData['token']?.toString() ?? '';
+    final token = data['token']?.toString() ??
+        rawData['token']?.toString() ??
+        data['access_token']?.toString() ??
+        rawData['access_token']?.toString() ??
+        '';
     if (token.isEmpty) {
       state = state.copyWith(
         isLoading: false,

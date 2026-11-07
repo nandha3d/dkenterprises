@@ -42,8 +42,12 @@ class _AccountingBooksScreenState extends ConsumerState<AccountingBooksScreen> {
     if (!mounted) return;
 
     if (result.isSuccess) {
+      final rawData = result.dataOrNull!;
+      final liveData = rawData['data'] is Map<String, dynamic>
+          ? rawData['data'] as Map<String, dynamic>
+          : (rawData['data'] is Map ? Map<String, dynamic>.from(rawData['data'] as Map) : rawData);
       setState(() {
-        _financials = result.dataOrNull!;
+        _financials = liveData;
         _isLoading = false;
       });
     } else {

@@ -642,11 +642,13 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
                     ...List.generate(activeList.length, (index) {
                       final v = activeList[index];
                       final isSelected = index == _selectedVehicleIndex;
-                      // Predefined visual coordinates on radar canvas
+                      // Well-spaced coordinates avoiding landmarks and HUD overlays
                       final List<Offset> positions = _mode == FleetViewMode.tankers
-                          ? const [Offset(190, 75), Offset(130, 150), Offset(70, 185)]
-                          : const [Offset(140, 100), Offset(220, 140)];
+                          ? const [Offset(180, 80), Offset(110, 150), Offset(60, 185)]
+                          : const [Offset(105, 115), Offset(210, 145)];
                       final pos = positions[index < positions.length ? index : 0];
+                      final rawId = v['id']?.toString() ?? '';
+                      final shortId = rawId.contains(' ') ? rawId.split(' ').first : rawId;
 
                       return Positioned(
                         left: pos.dx,
@@ -692,7 +694,7 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
                                   ),
                                 ),
                                 child: Text(
-                                  '${v['id']} · ${v['speed']} km/h',
+                                  '$shortId · ${v['speed']} km/h',
                                   style: GoogleFonts.inter(
                                     color: Colors.white,
                                     fontSize: 9,

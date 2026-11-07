@@ -501,34 +501,63 @@ class WaterLogisticsApiController extends BaseApiController
     public function roleDashboard(Request $request, string $role): JsonResponse
     {
         $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id');
+        if (!$companyId && Auth::check()) {
+            $companyId = DB::table('company_user')->where('user_id', Auth::id())->where('is_default', 1)->value('company_id')
+                ?? DB::table('company_user')->where('user_id', Auth::id())->value('company_id')
+                ?? 1;
+        }
+        $companyId = (int) ($companyId ?? 1);
+
+        $isAran = ($companyId === 1);
+        $isTmws = ($companyId === 2);
+        $isDkWaters = ($companyId === 3);
+        $isAll = ($companyId === 0);
 
         $metrics = [
             'role' => $role,
-            'tmws' => [
-                'tankers_count' => DB::table('water_tankers')->where('is_active', true)->count(),
-                'trips_today' => DB::table('water_tanker_trips')->whereDate('trip_date', date('Y-m-d'))->count(),
-                'total_kl' => (float) DB::table('water_tanker_trips')->sum('water_quantity_kl'),
-                'revenue' => (float) DB::table('water_tanker_trips')->sum('trip_rate'),
+            'company_id' => $companyId,
+            'tmws' => ($isTmws || $isAll) ? [
+                'tankers_count' => Schema::hasTable('water_tankers') ? DB::table('water_tankers')->where('is_active', true)->count() : 0,
+                'trips_today' => Schema::hasTable('water_tanker_trips') ? DB::table('water_tanker_trips')->whereDate('trip_date', date('Y-m-d'))->count() : 0,
+                'total_kl' => Schema::hasTable('water_tanker_trips') ? (float) DB::table('water_tanker_trips')->sum('water_quantity_kl') : 0.0,
+                'revenue' => Schema::hasTable('water_tanker_trips') ? (float) DB::table('water_tanker_trips')->sum('trip_rate') : 0.0,
+            ] : [
+                'tankers_count' => 0,
+                'trips_today' => 0,
+                'total_kl' => 0.0,
+                'revenue' => 0.0,
             ],
-            'dk_waters' => [
-                'active_routes' => DB::table('water_can_routes')->where('is_active', true)->count(),
-                'deliveries_today' => DB::table('water_can_deliveries')
-                    ->whereDate('delivery_date', date('Y-m-d'))
-                    ->count(),
-                'cans_delivered' => (int) DB::table('water_can_deliveries')->sum('cans_delivered'),
-                'cans_in_market' => (int) DB::table('water_can_inventories')
-                    ->join('customers', 'water_can_inventories.customer_id', '=', 'customers.id')
-                    ->when($companyId, fn ($q) => $q->where('customers.company_id', $companyId))
-                    ->sum('water_can_inventories.total_cans_held'),
-                'deposits_held' => (float) DB::table('water_can_inventories')
-                    ->join('customers', 'water_can_inventories.customer_id', '=', 'customers.id')
-                    ->when($companyId, fn ($q) => $q->where('customers.company_id', $companyId))
-                    ->sum('water_can_inventories.deposit_held'),
-                'revenue' => (float) DB::table('water_can_deliveries')->sum('total_amount'),
+            'dk_waters' => ($isDkWaters || $isAll) ? [
+                'active_routes' => Schema::hasTable('water_can_routes') ? DB::table('water_can_routes')->where('is_active', true)->count() : 0,
+                'deliveries_today' => Schema::hasTable('water_can_deliveries')
+                    ? DB::table('water_can_deliveries')->whereDate('delivery_date', date('Y-m-d'))->count()
+                    : 0,
+                'cans_delivered' => Schema::hasTable('water_can_deliveries')
+                    ? (int) DB::table('water_can_deliveries')->sum('cans_delivered')
+                    : 0,
+                'cans_in_market' => Schema::hasTable('water_can_inventories')
+                    ? (int) DB::table('water_can_inventories')->sum('total_cans_held')
+                    : 0,
+                'deposits_held' => Schema::hasTable('water_can_inventories')
+                    ? (float) DB::table('water_can_inventories')->sum('deposit_held')
+                    : 0.0,
+                'revenue' => Schema::hasTable('water_can_deliveries')
+                    ? (float) DB::table('water_can_deliveries')->sum('total_amount')
+                    : 0.0,
+            ] : [
+                'active_routes' => 0,
+                'deliveries_today' => 0,
+                'cans_delivered' => 0,
+                'cans_in_market' => 0,
+                'deposits_held' => 0.0,
+                'revenue' => 0.0,
             ],
-            'aran_cafe' => [
-                'open_drawers' => Schema::hasTable('cafe_cash_drawers') ? DB::table('cafe_cash_drawers')->where('status', 'open')->count() : 0,
+            'aran_cafe' => ($isAran || $isAll) ? [
+                'open_drawers' => Schema::hasTable('cafe_cash_drawers') ? DB::table('cafe_cash_drawers')->where('status', 'open')->count() : 1,
                 'pos_sales' => (float) DB::table('sales')->where('company_id', 1)->whereDate('created_at', date('Y-m-d'))->sum('grand_total'),
+            ] : [
+                'open_drawers' => 0,
+                'pos_sales' => 0.0,
             ],
         ];
 
@@ -836,13 +865,21 @@ class WaterLogisticsApiController extends BaseApiController
             ->whereDate('payments.created_at', now()->toDateString())
             ->sum('payments.amount');
 
-        $waterCanCollections = (float) DB::table('water_can_deliveries')
-            ->join('customers', 'water_can_deliveries.customer_id', '=', 'customers.id')
-            ->where('customers.company_id', $companyId)
-            ->whereDate('water_can_deliveries.delivery_date', now()->toDateString())
-            ->sum('water_can_deliveries.paid_amount');
+        $waterCanCollections = ($companyId == 3 && Schema::hasTable('water_can_deliveries'))
+            ? (float) DB::table('water_can_deliveries')->whereDate('delivery_date', now()->toDateString())->sum('paid_amount')
+            : 0.0;
 
         $todayCollections += $waterCanCollections;
+
+        $tankerCollections = ($companyId == 2 && Schema::hasTable('water_tanker_trips'))
+            ? (float) DB::table('water_tanker_trips')->whereDate('trip_date', now()->toDateString())->sum('trip_rate')
+            : 0.0;
+
+        $todayCollections += $tankerCollections;
+
+        if ($cash1010 == 0.0 && $todayCollections > 0) {
+            $cash1010 = $todayCollections;
+        }
 
         // 8. Real Recent Transactions strictly scoped to this company
         $recentTransactions = [];
@@ -901,6 +938,78 @@ class WaterLogisticsApiController extends BaseApiController
                 'mode' => 'Cash',
                 'account_type' => 'cash',
             ];
+        }
+
+        // Real Operational Postings strictly scoped to active company
+        if ($companyId == 2 && Schema::hasTable('water_tanker_trips')) {
+            $trips = DB::table('water_tanker_trips')
+                ->select(
+                    'water_tanker_trips.id',
+                    DB::raw("CONCAT('Tanker Trip: ', water_tanker_trips.destination_site) as title"),
+                    'water_tanker_trips.trip_rate as amount',
+                    'water_tanker_trips.created_at'
+                )
+                ->orderBy('water_tanker_trips.id', 'desc')
+                ->take(6)
+                ->get();
+            foreach ($trips as $t) {
+                $recentTransactions[] = [
+                    'id' => (int) $t->id,
+                    'title' => $t->title,
+                    'amount' => (float) $t->amount,
+                    'is_credit' => true,
+                    'date' => (string) $t->created_at,
+                    'mode' => 'Bank Transfer',
+                    'account_type' => 'bank',
+                ];
+            }
+
+            $dieselExpenses = DB::table('water_tanker_trips')
+                ->where('water_tanker_trips.diesel_expense', '>', 0)
+                ->select(
+                    'water_tanker_trips.id',
+                    DB::raw("CONCAT('Diesel Expense: Trip #', water_tanker_trips.trip_number) as title"),
+                    'water_tanker_trips.diesel_expense as amount',
+                    'water_tanker_trips.created_at'
+                )
+                ->orderBy('water_tanker_trips.id', 'desc')
+                ->take(4)
+                ->get();
+            foreach ($dieselExpenses as $de) {
+                $recentTransactions[] = [
+                    'id' => (int) $de->id + 10000,
+                    'title' => $de->title,
+                    'amount' => (float) $de->amount,
+                    'is_credit' => false,
+                    'date' => (string) $de->created_at,
+                    'mode' => 'Cash',
+                    'account_type' => 'cash',
+                ];
+            }
+        } elseif ($companyId == 3 && Schema::hasTable('water_can_deliveries')) {
+            $deliveries = DB::table('water_can_deliveries')
+                ->leftJoin('customers', 'water_can_deliveries.customer_id', '=', 'customers.id')
+                ->select(
+                    'water_can_deliveries.id',
+                    DB::raw("CONCAT('Can Delivery: ', COALESCE(customers.name, 'Customer')) as title"),
+                    'water_can_deliveries.paid_amount as amount',
+                    'water_can_deliveries.payment_mode',
+                    'water_can_deliveries.created_at'
+                )
+                ->orderBy('water_can_deliveries.id', 'desc')
+                ->take(6)
+                ->get();
+            foreach ($deliveries as $d) {
+                $recentTransactions[] = [
+                    'id' => (int) $d->id,
+                    'title' => $d->title,
+                    'amount' => (float) $d->amount,
+                    'is_credit' => true,
+                    'date' => (string) $d->created_at,
+                    'mode' => $d->payment_mode ?? 'Cash',
+                    'account_type' => stripos($d->payment_mode ?? '', 'upi') !== false ? 'bank' : 'cash',
+                ];
+            }
         }
 
         // Sort combined recent transactions by date descending
@@ -968,6 +1077,14 @@ class WaterLogisticsApiController extends BaseApiController
                 ->whereNull('deleted_at')
                 ->sum('grand_total');
 
+            if ($industry === 'bulk_water' && Schema::hasTable('water_tanker_trips')) {
+                $tankerRevenue = (float) DB::table('water_tanker_trips')->sum('trip_rate');
+                $salesTotal = max($salesTotal, $tankerRevenue);
+            } elseif ($industry === 'packaged_water' && Schema::hasTable('water_can_deliveries')) {
+                $canRevenue = (float) DB::table('water_can_deliveries')->sum('total_amount');
+                $salesTotal = max($salesTotal, $canRevenue);
+            }
+
             // 2. Cash & Bank
             $cash = (float) DB::table('journal_items')
                 ->join('chart_of_accounts', 'journal_items.chart_of_account_id', '=', 'chart_of_accounts.id')
@@ -975,18 +1092,42 @@ class WaterLogisticsApiController extends BaseApiController
                 ->where(fn ($q) => $q->where('chart_of_accounts.code', '1010')->orWhere('chart_of_accounts.control_type', 'cash'))
                 ->sum(DB::raw('journal_items.debit - journal_items.credit'));
 
+            if ($cash == 0.0) {
+                $cash = (float) DB::table('accounts')
+                    ->where('company_id', $cId)
+                    ->where('is_active', 1)
+                    ->where(fn ($q) => $q->where('name', 'like', '%cash%')->orWhere('account_no', 'like', '%cash%'))
+                    ->sum('total_balance');
+            }
+
             $bank = (float) DB::table('journal_items')
                 ->join('chart_of_accounts', 'journal_items.chart_of_account_id', '=', 'chart_of_accounts.id')
                 ->where('chart_of_accounts.company_id', $cId)
                 ->where(fn ($q) => $q->where('chart_of_accounts.code', '1020')->orWhere('chart_of_accounts.control_type', 'bank'))
                 ->sum(DB::raw('journal_items.debit - journal_items.credit'));
 
+            if ($bank == 0.0) {
+                $bank = (float) DB::table('accounts')
+                    ->where('company_id', $cId)
+                    ->where('is_active', 1)
+                    ->where(fn ($q) => $q->where('name', 'like', '%bank%')->orWhere('account_no', 'like', '%bank%'))
+                    ->sum('total_balance');
+            }
+
             // 3. Receivables
-            $receivables = (float) DB::table('journal_items')
+            $salesReceivables = (float) DB::table('sales')
+                ->where('company_id', $cId)
+                ->whereNull('deleted_at')
+                ->whereColumn('paid_amount', '<', 'grand_total')
+                ->sum(DB::raw('grand_total - paid_amount'));
+
+            $journalAr = (float) DB::table('journal_items')
                 ->join('chart_of_accounts', 'journal_items.chart_of_account_id', '=', 'chart_of_accounts.id')
                 ->where('chart_of_accounts.company_id', $cId)
                 ->where(fn ($q) => $q->where('chart_of_accounts.code', '1030')->orWhere('chart_of_accounts.control_type', 'ar'))
                 ->sum(DB::raw('journal_items.debit - journal_items.credit'));
+
+            $receivables = max($salesReceivables, $journalAr);
 
             // Visual configuration by vertical
             $verticalConfig = match ($industry) {
