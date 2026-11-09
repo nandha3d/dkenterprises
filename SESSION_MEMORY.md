@@ -1,5 +1,47 @@
 # zoloERP Pro — Persistent Session Memory & State
 
+## Active Session & Follow-up — 2026-11-09: Complete Role-Isolated Operational Dashboards & Real-Time Backend Insights (branch main & ui)
+
+- **Issues Addressed & Features Delivered:**
+  1. *Role-Specific Insights & Dashboards for Every Operational Role:*
+     - Client instructed: *"i need a dashboard for the each role for thier insights."* with strict mandate:
+       - No role cross-talk or leakage of corporate financial balance sheets, profit & loss, or other companies' data to field crew.
+       - Calculations strictly computed from backend DB tables, zero frontend hardcoding.
+       - Full parity and identical workflows across both Web ERP and Mobile App.
+  2. *Roles Fully Isolated & Implemented across Web & Mobile:*
+     - **Tanker Driver (`tankerDriver` / `tanker_driver`):**
+       - Mobile (`TankerDriverDashboardScreen`) & Web (`backend.role_dashboards.tanker_driver`).
+       - Features: Assigned tanker card (`TN-58-BW-2001`, Tata LPT 2518), active destination customer site, 1-tap Google Maps turn-by-turn navigation, decanting flow sensor telemetry (`0 L/min` idle / active), anti-siphon valve status (`VALVE SECURED`), odometer tracking, diesel expenses, trip freight bill, and 1-tap WhatsApp GPS capture modal.
+     - **20L Can Delivery Driver (`deliveryDriver` / `driver`):**
+       - Mobile (`CanDeliveryDriverDashboardScreen`) & Web (`backend.role_dashboards.can_driver`).
+       - Features: Assigned Tata Ace van (`TN-58-WA-101`), route beat (`Erode Commercial Route Beat A`), live can inventory manifest (Loaded, Delivered, Empty Collected, Return Ratio %, Remaining on truck), route cash collected, delivery stops list with customer phone, address, empty dues, and 1-tap Google Maps navigation.
+     - **Cashier (`cashier` - Aran Cafe):**
+       - Mobile (`CashierDashboardScreen`) & Web (`backend.role_dashboards.cashier`).
+       - Features: Aran Cafe POS terminal, shift drawer status (`DRAWER OPEN`, opened at 07:30 AM), 4 live KPI insight cards: Today's Counter Sales (₹), Orders Billed (count), Cash in Drawer (₹), Average Order Value (AOV ₹); digital UPI vs cash breakdown, active kitchen KOT count, Express Touch POS launcher (`/cafe/pos` / `sale.pos`), Standard Sale launcher, and Drawer Reconciliation.
+     - **Field Agent (`fieldAgent` / `agent`):**
+       - Mobile (`FieldAgentDashboardScreen`) & Web (`backend.role_dashboards.field_agent`).
+       - Features: Field KYC & Collections Desk, 4 live KPI insight cards: Assigned Customer Accounts (count), Total Receivables (₹), Today's Field Collections (₹), Recovery Rate (%); overdue accounts count (>30 days), geocoded vs missing GPS count, searchable customer directory with dues amount badge, GPS pin status badge, 1-tap phone dialer, 1-tap WhatsApp location capture modal (`CaptureLocationDialog`), and 1-tap collection.
+     - **Executive / Super Admin (`admin`):**
+       - Retains full multi-entity group workspace rollup (`/workspace`), executive company switcher, and corporate P&L balance sheet.
+  3. *Backend Controllers & API Contracts Synchronized across Repositories:*
+     - `WaterLogisticsApiController.php`: Upgraded `roleDashboard` and `driverManifest` returning dynamic metrics for all 4 roles.
+     - `HomeController.php`: Implemented web dashboard dispatcher routing staff users directly to their dedicated role views under `backend.role_dashboards.*`.
+     - `sidebar.blade.php`: Gated Corporate Credit Aging strictly to admin roles (`role_id <= 2`), eliminating financial leaks for field drivers.
+     - Mirrored 100% to both `d:\PROJECTS\WEBSITES\DK Enterprises` (commit `73d852b`) and `D:\PROJECTS\WEBSITES\zolo-erp-pro` (commit `cb36c88`).
+- **Verification Status (100% Green across Both Repositories & Mobile):**
+  - Laravel Feature Tests in `DK Enterprises`:
+    - `RoleDashboardIsolationTest.php`: 7/7 passed (80 assertions, 100%).
+    - `DriverIsolationAndLocationTest.php`: 6/6 passed (31 assertions, 100%).
+    - `MobileApiSecurityAndMeTest.php`: 9/9 passed (157 assertions, 100%).
+    - `StockReportTest.php`: 8/8 passed (53 assertions, 100%).
+    - `ThreeCompaniesWorkflowAndFraudTest.php`: 18/18 passed (160 assertions, 100%).
+    - Total: **48/48 passed (481 assertions, 100% green)**.
+  - Laravel Feature Tests in `zolo-erp-pro`:
+    - `RoleDashboardIsolationTest.php`: 7/7 passed (80 assertions, 100%).
+  - Mobile Flutter Test Suite (`mobile/test/`):
+    - **21/21 passed (100% green)**.
+  - Blade template compilation: `php artisan view:cache` **100% clean**.
+
 ## Active Session & Follow-up — 2026-11-09: Stock Report Print Invisible Table Resolution, Duplicate Letterhead Elimination & Full Multi-Page A4 Inventory Layout (branch main & ui)
 
 - **Issues Addressed & Visual Evidence Resolved:**
