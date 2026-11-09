@@ -1,5 +1,35 @@
 # zoloERP Pro — Persistent Session Memory & State
 
+## Active Session & Follow-up — 2026-11-09: Complete Customer Onboarding Flow, Delivery Boy / Tanker Driver Creation, WhatsApp GPS Persistence & Windows Desktop Fresh Compilation (branch main & ui)
+
+- **Issues Addressed & Visual Evidence Resolved:**
+  1. *`GoException: no routes for location: /customers` (`media_1794210244323_ff5fc43f.png`):*
+     - Root Cause: Missing routes in `app_router.dart` and running a stale Windows desktop build (`07-Nov-2026`) that predated customer onboarding and role routing commits.
+     - Solution:
+       - Created complete 4-section customer onboarding screen in `mobile/lib/features/customers/presentation/customer_form_screen.dart` with instant WhatsApp Google Maps coordinate parser, contact/shop details, route assignment, and opening can deposit calculation.
+       - Overhauled `mobile/lib/screens/customers_screen.dart` with live search, 1-tap dialer, Google Maps turn-by-turn navigation, and `CaptureLocationDialog`.
+       - Registered `/customers`, `/customers/new`, and `/customers/onboard` in `mobile/lib/core/routing/app_router.dart`.
+       - Added direct `+ Customer` quick action buttons to `CanDeliveryDriverDashboardScreen`, `TankerDriverDashboardScreen`, `FieldAgentDashboardScreen`, and `quick_action_sheet.dart`.
+       - Recompiled both Debug (`kernel_blob.bin`) and Release (`Release\dk_track_mobile.exe`) binaries on Windows.
+  2. *Driver & Delivery Boy Customer Creation on Backend:*
+     - Upgraded `WaterLogisticsApiController::customerOnboard()` to allow delivery drivers and tanker drivers to onboard customers with `user_id = Auth::id()`, link to route, set opening can deposits, and insert active stops without permission blocks.
+     - Enhanced `customersList()` with `orWhere('customers.user_id', $authUser->id)` so drivers immediately see newly created customers.
+     - Registered routes `POST /api/v1/mobile/customers`, `POST /api/v1/customers`, and `POST /api/v1/customer-onboard`.
+  3. *Staff Seeing Company Accounting & Overlapping Telemetry Metrics (`media_1794029792894_b85a6001.png`, `media_1794208174451_17f89235.jpg`):*
+     - Recompiled binary incorporates strict role isolation (`RoleDashboardDispatcher` routing to role-tailored dashboards) and bounded layout containers in `fleet_gps_screen.dart`.
+- **Verification Status (100% Green):**
+  - Laravel Feature Tests:
+    - `tests/Feature/DriverIsolationAndLocationTest.php`: 8/8 passed (46 assertions, 100%).
+    - `tests/Feature/RoleDashboardIsolationTest.php`: 7/7 passed (80 assertions, 100%).
+    - `tests/Feature/MobileApiSecurityAndMeTest.php`: 9/9 passed (157 assertions, 100%).
+    - `tests/Feature/StockReportTest.php`: 9/9 passed (67 assertions, 100%).
+    - `tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php`: 18/18 passed (160 assertions, 100%).
+  - Flutter Mobile Test Suite:
+    - `mobile/test/customer_routing_test.dart`: 3/3 passed (100%).
+    - Full test suite: **24/24 passed (100% green)**.
+  - Flutter Static Analysis: **0 errors, 0 warnings, 0 infos**.
+  - Windows Executable: Rebuilt fresh in `mobile/build/windows/x64/runner/Release/dk_track_mobile.exe` and `Debug/`.
+
 ## Active Session & Follow-up — 2026-11-09: Elimination of Raw Printed CSS Text, Screen Table Layout Restoration, and Attribute-Based Zero-TypeError Recalculation (branch ui)
 
 - **Issues Addressed & Visual Evidence Resolved:**
