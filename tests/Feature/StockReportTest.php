@@ -138,6 +138,25 @@ class StockReportTest extends TestCase
         $response->assertSee('Stock Report', false);
     }
 
+    public function test_stock_report_date_range_filter(): void
+    {
+        $startDate = '2026-01-01';
+        $endDate = '2026-11-09';
+
+        $response = $this->get(route('report.stock', [
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+        ]));
+        $response->assertOk();
+
+        // Assert date range inputs are present in the filter card
+        $response->assertSee('daterangepicker-field', false);
+        $response->assertSee('name="start_date"', false);
+        $response->assertSee('name="end_date"', false);
+        $response->assertSee('value="2026-01-01 To 2026-11-09"', false);
+        $response->assertSee('Period: <strong>01 Jan 2026 — 09 Nov 2026</strong>', false);
+    }
+
     public function test_stock_report_print_and_screen_layout_standards(): void
     {
         $response = $this->get(route('report.stock'));
@@ -161,5 +180,13 @@ class StockReportTest extends TestCase
         $response->assertSee('col-price', false);
         $response->assertSee('col-val-price', false);
         $response->assertSee('erp-print-signatures', false);
+
+        // 4. Assert row attributes for zero-TypeError numeric recalculation
+        $response->assertSee('data-cost-val', false);
+        $response->assertSee('data-price-val', false);
+
+        // 5. Assert print safety hides style and script tags to avoid raw CSS printing
+        $response->assertSee('style,', false);
+        $this->assertStringNotContainsString('<div id="content"><style>', $html);
     }
 }
