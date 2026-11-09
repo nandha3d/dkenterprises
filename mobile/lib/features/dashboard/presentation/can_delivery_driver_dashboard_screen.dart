@@ -221,10 +221,23 @@ class _CanDeliveryDriverDashboardScreenState extends ConsumerState<CanDeliveryDr
                           color: textPrim,
                         ),
                       ),
-                      TextButton.icon(
-                        onPressed: () => context.push('/water/can-sales'),
-                        icon: const Icon(Icons.add_shopping_cart_rounded, size: 16),
-                        label: const Text('Spot Bill', style: TextStyle(fontSize: 12)),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextButton.icon(
+                            onPressed: () async {
+                              final res = await context.push<bool>('/customers/new');
+                              if (res == true) _loadManifest();
+                            },
+                            icon: const Icon(Icons.person_add_alt_1_rounded, size: 16),
+                            label: const Text('+ Customer', style: TextStyle(fontSize: 12)),
+                          ),
+                          TextButton.icon(
+                            onPressed: () => context.push('/operations/can-sales'),
+                            icon: const Icon(Icons.add_shopping_cart_rounded, size: 16),
+                            label: const Text('Spot Bill', style: TextStyle(fontSize: 12)),
+                          ),
+                        ],
                       ),
                     ],
                   ),

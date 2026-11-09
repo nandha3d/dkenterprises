@@ -8,6 +8,11 @@ abstract final class AppColors {
   static const Color primaryDark = Color(0xFF38BDF8); // Sky Blue for dark canvas
   static const Color brandNavy = Color(0xFF021840);
   static const Color brandPurple = Color(0xFF7D287E);
+  static const Color brandSky = Color(0xFF0EA5E9);
+  static const Color brandCyan = Color(0xFF38BDF8);
+  static const Color brandEmerald = Color(0xFF10B981);
+  static const Color brandAmber = Color(0xFFF59E0B);
+  static const Color brandDanger = Color(0xFFEF4444);
 
   // Semantics
   static const Color success = Color(0xFF059669); // Emerald

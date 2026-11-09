@@ -25,6 +25,8 @@ import '../../features/sales/presentation/new_sale_bill_screen.dart';
 import '../../features/sales/presentation/sales_invoices_screen.dart';
 import '../../features/tasks/presentation/tasks_screen.dart';
 import '../../features/workspace/presentation/workspace_screen.dart';
+import '../../features/customers/presentation/customer_form_screen.dart';
+import '../../screens/customers_screen.dart';
 import '../../screens/fleet_gps_screen.dart';
 import '../providers.dart';
 import '../ui/app_scaffold.dart';
@@ -171,6 +173,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/products/new',
         builder: (context, state) => const ProductFormScreen(),
+      ),
+      GoRoute(
+        path: '/customers',
+        builder: (context, state) => const CustomersScreen(),
+      ),
+      GoRoute(
+        path: '/customers/new',
+        builder: (context, state) => const CustomerFormScreen(),
+      ),
+      GoRoute(
+        path: '/customers/onboard',
+        builder: (context, state) => const CustomerFormScreen(),
       ),
       GoRoute(
         path: '/accounting/books',

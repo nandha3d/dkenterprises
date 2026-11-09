@@ -84,6 +84,7 @@ Route::prefix('v1')->group(function () {
             Route::get('dashboard/{role}', [WaterLogisticsApiController::class, 'roleDashboard'])->name('api.v1.mobile.dashboard');
             Route::get('workspace', [WaterLogisticsApiController::class, 'groupWorkspaceInsights'])->name('api.v1.mobile.workspace');
             Route::get('customers', [WaterLogisticsApiController::class, 'customersList'])->name('api.v1.mobile.customers');
+            Route::post('customers', [WaterLogisticsApiController::class, 'customerOnboard'])->name('api.v1.mobile.customers.create');
             Route::get('products', [WaterLogisticsApiController::class, 'productsList'])->name('api.v1.mobile.products');
             Route::get('invoices', [WaterLogisticsApiController::class, 'invoicesList'])->name('api.v1.mobile.invoices');
             Route::get('financials', [WaterLogisticsApiController::class, 'financials'])->name('api.v1.mobile.financials');
@@ -98,6 +99,9 @@ Route::prefix('v1')->group(function () {
         });
 
         // Direct Mobile Convenience Aliases
+        Route::get('customers', [WaterLogisticsApiController::class, 'customersList'])->name('api.v1.customers.alias');
+        Route::post('customers', [WaterLogisticsApiController::class, 'customerOnboard'])->name('api.v1.customers.create.alias');
+        Route::post('customer-onboard', [WaterLogisticsApiController::class, 'customerOnboard'])->name('api.v1.customer-onboard.alias');
         Route::get('financials', [WaterLogisticsApiController::class, 'financials'])->name('api.v1.financials.alias');
         Route::get('invoices', [WaterLogisticsApiController::class, 'invoicesList'])->name('api.v1.invoices.alias');
 

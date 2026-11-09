@@ -19,8 +19,6 @@ use App\Models\Returns;
 use App\Models\Variant;
 use App\Models\Customer;
 use App\Models\Company;
-use App\Models\Category;
-use App\Models\Brand;
 use App\Models\Purchase;
 use App\Models\Supplier;
 use App\Models\Transfer;
@@ -38,6 +36,8 @@ use App\Models\ProductPurchase;
 use App\Models\ProductTransfer;
 use App\Models\ProductQuotation;
 use App\Models\Product_Warehouse;
+use App\Models\Category;
+use App\Models\Brand;
 use Spatie\Permission\Models\Role;
 use App\Models\PurchaseProductReturn;
 use Spatie\Permission\Models\Permission;
@@ -156,6 +156,9 @@ class ReportController extends Controller
         return view('backend.report.product_expiry_report', compact('lims_product_data'));
     }
 
+    /**
+     * Comprehensive Stock Report — Tabular inventory desk with live valuation, status badges, godown distribution, and A4 printing
+     */
     public function stockReport(Request $request)
     {
         $role = Role::find(Auth::user()->role_id);
@@ -172,6 +175,8 @@ class ReportController extends Controller
         $category_id = (int) $request->input('category_id', 0);
         $brand_id = (int) $request->input('brand_id', 0);
         $stock_status = (string) $request->input('stock_status', 'all');
+        $start_date = (string) ($request->input('start_date') ?: date('Y-m-01'));
+        $end_date = (string) ($request->input('end_date') ?: date('Y-m-d'));
 
         $lims_warehouse_list = Warehouse::where('is_active', true)
             ->where(fn($q) => $q->where('company_id', $companyId)->orWhereNull('company_id'))
@@ -198,6 +203,9 @@ class ReportController extends Controller
         }
         if ($brand_id > 0) {
             $productsQuery->where('brand_id', $brand_id);
+        }
+        if (!empty($end_date) && $end_date < date('Y-m-d')) {
+            $productsQuery->whereDate('products.created_at', '<=', $end_date);
         }
 
         $products = $productsQuery->orderBy('name')->get();
@@ -310,8 +318,8 @@ class ReportController extends Controller
                 'code' => $product->code,
                 'image' => $product->image,
                 'barcode_symbology' => $product->barcode_symbology,
-                'category_name' => $product->category?->name ?? 'â€”',
-                'brand_name' => $product->brand?->title ?? 'â€”',
+                'category_name' => $product->category?->name ?? '—',
+                'brand_name' => $product->brand?->title ?? '—',
                 'unit_code' => $product->unit?->unit_code ?? ($product->unit?->unit_name ?? 'Units'),
                 'warehouse_name' => $whSummary,
                 'warehouse_distribution' => $whDistribution,
@@ -344,7 +352,7 @@ class ReportController extends Controller
 
         $kpiEstimatedProfit = $kpiTotalPrice - $kpiTotalCost;
         $kpiProfitMarginPercent = ($kpiTotalCost > 0) ? (($kpiEstimatedProfit / $kpiTotalCost) * 100) : 0.0;
-        $currencySymbol = config('currency') ?? 'â‚¹';
+        $currencySymbol = config('currency') ?? '₹';
 
         $warehouseName = 'All Warehouses';
         if ($warehouse_id > 0) {
@@ -382,6 +390,8 @@ class ReportController extends Controller
             'category_id',
             'brand_id',
             'stock_status',
+            'start_date',
+            'end_date',
             'warehouseName',
             'categoryName',
             'brandName',
@@ -403,6 +413,8 @@ class ReportController extends Controller
         $category_id = (int) $request->input('category_id', 0);
         $brand_id = (int) $request->input('brand_id', 0);
         $stock_status = (string) $request->input('stock_status', 'all');
+        $start_date = (string) ($request->input('start_date') ?: date('Y-m-01'));
+        $end_date = (string) ($request->input('end_date') ?: date('Y-m-d'));
         $search = $request->input('search.value');
         $draw = (int) $request->input('draw', 1);
 
@@ -415,6 +427,9 @@ class ReportController extends Controller
         }
         if ($brand_id > 0) {
             $productsQuery->where('brand_id', $brand_id);
+        }
+        if (!empty($end_date) && $end_date < date('Y-m-d')) {
+            $productsQuery->whereDate('products.created_at', '<=', $end_date);
         }
         if (!empty($search)) {
             $productsQuery->where(function($q) use ($search) {
@@ -486,7 +501,7 @@ class ReportController extends Controller
             $data[] = [
                 $i,
                 $product->name . ' (' . $product->code . ')',
-                $product->category?->name ?? 'â€”',
+                $product->category?->name ?? '—',
                 $warehouse_id > 0 ? 'Selected' : (count($pwData['warehouses'] ?? []) > 1 ? count($pwData['warehouses']) . ' Warehouses' : ($pwData['warehouses'][0] ?? 'All Warehouses')),
                 number_format($qty, 2) . ' ' . $unit,
                 number_format($cost, 2),
@@ -1217,7 +1232,7 @@ class ReportController extends Controller
             ->get()
             ->keyBy('id');
 
-        // --- 4) Load product variants for these products (if any) â€” we'll use variant qty from ProductVariant->qty for global
+        // --- 4) Load product variants for these products (if any) — we'll use variant qty from ProductVariant->qty for global
         $productVariants = ProductVariant::whereIn('product_id', $pagedProductIds)
             ->select('product_id', 'variant_id', 'item_code', 'qty')
             ->get()
@@ -5595,7 +5610,7 @@ class ReportController extends Controller
     }
 
     /**
-     * Outstanding Payments (Dues) Report â€” Fully featured, filterable, company-scoped
+     * Outstanding Payments (Dues) Report — Fully featured, filterable, company-scoped
      */
     public function outstandingDuesReport(Request $request)
     {
@@ -5831,7 +5846,7 @@ class ReportController extends Controller
                     'created_at' => $record->created_at,
                     'party_name' => $record->expenseCategory?->name ?? 'Operating Expense',
                     'party_phone' => '',
-                    'warehouse_name' => $record->warehouse?->name ?? 'â€”',
+                    'warehouse_name' => $record->warehouse?->name ?? '—',
                     'billed' => $amount,
                     'returned' => 0.0,
                     'paid' => 0.0,

@@ -49,6 +49,14 @@ class QuickActionSheet extends ConsumerWidget {
           enabled: true,
         ),
         const _ActionItem(
+          title: 'New Customer / Site',
+          subtitle: 'Onboard destination sump',
+          icon: Icons.person_add_alt_1_rounded,
+          color: AppColors.brandEmerald,
+          route: '/customers/new',
+          enabled: true,
+        ),
+        const _ActionItem(
           title: 'Diesel & Expense',
           subtitle: 'Bill receipt & GPS',
           icon: Icons.attach_money_rounded,
@@ -73,6 +81,14 @@ class QuickActionSheet extends ConsumerWidget {
           icon: Icons.water_drop_rounded,
           color: Color(0xFF0284C7),
           route: '/operations/can-sales',
+          enabled: true,
+        ),
+        const _ActionItem(
+          title: 'Add Customer',
+          subtitle: 'New shop on beat route',
+          icon: Icons.person_add_alt_1_rounded,
+          color: AppColors.brandEmerald,
+          route: '/customers/new',
           enabled: true,
         ),
         const _ActionItem(
@@ -119,6 +135,14 @@ class QuickActionSheet extends ConsumerWidget {
           enabled: true,
         ),
         const _ActionItem(
+          title: 'New Customer',
+          subtitle: 'Party registration',
+          icon: Icons.person_add_alt_1_rounded,
+          color: AppColors.brandEmerald,
+          route: '/customers/new',
+          enabled: true,
+        ),
+        const _ActionItem(
           title: 'Collect Payment',
           subtitle: 'Invoice settlement',
           icon: Icons.payments_rounded,
@@ -145,6 +169,14 @@ class QuickActionSheet extends ConsumerWidget {
       ]);
     } else if (isFieldAgent) {
       actions.addAll([
+        const _ActionItem(
+          title: 'Onboard Customer',
+          subtitle: 'KYC & GPS geotagging',
+          icon: Icons.person_add_alt_1_rounded,
+          color: AppColors.brandEmerald,
+          route: '/customers/new',
+          enabled: true,
+        ),
         const _ActionItem(
           title: 'Collect Payment',
           subtitle: 'Party receipt',
@@ -194,6 +226,14 @@ class QuickActionSheet extends ConsumerWidget {
           icon: Icons.attach_money_rounded,
           color: AppColors.warning,
           route: '/expenses/new',
+          enabled: true,
+        ),
+        const _ActionItem(
+          title: 'New Customer',
+          subtitle: 'Party registration',
+          icon: Icons.person_add_alt_1_rounded,
+          color: AppColors.brandEmerald,
+          route: '/customers/new',
           enabled: true,
         ),
         const _ActionItem(

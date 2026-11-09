@@ -128,4 +128,75 @@ class DriverIsolationAndLocationTest extends TestCase
         $this->assertNotNull($data['active_trip']);
         $this->assertTrue($data['active_trip']['has_gps']);
     }
+
+    public function test_delivery_driver_can_create_customer_with_whatsapp_location_and_cans(): void
+    {
+        $driverUser = User::where('name', 'driver')->first();
+        $token = $driverUser->createToken('test-driver-token')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->withHeader('X-Company-ID', 3)
+            ->postJson('/api/v1/mobile/customers', [
+                'name' => 'New Route Cafe & Snacks',
+                'company_name' => 'Route Cafe Ltd',
+                'phone_number' => '9842199887',
+                'address' => '25, Anna Nagar Main Road, Erode',
+                'city' => 'Erode',
+                'route_id' => 1,
+                'whatsapp_location' => 'https://maps.google.com/?q=11.3412000,77.7175000',
+                'opening_cans_held' => 10,
+                'deposit_held' => 1500,
+            ]);
+
+        $response->assertStatus(201);
+        $response->assertJsonPath('success', true);
+        $data = $response->json('data');
+        $this->assertEquals('New Route Cafe & Snacks', $data['name']);
+        $this->assertEquals('9842199887', $data['phone']);
+        $this->assertEquals(11.3412, $data['latitude']);
+        $this->assertEquals(77.7175, $data['longitude']);
+        $this->assertEquals(10, $data['initial_cans_held']);
+        $this->assertEquals(1500, $data['deposit_held']);
+
+        // Verify that driver immediately sees this newly created customer in their customers directory
+        $listResponse = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->withHeader('X-Company-ID', 3)
+            ->getJson('/api/v1/mobile/customers?search=New+Route+Cafe');
+
+        $listResponse->assertStatus(200);
+        $listData = $listResponse->json('data');
+        $this->assertTrue(collect($listData)->contains('name', 'New Route Cafe & Snacks'));
+    }
+
+    public function test_tanker_driver_can_create_customer_and_destinations(): void
+    {
+        $tankerUser = User::where('name', 'tanker_driver')->first();
+        $token = $tankerUser->createToken('test-tanker-token')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->withHeader('X-Company-ID', 2)
+            ->postJson('/api/v1/customer-onboard', [
+                'name' => 'Senthil Spinning Mills Sump #2',
+                'company_name' => 'Senthil Textiles Group',
+                'phone_number' => '9842177665',
+                'address' => 'SF 120, SIPCOT Phase 2, Perundurai',
+                'city' => 'Perundurai',
+                'latitude' => 11.2825,
+                'longitude' => 77.5892,
+            ]);
+
+        $response->assertStatus(201);
+        $response->assertJsonPath('success', true);
+        $data = $response->json('data');
+        $this->assertEquals('Senthil Spinning Mills Sump #2', $data['name']);
+
+        // Verify tanker driver sees their created customer
+        $listResponse = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->withHeader('X-Company-ID', 2)
+            ->getJson('/api/v1/mobile/customers?search=Senthil+Spinning');
+
+        $listResponse->assertStatus(200);
+        $listData = $listResponse->json('data');
+        $this->assertTrue(collect($listData)->contains('name', 'Senthil Spinning Mills Sump #2'));
+    }
 }

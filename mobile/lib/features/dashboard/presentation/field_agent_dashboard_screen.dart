@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/ui/amount_text.dart';
 import '../../../core/ui/kpi_card.dart';
 import '../../../core/utils/location_parser.dart';
 import '../../operations/presentation/capture_location_dialog.dart';
