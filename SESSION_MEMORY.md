@@ -1,5 +1,25 @@
 # zoloERP Pro — Persistent Session Memory & State
 
+## Active Session & Follow-up — 2026-11-09: Stock Report Print Invisible Table Resolution, Duplicate Letterhead Elimination & Full Multi-Page A4 Inventory Layout (branch main & ui)
+
+- **Issues Addressed & Visual Evidence Resolved:**
+  1. *Stocks Missing in Print Preview & Scrollbar Container Collapse (`media_1794204697732_e8e1f795.png`):*
+     - Client asked: *"why stocks are not showing in reports"* with screenshot showing:
+       - Duplicate stacked company letterhead.
+       - Complete stock table missing, collapsed into a single-line horizontal/vertical scrollbar widget with 1/1 page limit.
+     - Root causes diagnosed & eliminated:
+       - **Duplicate Header:** Removed redundant in-view `<div class="erp-print-header">` so the single authoritative letterhead from `backend.layout.partials.print-letterhead.blade.php` prints cleanly with active company name, GSTIN, fiscal year, and metadata.
+       - **Container Overflow & 100vh Root Lock:** In `public/css/app-shell.css`, `html.app-shell`, `body`, `.page`, `.page-content`, and `#content` had `height: 100% / 100vh; overflow: hidden !important; display: flex !important;`. During Chromium printing, root containers locked at `100vh` clipped all overflowing content and forced children (`.table-responsive`, `.desk-card-wrapper`) to render as collapsed scroll containers on paper.
+       - **Print Unconstrain:** In `public/css/erp-print.css` and `stock_report.blade.php`, comprehensively unlocked `html`, `body`, `.page`, `.page-content`, `#content`, `[class$="-workspace-view"]`, `.report-workspace-view`, `.desk-card-wrapper`, and `.table-responsive` with `height: auto !important; min-height: 0 !important; max-height: none !important; overflow: visible !important; display: block !important; flex: none !important; position: static !important;`.
+       - **`data-erp-print` Hidden Iframe Integration:** Wired `Print Statement` button to `data-erp-print` and DataTables Buttons (`buttons: [{ extend: 'print', ... }, { extend: 'csv', ... }]`). Now prints through `erp-print.js` hidden `<iframe>` (`.erp-print-doc`) with zero layout interference, clean Indian number formatting (`₹ 1,50,000.00`), running table headers, and signature blocks.
+       - **Dual-Path Safety:** If printed directly via browser (`Ctrl+P`), `@media print` rules ensure all rows break across A4 pages without clipping.
+  2. **Codebase Synchronization across Repositories:**
+     - Mirrored complete stock report implementation to `d:\PROJECTS\WEBSITES\DK Enterprises` (`stock_report.blade.php`, `ReportController.php` with `use App\Models\Category;` and `use App\Models\Brand;`, `routes/web.php`, `sidebar.blade.php`, `erp-print.css`, and `tests/Feature/StockReportTest.php`).
+- **Verification Status (100% Green):**
+  - `zolo-erp-pro`: `tests/Feature/StockReportTest.php`: 8/8 passed (53 assertions, 100%).
+  - `DK Enterprises`: `tests/Feature/StockReportTest.php`: 8/8 passed (53 assertions, 100%).
+  - `mobile/`: 21/21 passed (100% green).
+
 ## Active Session & Follow-up — 2026-11-09: Complete Null-Safety Crash Elimination, Double-Gated Role Isolation, Dynamic Metric Deserialization & Zero-Overlap UI Polish (branch main)
 
 - **Issues Addressed & Visual Evidence Resolved:**
