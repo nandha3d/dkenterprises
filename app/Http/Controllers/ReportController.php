@@ -19,6 +19,8 @@ use App\Models\Returns;
 use App\Models\Variant;
 use App\Models\Customer;
 use App\Models\Company;
+use App\Models\Category;
+use App\Models\Brand;
 use App\Models\Purchase;
 use App\Models\Supplier;
 use App\Models\Transfer;
@@ -152,6 +154,355 @@ class ReportController extends Controller
                             ->select('products.name', 'products.code', 'products.image', 'product_batches.batch_no', 'product_batches.batch_no', 'product_batches.expired_date', 'product_batches.qty')
                             ->get();
         return view('backend.report.product_expiry_report', compact('lims_product_data'));
+    }
+
+    public function stockReport(Request $request)
+    {
+        $role = Role::find(Auth::user()->role_id);
+        if (!$role->hasPermissionTo('warehouse-stock-report') && !$role->hasPermissionTo('product-report') && Auth::user()->role_id > 2) {
+            return redirect()->back()->with('not_permitted', __('db.Sorry! You are not allowed to access this module'));
+        }
+
+        $context = $request->attributes->get(\App\Services\Platform\CompanyContext::class) 
+            ?? app(\App\Services\Platform\CompanyContextResolver::class)->forActor();
+        $companyId = $context?->companyId ?? session('company_id') ?? 1;
+        $activeCompany = Company::find($companyId);
+
+        $warehouse_id = (int) $request->input('warehouse_id', 0);
+        $category_id = (int) $request->input('category_id', 0);
+        $brand_id = (int) $request->input('brand_id', 0);
+        $stock_status = (string) $request->input('stock_status', 'all');
+
+        $lims_warehouse_list = Warehouse::where('is_active', true)
+            ->where(fn($q) => $q->where('company_id', $companyId)->orWhereNull('company_id'))
+            ->orderBy('name')
+            ->get();
+
+        $categories_list = Category::where('is_active', true)
+            ->where(fn($q) => $q->where('company_id', $companyId)->orWhereNull('company_id'))
+            ->orderBy('name')
+            ->get();
+
+        $brands_list = Brand::where('is_active', true)
+            ->where(fn($q) => $q->where('company_id', $companyId)->orWhereNull('company_id'))
+            ->orderBy('title')
+            ->get();
+
+        // Query active products for this company
+        $productsQuery = Product::with(['category', 'brand', 'unit'])
+            ->where('is_active', true)
+            ->where(fn($q) => $q->where('company_id', $companyId)->orWhereNull('company_id'));
+
+        if ($category_id > 0) {
+            $productsQuery->where('category_id', $category_id);
+        }
+        if ($brand_id > 0) {
+            $productsQuery->where('brand_id', $brand_id);
+        }
+
+        $products = $productsQuery->orderBy('name')->get();
+        $productIds = $products->pluck('id')->toArray();
+
+        // Query warehouse stock rows
+        $pwQuery = DB::table('product_warehouse')
+            ->join('warehouses', 'product_warehouse.warehouse_id', '=', 'warehouses.id')
+            ->whereIn('product_warehouse.product_id', $productIds)
+            ->where('warehouses.is_active', true)
+            ->where(fn($q) => $q->where('product_warehouse.company_id', $companyId)->orWhereNull('product_warehouse.company_id'));
+
+        if ($warehouse_id > 0) {
+            $pwQuery->where('product_warehouse.warehouse_id', $warehouse_id);
+        }
+
+        $pwRows = $pwQuery->select([
+            'product_warehouse.product_id',
+            'product_warehouse.warehouse_id',
+            'warehouses.name as warehouse_name',
+            'product_warehouse.qty',
+            'product_warehouse.price as wh_price',
+        ])->get();
+
+        $stocksByProduct = [];
+        foreach ($pwRows as $row) {
+            $pid = (int) $row->product_id;
+            if (!isset($stocksByProduct[$pid])) {
+                $stocksByProduct[$pid] = [
+                    'total_qty' => 0.0,
+                    'warehouses' => [],
+                ];
+            }
+            $stocksByProduct[$pid]['total_qty'] += (float) $row->qty;
+            if ((float) $row->qty > 0 || $warehouse_id > 0) {
+                $stocksByProduct[$pid]['warehouses'][] = [
+                    'id' => (int) $row->warehouse_id,
+                    'name' => $row->warehouse_name,
+                    'qty' => (float) $row->qty,
+                ];
+            }
+        }
+
+        $stockItems = [];
+        $kpiTotalItems = 0;
+        $kpiInStockItems = 0;
+        $kpiLowStockItems = 0;
+        $kpiOutOfStockItems = 0;
+        $kpiTotalQty = 0.0;
+        $kpiTotalCost = 0.0;
+        $kpiTotalPrice = 0.0;
+
+        foreach ($products as $product) {
+            $pid = $product->id;
+            $pwData = $stocksByProduct[$pid] ?? null;
+
+            if ($warehouse_id > 0) {
+                $currentQty = $pwData ? (float) $pwData['total_qty'] : 0.0;
+                $whSelected = $lims_warehouse_list->firstWhere('id', $warehouse_id);
+                $whSummary = $whSelected ? $whSelected->name : 'Specified Warehouse';
+                $whDistribution = $pwData['warehouses'] ?? [];
+            } else {
+                $currentQty = $pwData ? (float) $pwData['total_qty'] : (float) ($product->qty ?? 0.0);
+                $whDistribution = $pwData['warehouses'] ?? [];
+                if (count($whDistribution) === 1) {
+                    $whSummary = $whDistribution[0]['name'];
+                } elseif (count($whDistribution) > 1) {
+                    $whSummary = count($whDistribution) . ' Warehouses';
+                } else {
+                    $whSummary = 'All Warehouses';
+                }
+            }
+
+            $cost = (float) ($product->cost ?? 0.0);
+            $price = (float) ($product->price ?? 0.0);
+            $alertQty = (float) ($product->alert_quantity ?? 0.0);
+
+            $stockValueCost = $currentQty * $cost;
+            $stockValuePrice = $currentQty * $price;
+            $profit = $stockValuePrice - $stockValueCost;
+
+            if ($currentQty <= 0) {
+                $status = 'out_of_stock';
+                $statusLabel = 'Out of Stock';
+                $statusClass = 'danger';
+            } elseif ($alertQty > 0 && $currentQty <= $alertQty) {
+                $status = 'low_stock';
+                $statusLabel = 'Low Stock';
+                $statusClass = 'warning';
+            } else {
+                $status = 'in_stock';
+                $statusLabel = 'In Stock';
+                $statusClass = 'success';
+            }
+
+            // Apply stock_status filter
+            if ($stock_status === 'in_stock' && $currentQty <= 0) {
+                continue;
+            }
+            if ($stock_status === 'low_stock' && $status !== 'low_stock') {
+                continue;
+            }
+            if ($stock_status === 'out_of_stock' && $currentQty > 0) {
+                continue;
+            }
+
+            $stockItems[] = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'code' => $product->code,
+                'image' => $product->image,
+                'barcode_symbology' => $product->barcode_symbology,
+                'category_name' => $product->category?->name ?? 'â€”',
+                'brand_name' => $product->brand?->title ?? 'â€”',
+                'unit_code' => $product->unit?->unit_code ?? ($product->unit?->unit_name ?? 'Units'),
+                'warehouse_name' => $whSummary,
+                'warehouse_distribution' => $whDistribution,
+                'qty' => $currentQty,
+                'alert_quantity' => $alertQty,
+                'cost' => $cost,
+                'stock_value_cost' => $stockValueCost,
+                'price' => $price,
+                'stock_value_price' => $stockValuePrice,
+                'profit' => $profit,
+                'status' => $status,
+                'status_label' => $statusLabel,
+                'status_class' => $statusClass,
+            ];
+
+            $kpiTotalItems++;
+            if ($currentQty > 0) {
+                $kpiInStockItems++;
+            }
+            if ($status === 'low_stock') {
+                $kpiLowStockItems++;
+            }
+            if ($currentQty <= 0) {
+                $kpiOutOfStockItems++;
+            }
+            $kpiTotalQty += $currentQty;
+            $kpiTotalCost += $stockValueCost;
+            $kpiTotalPrice += $stockValuePrice;
+        }
+
+        $kpiEstimatedProfit = $kpiTotalPrice - $kpiTotalCost;
+        $kpiProfitMarginPercent = ($kpiTotalCost > 0) ? (($kpiEstimatedProfit / $kpiTotalCost) * 100) : 0.0;
+        $currencySymbol = config('currency') ?? 'â‚¹';
+
+        $warehouseName = 'All Warehouses';
+        if ($warehouse_id > 0) {
+            $wh = $lims_warehouse_list->firstWhere('id', $warehouse_id);
+            if ($wh) $warehouseName = $wh->name;
+        }
+
+        $categoryName = 'All Categories';
+        if ($category_id > 0) {
+            $cat = $categories_list->firstWhere('id', $category_id);
+            if ($cat) $categoryName = $cat->name;
+        }
+
+        $brandName = 'All Brands';
+        if ($brand_id > 0) {
+            $br = $brands_list->firstWhere('id', $brand_id);
+            if ($br) $brandName = $br->title;
+        }
+
+        return view('backend.report.stock_report', compact(
+            'stockItems',
+            'kpiTotalItems',
+            'kpiInStockItems',
+            'kpiLowStockItems',
+            'kpiOutOfStockItems',
+            'kpiTotalQty',
+            'kpiTotalCost',
+            'kpiTotalPrice',
+            'kpiEstimatedProfit',
+            'kpiProfitMarginPercent',
+            'lims_warehouse_list',
+            'categories_list',
+            'brands_list',
+            'warehouse_id',
+            'category_id',
+            'brand_id',
+            'stock_status',
+            'warehouseName',
+            'categoryName',
+            'brandName',
+            'activeCompany',
+            'currencySymbol'
+        ));
+    }
+
+    /**
+     * AJAX endpoint for Stock Report DataTables
+     */
+    public function stockReportData(Request $request)
+    {
+        $context = $request->attributes->get(\App\Services\Platform\CompanyContext::class) 
+            ?? app(\App\Services\Platform\CompanyContextResolver::class)->forActor();
+        $companyId = $context?->companyId ?? session('company_id') ?? 1;
+
+        $warehouse_id = (int) $request->input('warehouse_id', 0);
+        $category_id = (int) $request->input('category_id', 0);
+        $brand_id = (int) $request->input('brand_id', 0);
+        $stock_status = (string) $request->input('stock_status', 'all');
+        $search = $request->input('search.value');
+        $draw = (int) $request->input('draw', 1);
+
+        $productsQuery = Product::with(['category', 'brand', 'unit'])
+            ->where('is_active', true)
+            ->where(fn($q) => $q->where('company_id', $companyId)->orWhereNull('company_id'));
+
+        if ($category_id > 0) {
+            $productsQuery->where('category_id', $category_id);
+        }
+        if ($brand_id > 0) {
+            $productsQuery->where('brand_id', $brand_id);
+        }
+        if (!empty($search)) {
+            $productsQuery->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('code', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $products = $productsQuery->orderBy('name')->get();
+        $productIds = $products->pluck('id')->toArray();
+
+        $pwQuery = DB::table('product_warehouse')
+            ->join('warehouses', 'product_warehouse.warehouse_id', '=', 'warehouses.id')
+            ->whereIn('product_warehouse.product_id', $productIds)
+            ->where('warehouses.is_active', true)
+            ->where(fn($q) => $q->where('product_warehouse.company_id', $companyId)->orWhereNull('product_warehouse.company_id'));
+
+        if ($warehouse_id > 0) {
+            $pwQuery->where('product_warehouse.warehouse_id', $warehouse_id);
+        }
+
+        $pwRows = $pwQuery->select([
+            'product_warehouse.product_id',
+            'product_warehouse.warehouse_id',
+            'warehouses.name as warehouse_name',
+            'product_warehouse.qty',
+        ])->get();
+
+        $stocksByProduct = [];
+        foreach ($pwRows as $row) {
+            $pid = (int) $row->product_id;
+            if (!isset($stocksByProduct[$pid])) {
+                $stocksByProduct[$pid] = ['total_qty' => 0.0, 'warehouses' => []];
+            }
+            $stocksByProduct[$pid]['total_qty'] += (float) $row->qty;
+            $stocksByProduct[$pid]['warehouses'][] = $row->warehouse_name;
+        }
+
+        $data = [];
+        $i = 0;
+        foreach ($products as $product) {
+            $pid = $product->id;
+            $pwData = $stocksByProduct[$pid] ?? null;
+            $qty = $warehouse_id > 0 ? ($pwData ? (float) $pwData['total_qty'] : 0.0) : ($pwData ? (float) $pwData['total_qty'] : (float) ($product->qty ?? 0.0));
+
+            $alertQty = (float) ($product->alert_quantity ?? 0.0);
+            if ($qty <= 0) {
+                $status = 'out_of_stock';
+                $statusBadge = '<span class="badge badge-danger">Out of Stock</span>';
+            } elseif ($alertQty > 0 && $qty <= $alertQty) {
+                $status = 'low_stock';
+                $statusBadge = '<span class="badge badge-warning">Low Stock</span>';
+            } else {
+                $status = 'in_stock';
+                $statusBadge = '<span class="badge badge-success">In Stock</span>';
+            }
+
+            if ($stock_status === 'in_stock' && $qty <= 0) continue;
+            if ($stock_status === 'low_stock' && $status !== 'low_stock') continue;
+            if ($stock_status === 'out_of_stock' && $qty > 0) continue;
+
+            $cost = (float) ($product->cost ?? 0.0);
+            $price = (float) ($product->price ?? 0.0);
+            $stockCost = $qty * $cost;
+            $stockPrice = $qty * $price;
+            $unit = $product->unit?->unit_code ?? 'Units';
+
+            $i++;
+            $data[] = [
+                $i,
+                $product->name . ' (' . $product->code . ')',
+                $product->category?->name ?? 'â€”',
+                $warehouse_id > 0 ? 'Selected' : (count($pwData['warehouses'] ?? []) > 1 ? count($pwData['warehouses']) . ' Warehouses' : ($pwData['warehouses'][0] ?? 'All Warehouses')),
+                number_format($qty, 2) . ' ' . $unit,
+                number_format($cost, 2),
+                number_format($stockCost, 2),
+                number_format($price, 2),
+                number_format($stockPrice, 2),
+                $statusBadge,
+            ];
+        }
+
+        return response()->json([
+            'draw' => $draw,
+            'recordsTotal' => count($data),
+            'recordsFiltered' => count($data),
+            'data' => $data,
+        ]);
     }
 
     public function warehouseStock(Request $request)
@@ -866,7 +1217,7 @@ class ReportController extends Controller
             ->get()
             ->keyBy('id');
 
-        // --- 4) Load product variants for these products (if any) — we'll use variant qty from ProductVariant->qty for global
+        // --- 4) Load product variants for these products (if any) â€” we'll use variant qty from ProductVariant->qty for global
         $productVariants = ProductVariant::whereIn('product_id', $pagedProductIds)
             ->select('product_id', 'variant_id', 'item_code', 'qty')
             ->get()
@@ -5244,7 +5595,7 @@ class ReportController extends Controller
     }
 
     /**
-     * Outstanding Payments (Dues) Report — Fully featured, filterable, company-scoped
+     * Outstanding Payments (Dues) Report â€” Fully featured, filterable, company-scoped
      */
     public function outstandingDuesReport(Request $request)
     {
@@ -5480,7 +5831,7 @@ class ReportController extends Controller
                     'created_at' => $record->created_at,
                     'party_name' => $record->expenseCategory?->name ?? 'Operating Expense',
                     'party_phone' => '',
-                    'warehouse_name' => $record->warehouse?->name ?? '—',
+                    'warehouse_name' => $record->warehouse?->name ?? 'â€”',
                     'billed' => $amount,
                     'returned' => 0.0,
                     'paid' => 0.0,
