@@ -59,7 +59,7 @@ class _StockOverviewScreenState extends ConsumerState<StockOverviewScreen> {
     if (!mounted) return;
 
     if (result.isSuccess) {
-      final list = result.dataOrNull!;
+      final list = result.dataOrNull ?? [];
       await db.saveCache(cacheKey, list);
       setState(() {
         _products = list;
@@ -101,7 +101,7 @@ class _StockOverviewScreenState extends ConsumerState<StockOverviewScreen> {
       body: _isLoading && _products.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null && _products.isEmpty
-              ? ErrorState(message: _errorMessage!, onRetry: _fetchProducts)
+              ? ErrorState(message: _errorMessage ?? 'An error occurred', onRetry: _fetchProducts)
               : _products.isEmpty
                   ? const EmptyState(
                       title: 'No Inventory Items',

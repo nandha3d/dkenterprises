@@ -56,7 +56,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
       if (!mounted) return;
 
       if (result.isSuccess) {
-        final rawData = result.dataOrNull!;
+        final rawData = result.dataOrNull ?? <String, dynamic>{};
         final liveData = rawData['data'] is Map<String, dynamic>
             ? rawData['data'] as Map<String, dynamic>
             : (rawData['data'] is Map ? Map<String, dynamic>.from(rawData['data'] as Map) : rawData);
@@ -172,7 +172,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        _errorMessage!,
+                        _errorMessage ?? 'An error occurred',
                         style: const TextStyle(fontSize: 12, color: AppColors.danger),
                       ),
                     ),
@@ -217,7 +217,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                         const SizedBox(height: 2),
                         AmountText(
                           amount: groupCashBank,
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.success),
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.success),
                         ),
                       ],
                     ),
@@ -232,7 +232,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                         const SizedBox(height: 2),
                         AmountText(
                           amount: groupReceivables,
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.warning),
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.warning),
                         ),
                       ],
                     ),
@@ -344,14 +344,17 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
     final compDataList = (_workspaceData?['companies'] as List<dynamic>?) ?? [];
     Map<String, dynamic>? matchData;
     for (final item in compDataList) {
-      if (item is Map<String, dynamic> && item['id'] == company.id) {
-        matchData = item;
+      if (item is Map && (item['id'] == company.id || item['id']?.toString() == company.id.toString())) {
+        matchData = item is Map<String, dynamic> ? item : Map<String, dynamic>.from(item);
         break;
       }
     }
 
-    final turnover = matchData?['metrics']?['sales_turnover'] as num? ?? 0;
-    final cashBank = matchData?['metrics']?['cash_and_bank'] as num? ?? 0;
+    final metrics = matchData?['metrics'] is Map
+        ? matchData!['metrics'] as Map
+        : <String, dynamic>{};
+    final turnover = metrics['sales_turnover'] as num? ?? 0;
+    final cashBank = metrics['cash_and_bank'] as num? ?? 0;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -440,7 +443,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                           Text('  •  Cash: ', style: TextStyle(fontSize: 11, color: mutedCol)),
                           AmountText(
                             amount: cashBank,
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.success),
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.success),
                           ),
                         ],
                       ),

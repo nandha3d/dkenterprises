@@ -42,7 +42,7 @@ class _AccountingBooksScreenState extends ConsumerState<AccountingBooksScreen> {
     if (!mounted) return;
 
     if (result.isSuccess) {
-      final rawData = result.dataOrNull!;
+      final rawData = result.dataOrNull ?? <String, dynamic>{};
       final liveData = rawData['data'] is Map<String, dynamic>
           ? rawData['data'] as Map<String, dynamic>
           : (rawData['data'] is Map ? Map<String, dynamic>.from(rawData['data'] as Map) : rawData);
@@ -158,7 +158,7 @@ class _AccountingBooksScreenState extends ConsumerState<AccountingBooksScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _errorMessage != null
-                    ? ErrorState(message: _errorMessage!, onRetry: _fetchFinancials)
+                    ? ErrorState(message: _errorMessage ?? 'An error occurred', onRetry: _fetchFinancials)
                     : filteredTx.isEmpty
                         ? EmptyState(
                             title: 'No Postings',

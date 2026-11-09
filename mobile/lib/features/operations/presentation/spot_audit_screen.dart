@@ -40,7 +40,7 @@ class _SpotAuditScreenState extends ConsumerState<SpotAuditScreen> {
     );
     if (mounted && res.isSuccess && (res.dataOrNull?.isNotEmpty ?? false)) {
       setState(() {
-        _customers = res.dataOrNull!;
+        _customers = res.dataOrNull ?? [];
         final first = _customers.first;
         _customerController.text = first['name']?.toString() ?? '';
         _systemRecordedJars = (first['total_cans_held'] as num?)?.toInt() ?? 0;
@@ -160,7 +160,7 @@ class _SpotAuditScreenState extends ConsumerState<SpotAuditScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('System Ledger Jar Balance', style: AppTypography.body),
+                      const Text('System Ledger Jar Balance', style: AppTypography.body),
                       Text('$_systemRecordedJars Jars', style: AppTypography.section.copyWith(fontSize: 16)),
                     ],
                   ),
@@ -168,7 +168,7 @@ class _SpotAuditScreenState extends ConsumerState<SpotAuditScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Physically Counted Jars', style: AppTypography.body),
+                      const Text('Physically Counted Jars', style: AppTypography.body),
                       Row(
                         children: [
                           IconButton.filledTonal(

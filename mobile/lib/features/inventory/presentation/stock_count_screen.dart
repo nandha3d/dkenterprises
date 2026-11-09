@@ -14,7 +14,7 @@ class StockCountScreen extends ConsumerStatefulWidget {
 
 class _StockCountScreenState extends ConsumerState<StockCountScreen> {
   final _barcodeController = TextEditingController(text: 'CAN-20L-WAT');
-  int _expectedQty = 150;
+  final int _expectedQty = 150;
   int _countedQty = 148;
   bool _isSubmitting = false;
 

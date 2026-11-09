@@ -86,7 +86,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Attendance recorded offline! Will sync automatically.'),
           backgroundColor: AppColors.warning,
         ),

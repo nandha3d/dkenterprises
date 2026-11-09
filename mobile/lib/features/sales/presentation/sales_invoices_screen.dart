@@ -61,7 +61,7 @@ class _SalesInvoicesScreenState extends ConsumerState<SalesInvoicesScreen> {
     if (!mounted) return;
 
     if (result.isSuccess) {
-      final list = result.dataOrNull!;
+      final list = result.dataOrNull ?? [];
       await db.saveCache(cacheKey, list);
       setState(() {
         _invoices = list;
@@ -107,7 +107,7 @@ class _SalesInvoicesScreenState extends ConsumerState<SalesInvoicesScreen> {
       body: _isLoading && _invoices.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null && _invoices.isEmpty
-              ? ErrorState(message: _errorMessage!, onRetry: _fetchInvoices)
+              ? ErrorState(message: _errorMessage ?? 'An error occurred', onRetry: _fetchInvoices)
               : _invoices.isEmpty
                   ? const EmptyState(
                       title: 'No Sales Invoices',

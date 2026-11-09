@@ -41,7 +41,7 @@ class _CafePosScreenState extends ConsumerState<CafePosScreen> {
       setState(() {
         _isLoading = false;
         if (res.isSuccess && (res.dataOrNull?.isNotEmpty ?? false)) {
-          _menuItems = res.dataOrNull!.map((p) => {
+          _menuItems = (res.dataOrNull ?? []).map((p) => {
             'id': p['id'] as int,
             'name': p['name']?.toString() ?? 'Item',
             'price': (p['price'] as num?)?.toDouble() ?? 0.0,

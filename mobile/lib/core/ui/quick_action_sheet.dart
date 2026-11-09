@@ -40,15 +40,15 @@ class QuickActionSheet extends ConsumerWidget {
 
     if (isTankerDriver) {
       actions.addAll([
-        _ActionItem(
+        const _ActionItem(
           title: 'Tanker Trip',
           subtitle: 'Dispatch & surcharge',
           icon: Icons.local_shipping_rounded,
-          color: const Color(0xFF0369A1),
+          color: Color(0xFF0369A1),
           route: '/operations/tanker-trip',
           enabled: true,
         ),
-        _ActionItem(
+        const _ActionItem(
           title: 'Diesel & Expense',
           subtitle: 'Bill receipt & GPS',
           icon: Icons.attach_money_rounded,
@@ -56,7 +56,7 @@ class QuickActionSheet extends ConsumerWidget {
           route: '/expenses/new',
           enabled: true,
         ),
-        _ActionItem(
+        const _ActionItem(
           title: 'Mark Attendance',
           subtitle: 'Geofenced punch',
           icon: Icons.fingerprint_rounded,
@@ -67,23 +67,23 @@ class QuickActionSheet extends ConsumerWidget {
       ]);
     } else if (isDeliveryDriver) {
       actions.addAll([
-        _ActionItem(
+        const _ActionItem(
           title: 'Can Sales POS',
           subtitle: 'Water distribution',
           icon: Icons.water_drop_rounded,
-          color: const Color(0xFF0284C7),
+          color: Color(0xFF0284C7),
           route: '/operations/can-sales',
           enabled: true,
         ),
-        _ActionItem(
+        const _ActionItem(
           title: 'Driver Cash Surrender',
           subtitle: 'End-of-day settlement',
           icon: Icons.price_check_rounded,
-          color: const Color(0xFF0284C7),
+          color: Color(0xFF0284C7),
           route: '/operations/driver-surrender',
           enabled: true,
         ),
-        _ActionItem(
+        const _ActionItem(
           title: 'Spot Can Audit',
           subtitle: 'Truck inventory check',
           icon: Icons.fact_check_rounded,
@@ -91,7 +91,7 @@ class QuickActionSheet extends ConsumerWidget {
           route: '/operations/spot-audit',
           enabled: true,
         ),
-        _ActionItem(
+        const _ActionItem(
           title: 'Daily Expense',
           subtitle: 'Fuel & tolls',
           icon: Icons.attach_money_rounded,
@@ -99,7 +99,7 @@ class QuickActionSheet extends ConsumerWidget {
           route: '/expenses/new',
           enabled: true,
         ),
-        _ActionItem(
+        const _ActionItem(
           title: 'Mark Attendance',
           subtitle: 'Geofenced punch',
           icon: Icons.fingerprint_rounded,
@@ -110,15 +110,15 @@ class QuickActionSheet extends ConsumerWidget {
       ]);
     } else if (isCashier) {
       actions.addAll([
-        _ActionItem(
+        const _ActionItem(
           title: 'Cafe POS',
           subtitle: 'Order billing',
           icon: Icons.restaurant_rounded,
-          color: const Color(0xFFD97706),
+          color: Color(0xFFD97706),
           route: '/operations/cafe-pos',
           enabled: true,
         ),
-        _ActionItem(
+        const _ActionItem(
           title: 'Collect Payment',
           subtitle: 'Invoice settlement',
           icon: Icons.payments_rounded,
@@ -126,7 +126,7 @@ class QuickActionSheet extends ConsumerWidget {
           route: '/accounting/collect',
           enabled: true,
         ),
-        _ActionItem(
+        const _ActionItem(
           title: 'Quick Expense',
           subtitle: 'Kitchen purchases',
           icon: Icons.attach_money_rounded,
@@ -134,7 +134,7 @@ class QuickActionSheet extends ConsumerWidget {
           route: '/expenses/new',
           enabled: true,
         ),
-        _ActionItem(
+        const _ActionItem(
           title: 'Mark Attendance',
           subtitle: 'Geofenced punch',
           icon: Icons.fingerprint_rounded,
@@ -145,7 +145,7 @@ class QuickActionSheet extends ConsumerWidget {
       ]);
     } else if (isFieldAgent) {
       actions.addAll([
-        _ActionItem(
+        const _ActionItem(
           title: 'Collect Payment',
           subtitle: 'Party receipt',
           icon: Icons.payments_rounded,
@@ -153,7 +153,7 @@ class QuickActionSheet extends ConsumerWidget {
           route: '/accounting/collect',
           enabled: true,
         ),
-        _ActionItem(
+        const _ActionItem(
           title: 'Quick Expense',
           subtitle: 'Field conveyance',
           icon: Icons.attach_money_rounded,
@@ -161,7 +161,7 @@ class QuickActionSheet extends ConsumerWidget {
           route: '/expenses/new',
           enabled: true,
         ),
-        _ActionItem(
+        const _ActionItem(
           title: 'Mark Attendance',
           subtitle: 'Geofenced punch',
           icon: Icons.fingerprint_rounded,
@@ -180,7 +180,7 @@ class QuickActionSheet extends ConsumerWidget {
           route: '/sales/new',
           enabled: authState.hasPermission('sales-index') || authState.hasPermission('sales-add'),
         ),
-        _ActionItem(
+        const _ActionItem(
           title: 'Collect Payment',
           subtitle: 'Invoice settlement',
           icon: Icons.payments_rounded,
@@ -188,7 +188,7 @@ class QuickActionSheet extends ConsumerWidget {
           route: '/accounting/collect',
           enabled: true,
         ),
-        _ActionItem(
+        const _ActionItem(
           title: 'Quick Expense',
           subtitle: 'Bill receipt & GPS',
           icon: Icons.attach_money_rounded,
@@ -196,7 +196,7 @@ class QuickActionSheet extends ConsumerWidget {
           route: '/expenses/new',
           enabled: true,
         ),
-        _ActionItem(
+        const _ActionItem(
           title: 'New Product',
           subtitle: 'Item configuration',
           icon: Icons.add_box_rounded,
@@ -204,7 +204,7 @@ class QuickActionSheet extends ConsumerWidget {
           route: '/products/new',
           enabled: true,
         ),
-        _ActionItem(
+        const _ActionItem(
           title: 'Mark Attendance',
           subtitle: 'Geofenced punch',
           icon: Icons.fingerprint_rounded,
@@ -213,37 +213,37 @@ class QuickActionSheet extends ConsumerWidget {
           enabled: true,
         ),
         if (industry == 'packaged_water' || industry.isEmpty)
-          _ActionItem(
+          const _ActionItem(
             title: 'Can Sales POS',
             subtitle: 'Water distribution',
             icon: Icons.water_drop_rounded,
-            color: const Color(0xFF0284C7),
+            color: Color(0xFF0284C7),
             route: '/operations/can-sales',
             enabled: true,
           ),
         if (industry == 'bulk_water' || industry.isEmpty)
-          _ActionItem(
+          const _ActionItem(
             title: 'Tanker Trip',
             subtitle: 'Dispatch & surcharge',
             icon: Icons.local_shipping_rounded,
-            color: const Color(0xFF0369A1),
+            color: Color(0xFF0369A1),
             route: '/operations/tanker-trip',
             enabled: true,
           ),
         if (industry == 'cafe_bakery' || industry.isEmpty)
-          _ActionItem(
+          const _ActionItem(
             title: 'Cafe POS',
             subtitle: 'Order billing',
             icon: Icons.restaurant_rounded,
-            color: const Color(0xFFD97706),
+            color: Color(0xFFD97706),
             route: '/operations/cafe-pos',
             enabled: true,
           ),
-        _ActionItem(
+        const _ActionItem(
           title: 'Stock Count',
           subtitle: 'Godown audit',
           icon: Icons.inventory_2_rounded,
-          color: const Color(0xFF64748B),
+          color: Color(0xFF64748B),
           route: '/inventory/stock-count',
           enabled: true,
         ),

@@ -17,14 +17,23 @@ class RoleDashboardDispatcher extends ConsumerWidget {
 
     final role = (user?.role ?? '').toLowerCase();
     final username = (user?.username ?? user?.name ?? '').toLowerCase();
+    final email = (user?.email ?? '').toLowerCase();
+    final rolesList = authState.roles.map((r) => r.toLowerCase()).toList();
 
-    if (role == 'tankerdriver' || username == 'tanker_driver' || username == 'tanker') {
+    bool hasKeyword(String kw) {
+      return role.contains(kw) ||
+             username.contains(kw) ||
+             email.contains(kw) ||
+             rolesList.any((r) => r.contains(kw));
+    }
+
+    if (hasKeyword('tanker')) {
       return const TankerDriverDashboardScreen();
-    } else if (role == 'deliverydriver' || role == 'driver' || username == 'driver') {
+    } else if (hasKeyword('delivery') || hasKeyword('driver')) {
       return const CanDeliveryDriverDashboardScreen();
-    } else if (role == 'cashier' || username == 'cashier') {
+    } else if (hasKeyword('cashier')) {
       return const CashierDashboardScreen();
-    } else if (role == 'fieldagent' || role == 'agent' || username == 'agent') {
+    } else if (hasKeyword('agent') || hasKeyword('field')) {
       return const FieldAgentDashboardScreen();
     }
 
@@ -32,3 +41,4 @@ class RoleDashboardDispatcher extends ConsumerWidget {
     return const ExecutiveDashboardScreen();
   }
 }
+

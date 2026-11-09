@@ -18,10 +18,10 @@ class _TankerTripScreenState extends ConsumerState<TankerTripScreen> {
   final _customerController = TextEditingController();
   final _startOdoController = TextEditingController();
   final _endOdoController = TextEditingController();
-  int _waterLitres = 16000;
-  double _baseTripRate = 2400.0;
-  double _motorPumpingSurcharge = 0.0;
-  double _waitingSurcharge = 0.0;
+  final int _waterLitres = 16000;
+  final double _baseTripRate = 2400.0;
+  final double _motorPumpingSurcharge = 0.0;
+  final double _waitingSurcharge = 0.0;
   bool _isSubmitting = false;
   List<Map<String, dynamic>> _customers = [];
 
@@ -44,7 +44,7 @@ class _TankerTripScreenState extends ConsumerState<TankerTripScreen> {
     );
     if (mounted && res.isSuccess && (res.dataOrNull?.isNotEmpty ?? false)) {
       setState(() {
-        _customers = res.dataOrNull!;
+        _customers = res.dataOrNull ?? [];
         _customerController.text = _customers.first['name']?.toString() ?? '';
       });
     }
@@ -149,7 +149,7 @@ class _TankerTripScreenState extends ConsumerState<TankerTripScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Water Decanted:', style: AppTypography.caption),
+                      const Text('Water Decanted:', style: AppTypography.caption),
                       Text(
                         '$_waterLitres Litres',
                         style: AppTypography.label.copyWith(
@@ -216,7 +216,7 @@ class _TankerTripScreenState extends ConsumerState<TankerTripScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Base Water Freight', style: AppTypography.body),
+                      const Text('Base Water Freight', style: AppTypography.body),
                       AmountText(amount: _baseTripRate),
                     ],
                   ),
@@ -224,7 +224,7 @@ class _TankerTripScreenState extends ConsumerState<TankerTripScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Motor Pumping Surcharge', style: AppTypography.body),
+                      const Text('Motor Pumping Surcharge', style: AppTypography.body),
                       AmountText(amount: _motorPumpingSurcharge),
                     ],
                   ),
@@ -232,7 +232,7 @@ class _TankerTripScreenState extends ConsumerState<TankerTripScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Site Waiting Surcharge', style: AppTypography.body),
+                      const Text('Site Waiting Surcharge', style: AppTypography.body),
                       AmountText(amount: _waitingSurcharge),
                     ],
                   ),

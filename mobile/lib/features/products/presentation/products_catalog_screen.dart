@@ -151,7 +151,7 @@ class _ProductsCatalogScreenState extends ConsumerState<ProductsCatalogScreen> {
                         color: AppColors.primary.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Text(
+                      child: const Text(
                         'FULL CONFIG READY',
                         style: TextStyle(
                           color: AppColors.primary,
@@ -266,7 +266,7 @@ class _ProductsCatalogScreenState extends ConsumerState<ProductsCatalogScreen> {
                                                 const Spacer(),
                                                 const Icon(Icons.edit_note_rounded, size: 18, color: AppColors.primary),
                                                 const SizedBox(width: 2),
-                                                Text(
+                                                const Text(
                                                   'Configure',
                                                   style: TextStyle(
                                                     fontSize: 11,

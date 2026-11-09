@@ -30,8 +30,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> with Sing
   List<Map<String, dynamic>> _units = [];
   List<Map<String, dynamic>> _taxes = [];
   List<Map<String, dynamic>> _warehouses = [];
-  List<String> _types = ['standard', 'combo', 'digital', 'service'];
-  List<String> _symbologies = ['C128', 'C39', 'UPCA', 'UPCE', 'EAN8', 'EAN13'];
+  final List<String> _types = ['standard', 'combo', 'digital', 'service'];
+  final List<String> _symbologies = ['C128', 'C39', 'UPCA', 'UPCE', 'EAN8', 'EAN13'];
 
   // Tab 1: General Form Controllers
   late TextEditingController _nameController;
@@ -182,7 +182,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> with Sing
       if (!mounted) return;
 
       if (res.isSuccess) {
-        final d = res.dataOrNull!;
+        final d = res.dataOrNull ?? <String, dynamic>{};
         final raw = d['data'] is Map ? d['data'] as Map : d;
 
         setState(() {
@@ -393,7 +393,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> with Sing
                       children: [
                         const Icon(Icons.error_outline, size: 48, color: AppColors.danger),
                         const SizedBox(height: 12),
-                        Text(_errorMessage!, textAlign: TextAlign.center),
+                        Text(_errorMessage ?? 'Failed to load configuration metadata.', textAlign: TextAlign.center),
                         const SizedBox(height: 16),
                         ElevatedButton.icon(
                           onPressed: () {

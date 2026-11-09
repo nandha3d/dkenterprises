@@ -45,7 +45,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
 
     if (isTankerDriver) {
       allCategories.addAll([
-        _ModuleCategory(
+        const _ModuleCategory(
           title: 'Bulk Tanker Operations',
           modules: [
             _Module(
@@ -53,7 +53,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
               description: 'Dispatches, odometers, decanting & surcharges',
               icon: Icons.local_shipping_rounded,
               route: '/operations/tanker-trip',
-              color: const Color(0xFF0284C7),
+              color: Color(0xFF0284C7),
             ),
             _Module(
               title: 'Diesel & Vehicle Expenses',
@@ -64,7 +64,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
             ),
           ],
         ),
-        _ModuleCategory(
+        const _ModuleCategory(
           title: 'Staff & Attendance',
           modules: [
             _Module(
@@ -79,7 +79,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
       ]);
     } else if (isDeliveryDriver) {
       allCategories.addAll([
-        _ModuleCategory(
+        const _ModuleCategory(
           title: '20L Can Distribution Operations',
           modules: [
             _Module(
@@ -87,7 +87,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
               description: 'Fast 15-second driver sales & return tickets',
               icon: Icons.water_drop_rounded,
               route: '/operations/can-sales',
-              color: const Color(0xFF059669),
+              color: Color(0xFF059669),
             ),
             _Module(
               title: 'Spot Empty Can Audit',
@@ -101,7 +101,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
               description: 'End-of-day route settlement with cashier',
               icon: Icons.price_check_rounded,
               route: '/operations/driver-surrender',
-              color: const Color(0xFF0284C7),
+              color: Color(0xFF0284C7),
             ),
             _Module(
               title: 'Route Fuel & Expenses',
@@ -112,7 +112,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
             ),
           ],
         ),
-        _ModuleCategory(
+        const _ModuleCategory(
           title: 'Staff & Attendance',
           modules: [
             _Module(
@@ -127,7 +127,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
       ]);
     } else if (isCashier) {
       allCategories.addAll([
-        _ModuleCategory(
+        const _ModuleCategory(
           title: 'Bakery & POS Operations',
           modules: [
             _Module(
@@ -135,7 +135,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
               description: 'Touch terminal billing & kitchen orders',
               icon: Icons.restaurant_rounded,
               route: '/operations/cafe-pos',
-              color: const Color(0xFFD97706),
+              color: Color(0xFFD97706),
             ),
             _Module(
               title: 'Daily Cash Drawer Closing',
@@ -160,7 +160,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
             ),
           ],
         ),
-        _ModuleCategory(
+        const _ModuleCategory(
           title: 'Staff & Attendance',
           modules: [
             _Module(
@@ -175,7 +175,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
       ]);
     } else if (isFieldAgent) {
       allCategories.addAll([
-        _ModuleCategory(
+        const _ModuleCategory(
           title: 'Commercial Field Operations',
           modules: [
             _Module(
@@ -201,7 +201,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
             ),
           ],
         ),
-        _ModuleCategory(
+        const _ModuleCategory(
           title: 'Staff & Attendance',
           modules: [
             _Module(
@@ -217,7 +217,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
     } else {
       // Full ERP Suite for Admin / Super Admin
       allCategories.addAll([
-        _ModuleCategory(
+        const _ModuleCategory(
           title: 'Sales & Commercial',
           modules: [
             _Module(
@@ -243,7 +243,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
             ),
           ],
         ),
-        _ModuleCategory(
+        const _ModuleCategory(
           title: 'Procurement & Purchases',
           modules: [
             _Module(
@@ -251,7 +251,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
               description: 'Inward vendor bills & payable dues',
               icon: Icons.shopping_bag_rounded,
               route: '/purchases',
-              color: const Color(0xFF0284C7),
+              color: Color(0xFF0284C7),
             ),
             _Module(
               title: 'Supplier Payments',
@@ -262,7 +262,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
             ),
           ],
         ),
-        _ModuleCategory(
+        const _ModuleCategory(
           title: 'Inventory & Godowns',
           modules: [
             _Module(
@@ -291,11 +291,11 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
               description: 'Barcode scanning and godown variance audits',
               icon: Icons.qr_code_scanner_rounded,
               route: '/inventory/stock-count',
-              color: const Color(0xFF64748B),
+              color: Color(0xFF64748B),
             ),
           ],
         ),
-        _ModuleCategory(
+        const _ModuleCategory(
           title: 'Customers & Suppliers (Parties)',
           modules: [
             _Module(
@@ -310,11 +310,11 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
               description: 'Vendor contacts, GSTIN & payable statements',
               icon: Icons.storefront_rounded,
               route: '/suppliers',
-              color: const Color(0xFF0369A1),
+              color: Color(0xFF0369A1),
             ),
           ],
         ),
-        _ModuleCategory(
+        const _ModuleCategory(
           title: 'Accounting & Cash Books',
           modules: [
             _Module(
@@ -344,21 +344,21 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
           modules: [
             // 1. Cafe & Bakery Vertical (Aran Cafe)
             if (industry == 'cafe_bakery') ...[
-              _Module(
+              const _Module(
                 title: 'Bakery & Cafe POS',
                 description: 'Touch terminal billing & cash drawer closing',
                 icon: Icons.restaurant_rounded,
                 route: '/operations/cafe-pos',
-                color: const Color(0xFFD97706),
+                color: Color(0xFFD97706),
               ),
-              _Module(
+              const _Module(
                 title: 'Kitchen & Recipe Inventory',
                 description: 'Bakery ingredient stocks, flour & dairy audit',
                 icon: Icons.inventory_2_rounded,
                 route: '/inventory/stock-count',
-                color: const Color(0xFF059669),
+                color: Color(0xFF059669),
               ),
-              _Module(
+              const _Module(
                 title: 'Cafe Expenses & Purchases',
                 description: 'Vegetables, milk, gas & daily operational bills',
                 icon: Icons.receipt_long_rounded,
@@ -368,28 +368,28 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
             ]
             // 2. Bulk Water Tankers Vertical (TMWS)
             else if (industry == 'bulk_water') ...[
-              _Module(
+              const _Module(
                 title: 'Live Tanker GPS Fleet Radar',
                 description: 'Radar tracking, decanting flow rate, dwell time & fuel',
                 icon: Icons.share_location_rounded,
                 route: '/fleet/gps?mode=bulk_water',
-                color: const Color(0xFF0369A1),
+                color: Color(0xFF0369A1),
               ),
-              _Module(
+              const _Module(
                 title: 'Tanker Trip Sheet',
                 description: 'Dispatches, km odometers, motor pumping & waiting surcharges',
                 icon: Icons.local_shipping_rounded,
                 route: '/operations/tanker-trip',
-                color: const Color(0xFF0284C7),
+                color: Color(0xFF0284C7),
               ),
-              _Module(
+              const _Module(
                 title: 'Trip Payment Collection',
                 description: 'Collect driver cash & corporate commercial dues',
                 icon: Icons.payments_rounded,
                 route: '/accounting/collect',
                 color: AppColors.success,
               ),
-              _Module(
+              const _Module(
                 title: 'Diesel & Vehicle Maintenance',
                 description: 'Fuel slips, tanker repair & toll expenditure',
                 icon: Icons.local_gas_station_rounded,
@@ -399,35 +399,35 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
             ]
             // 3. 20L Can Route Distribution Vertical (DK Waters)
             else if (industry == 'packaged_water') ...[
-              _Module(
+              const _Module(
                 title: 'Tata Ace Beat GPS Radar',
                 description: 'Route beat perimeter, delivery stops & van jar balance',
                 icon: Icons.share_location_rounded,
                 route: '/fleet/gps?mode=packaged_water',
-                color: const Color(0xFF0284C7),
+                color: Color(0xFF0284C7),
               ),
-              _Module(
+              const _Module(
                 title: 'Can Sales POS Ticket',
                 description: 'Fast 15-second driver sales & return tickets',
                 icon: Icons.water_drop_rounded,
                 route: '/operations/can-sales',
-                color: const Color(0xFF059669),
+                color: Color(0xFF059669),
               ),
-              _Module(
+              const _Module(
                 title: 'Spot Empty Can Audit',
                 description: 'Inspect Tata Ace vehicle cans vs route manifest',
                 icon: Icons.fact_check_rounded,
                 route: '/operations/spot-audit',
                 color: AppColors.warning,
               ),
-              _Module(
+              const _Module(
                 title: 'Driver Cash Surrender',
                 description: 'End-of-day route settlement with admin cashier',
                 icon: Icons.price_check_rounded,
                 route: '/operations/driver-surrender',
-                color: const Color(0xFF0284C7),
+                color: Color(0xFF0284C7),
               ),
-              _Module(
+              const _Module(
                 title: 'RO Plant Refill Manifest',
                 description: 'Reverse Osmosis factory intake batch logs',
                 icon: Icons.factory_rounded,
@@ -437,21 +437,21 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
             ]
             // 4. Textile & Garment Manufacturing Vertical (zoloERP Textiles)
             else if (industry == 'textile') ...[
-              _Module(
+              const _Module(
                 title: 'Wholesale Tax Invoicing',
                 description: 'Fabric & garment commercial invoice generation',
                 icon: Icons.receipt_long_rounded,
                 route: '/sales/new',
-                color: const Color(0xFF7C3AED),
+                color: Color(0xFF7C3AED),
               ),
-              _Module(
+              const _Module(
                 title: 'Fabric Roll & Yarn Stock Audit',
                 description: 'Physical meter roll and yarn weight audits',
                 icon: Icons.inventory_2_rounded,
                 route: '/inventory/stock-count',
                 color: AppColors.primary,
               ),
-              _Module(
+              const _Module(
                 title: 'Commercial Debtor Collection',
                 description: 'Collect trade receivables against B2B invoices',
                 icon: Icons.payments_rounded,
@@ -461,7 +461,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
             ],
           ],
         ),
-        _ModuleCategory(
+        const _ModuleCategory(
           title: 'HRM & Attendance',
           modules: [
             _Module(
@@ -473,7 +473,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
             ),
           ],
         ),
-        _ModuleCategory(
+        const _ModuleCategory(
           title: 'Analytics & Reports',
           modules: [
             _Module(

@@ -41,16 +41,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
     );
 
     if (loginResult.isFailure) {
-      final failure = loginResult.failureOrNull!;
+      final failure = loginResult.failureOrNull;
       state = state.copyWith(
         isLoading: false,
         isAuthenticated: false,
-        errorMessage: failure.message,
+        errorMessage: failure?.message ?? 'Login failed. Please check credentials.',
       );
       return false;
     }
 
-    final rawData = loginResult.dataOrNull!;
+    final rawData = loginResult.dataOrNull ?? <String, dynamic>{};
     if (rawData['success'] == false) {
       final message = rawData['message']?.toString() ?? 'Authentication failed.';
       state = state.copyWith(
@@ -93,16 +93,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
     );
 
     if (result.isFailure) {
-      final failure = result.failureOrNull!;
-      if (failure.isUnauthorized) {
+      final failure = result.failureOrNull;
+      if (failure?.isUnauthorized == true) {
         await logout();
       } else {
-        state = state.copyWith(isLoading: false, errorMessage: failure.message);
+        state = state.copyWith(isLoading: false, errorMessage: failure?.message ?? 'Failed to retrieve profile');
       }
       return;
     }
 
-    final rawData = result.dataOrNull!;
+    final rawData = result.dataOrNull ?? <String, dynamic>{};
     final data = rawData['data'] is Map<String, dynamic>
         ? rawData['data'] as Map<String, dynamic>
         : (rawData['data'] is Map ? Map<String, dynamic>.from(rawData['data'] as Map) : rawData);

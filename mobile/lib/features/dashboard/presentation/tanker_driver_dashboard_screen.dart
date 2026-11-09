@@ -38,7 +38,7 @@ class _TankerDriverDashboardScreenState extends ConsumerState<TankerDriverDashbo
 
     if (mounted) {
       if (res.isSuccess) {
-        final raw = res.dataOrNull!;
+        final raw = res.dataOrNull ?? <String, dynamic>{};
         final data = raw['data'] is Map<String, dynamic>
             ? raw['data'] as Map<String, dynamic>
             : (raw['data'] is Map ? Map<String, dynamic>.from(raw['data'] as Map) : raw);
@@ -105,7 +105,7 @@ class _TankerDriverDashboardScreenState extends ConsumerState<TankerDriverDashbo
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              _errorMessage!,
+                              _errorMessage ?? 'An error occurred',
                               style: const TextStyle(color: AppColors.danger, fontSize: 12),
                             ),
                           ),
@@ -371,7 +371,7 @@ class _TankerDriverDashboardScreenState extends ConsumerState<TankerDriverDashbo
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  hasGps
+                                  (hasGps)
                                       ? 'Customer GPS: ${lat.toStringAsFixed(4)}, ${lng.toStringAsFixed(4)} (Verified)'
                                       : 'GPS location pending for this site. Capture via WhatsApp.',
                                   style: TextStyle(

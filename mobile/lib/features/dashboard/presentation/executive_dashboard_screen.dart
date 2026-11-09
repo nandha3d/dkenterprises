@@ -8,6 +8,10 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/ui/kpi_card.dart';
 import '../../auth/domain/auth_models.dart';
+import 'tanker_driver_dashboard_screen.dart';
+import 'can_delivery_driver_dashboard_screen.dart';
+import 'cashier_dashboard_screen.dart';
+import 'field_agent_dashboard_screen.dart';
 
 class ExecutiveDashboardScreen extends ConsumerStatefulWidget {
   const ExecutiveDashboardScreen({super.key});
@@ -67,7 +71,7 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
       if (!mounted) return;
 
       if (result.isSuccess) {
-        final rawData = result.dataOrNull!;
+        final rawData = result.dataOrNull ?? <String, dynamic>{};
         final liveData = rawData['data'] is Map<String, dynamic>
             ? rawData['data'] as Map<String, dynamic>
             : (rawData['data'] is Map ? Map<String, dynamic>.from(rawData['data'] as Map) : rawData);
@@ -114,6 +118,28 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
     });
 
     final authState = ref.watch(authNotifierProvider);
+    final userRole = (authState.user?.role ?? '').toLowerCase();
+    final userName = (authState.user?.username ?? authState.user?.name ?? '').toLowerCase();
+    final userEmail = (authState.user?.email ?? '').toLowerCase();
+    final allRoles = authState.roles.map((r) => r.toLowerCase()).toList();
+
+    bool hasKeyword(String kw) {
+      return userRole.contains(kw) ||
+             userName.contains(kw) ||
+             userEmail.contains(kw) ||
+             allRoles.any((r) => r.contains(kw));
+    }
+
+    // Role-based executive redirect guard: Never show balance sheets to field crew
+    if (hasKeyword('tanker')) {
+      return const TankerDriverDashboardScreen();
+    } else if (hasKeyword('delivery') || hasKeyword('driver')) {
+      return const CanDeliveryDriverDashboardScreen();
+    } else if (hasKeyword('cashier')) {
+      return const CashierDashboardScreen();
+    } else if (hasKeyword('agent') || hasKeyword('field')) {
+      return const FieldAgentDashboardScreen();
+    }
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textCol = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
     final mutedCol = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
@@ -159,7 +185,7 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      _errorMessage!,
+                      _errorMessage ?? 'An error occurred',
                       style: const TextStyle(fontSize: 12, color: AppColors.danger),
                     ),
                   ),
@@ -217,7 +243,7 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
 
           // User Greeting Strip
           Text(
-            'Hello, ${authState.user?.name.isNotEmpty == true ? authState.user!.name : "Executive"}',
+            'Hello, ${authState.user?.name.isNotEmpty == true ? (authState.user?.name ?? "Executive") : "Executive"}',
             style: AppTypography.title.copyWith(color: textCol),
           ),
           const SizedBox(height: 2),

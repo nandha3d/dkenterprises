@@ -94,7 +94,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null && _salesSummary == null
-              ? ErrorState(message: _errorMessage!, onRetry: _fetchReports)
+              ? ErrorState(message: _errorMessage ?? 'An error occurred', onRetry: _fetchReports)
               : ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
@@ -108,7 +108,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('Total Invoiced Revenue', style: AppTypography.body),
+                                const Text('Total Invoiced Revenue', style: AppTypography.body),
                                 AmountText(amount: totalSales),
                               ],
                             ),
@@ -136,7 +136,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('Current Stock Valuation', style: AppTypography.body),
+                                const Text('Current Stock Valuation', style: AppTypography.body),
                                 AmountText(amount: totalStockValuation),
                               ],
                             ),

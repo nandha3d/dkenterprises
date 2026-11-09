@@ -14,6 +14,8 @@ Future<void> main() async {
 
   // Install crash net & error handlers
   FlutterError.onError = (details) {
+    debugPrint('FLUTTER_ERROR_EXACT: ${details.exceptionAsString()}');
+    debugPrint('FLUTTER_STACK_EXACT:\n${details.stack}');
     try {
       FlutterError.presentError(details);
     } catch (_) {}

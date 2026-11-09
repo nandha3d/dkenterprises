@@ -64,13 +64,18 @@ class LocationParser {
   }
 
   /// Builds Google Maps Turn-by-Turn navigation URL
-  static String getNavigationUrl(double latitude, double longitude) {
+  static String getNavigationUrl(double? latitude, double? longitude) {
+    if (latitude == null || longitude == null) return '';
     return 'https://www.google.com/maps/dir/?api=1&destination=$latitude,$longitude';
   }
 
   /// Launches Google Maps Navigation in native app or external browser
-  static Future<bool> launchNavigation(double latitude, double longitude) async {
+  static Future<bool> launchNavigation(double? latitude, double? longitude) async {
+    if (latitude == null || longitude == null || (latitude == 0.0 && longitude == 0.0)) {
+      return false;
+    }
     final urlString = getNavigationUrl(latitude, longitude);
+    if (urlString.isEmpty) return false;
     final uri = Uri.parse(urlString);
     try {
       if (await canLaunchUrl(uri)) {
@@ -82,3 +87,4 @@ class LocationParser {
     }
   }
 }
+

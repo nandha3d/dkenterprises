@@ -473,7 +473,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                Text(
+                const Text(
                   'Records were captured offline and will sync automatically when network connectivity is established.',
                   style: AppTypography.caption,
                 ),

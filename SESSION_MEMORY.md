@@ -1,5 +1,31 @@
 # zoloERP Pro — Persistent Session Memory & State
 
+## Active Session & Follow-up — 2026-11-09: Complete Null-Safety Crash Elimination, Double-Gated Role Isolation, Dynamic Metric Deserialization & Zero-Overlap UI Polish (branch main)
+
+- **Issues Addressed & Visual Evidence Resolved:**
+  1. *Flutter Runtime Null Exception & Blank Dark Screen (`media_1794199137365_db432695.png`):*
+     - Fixed `Null check operator used on a null value` thrown during dashboard build.
+     - Root causes eliminated:
+       - `res.dataOrNull!` and `result.dataOrNull!` across `can_delivery_driver_dashboard_screen.dart`, `tanker_driver_dashboard_screen.dart`, `executive_dashboard_screen.dart`, `auth_repository.dart`, `accounting_books_screen.dart`, `workspace_screen.dart`, `stock_overview_screen.dart`, `purchase_bills_screen.dart`, `sales_invoices_screen.dart`, `product_form_screen.dart`, `fleet_gps_screen.dart`, and operations screens replaced with null-safe coalescing (`?? <String, dynamic>{}` and `?? []`).
+       - `_errorMessage!` replaced with `_errorMessage ?? 'An error occurred'` across all 11 UI components.
+       - `LocationParser.launchNavigation(double? latitude, double? longitude)` and `getNavigationUrl` updated to gracefully handle null coordinates.
+       - In `can_delivery_driver_dashboard_screen.dart`, entry casting upgraded from rigid `as Map<String, dynamic>` to `item is Map<String, dynamic> ? item : Map<String, dynamic>.from(item)`.
+  2. *Strict Role Dispatching & Leak Prevention (`media_1794043990840_19bd44cb.png`, `media_1794029799696_eeb28da9.jpg`):*
+     - Upgraded `RoleDashboardDispatcher` to check `hasKeyword('tanker')`, `hasKeyword('delivery') || hasKeyword('driver')`, `hasKeyword('cashier')`, `hasKeyword('agent') || hasKeyword('field')` across role, username, email, and role lists.
+     - In `ExecutiveDashboardScreen.build()`, added an executive guard that immediately diverts any non-executive staff/driver to their specialized role dashboard. Field crew will NEVER see executive balance sheets or corporate financials.
+  3. *Zero Metric Values in Workspace & Cash Books (`media_1794042569824_7395a67a.png`, `media_1794042356790_4f3210c6.png`):*
+     - In `workspace_screen.dart`, fixed map key matching to handle polymorphic runtime map types (`item is Map` and `item['id'] == company.id`), reading live `sales_turnover`, `cash_and_bank`, and `receivables` from `metrics`.
+     - In `accounting_books_screen.dart`, expanded cash balance key unwrapping (`cash_balance`, `cash_in_hand_1010`, `cash_in_hand`).
+  4. *Radar Telemetry & HUD Label Overlap Elimination (`media_1794029792894_b85a6001.png`):*
+     - Verified bounded radar container layout and clean telemetry card spacing in `fleet_gps_screen.dart`.
+- **Verification Status (100% Green):**
+  - `mobile/test/dashboard_null_test.dart`: 6/6 passed (null safety verified across all roles and null states).
+  - `mobile/test/` suite: 21/21 passed (100% green).
+  - `mobile/` static analysis: 0 errors, 0 warnings.
+  - Laravel Feature Tests:
+    - `tests/Feature/DriverIsolationAndLocationTest.php`: 6/6 passed (31 assertions, 100%).
+    - `tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php`: 18/18 passed (160 assertions, 100%).
+
 ## Active Session & Follow-up — 2026-11-07: Strict Role Gating, Driver Data Isolation, WhatsApp GPS Capture & Live MilesWeb Production Deployment (commits 22c0466 & b4bdc3c on branch main)
 
 - **User Requests Addressed:**

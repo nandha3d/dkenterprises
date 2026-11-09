@@ -38,7 +38,7 @@ class _CanDeliveryDriverDashboardScreenState extends ConsumerState<CanDeliveryDr
 
     if (mounted) {
       if (res.isSuccess) {
-        final raw = res.dataOrNull!;
+        final raw = res.dataOrNull ?? <String, dynamic>{};
         final data = raw['data'] is Map<String, dynamic>
             ? raw['data'] as Map<String, dynamic>
             : (raw['data'] is Map ? Map<String, dynamic>.from(raw['data'] as Map) : raw);
@@ -102,7 +102,7 @@ class _CanDeliveryDriverDashboardScreenState extends ConsumerState<CanDeliveryDr
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              _errorMessage!,
+                              _errorMessage ?? 'An error occurred',
                               style: const TextStyle(color: AppColors.danger, fontSize: 12),
                             ),
                           ),
@@ -246,7 +246,9 @@ class _CanDeliveryDriverDashboardScreenState extends ConsumerState<CanDeliveryDr
                   else
                     ...stops.asMap().entries.map((entry) {
                       final idx = entry.key + 1;
-                      final stop = entry.value as Map<String, dynamic>;
+                      final stop = entry.value is Map<String, dynamic>
+                          ? entry.value as Map<String, dynamic>
+                          : (entry.value is Map ? Map<String, dynamic>.from(entry.value as Map) : <String, dynamic>{});
                       final customerId = stop['customer_id'] is int ? stop['customer_id'] as int : 5;
                       final customerName = stop['name']?.toString() ?? 'Customer';
                       final customerAddress = stop['address']?.toString() ?? '';

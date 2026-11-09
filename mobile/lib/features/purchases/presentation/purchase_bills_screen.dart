@@ -59,7 +59,7 @@ class _PurchaseBillsScreenState extends ConsumerState<PurchaseBillsScreen> {
     if (!mounted) return;
 
     if (result.isSuccess) {
-      final list = result.dataOrNull!;
+      final list = result.dataOrNull ?? [];
       await db.saveCache(cacheKey, list);
       setState(() {
         _purchases = list;
@@ -96,7 +96,7 @@ class _PurchaseBillsScreenState extends ConsumerState<PurchaseBillsScreen> {
       body: _isLoading && _purchases.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null && _purchases.isEmpty
-              ? ErrorState(message: _errorMessage!, onRetry: _fetchPurchases)
+              ? ErrorState(message: _errorMessage ?? 'An error occurred', onRetry: _fetchPurchases)
               : _purchases.isEmpty
                   ? const EmptyState(
                       title: 'No Purchase Bills',

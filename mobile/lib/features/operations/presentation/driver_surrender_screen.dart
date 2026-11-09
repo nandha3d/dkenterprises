@@ -33,7 +33,7 @@ class _DriverSurrenderScreenState extends ConsumerState<DriverSurrenderScreen> {
       fromJson: (data) => data as Map<String, dynamic>,
     );
     if (mounted && res.isSuccess) {
-      final raw = res.dataOrNull!;
+      final raw = res.dataOrNull ?? <String, dynamic>{};
       final fin = raw['data'] is Map ? raw['data'] as Map : raw;
       final coll = (fin['today_collections'] as num?)?.toDouble() ?? 0.0;
       if (coll > 0) {

@@ -18,7 +18,7 @@ class _CanSalesScreenState extends ConsumerState<CanSalesScreen> {
   final _customerController = TextEditingController();
   int _deliveredCans = 1;
   int _returnedEmpties = 0;
-  double _pricePerCan = 35.0;
+  final double _pricePerCan = 35.0;
   String _paymentMode = 'Cash';
   bool _isSubmitting = false;
   List<Map<String, dynamic>> _customers = [];
@@ -280,7 +280,7 @@ class _CanSalesScreenState extends ConsumerState<CanSalesScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Total Bill', style: AppTypography.caption),
+                    const Text('Total Bill', style: AppTypography.caption),
                     AmountText(
                       amount: _totalBill,
                       style: AppTypography.title.copyWith(

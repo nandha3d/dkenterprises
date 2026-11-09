@@ -157,7 +157,7 @@ class _PaymentCollectionScreenState extends ConsumerState<PaymentCollectionScree
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Current Outstanding Due:', style: AppTypography.caption),
+                      const Text('Current Outstanding Due:', style: AppTypography.caption),
                       AmountText(
                         amount: _currentDue,
                         color: _currentDue > 0 ? AppColors.danger : AppColors.success,

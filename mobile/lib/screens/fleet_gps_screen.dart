@@ -92,7 +92,7 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
       if (!mounted) return;
 
       if (res.isSuccess) {
-        final raw = res.dataOrNull!;
+        final raw = res.dataOrNull ?? <String, dynamic>{};
         final data = raw['data'] is Map ? raw['data'] as Map : raw;
         final rawTankers = data['tankers'] is List ? data['tankers'] as List : [];
         final rawRoutes = data['can_routes'] is List ? data['can_routes'] as List : [];
@@ -292,7 +292,7 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        _errorMessage!,
+                        _errorMessage ?? 'An error occurred loading fleet data',
                         style: GoogleFonts.inter(color: AppColors.brandDanger, fontSize: 12),
                       ),
                     ),

@@ -46,7 +46,7 @@ class _NewSaleBillScreenState extends ConsumerState<NewSaleBillScreen> {
       setState(() {
         _isLoadingProducts = false;
         if (res.isSuccess && (res.dataOrNull?.isNotEmpty ?? false)) {
-          _products = res.dataOrNull!;
+          _products = res.dataOrNull ?? [];
           final first = _products.first;
           _selectedProductId = first['id'] as int?;
           _selectedProductName = first['name']?.toString() ?? 'Standard Product';
@@ -316,7 +316,7 @@ class _NewSaleBillScreenState extends ConsumerState<NewSaleBillScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Total Payable', style: AppTypography.caption),
+                    const Text('Total Payable', style: AppTypography.caption),
                     AmountText(
                       amount: _totalAmount,
                       style: AppTypography.title.copyWith(
