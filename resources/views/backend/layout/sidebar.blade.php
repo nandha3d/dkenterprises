@@ -268,21 +268,27 @@
                 @if($companyIndustry === 'bulk_water')
                     <li><a href="{{route('water-logistics.index')}}">Tanker Fleet &amp; Trip Sheets</a></li>
                     <li><a href="{{route('fleet.tracking')}}"><i class="fa fa-map-marker mr-1"></i> Live Fleet Telematics</a></li>
-                    <li><a href="{{route('water-logistics.credit-aging')}}">Corporate Credit Aging</a></li>
+                    @if(Auth::user()->role_id <= 2)
+                        <li><a href="{{route('water-logistics.credit-aging')}}">Corporate Credit Aging</a></li>
+                    @endif
                 @elseif($companyIndustry === 'packaged_water')
                     <li><a href="{{route('water-logistics.index')}}">Deliveries &amp; Manifests</a></li>
                     <li><a href="{{route('water-logistics.index')}}#tab-can-inventory">Customer Can Balances &amp; Deposits</a></li>
                     @if(config('commercial.enabled') && $nav->has('sales.route_distribution') && $nav->allows('sales-index'))
                         <li id="route-sheet-menu"><a href="{{ url('/trade/routes') }}" data-keywords="route sheet van">Beat Routes &amp; Tata Ace</a></li>
                     @endif
-                    <li><a href="{{route('water-logistics.credit-aging')}}">Corporate Credit Aging</a></li>
+                    @if(Auth::user()->role_id <= 2)
+                        <li><a href="{{route('water-logistics.credit-aging')}}">Corporate Credit Aging</a></li>
+                    @endif
                 @else
                     @if(config('commercial.enabled') && $nav->has('sales.route_distribution') && $nav->allows('sales-index'))
                         <li id="route-sheet-menu"><a href="{{ url('/trade/routes') }}" data-keywords="route sheet van">Routes</a></li>
                     @endif
                     @if($nav->has('operations.water_logistics'))
                         <li><a href="{{route('water-logistics.index')}}">Fleet Trips &amp; Can Routes</a></li>
-                        <li><a href="{{route('water-logistics.credit-aging')}}">Corporate Credit Aging</a></li>
+                        @if(Auth::user()->role_id <= 2)
+                            <li><a href="{{route('water-logistics.credit-aging')}}">Corporate Credit Aging</a></li>
+                        @endif
                     @endif
                 @endif
             </ul>
