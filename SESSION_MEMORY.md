@@ -1,6 +1,29 @@
 # zoloERP Pro — Persistent Session Memory & State
 
-## Active Session & Follow-up — 2026-11-10: Whole Insights Charts, Operational Carts & RenderRepaintBoundary Crash Elimination in Fleet GPS & Workspace Dashboard (branch main)
+## Active Session & Follow-up — 2026-11-10: Global Dynamic Theme Adaptation (Light Top Card), AmountText Bug Fix, Fleet GPS Repaint Isolation & Google Maps Clarification (branch main)
+
+- **Issues Addressed & Visual Evidence Resolved:**
+  1. *Unreadable Dark Text & Hardcoded Dark Gradient on Top Card (`media_1794310217318_479feb2d.jpg`):*
+     - Root Causes:
+       - In `workspace_screen.dart`, the top executive card was hardcoded with dark indigo/navy linear gradient colors (`#1E1B4B` to `#0F172A`) regardless of light or dark theme.
+       - In `amount_text.dart`, `AmountText.build` had `color: color ?? defaultColor`, ignoring `style?.color`. When called with `style: GoogleFonts.inter(..., color: Colors.white)` and no explicit `color` parameter, in light mode `defaultColor` (`#0F172A` black/dark slate) overrode `style.color`, rendering dark black text on top of the dark blue background!
+     - Solution:
+       - Fixed `amount_text.dart` line 39: `color: color ?? style?.color ?? defaultColor`. Now any caller-specified style color is fully preserved.
+       - Overhauled the top card in `workspace_screen.dart` to strictly use global theme colors (`AppColors` & `Theme.of(context)`):
+         - Light mode: Pure, luminous surface (`cardBg` `#FFFFFF` to `#F8FAFC`), crisp border (`borderCol` with subtle `#6366F1` accent), dark high-contrast typography (`textCol` `#0F172A`, `mutedCol` `#64748B`), and emerald/amber metric badges.
+         - Dark mode: Sleek dark indigo/navy gradient (`#1E1B4B` to `#0F172A`), white typography, glowing emerald and amber metrics.
+  2. *Fleet GPS Module Errors & Windows Mouse Tracker Assertion (`media_1794310325019_6a39c3d0.png`):*
+     - User Inquiry: *"still the gps module is giving error.. only on windows or it will work in mobile? also let me know whether we need to integrate the google map API or the flutter can handle itself?"*
+     - Architectural Diagnoses & Resolutions:
+       - **60fps Radar Re-paint Contamination:** The repeating radar animation (`AnimationController..repeat()`) was triggering repaints across the whole `SingleChildScrollView`. Isolated the radar map in `RepaintBoundary`, decoupling the 60fps sweep from sibling widgets.
+       - **Button Text Overflow:** In the mode switcher bar, wrapped button labels in `Flexible(child: Text(..., overflow: TextOverflow.ellipsis))`, eliminating a 5.3px flex overflow.
+       - **Why Windows Hit-Test Error Occurred:** On Windows desktop, `mouse_tracker.dart` performs device hit-testing every frame. When a layout pass was interrupted, `RenderDecoratedBox` was flagged as having `size: MISSING`, causing Windows desktop mouse tracker crashes. Mobile (Android/iOS) touch does not use `MouseTracker`.
+       - **Google Maps vs Native Flutter:** Clarified for client that Flutter core SDK does not bundle raster map tiles. `google_maps_flutter` requires Google Cloud API Keys and supports Android/iOS/Web only (does NOT support Windows desktop). The app's current native 2D Radar Canvas runs on pure Flutter across ALL platforms with zero API fees, while turn-by-turn navigation delegates to the OS native Google Maps app via `LocationParser.launchNavigation` (zero API key needed).
+- **Verification Status (100% Green across All Suites):**
+  - Flutter Mobile Test Suite (`mobile/test/`): **33/33 tests passed (100% green)**.
+  - Flutter Static Analysis (`flutter analyze`): **0 errors, 0 warnings, 0 issues (Clean)**.
+  - Windows Release Executable: `build\windows\x64\runner\Release\dk_track_mobile.exe` (freshly compiled).
+  - Windows Debug Executable: `build\windows\x64\runner\Debug\dk_track_mobile.exe` (freshly compiled).
 
 - **Issues Addressed & Visual Evidence Resolved:**
   1. *Fleet GPS Mouse Tracker & RenderRepaintBoundary Crash Elimination (`media_1794305083020_a931e5a1.png`):*

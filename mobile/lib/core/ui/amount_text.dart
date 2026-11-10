@@ -36,7 +36,7 @@ class AmountText extends StatelessWidget {
     return Text(
       format(amount, showSign: showSign),
       style: (style ?? AppTypography.numberCard).copyWith(
-        color: color ?? defaultColor,
+        color: color ?? style?.color ?? defaultColor,
       ),
     );
   }

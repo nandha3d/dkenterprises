@@ -355,12 +355,15 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
                                 color: _mode == FleetViewMode.tankers ? Colors.white : AppColors.textDim(context),
                               ),
                               const SizedBox(width: 8),
-                              Text(
-                                t ? 'TMWS பல்க் டேங்கர் (${_tankers.length})' : 'TMWS Tankers (${_tankers.length})',
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w800,
-                                  color: _mode == FleetViewMode.tankers ? Colors.white : AppColors.text(context),
+                              Flexible(
+                                child: Text(
+                                  t ? 'TMWS பல்க் டேங்கர் (${_tankers.length})' : 'TMWS Tankers (${_tankers.length})',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                    color: _mode == FleetViewMode.tankers ? Colors.white : AppColors.text(context),
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
@@ -404,12 +407,15 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
                                 color: _mode == FleetViewMode.packagedWater ? Colors.white : AppColors.textDim(context),
                               ),
                               const SizedBox(width: 8),
-                              Text(
-                                t ? 'DK குடிநீர் வேன்கள் (${_waterTrucks.length})' : 'DK Waters Beats (${_waterTrucks.length})',
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w800,
-                                  color: _mode == FleetViewMode.packagedWater ? Colors.white : AppColors.text(context),
+                              Flexible(
+                                child: Text(
+                                  t ? 'DK குடிநீர் வேன்கள் (${_waterTrucks.length})' : 'DK Waters Beats (${_waterTrucks.length})',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                    color: _mode == FleetViewMode.packagedWater ? Colors.white : AppColors.text(context),
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
@@ -494,10 +500,11 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
 
             const SizedBox(height: 14),
 
-            // High-Tech Interactive Radar Map Box
-            Container(
-              height: 250,
-              clipBehavior: Clip.antiAlias,
+            // High-Tech Interactive Radar Map Box (Isolated in RepaintBoundary to prevent 60fps sweep from invalidating siblings)
+            RepaintBoundary(
+              child: Container(
+                height: 250,
+                clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF030A16) : const Color(0xFF0F172A),
                 borderRadius: BorderRadius.circular(22),
@@ -757,6 +764,7 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
                   ],
                 ),
               ),
+            ),
 
             const SizedBox(height: 16),
 

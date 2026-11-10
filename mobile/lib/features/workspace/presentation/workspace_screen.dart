@@ -198,28 +198,42 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                     ),
                   ),
 
-                // 1. High-Impact Colored Group Executive Card (Vibrant Modern Gradient)
+                // 1. High-Impact Group Executive Card (Adapts dynamically to Light & Dark theme)
                 Container(
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFF1E1B4B), // Deep Indigo
-                        Color(0xFF1E3A8A), // Royal Navy
-                        Color(0xFF0F172A), // Slate
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    color: isDark ? null : cardBg,
+                    gradient: isDark
+                        ? const LinearGradient(
+                            colors: [
+                              Color(0xFF1E1B4B), // Deep Indigo
+                              Color(0xFF1E3A8A), // Royal Navy
+                              Color(0xFF0F172A), // Slate
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : LinearGradient(
+                            colors: [
+                              cardBg,
+                              const Color(0xFFF8FAFC),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
                     borderRadius: BorderRadius.circular(22),
                     border: Border.all(
-                      color: const Color(0xFF6366F1).withOpacity(0.4),
+                      color: isDark
+                          ? const Color(0xFF6366F1).withOpacity(0.4)
+                          : const Color(0xFF6366F1).withOpacity(0.25),
                       width: 1.4,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF6366F1).withOpacity(0.20),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
+                        color: isDark
+                            ? const Color(0xFF6366F1).withOpacity(0.20)
+                            : Colors.black.withOpacity(0.04),
+                        blurRadius: 18,
+                        offset: const Offset(0, 6),
                       ),
                     ],
                   ),
@@ -238,14 +252,18 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                                   Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.12),
+                                      color: isDark
+                                          ? Colors.white.withOpacity(0.12)
+                                          : const Color(0xFF6366F1).withOpacity(0.12),
                                       borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(color: Colors.white24),
+                                      border: Border.all(
+                                        color: isDark ? Colors.white24 : const Color(0xFF6366F1).withOpacity(0.25),
+                                      ),
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.corporate_fare_rounded,
                                       size: 18,
-                                      color: Colors.white,
+                                      color: isDark ? Colors.white : const Color(0xFF4F46E5),
                                     ),
                                   ),
                                   const SizedBox(width: 10),
@@ -258,7 +276,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                                           style: GoogleFonts.inter(
                                             fontSize: 14.5,
                                             fontWeight: FontWeight.w900,
-                                            color: Colors.white,
+                                            color: isDark ? Colors.white : textCol,
                                           ),
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -266,7 +284,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                                           'Consolidated Multi-Tenant Treasury',
                                           style: GoogleFonts.inter(
                                             fontSize: 10.5,
-                                            color: Colors.white.withOpacity(0.7),
+                                            color: isDark ? Colors.white.withOpacity(0.7) : mutedCol,
                                           ),
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -280,21 +298,31 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: AppColors.brandEmerald.withOpacity(0.2),
+                                color: isDark
+                                    ? AppColors.brandEmerald.withOpacity(0.2)
+                                    : const Color(0xFFECFDF5),
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: AppColors.brandEmerald.withOpacity(0.5)),
+                                border: Border.all(
+                                  color: isDark
+                                      ? AppColors.brandEmerald.withOpacity(0.5)
+                                      : const Color(0xFFA7F3D0),
+                                ),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.circle, size: 6, color: AppColors.brandEmerald),
+                                  Icon(
+                                    Icons.circle,
+                                    size: 6,
+                                    color: isDark ? AppColors.brandEmerald : const Color(0xFF059669),
+                                  ),
                                   const SizedBox(width: 4),
                                   Text(
                                     'ACTIVE ROLLUP',
                                     style: GoogleFonts.inter(
                                       fontSize: 9.5,
                                       fontWeight: FontWeight.w900,
-                                      color: AppColors.brandEmerald,
+                                      color: isDark ? AppColors.brandEmerald : const Color(0xFF059669),
                                     ),
                                   ),
                                 ],
@@ -303,13 +331,17 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        // 3 KPIs in glowing translucent surface
+                        // 3 KPIs in theme-adaptive surface
                         Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.25),
+                            color: isDark
+                                ? Colors.black.withOpacity(0.25)
+                                : const Color(0xFFF1F5F9).withOpacity(0.8),
                             borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: Colors.white.withOpacity(0.10)),
+                            border: Border.all(
+                              color: isDark ? Colors.white.withOpacity(0.10) : borderCol,
+                            ),
                           ),
                           child: Row(
                             children: [
@@ -319,12 +351,20 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                                   children: [
                                     Row(
                                       children: [
-                                        Icon(Icons.trending_up_rounded, size: 13, color: Colors.white.withOpacity(0.7)),
+                                        Icon(
+                                          Icons.trending_up_rounded,
+                                          size: 13,
+                                          color: isDark ? Colors.white.withOpacity(0.7) : mutedCol,
+                                        ),
                                         const SizedBox(width: 4),
                                         Expanded(
                                           child: Text(
                                             'Group Turnover',
-                                            style: GoogleFonts.inter(fontSize: 10.5, color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.w600),
+                                            style: GoogleFonts.inter(
+                                              fontSize: 10.5,
+                                              color: isDark ? Colors.white.withOpacity(0.7) : mutedCol,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
@@ -333,12 +373,21 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                                     const SizedBox(height: 4),
                                     AmountText(
                                       amount: groupTurnover,
-                                      style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w900, color: Colors.white),
+                                      color: isDark ? Colors.white : textCol,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w900,
+                                        color: isDark ? Colors.white : textCol,
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
-                              Container(width: 1, height: 32, color: Colors.white24),
+                              Container(
+                                width: 1,
+                                height: 32,
+                                color: isDark ? Colors.white24 : borderCol,
+                              ),
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Column(
@@ -346,12 +395,22 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                                   children: [
                                     Row(
                                       children: [
-                                        Icon(Icons.account_balance_rounded, size: 13, color: AppColors.brandEmerald.withOpacity(0.9)),
+                                        Icon(
+                                          Icons.account_balance_rounded,
+                                          size: 13,
+                                          color: isDark
+                                              ? AppColors.brandEmerald.withOpacity(0.9)
+                                              : const Color(0xFF059669),
+                                        ),
                                         const SizedBox(width: 4),
                                         Expanded(
                                           child: Text(
                                             'Cash & Bank',
-                                            style: GoogleFonts.inter(fontSize: 10.5, color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.w600),
+                                            style: GoogleFonts.inter(
+                                              fontSize: 10.5,
+                                              color: isDark ? Colors.white.withOpacity(0.7) : mutedCol,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
@@ -360,12 +419,21 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                                     const SizedBox(height: 4),
                                     AmountText(
                                       amount: groupCashBank,
-                                      style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w900, color: const Color(0xFF34D399)),
+                                      color: isDark ? const Color(0xFF34D399) : const Color(0xFF059669),
+                                      style: GoogleFonts.inter(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w900,
+                                        color: isDark ? const Color(0xFF34D399) : const Color(0xFF059669),
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
-                              Container(width: 1, height: 32, color: Colors.white24),
+                              Container(
+                                width: 1,
+                                height: 32,
+                                color: isDark ? Colors.white24 : borderCol,
+                              ),
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Column(
@@ -373,12 +441,22 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                                   children: [
                                     Row(
                                       children: [
-                                        Icon(Icons.call_received_rounded, size: 13, color: const Color(0xFFFBBF24).withOpacity(0.9)),
+                                        Icon(
+                                          Icons.call_received_rounded,
+                                          size: 13,
+                                          color: isDark
+                                              ? const Color(0xFFFBBF24).withOpacity(0.9)
+                                              : const Color(0xFFD97706),
+                                        ),
                                         const SizedBox(width: 4),
                                         Expanded(
                                           child: Text(
                                             'Receivables',
-                                            style: GoogleFonts.inter(fontSize: 10.5, color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.w600),
+                                            style: GoogleFonts.inter(
+                                              fontSize: 10.5,
+                                              color: isDark ? Colors.white.withOpacity(0.7) : mutedCol,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
@@ -387,7 +465,12 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                                     const SizedBox(height: 4),
                                     AmountText(
                                       amount: groupReceivables,
-                                      style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w900, color: const Color(0xFFFBBF24)),
+                                      color: isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
+                                      style: GoogleFonts.inter(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w900,
+                                        color: isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -397,11 +480,11 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                         ),
                         const SizedBox(height: 12),
                         // Mini Sparkline preview for Group Turnover
-                        const SizedBox(
+                        SizedBox(
                           height: 24,
                           child: SparklineChart(
-                            data: [12000, 18500, 24000, 31000, 36500, 41430],
-                            lineColor: Color(0xFF818CF8),
+                            data: const [12000, 18500, 24000, 31000, 36500, 41430],
+                            lineColor: isDark ? const Color(0xFF818CF8) : const Color(0xFF4F46E5),
                             showEndDot: true,
                             fillGradient: true,
                           ),
