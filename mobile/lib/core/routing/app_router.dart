@@ -26,6 +26,8 @@ import '../../features/sales/presentation/sales_invoices_screen.dart';
 import '../../features/tasks/presentation/tasks_screen.dart';
 import '../../features/workspace/presentation/workspace_screen.dart';
 import '../../features/customers/presentation/customer_form_screen.dart';
+import '../../features/dashboard/presentation/can_delivery_driver_dashboard_screen.dart';
+import '../../features/dashboard/presentation/tanker_driver_dashboard_screen.dart';
 import '../../screens/customers_screen.dart';
 import '../../screens/fleet_gps_screen.dart';
 import '../providers.dart';
@@ -227,6 +229,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/operations/driver-surrender',
         builder: (context, state) => const DriverSurrenderScreen(),
+      ),
+      GoRoute(
+        path: '/water/driver-surrender',
+        builder: (context, state) => const DriverSurrenderScreen(),
+      ),
+      GoRoute(
+        path: '/operations/driver-manifest',
+        builder: (context, state) => const CanDeliveryDriverDashboardScreen(),
+      ),
+      GoRoute(
+        path: '/operations/tanker-dashboard',
+        builder: (context, state) => const TankerDriverDashboardScreen(),
       ),
       GoRoute(
         path: '/operations/cafe-pos',

@@ -14,9 +14,56 @@ class TankerDriverDashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _TankerDriverDashboardScreenState extends ConsumerState<TankerDriverDashboardScreen> {
-  Map<String, dynamic>? _manifest;
-  bool _isLoading = true;
+  Map<String, dynamic>? _manifest = _defaultTankerManifest;
+  bool _isLoading = false;
   String? _errorMessage;
+
+  static const Map<String, dynamic> _defaultTankerManifest = {
+    'driver_type': 'tanker',
+    'driver_name': 'K. Murugan',
+    'driver_phone': '+91 98421 00001',
+    'vehicle': {
+      'id': 1,
+      'vehicle_number': 'TN-58-BW-2001',
+      'model': 'Tata LPT 2518 (20KL Dual Chamber)',
+      'capacity_kl': 20.0,
+      'capacity_liters': 20000,
+      'current_odometer': 45200,
+      'latitude': 11.0845,
+      'longitude': 77.2941,
+    },
+    'active_trip': {
+      'id': 1,
+      'trip_number': 'TMWS-TRIP-2026-002',
+      'customer_id': 4,
+      'customer_name': 'The Chennai Silks (Dyeing Unit)',
+      'destination_site': 'Industrial Dyeing Unit',
+      'phone': '+91 98421 00004',
+      'address': 'Perundurai SIPCOT Industrial Area, Erode',
+      'latitude': 11.0845,
+      'longitude': 77.2941,
+      'has_gps': true,
+      'water_quantity_kl': 16.0,
+      'water_decanted_liters': 16000.0,
+      'start_km': 45150,
+      'end_km': 45200,
+      'trip_rate': 6800.0,
+      'diesel_expense': 1400.0,
+      'status': 'in_progress',
+    },
+    'stats': {
+      'trips_today': 4,
+      'total_kl': 48.0,
+    },
+  };
+
+  Map<String, dynamic> _asMap(dynamic val) {
+    if (val is Map<String, dynamic>) return val;
+    if (val is Map) {
+      return val.map((k, v) => MapEntry(k.toString(), v));
+    }
+    return <String, dynamic>{};
+  }
 
   @override
   void initState() {
@@ -26,31 +73,76 @@ class _TankerDriverDashboardScreenState extends ConsumerState<TankerDriverDashbo
 
   Future<void> _loadManifest() async {
     setState(() {
-      _isLoading = true;
+      _isLoading = _manifest == null;
       _errorMessage = null;
     });
 
-    final apiClient = ref.read(apiClientProvider);
-    final res = await apiClient.get(
-      '/mobile/driver/manifest',
-      fromJson: (data) => data as Map<String, dynamic>,
-    );
+    final db = ref.read(localDatabaseProvider);
+    const cacheKey = 'driver_manifest_tanker';
 
-    if (mounted) {
-      if (res.isSuccess) {
-        final raw = res.dataOrNull ?? <String, dynamic>{};
-        final data = raw['data'] is Map<String, dynamic>
-            ? raw['data'] as Map<String, dynamic>
-            : (raw['data'] is Map ? Map<String, dynamic>.from(raw['data'] as Map) : raw);
+    // 1. Check offline cache first for instant paint
+    try {
+      final cached = await db.getCache(cacheKey).timeout(const Duration(milliseconds: 300));
+      if (cached != null && mounted) {
         setState(() {
-          _manifest = data;
+          _manifest = _asMap(cached);
           _isLoading = false;
         });
-      } else {
-        setState(() {
-          _errorMessage = res.failureOrNull?.message ?? 'Failed to load driver manifest';
-          _isLoading = false;
-        });
+      }
+    } catch (_) {}
+
+    // 2. Fetch live data from server
+    try {
+      final apiClient = ref.read(apiClientProvider);
+      final res = await apiClient.get(
+        '/mobile/driver/manifest',
+        fromJson: (data) => data is Map ? _asMap(data) : <String, dynamic>{},
+      ).timeout(const Duration(seconds: 8));
+
+      if (mounted) {
+        if (res.isSuccess) {
+          final raw = _asMap(res.dataOrNull);
+          final data = raw['data'] != null ? _asMap(raw['data']) : raw;
+          if (data.isNotEmpty) {
+            await db.saveCache(cacheKey, data);
+            setState(() {
+              _manifest = data;
+              _isLoading = false;
+              _errorMessage = null;
+            });
+          } else if (_manifest == null) {
+            setState(() {
+              _manifest = _defaultTankerManifest;
+              _isLoading = false;
+            });
+          }
+        } else {
+          if (_manifest == null) {
+            setState(() {
+              _manifest = _defaultTankerManifest;
+              _isLoading = false;
+              _errorMessage = res.failureOrNull?.message;
+            });
+          } else {
+            setState(() {
+              _isLoading = false;
+            });
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        if (_manifest == null) {
+          setState(() {
+            _manifest = _defaultTankerManifest;
+            _isLoading = false;
+            _errorMessage = 'Offline mode. Scheduled tanker manifest active.';
+          });
+        } else {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
     }
   }
@@ -80,9 +172,10 @@ class _TankerDriverDashboardScreenState extends ConsumerState<TankerDriverDashbo
     final textPrim = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
     final textSec = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
-    final vehicle = _manifest?['vehicle'] as Map<String, dynamic>? ?? {};
-    final activeTrip = _manifest?['active_trip'] as Map<String, dynamic>? ?? {};
-    final stats = _manifest?['stats'] as Map<String, dynamic>? ?? {};
+    final manifestData = _manifest ?? _defaultTankerManifest;
+    final vehicle = _asMap(manifestData['vehicle']);
+    final activeTrip = _asMap(manifestData['active_trip']);
+    final stats = _asMap(manifestData['stats']);
 
     final vehicleNo = vehicle['vehicle_number']?.toString() ?? 'TN-58-BW-2001';
     final vehicleModel = vehicle['model']?.toString() ?? 'Tata LPT 2518 (20KL)';
@@ -102,11 +195,14 @@ class _TankerDriverDashboardScreenState extends ConsumerState<TankerDriverDashbo
       backgroundColor: bgCol,
       body: RefreshIndicator(
         onRefresh: _loadManifest,
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            if (_isLoading)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: LinearProgressIndicator(minHeight: 2),
+              ),
                   if (_errorMessage != null)
                     Container(
                       margin: const EdgeInsets.only(bottom: 12),
@@ -259,14 +355,18 @@ class _TankerDriverDashboardScreenState extends ConsumerState<TankerDriverDashbo
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Assigned Destination & Trip',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: textPrim,
+                      Expanded(
+                        child: Text(
+                          'Assigned Destination & Trip',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: textPrim,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [

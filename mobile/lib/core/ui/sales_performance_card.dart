@@ -107,41 +107,48 @@ class SalesPerformanceCard extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: accent.withOpacity(isDark ? 0.25 : 0.15),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: accent.withOpacity(0.35)),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: accent.withOpacity(isDark ? 0.25 : 0.15),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: accent.withOpacity(0.35)),
+                        ),
+                        child: const Icon(Icons.insights_rounded, size: 18, color: accent),
                       ),
-                      child: const Icon(Icons.insights_rounded, size: 18, color: accent),
-                    ),
-                    const SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Net Sales & Revenue',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            color: textPrim,
-                          ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Net Sales & Revenue',
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                                color: textPrim,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              verticalLabel,
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: textMuted,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
-                        Text(
-                          verticalLabel,
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: textMuted,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
 
                 // Interactive Period Selector Dropdown
                 PopupMenuButton<String>(

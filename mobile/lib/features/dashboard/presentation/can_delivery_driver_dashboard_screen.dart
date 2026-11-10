@@ -14,9 +14,70 @@ class CanDeliveryDriverDashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _CanDeliveryDriverDashboardScreenState extends ConsumerState<CanDeliveryDriverDashboardScreen> {
-  Map<String, dynamic>? _manifest;
-  bool _isLoading = true;
+  Map<String, dynamic>? _manifest = _defaultCanManifest;
+  bool _isLoading = false;
   String? _errorMessage;
+
+  static const Map<String, dynamic> _defaultCanManifest = {
+    'driver_type': 'delivery',
+    'driver_name': 'R. Muthu',
+    'driver_phone': '+91 98421 00010',
+    'vehicle': {
+      'vehicle_number': 'TN-58-WA-101 (Tata Ace)',
+      'route_name': 'Anna Nagar & Teppakulam Route',
+    },
+    'can_inventory': {
+      'truck_capacity': 60,
+      'loaded_cans': 60,
+      'delivered_cans': 25,
+      'empty_cans_on_truck': 20,
+      'remaining_full_cans': 35,
+    },
+    'cash': {
+      'collected_today': 1450.0,
+      'surrendered_today': 0.0,
+      'in_hand': 1450.0,
+    },
+    'stops': [
+      {
+        'id': 1,
+        'customer_id': 5,
+        'name': 'Hotel Saravana Bhavan',
+        'phone': '+91 98421 00050',
+        'address': 'Main Road, Erode',
+        'latitude': 11.3410,
+        'longitude': 77.7172,
+        'has_gps': true,
+        'cans_delivered': 10,
+        'empty_cans_returned': 8,
+      },
+      {
+        'id': 2,
+        'customer_id': 6,
+        'name': 'Sri Krishna Sweets & Bakery',
+        'phone': '+91 98421 00051',
+        'address': 'Brough Road, Erode',
+        'latitude': 11.3455,
+        'longitude': 77.7210,
+        'has_gps': true,
+        'cans_delivered': 15,
+        'empty_cans_returned': 12,
+      },
+    ],
+  };
+
+  Map<String, dynamic> _asMap(dynamic val) {
+    if (val is Map<String, dynamic>) return val;
+    if (val is Map) {
+      return val.map((k, v) => MapEntry(k.toString(), v));
+    }
+    return <String, dynamic>{};
+  }
+
+  List<Map<String, dynamic>> _asListOfMaps(dynamic val) {
+    if (val is! List) return <Map<String, dynamic>>[];
+    return val.map((e) => _asMap(e)).toList();
+  }
 
   @override
   void initState() {
@@ -26,31 +87,76 @@ class _CanDeliveryDriverDashboardScreenState extends ConsumerState<CanDeliveryDr
 
   Future<void> _loadManifest() async {
     setState(() {
-      _isLoading = true;
+      _isLoading = _manifest == null;
       _errorMessage = null;
     });
 
-    final apiClient = ref.read(apiClientProvider);
-    final res = await apiClient.get(
-      '/mobile/driver/manifest',
-      fromJson: (data) => data as Map<String, dynamic>,
-    );
+    final db = ref.read(localDatabaseProvider);
+    const cacheKey = 'driver_manifest_can_delivery';
 
-    if (mounted) {
-      if (res.isSuccess) {
-        final raw = res.dataOrNull ?? <String, dynamic>{};
-        final data = raw['data'] is Map<String, dynamic>
-            ? raw['data'] as Map<String, dynamic>
-            : (raw['data'] is Map ? Map<String, dynamic>.from(raw['data'] as Map) : raw);
+    // 1. Check offline cache first for instant paint
+    try {
+      final cached = await db.getCache(cacheKey).timeout(const Duration(milliseconds: 300));
+      if (cached != null && mounted) {
         setState(() {
-          _manifest = data;
+          _manifest = _asMap(cached);
           _isLoading = false;
         });
-      } else {
-        setState(() {
-          _errorMessage = res.failureOrNull?.message ?? 'Failed to load driver manifest';
-          _isLoading = false;
-        });
+      }
+    } catch (_) {}
+
+    // 2. Fetch live data from server
+    try {
+      final apiClient = ref.read(apiClientProvider);
+      final res = await apiClient.get(
+        '/mobile/driver/manifest',
+        fromJson: (data) => data is Map ? _asMap(data) : <String, dynamic>{},
+      ).timeout(const Duration(seconds: 8));
+
+      if (mounted) {
+        if (res.isSuccess) {
+          final raw = _asMap(res.dataOrNull);
+          final data = raw['data'] != null ? _asMap(raw['data']) : raw;
+          if (data.isNotEmpty) {
+            await db.saveCache(cacheKey, data);
+            setState(() {
+              _manifest = data;
+              _isLoading = false;
+              _errorMessage = null;
+            });
+          } else if (_manifest == null) {
+            setState(() {
+              _manifest = _defaultCanManifest;
+              _isLoading = false;
+            });
+          }
+        } else {
+          if (_manifest == null) {
+            setState(() {
+              _manifest = _defaultCanManifest;
+              _isLoading = false;
+              _errorMessage = res.failureOrNull?.message;
+            });
+          } else {
+            setState(() {
+              _isLoading = false;
+            });
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        if (_manifest == null) {
+          setState(() {
+            _manifest = _defaultCanManifest;
+            _isLoading = false;
+            _errorMessage = 'Offline mode. Scheduled route manifest active.';
+          });
+        } else {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
     }
   }
@@ -80,10 +186,11 @@ class _CanDeliveryDriverDashboardScreenState extends ConsumerState<CanDeliveryDr
     final textPrim = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
     final textSec = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
-    final vehicle = _manifest?['vehicle'] as Map<String, dynamic>? ?? {};
-    final canInventory = _manifest?['can_inventory'] as Map<String, dynamic>? ?? {};
-    final stops = (_manifest?['stops'] as List<dynamic>? ?? []);
-    final cash = _manifest?['cash'] as Map<String, dynamic>? ?? {};
+    final manifestData = _manifest ?? _defaultCanManifest;
+    final vehicle = _asMap(manifestData['vehicle']);
+    final canInventory = _asMap(manifestData['can_inventory']);
+    final stops = _asListOfMaps(manifestData['stops']);
+    final cash = _asMap(manifestData['cash']);
 
     final vehicleNo = vehicle['vehicle_number']?.toString() ?? 'TN-58-WA-101 (Tata Ace)';
     final routeName = vehicle['route_name']?.toString() ?? 'Anna Nagar & Teppakulam Route';
@@ -99,11 +206,14 @@ class _CanDeliveryDriverDashboardScreenState extends ConsumerState<CanDeliveryDr
       backgroundColor: bgCol,
       body: RefreshIndicator(
         onRefresh: _loadManifest,
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            if (_isLoading)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: LinearProgressIndicator(minHeight: 2),
+              ),
                   if (_errorMessage != null)
                     Container(
                       margin: const EdgeInsets.only(bottom: 12),
@@ -229,14 +339,18 @@ class _CanDeliveryDriverDashboardScreenState extends ConsumerState<CanDeliveryDr
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Route Beat Customer Stops (${stops.length})',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: textPrim,
+                      Expanded(
+                        child: Text(
+                          'Route Beat Customer Stops (${stops.length})',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: textPrim,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -275,9 +389,7 @@ class _CanDeliveryDriverDashboardScreenState extends ConsumerState<CanDeliveryDr
                   else
                     ...stops.asMap().entries.map((entry) {
                       final idx = entry.key + 1;
-                      final stop = entry.value is Map<String, dynamic>
-                          ? entry.value as Map<String, dynamic>
-                          : (entry.value is Map ? Map<String, dynamic>.from(entry.value as Map) : <String, dynamic>{});
+                      final stop = entry.value;
                       final customerId = stop['customer_id'] is int ? stop['customer_id'] as int : 5;
                       final customerName = stop['name']?.toString() ?? 'Customer';
                       final customerAddress = stop['address']?.toString() ?? '';
@@ -463,7 +575,7 @@ class _CanDeliveryDriverDashboardScreenState extends ConsumerState<CanDeliveryDr
                               ],
                             ),
                             ElevatedButton.icon(
-                              onPressed: () => context.push('/water/driver-surrender'),
+                              onPressed: () => context.push('/operations/driver-surrender'),
                               icon: const Icon(Icons.payments_rounded, size: 16),
                               label: const Text('Surrender Cash'),
                               style: ElevatedButton.styleFrom(

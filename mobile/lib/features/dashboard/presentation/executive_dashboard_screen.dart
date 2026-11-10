@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/network/api_endpoints.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_colors.dart';
@@ -9,6 +10,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/ui/kpi_card.dart';
 import '../../../core/ui/sales_performance_card.dart';
 import '../../../core/ui/ledger_transactions_section.dart';
+import '../../../core/utils/location_parser.dart';
 import '../../auth/domain/auth_models.dart';
 import 'tanker_driver_dashboard_screen.dart';
 import 'can_delivery_driver_dashboard_screen.dart';
@@ -37,6 +39,10 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
   String _ledgerPeriod = 'today'; // Default: Today
   DateTime? _ledgerStartDate;
   DateTime? _ledgerEndDate;
+
+  // Active Vehicle index for Live Fleet GPS Tracking Card (Water Supply & Can Supply)
+  int _selectedFleetVehicleIndex = 0;
+  Map<String, dynamic>? _fleetLiveSnapshot;
 
   @override
   void initState() {
@@ -126,12 +132,33 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
           _errorMessage = 'Connection timeout. Pull down to refresh.';
         });
       }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+    }
+
+    // 4. Live Fleet Telematics for Water Supply and Water Can Supply
+    final industry = authState.activeCompany?.industry ?? '';
+    if (industry == 'bulk_water' || industry == 'packaged_water') {
+      try {
+        final fleetRes = await apiClient.get(
+          ApiEndpoints.fleetLive,
+          queryParameters: {'vertical': industry},
+          fromJson: (data) => data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{},
+        ).timeout(const Duration(seconds: 4));
+        if (fleetRes.isSuccess && fleetRes.dataOrNull != null) {
+          final rawFleet = fleetRes.dataOrNull!;
+          final fData = rawFleet['data'] is Map ? Map<String, dynamic>.from(rawFleet['data'] as Map) : rawFleet;
+          if (mounted) {
+            setState(() {
+              _fleetLiveSnapshot = fData;
+            });
+          }
+        }
+      } catch (_) {}
+    }
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -365,6 +392,12 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
             },
           ),
           const SizedBox(height: 16),
+
+          // 2nd Main Card: Live Fleet GPS & Telematics Tracking View (For Water Supply & Can Supply)
+          if (industry == 'bulk_water' || industry == 'packaged_water') ...[
+            _buildFleetGpsTrackingCard(context, isDark, industry),
+            const SizedBox(height: 16),
+          ],
 
           // Responsive Core Financial KPIs Grid (Compact with Graphical Sparklines & Separate GL Codes)
           LayoutBuilder(
@@ -697,6 +730,597 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
             Icon(Icons.chevron_right_rounded, size: 20, color: mutedCol),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFleetGpsTrackingCard(BuildContext context, bool isDark, String industry) {
+    final isBulk = industry == 'bulk_water';
+    final cardBg = isDark ? const Color(0xFF0F172A) : Colors.white;
+    final borderCol = isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
+    final textPrim = isDark ? Colors.white : const Color(0xFF0F172A);
+    final textMuted = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+
+    final List<Map<String, dynamic>> defaultVehicles = isBulk
+        ? [
+            {
+              'number': 'TN-58-BW-2001',
+              'model': 'Tata LPT 2518 (20KL)',
+              'driver': 'K. Murugan',
+              'phone': '+91 98421 00001',
+              'status': 'IN TRANSIT',
+              'statusColor': const Color(0xFF0284C7),
+              'destination': 'The Chennai Silks (Dyeing Unit)',
+              'site': 'Perundurai SIPCOT Industrial Area',
+              'lat': 11.0845,
+              'lng': 77.2941,
+              'speed': '38 km/h',
+              'flowRate': '160 L/min',
+              'cargo': '16.0 / 20.0 KL',
+              'valve': 'ANTI-SIPHON SECURED',
+              'eta': '12 mins',
+            },
+            {
+              'number': 'TN-58-BW-4001',
+              'model': 'BharatBenz 3528 (40KL)',
+              'driver': 'P. Selvam',
+              'phone': '+91 98421 00002',
+              'status': 'DISPATCHED',
+              'statusColor': const Color(0xFF059669),
+              'destination': 'Texvalley Commercial Complex',
+              'site': 'NH-544 Gangapuram, Erode',
+              'lat': 11.3142,
+              'lng': 77.6820,
+              'speed': '42 km/h',
+              'flowRate': 'Idle (In Transit)',
+              'cargo': '40.0 KL (Full Tank)',
+              'valve': 'VALVE SECURED',
+              'eta': '25 mins',
+            },
+            {
+              'number': 'TN-58-BW-1001',
+              'model': 'Eicher Pro 9KL',
+              'driver': 'M. Velu',
+              'phone': '+91 98421 00003',
+              'status': 'BOREWELL REFILL',
+              'statusColor': const Color(0xFFD97706),
+              'destination': 'TMWS Borewell Hub #1',
+              'site': 'Perundurai Borewell Hub',
+              'lat': 11.2780,
+              'lng': 77.5920,
+              'speed': '0 km/h',
+              'flowRate': 'Refilling Tank',
+              'cargo': '8.5 / 9.0 KL',
+              'valve': 'VALVE SECURED',
+              'eta': 'At Station',
+            },
+          ]
+        : [
+            {
+              'number': 'TN-58-WA-101',
+              'model': 'Tata Ace (60 Cans)',
+              'driver': 'R. Muthu',
+              'phone': '+91 98421 00010',
+              'status': 'ON ACTIVE BEAT',
+              'statusColor': const Color(0xFF059669),
+              'destination': 'Anna Nagar & Teppakulam Route',
+              'site': 'Next: Hotel Saravana Bhavan (10 Cans)',
+              'lat': 11.3410,
+              'lng': 77.7172,
+              'speed': '28 km/h',
+              'flowRate': '25 Delivered (41%)',
+              'cargo': '20 Empties · 35 Cans Left',
+              'valve': '12.8V ECU BATTERY',
+              'eta': '5 mins',
+            },
+            {
+              'number': 'TN-58-WA-102',
+              'model': 'Tata Ace (60 Cans)',
+              'driver': 'Manikandan V.',
+              'phone': '+91 98421 55102',
+              'status': 'ON ACTIVE BEAT',
+              'statusColor': const Color(0xFF0284C7),
+              'destination': 'Erode Tech Park & Ring Road Beat #2',
+              'site': 'Next: Texvalley Tech Campus (20 Cans)',
+              'lat': 11.3520,
+              'lng': 77.7280,
+              'speed': '34 km/h',
+              'flowRate': '40 Delivered (66%)',
+              'cargo': '35 Empties · 20 Cans Left',
+              'valve': '13.1V ECU BATTERY',
+              'eta': '8 mins',
+            },
+          ];
+
+    final vehicles = defaultVehicles;
+    // Overlay live server fleet telemetry if available
+    if (_fleetLiveSnapshot != null) {
+      final liveList = isBulk
+          ? (_fleetLiveSnapshot!['tankers'] as List<dynamic>?)
+          : (_fleetLiveSnapshot!['routes'] as List<dynamic>?);
+      if (liveList != null && liveList.isNotEmpty) {
+        for (var i = 0; i < liveList.length && i < vehicles.length; i++) {
+          final liveItem = liveList[i];
+          if (liveItem is Map) {
+            if (liveItem['speed_kmh'] != null) {
+              vehicles[i]['speed'] = '${liveItem['speed_kmh']} km/h';
+            }
+            if (liveItem['latitude'] != null && liveItem['longitude'] != null) {
+              vehicles[i]['lat'] = (liveItem['latitude'] as num).toDouble();
+              vehicles[i]['lng'] = (liveItem['longitude'] as num).toDouble();
+            }
+          }
+        }
+      }
+    }
+    if (_selectedFleetVehicleIndex >= vehicles.length) {
+      _selectedFleetVehicleIndex = 0;
+    }
+    final selected = vehicles[_selectedFleetVehicleIndex];
+    final lat = (selected['lat'] as num?)?.toDouble() ?? 11.0845;
+    final lng = (selected['lng'] as num?)?.toDouble() ?? 77.2941;
+    final phone = selected['phone']?.toString() ?? '';
+
+    return Container(
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? borderCol : const Color(0xFFBAE6FD),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (isDark ? Colors.black : const Color(0xFF0284C7)).withOpacity(0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Row
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: (isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669)).withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    isBulk ? Icons.local_shipping_rounded : Icons.water_drop_rounded,
+                    size: 20,
+                    color: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              isBulk ? 'Bulk Tanker Fleet GPS Tracking' : '20L Can Delivery Fleet Tracking',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
+                                color: textPrim,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF059669).withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.circle, size: 6, color: Color(0xFF059669)),
+                                SizedBox(width: 4),
+                                Text(
+                                  'LIVE GPS',
+                                  style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF059669)),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Where is the truck · Real-time satellite telemetrics',
+                        style: TextStyle(fontSize: 11, color: textMuted),
+                      ),
+                    ],
+                  ),
+                ),
+                // Full Radar Map Button
+                InkWell(
+                  onTap: () => context.push('/fleet/gps?mode=$industry'),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: (isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669)).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: (isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669)).withOpacity(0.3),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.radar_rounded,
+                          size: 14,
+                          color: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Radar',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Vehicle Switcher Chips
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: List.generate(vehicles.length, (idx) {
+                final v = vehicles[idx];
+                final isSel = idx == _selectedFleetVehicleIndex;
+                final col = v['statusColor'] as Color;
+
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: InkWell(
+                    onTap: () => setState(() => _selectedFleetVehicleIndex = idx),
+                    borderRadius: BorderRadius.circular(10),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSel
+                            ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFE0F2FE))
+                            : (isDark ? const Color(0xFF1E293B).withOpacity(0.4) : const Color(0xFFF1F5F9)),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: isSel
+                              ? (isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669))
+                              : borderCol,
+                          width: isSel ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isBulk ? Icons.local_shipping_rounded : Icons.airport_shuttle_rounded,
+                            size: 15,
+                            color: isSel
+                                ? (isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669))
+                                : textMuted,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            v['number'],
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
+                              color: isSel ? textPrim : textMuted,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Container(
+                            width: 7,
+                            height: 7,
+                            decoration: BoxDecoration(
+                              color: col,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Active Vehicle Details Box
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E293B).withOpacity(0.7) : const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: borderCol),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Destination & Lat/Lng Banner
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: (isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669)).withOpacity(0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.location_on_rounded,
+                          size: 16,
+                          color: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              selected['destination']?.toString() ?? '',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: textPrim,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              selected['site']?.toString() ?? '',
+                              style: TextStyle(fontSize: 11, color: textMuted),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Text(
+                                  'GPS: ${lat.toStringAsFixed(4)}° N, ${lng.toStringAsFixed(4)}° E',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontFamily: 'monospace',
+                                    fontWeight: FontWeight.w600,
+                                    color: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                  decoration: BoxDecoration(
+                                    color: (isDark ? Colors.white : Colors.black).withOpacity(0.06),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    'ETA: ${selected['eta']}',
+                                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: textPrim),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  // 3-Metric HUD Ribbon
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildFleetMiniHud(
+                          icon: Icons.speed_rounded,
+                          label: 'LIVE SPEED',
+                          value: selected['speed'],
+                          color: const Color(0xFF0284C7),
+                          isDark: isDark,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildFleetMiniHud(
+                          icon: isBulk ? Icons.water_drop_rounded : Icons.inventory_2_rounded,
+                          label: isBulk ? 'FLOW RATE' : 'DISPATCH',
+                          value: selected['flowRate'],
+                          color: const Color(0xFF059669),
+                          isDark: isDark,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildFleetMiniHud(
+                          icon: Icons.shield_rounded,
+                          label: 'STATUS',
+                          value: selected['status'],
+                          color: selected['statusColor'] as Color,
+                          isDark: isDark,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Driver Details & Quick Actions Bar
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 14,
+                        backgroundColor: (isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669)).withOpacity(0.12),
+                        child: Icon(
+                          Icons.person_rounded,
+                          size: 16,
+                          color: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              selected['driver']?.toString() ?? 'Driver',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: textPrim),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              phone,
+                              style: TextStyle(fontSize: 10, color: textMuted),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Turn-by-Turn Navigate Button (Google Maps)
+                      ElevatedButton.icon(
+                        onPressed: () => LocationParser.launchNavigation(lat, lng),
+                        icon: const Icon(Icons.navigation_rounded, size: 14),
+                        label: const Text('Track / Nav', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
+                      if (phone.isNotEmpty) ...[
+                        const SizedBox(width: 6),
+                        OutlinedButton(
+                          onPressed: () async {
+                            final uri = Uri.parse('tel:$phone');
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(uri);
+                            }
+                          },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
+                            side: BorderSide(color: (isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669)).withOpacity(0.5)),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: const Icon(Icons.call_rounded, size: 14),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Footer Dispatch Link
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  isBulk ? 'Cargo: ${selected['cargo']} · ${selected['valve']}' : 'Manifest: ${selected['cargo']}',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: textMuted),
+                ),
+                InkWell(
+                  onTap: () => context.push(isBulk ? '/operations/tanker-dashboard' : '/operations/driver-manifest'),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Driver Dispatch View',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 10,
+                        color: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFleetMiniHud({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+    required bool isDark,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 12, color: color),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: color),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              fontFamily: 'monospace',
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }

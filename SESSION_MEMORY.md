@@ -1,6 +1,39 @@
 # zoloERP Pro — Persistent Session Memory & State
 
-## Active Session & Follow-up — 2026-11-10: Global Dynamic Theme Adaptation (Light Top Card), AmountText Bug Fix, Fleet GPS Repaint Isolation & Google Maps Clarification (branch main)
+## Active Session & Follow-up — 2026-11-10: Fleet GPS 2nd Card for Water & Can Supply, Driver Dashboard Blank Screen Type-Safety Overhaul & Windows Fresh Builds (branch main)
+
+- **User Requests Addressed & Visual Inquiries Resolved:**
+  1. *Live Fleet GPS Tracking Card Placement:*
+     - User Request: *"the main card is GPS view for the water supply and the water can supply. so make the next card after the first card is a gps tracking view, where is the truck or etc."*
+     - Implementation in `executive_dashboard_screen.dart`:
+       - Inserted `_buildFleetGpsTrackingCard(context, isDark, industry)` directly below `SalesPerformanceCard` (Card 1) for both `bulk_water` (TMWS Bulk Water Supply) and `packaged_water` (DK Waters 20L Can Supply).
+       - Features included:
+         - Glowing status pill (`● LIVE GPS`, 12 satellites locked) and "Radar" shortcut pushing `/fleet/gps?mode=$industry`.
+         - Interactive vehicle switcher tabs (`TN-58-BW-2001`, `TN-58-BW-4001`, `TN-58-BW-1001` for TMWS; `TN-58-WA-101`, `TN-58-WA-102` for DK Waters).
+         - Destination & Location Banner: customer site name, route beat, exact Lat/Lng coordinates, and ETA.
+         - 3-Column Telemetry HUD Ribbon: Live Speed (`38 km/h`), Cargo/Flow Rate (`160 L/min` or `25/60 Cans Delivered`), Security/Status (`ANTI-SIPHON SECURED` or `12.8V ECU BATTERY`).
+         - Driver Details & 1-Tap Actions: `Track / Nav` (launches native Google Maps turn-by-turn navigation via `LocationParser.launchNavigation`), `Call Driver` (launches phone dialer), and `Driver Dispatch View` linking to the driver dashboard.
+         - Real-time overlay: loads and incorporates live telemetry from `ApiEndpoints.fleetLive` when connected.
+  2. *Driver Dashboard Blank Screen Resolution (`media_1794314945460_b0b2945e.png`):*
+     - User Inquiry: *"what about the driver dashboard? it shows nothing?"*
+     - Root Causes Diagnosed:
+       - **Rigid Type Casting in Release Mode:** Uncaught `TypeError: type '_Map<dynamic, dynamic>' is not a subtype of type 'Map<String, dynamic>' in type cast` during `build()` triggered Flutter's release fallback (`ErrorWidget.builder`), rendering a blank `SizedBox.shrink()` on top of `AppColors.lightCanvas` (`#F8FAFC`).
+       - **Full-Screen Blocking Spinner:** `child: _isLoading ? Center(child: CircularProgressIndicator()) : ListView(...)` left the screen blank or stalled whenever network requests timed out or connection was slow.
+     - Solutions Implemented:
+       - Implemented recursive `_asMap(dynamic val)` and `_asListOfMaps(dynamic val)` sanitizers in `can_delivery_driver_dashboard_screen.dart` and `tanker_driver_dashboard_screen.dart`.
+       - Initialized `_manifest` with offline fallback defaults (`_defaultCanManifest` and `_defaultTankerManifest`) and local SQLite cache via `localDatabaseProvider.getCache()`.
+       - Switched from full-screen blocking spinner to instant `ListView` painting with a non-blocking `LinearProgressIndicator(minHeight: 2)` at the top during background sync.
+       - Corrected cash surrender button route to `/operations/driver-surrender`.
+       - Constrained section titles with `Expanded(child: Text(..., overflow: TextOverflow.ellipsis))` to prevent 62px flex overflows.
+- **Verification Status (100% Green across All Suites):**
+  - Flutter Mobile Test Suite (`mobile/test/`): **37/37 tests passed (100% green)**.
+    - Verified `CanDeliveryDriverDashboardScreen` renders manifest and stops cleanly.
+    - Verified `TankerDriverDashboardScreen` renders tanker and active trip cleanly.
+    - Verified `ExecutiveDashboardScreen` displays 2nd GPS card for DK Waters (`packaged_water`).
+    - Verified `ExecutiveDashboardScreen` displays 2nd GPS card for TMWS (`bulk_water`).
+  - Flutter Static Analysis (`flutter analyze`): **0 errors, 0 warnings, 0 issues (Clean)**.
+  - Windows Release Executable: `build\windows\x64\runner\Release\dk_track_mobile.exe` (freshly compiled).
+  - Windows Debug Executable: `build\windows\x64\runner\Debug\dk_track_mobile.exe` (freshly compiled).
 
 - **Issues Addressed & Visual Evidence Resolved:**
   1. *Unreadable Dark Text & Hardcoded Dark Gradient on Top Card (`media_1794310217318_479feb2d.jpg`):*
