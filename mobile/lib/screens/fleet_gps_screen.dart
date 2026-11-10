@@ -879,402 +879,409 @@ class _FleetGpsScreenState extends ConsumerState<FleetGpsScreen> with SingleTick
                 ),
               )
             else
-              RepaintBoundary(
+              Container(
                 key: ValueKey('telemetry_${selectedVehicle['id']}_$_selectedVehicleIndex'),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: (selectedVehicle['statusColor'] as Color).withOpacity(0.35),
-                      width: 1.2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: (selectedVehicle['statusColor'] as Color).withOpacity(0.08),
-                        blurRadius: 16,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: ((selectedVehicle['statusColor'] as Color?) ?? AppColors.brandEmerald).withOpacity(0.35),
+                    width: 1.2,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // 1. Vehicle Top Identity Row (Responsive & Non-Overflowing)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(9),
-                                  decoration: BoxDecoration(
-                                    color: (selectedVehicle['statusColor'] as Color).withOpacity(0.18),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Icon(
-                                    _mode == FleetViewMode.tankers ? Icons.fire_truck : Icons.local_shipping,
-                                    color: selectedVehicle['statusColor'] as Color,
-                                    size: 22,
-                                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: ((selectedVehicle['statusColor'] as Color?) ?? AppColors.brandEmerald).withOpacity(0.08),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 1. Vehicle Top Identity Row (Responsive & Non-Overflowing)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(9),
+                                decoration: BoxDecoration(
+                                  color: ((selectedVehicle['statusColor'] as Color?) ?? AppColors.brandEmerald).withOpacity(0.18),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        selectedVehicle['id'] as String,
-                                        style: GoogleFonts.inter(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w900,
-                                          color: AppColors.text(context),
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
+                                child: Icon(
+                                  _mode == FleetViewMode.tankers ? Icons.fire_truck : Icons.local_shipping,
+                                  color: (selectedVehicle['statusColor'] as Color?) ?? AppColors.brandEmerald,
+                                  size: 22,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      selectedVehicle['id']?.toString() ?? 'Vehicle',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w900,
+                                        color: AppColors.text(context),
                                       ),
-                                      Text(
-                                        selectedVehicle['model'] as String,
-                                        style: GoogleFonts.inter(
-                                          fontSize: 11,
-                                          color: AppColors.textDim(context),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      selectedVehicle['model']?.toString() ?? 'Fleet Vehicle',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 11,
+                                        color: AppColors.textDim(context),
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: ((selectedVehicle['statusColor'] as Color?) ?? AppColors.brandEmerald).withOpacity(0.18),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: ((selectedVehicle['statusColor'] as Color?) ?? AppColors.brandEmerald).withOpacity(0.5)),
+                          ),
+                          child: Text(
+                            selectedVehicle['status']?.toString() ?? 'ONLINE',
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              color: (selectedVehicle['statusColor'] as Color?) ?? AppColors.brandEmerald,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // 2. Location & Dispatch ETA Banner
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.border(context)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.pin_drop, color: AppColors.brandDanger, size: 15),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              selectedVehicle['location']?.toString() ?? 'Live Location Signal',
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 11.5,
+                                color: AppColors.text(context),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.timer_outlined, color: AppColors.brandEmerald, size: 14),
+                          const SizedBox(width: 4),
+                          Text(
+                            selectedVehicle['eta']?.toString() ?? 'Active',
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.brandEmerald,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // 3. Live Hardware Telemetry HUD Ribbon (Speed, Fuel, Battery)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildMetricMiniCard(
+                            icon: Icons.speed_rounded,
+                            label: t ? 'வேகம்' : 'Live Speed',
+                            value: '${selectedVehicle['speed'] ?? 0} km/h',
+                            accentColor: (selectedVehicle['statusColor'] as Color?) ?? AppColors.brandEmerald,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildMetricMiniCard(
+                            icon: Icons.local_gas_station_rounded,
+                            label: t ? 'டீசல்' : 'Fuel Level',
+                            value: selectedVehicle['fuel']?.toString() ?? '80%',
+                            accentColor: AppColors.brandAmber,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildMetricMiniCard(
+                            icon: Icons.battery_charging_full_rounded,
+                            label: t ? 'பேட்டரி' : 'ECU Battery',
+                            value: selectedVehicle['battery']?.toString() ?? '12.6 V',
+                            accentColor: AppColors.brandSky,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // 4. Mode-Specific Operations Card (Packaged Water Tata Ace or Bulk Tanker)
+                    if (_mode == FleetViewMode.tankers) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF1E293B).withOpacity(0.5) : const Color(0xFFF0FDF4),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: AppColors.brandEmerald.withOpacity(0.3)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.water_drop_rounded, size: 16, color: Color(0xFF0284C7)),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          t ? 'இறக்கும் ஃப்ளோ ரேட் மீட்டர்' : 'Decanting Flow Sensor Meter',
+                                          style: GoogleFonts.inter(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w800,
+                                            color: isDark ? Colors.white : const Color(0xFF0369A1),
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF0284C7).withOpacity(0.15),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    selectedVehicle['flowRate']?.toString() ?? '0 L/min',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w900,
+                                      color: const Color(0xFF0284C7),
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: (selectedVehicle['statusColor'] as Color).withOpacity(0.18),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: (selectedVehicle['statusColor'] as Color).withOpacity(0.5)),
-                            ),
-                            child: Text(
-                              selectedVehicle['status'] as String,
-                              style: GoogleFonts.inter(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w900,
-                                color: selectedVehicle['statusColor'] as Color,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // 2. Location & Dispatch ETA Banner
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.border(context)),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.pin_drop, color: AppColors.brandDanger, size: 15),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: Text(
-                                selectedVehicle['location'] as String,
-                                style: GoogleFonts.inter(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 11.5,
-                                  color: AppColors.text(context),
+                            const Divider(height: 14),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildJarStatPill(
+                                    label: t ? 'கொள்ளளவு' : 'Tank Capacity',
+                                    value: selectedVehicle['capacity']?.toString() ?? '20 KL',
+                                    color: AppColors.text(context),
+                                    bgColor: isDark ? Colors.white.withOpacity(0.06) : Colors.white,
+                                  ),
                                 ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.timer_outlined, color: AppColors.brandEmerald, size: 14),
-                            const SizedBox(width: 4),
-                            Text(
-                              selectedVehicle['eta'] as String,
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.brandEmerald,
-                              ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: _buildJarStatPill(
+                                    label: t ? 'வால்வு' : 'Anti-Siphon',
+                                    value: selectedVehicle['valveStatus']?.toString() ?? 'SECURE',
+                                    color: AppColors.brandEmerald,
+                                    bgColor: isDark ? Colors.white.withOpacity(0.06) : Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: _buildJarStatPill(
+                                    label: t ? 'மாறுபாடு' : 'GPS Variance',
+                                    value: selectedVehicle['odometerVariance']?.toString() ?? '0.0%',
+                                    color: AppColors.brandSky,
+                                    bgColor: isDark ? Colors.white.withOpacity(0.06) : Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
-
-                      const SizedBox(height: 12),
-
-                      // 3. Live Hardware Telemetry HUD Ribbon (Speed, Fuel, Battery)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildMetricMiniCard(
-                              icon: Icons.speed_rounded,
-                              label: t ? 'வேகம்' : 'Live Speed',
-                              value: '${selectedVehicle['speed']} km/h',
-                              accentColor: selectedVehicle['statusColor'] as Color,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: _buildMetricMiniCard(
-                              icon: Icons.local_gas_station_rounded,
-                              label: t ? 'டீசல்' : 'Fuel Level',
-                              value: selectedVehicle['fuel'] as String,
-                              accentColor: AppColors.brandAmber,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: _buildMetricMiniCard(
-                              icon: Icons.battery_charging_full_rounded,
-                              label: t ? 'பேட்டரி' : 'ECU Battery',
-                              value: selectedVehicle['battery'] as String,
-                              accentColor: AppColors.brandSky,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // 4. Mode-Specific Operations Card (Packaged Water Tata Ace or Bulk Tanker)
-                      if (_mode == FleetViewMode.tankers) ...[
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1E293B).withOpacity(0.5) : const Color(0xFFF0FDF4),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: AppColors.brandEmerald.withOpacity(0.3)),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
+                    ] else ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF1E293B).withOpacity(0.5) : const Color(0xFFF0F9FF),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: AppColors.brandSky.withOpacity(0.3)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Row(
                                     children: [
-                                      const Icon(Icons.water_drop_rounded, size: 16, color: Color(0xFF0284C7)),
+                                      const Icon(Icons.route_rounded, size: 15, color: AppColors.brandSky),
                                       const SizedBox(width: 6),
-                                      Text(
-                                        t ? 'இறக்கும் ஃப்ளோ ரேட் மீட்டர்' : 'Decanting Flow Sensor Meter',
-                                        style: GoogleFonts.inter(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w800,
-                                          color: isDark ? Colors.white : const Color(0xFF0369A1),
+                                      Expanded(
+                                        child: Text(
+                                          selectedVehicle['beatName']?.toString() ?? 'Delivery Beat Route',
+                                          style: GoogleFonts.inter(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w800,
+                                            color: AppColors.brandSky,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ],
                                   ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF0284C7).withOpacity(0.15),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      selectedVehicle['flowRate'] as String,
-                                      style: GoogleFonts.inter(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w900,
-                                        color: const Color(0xFF0284C7),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Divider(height: 14),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildJarStatPill(
-                                      label: t ? 'கொள்ளளவு' : 'Tank Capacity',
-                                      value: selectedVehicle['capacity'] as String,
-                                      color: AppColors.text(context),
-                                      bgColor: isDark ? Colors.white.withOpacity(0.06) : Colors.white,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: _buildJarStatPill(
-                                      label: t ? 'வால்வு' : 'Anti-Siphon',
-                                      value: selectedVehicle['valveStatus'] as String,
-                                      color: AppColors.brandEmerald,
-                                      bgColor: isDark ? Colors.white.withOpacity(0.06) : Colors.white,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: _buildJarStatPill(
-                                      label: t ? 'மாறுபாடு' : 'GPS Variance',
-                                      value: selectedVehicle['odometerVariance'] as String,
-                                      color: AppColors.brandSky,
-                                      bgColor: isDark ? Colors.white.withOpacity(0.06) : Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ] else ...[
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1E293B).withOpacity(0.5) : const Color(0xFFF0F9FF),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: AppColors.brandSky.withOpacity(0.3)),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.route_rounded, size: 15, color: AppColors.brandSky),
-                                        const SizedBox(width: 6),
-                                        Expanded(
-                                          child: Text(
-                                            selectedVehicle['beatName'] as String,
-                                            style: GoogleFonts.inter(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w800,
-                                              color: AppColors.brandSky,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.brandEmerald.withOpacity(0.15),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      '${selectedVehicle['completedStops']} / ${selectedVehicle['totalStops']} Stops',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w900,
-                                        color: AppColors.brandEmerald,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(4),
-                                child: LinearProgressIndicator(
-                                  value: (selectedVehicle['totalStops'] as int) > 0
-                                      ? (selectedVehicle['completedStops'] as int) / (selectedVehicle['totalStops'] as int)
-                                      : 0.0,
-                                  backgroundColor: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
-                                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.brandEmerald),
-                                  minHeight: 6,
                                 ),
-                              ),
-                              const SizedBox(height: 10),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildJarStatPill(
-                                      label: t ? 'விநியோகம்' : 'Delivered',
-                                      value: '${selectedVehicle['cansDelivered']} Cans',
-                                      color: AppColors.text(context),
-                                      bgColor: isDark ? Colors.white.withOpacity(0.06) : Colors.white,
-                                    ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.brandEmerald.withOpacity(0.15),
+                                    borderRadius: BorderRadius.circular(6),
                                   ),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: _buildJarStatPill(
-                                      label: t ? 'காலி கேன்' : 'Empties',
-                                      value: '${selectedVehicle['emptiesCollected']} Cans',
+                                  child: Text(
+                                    '${selectedVehicle['completedStops'] ?? 0} / ${selectedVehicle['totalStops'] ?? 18} Stops',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w900,
                                       color: AppColors.brandEmerald,
-                                      bgColor: isDark ? Colors.white.withOpacity(0.06) : Colors.white,
                                     ),
                                   ),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: _buildJarStatPill(
-                                      label: t ? 'இருப்பு' : 'Remaining',
-                                      value: '${selectedVehicle['jarsLeftInTruck']} Jars',
-                                      color: AppColors.brandSky,
-                                      bgColor: isDark ? Colors.white.withOpacity(0.06) : Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-
-                      const SizedBox(height: 14),
-
-                      // 5. Driver Contact & Action Bar
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              icon: const Icon(Icons.phone_rounded, size: 15),
-                              label: Text(
-                                '${selectedVehicle['driver']}',
-                                style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 11),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppColors.text(context),
-                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-                                side: BorderSide(color: AppColors.border(context)),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                              onPressed: () => _callDriver(selectedVehicle['phone'] as String),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          ElevatedButton.icon(
-                            icon: const Icon(Icons.my_location_rounded, size: 15),
-                            label: Text(
-                              t ? 'லைவ் லொகேஷன்' : 'Track Pin',
-                              style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 11),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: selectedVehicle['statusColor'] as Color,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'GPS Coordinates: ${selectedVehicle['lat']}, ${selectedVehicle['lng']}',
-                                    style: GoogleFonts.inter(),
-                                  ),
-                                  backgroundColor: selectedVehicle['statusColor'] as Color,
-                                  behavior: SnackBarBehavior.floating,
                                 ),
-                              );
-                            },
-                          ),
-                        ],
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: () {
+                                  final completed = (selectedVehicle['completedStops'] as num?)?.toDouble() ?? 0.0;
+                                  final total = (selectedVehicle['totalStops'] as num?)?.toDouble() ?? 18.0;
+                                  return total > 0 ? (completed / total).clamp(0.0, 1.0) : 0.0;
+                                }(),
+                                backgroundColor: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+                                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.brandEmerald),
+                                minHeight: 6,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildJarStatPill(
+                                    label: t ? 'விநியோகம்' : 'Delivered',
+                                    value: '${selectedVehicle['cansDelivered'] ?? 0} Cans',
+                                    color: AppColors.text(context),
+                                    bgColor: isDark ? Colors.white.withOpacity(0.06) : Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: _buildJarStatPill(
+                                    label: t ? 'காலி கேன்' : 'Empties',
+                                    value: '${selectedVehicle['emptiesCollected'] ?? 0} Cans',
+                                    color: AppColors.brandEmerald,
+                                    bgColor: isDark ? Colors.white.withOpacity(0.06) : Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: _buildJarStatPill(
+                                    label: t ? 'இருப்பு' : 'Remaining',
+                                    value: '${selectedVehicle['jarsLeftInTruck'] ?? 60} Jars',
+                                    color: AppColors.brandSky,
+                                    bgColor: isDark ? Colors.white.withOpacity(0.06) : Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
-                  ),
+
+                    const SizedBox(height: 14),
+
+                    // 5. Driver Contact & Action Bar
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            icon: const Icon(Icons.phone_rounded, size: 15),
+                            label: Text(
+                              '${selectedVehicle['driver'] ?? 'Fleet Driver'}',
+                              style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 11),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.text(context),
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                              side: BorderSide(color: AppColors.border(context)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            onPressed: () => _callDriver(selectedVehicle['phone']?.toString() ?? '+91 98421 00000'),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.my_location_rounded, size: 15),
+                          label: Text(
+                            t ? 'லைவ் லொகேஷன்' : 'Track Pin',
+                            style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 11),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: (selectedVehicle['statusColor'] as Color?) ?? AppColors.brandEmerald,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'GPS Coordinates: ${selectedVehicle['lat'] ?? 11.28}, ${selectedVehicle['lng'] ?? 77.60}',
+                                  style: GoogleFonts.inter(),
+                                ),
+                                backgroundColor: (selectedVehicle['statusColor'] as Color?) ?? AppColors.brandEmerald,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
           ],

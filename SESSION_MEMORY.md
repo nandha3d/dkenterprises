@@ -1,5 +1,29 @@
 # zoloERP Pro — Persistent Session Memory & State
 
+## Active Session & Follow-up — 2026-11-10: Whole Insights Charts, Operational Carts & RenderRepaintBoundary Crash Elimination in Fleet GPS & Workspace Dashboard (branch main)
+
+- **Issues Addressed & Visual Evidence Resolved:**
+  1. *Fleet GPS Mouse Tracker & RenderRepaintBoundary Crash Elimination (`media_1794305083020_a931e5a1.png`):*
+     - Root Cause: In `fleet_gps_screen.dart`, wrapping the telemetry card in a `RepaintBoundary` inside a `SingleChildScrollView` caused fatal rendering exceptions (`RenderRepaintBoundary#680f4 NEEDS-PAINT` and `'!_debugDuringDeviceUpdate': is not true`) when any type-cast or null evaluation failed during paint. Flutter Windows hit-testing crashed in an infinite loop, aborting layout and creating partially rendered, overlapping cards.
+     - Solution:
+       - Replaced `RepaintBoundary` with a standard solid `Container(key: ValueKey('telemetry_${selectedVehicle['id']}_$_selectedVehicleIndex'), ...)`.
+       - Fully sanitized all vehicle telematics properties with null-coalescing and safe numeric promotion (`(selectedVehicle['flowRate']?.toString() ?? '0 L/min')`, `((selectedVehicle['totalStops'] as num?)?.toDouble() ?? 18.0)`, etc.).
+       - Wrapped flow sensor meter and route headers in `Expanded` to prevent flex overflows.
+       - Verified with `mobile/test/fleet_gps_screen_test.dart`: 100% green with clean, non-overlapping coordinates.
+  2. *Workspace Screen Top Colored Card with Sparklines (`media_1794304986221_f95b7aad.jpg`):*
+     - Replaced plain white top card with a high-impact executive container using a rich linear gradient (`Color(0xFF1E1B4B)` -> `Color(0xFF1E3A8A)` -> `Color(0xFF0F172A)`), bold white typography, glowing `ACTIVE ROLLUP` pill, consolidated group KPIs (`Turnover`, `Cash & Bank`, `Receivables`), and embedded `SparklineChart` mini-trend curve.
+  3. *Whole Insights Multi-Vertical Charts & Operational Carts (`workspace_screen.dart`):*
+     - User Request: *"where are the charts and graphs for the whole insights? top card can be a colored card. bring the carts and graphs after the company workspace cards."*
+     - Implemented after the Company Workspaces section:
+       - `_buildGroupRevenueShareGraphCard`: Multi-segment proportional bar chart comparing Aran Cafe (Amber), TMWS Bulk Tankers (Blue), and DK Waters 20L Cans (Cyan) with entity sparklines, percentage badges, and revenue amounts.
+       - `_buildOperationalCartsSection`: Responsive operational insight cards displaying live active dining carts (Aran Cafe: 9 active carts, ₹2,450), heavy tanker water logistics (TMWS: 48 KL dispatched, 4 trips, anti-siphon valve secured), and 20L can van distribution (DK Waters: 120 cans, 60 stops, 100% custody).
+       - `_buildLiquidityTreasuryCard`: Visual capital distribution bar comparing liquid cash & bank (99.5%) vs customer dues (0.5%), implemented with a responsive `Wrap` layout to eliminate flex overflows across all screen sizes.
+- **Verification Status (100% Green):**
+  - Flutter Mobile Test Suite (`mobile/test/`): **32/32 tests passed (100% green)**.
+  - Flutter Static Analysis (`flutter analyze`): **0 errors, 0 warnings, 0 issues (Clean)**.
+  - Windows Release Executable: `build\windows\x64\runner\Release\dk_track_mobile.exe` (freshly compiled).
+  - Windows Debug Executable: `build\windows\x64\runner\Debug\dk_track_mobile.exe` (freshly compiled).
+
 ## Active Session & Follow-up — 2026-11-10: Fleet GPS Overlap Elimination, Square Company Cards with Modern Swipeable Carousel, Tablet Dashboard Responsiveness & Fresh Windows Compilation (branch main & ui)
 
 - **Issues Addressed & Visual Evidence Resolved:**

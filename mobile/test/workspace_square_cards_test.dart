@@ -121,10 +121,25 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.byType(PageView), findsOneWidget);
-      expect(find.text('Aran Cafe'), findsOneWidget);
+      expect(find.text('Aran Cafe'), findsAtLeastNWidgets(1));
       expect(find.text('Bakery & POS'), findsOneWidget);
       expect(find.text('Open Workspace'), findsAtLeastNWidgets(1));
       expect(find.textContaining('Swipe left or right to switch entities'), findsOneWidget);
+
+      // Verify the new colored top card, charts, and operational carts
+      expect(find.text('DK Enterprises Group'), findsAtLeastNWidgets(1));
+
+      // Scroll down the ListView to reveal charts and carts on mobile
+      await tester.drag(find.byType(ListView), const Offset(0, -500));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Revenue Share & Multi-Vertical Insights'), findsOneWidget);
+      expect(find.text('Operations & Service Carts'), findsOneWidget);
+
+      await tester.drag(find.byType(ListView), const Offset(0, -500));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Group Treasury & Capital Liquidity'), findsOneWidget);
     });
 
     testWidgets('renders responsive multi-column square grid on tablet/desktop (>=680px)', (WidgetTester tester) async {
@@ -152,10 +167,18 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.byType(GridView), findsOneWidget);
-      expect(find.text('Aran Cafe'), findsOneWidget);
-      expect(find.text('Tiruchendur Murugan Water Supply'), findsOneWidget);
-      expect(find.text('DK Waters'), findsOneWidget);
+      expect(find.text('Aran Cafe'), findsAtLeastNWidgets(1));
+      expect(find.text('Tiruchendur Murugan Water Supply'), findsAtLeastNWidgets(1));
+      expect(find.text('DK Waters'), findsAtLeastNWidgets(1));
       expect(find.text('Open Workspace'), findsNWidgets(3));
+
+      // Verify charts and carts on tablet/desktop by scrolling down the ListView
+      await tester.drag(find.byType(ListView), const Offset(0, -600));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Revenue Share & Multi-Vertical Insights'), findsOneWidget);
+      expect(find.text('Operations & Service Carts'), findsOneWidget);
+      expect(find.text('Group Treasury & Capital Liquidity'), findsOneWidget);
     });
   });
 }
