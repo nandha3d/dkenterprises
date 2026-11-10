@@ -248,11 +248,14 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
 
     final isInitialLoading = _isLoading && _financials == null;
 
-    return RefreshIndicator(
-      onRefresh: _loadDashboardData,
-      child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        children: [
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1100),
+        child: RefreshIndicator(
+          onRefresh: _loadDashboardData,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            children: [
           if (_isLoading)
             const Padding(
               padding: EdgeInsets.only(bottom: 12),
@@ -363,60 +366,65 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
           ),
           const SizedBox(height: 16),
 
-          // 2x2 Core Financial KPIs Grid (Compact with Graphical Sparklines & Separate GL Codes)
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1.25,
-            children: [
-              KpiCard(
-                title: 'Cash in Hand',
-                glCode: '1010',
-                amount: isInitialLoading ? null : cashBalance,
-                customValue: isInitialLoading ? '...' : null,
-                icon: Icons.account_balance_wallet_rounded,
-                accentColor: AppColors.brandEmerald,
-                sparklineData: cashTrend,
-                subtitle: 'Liquid Main Cash',
-                onTap: () => context.push('/accounting/books'),
-              ),
-              KpiCard(
-                title: 'Bank Balances',
-                glCode: '1020',
-                amount: isInitialLoading ? null : bankBalance,
-                customValue: isInitialLoading ? '...' : null,
-                icon: Icons.account_balance_rounded,
-                accentColor: AppColors.brandSky,
-                sparklineData: bankTrend,
-                subtitle: 'Active Bank & UPI',
-                onTap: () => context.push('/accounting/books'),
-              ),
-              KpiCard(
-                title: 'Customer Receivables',
-                glCode: '1030',
-                amount: isInitialLoading ? null : receivables,
-                customValue: isInitialLoading ? '...' : null,
-                icon: Icons.call_received_rounded,
-                accentColor: const Color(0xFF7C3AED),
-                sparklineData: receivablesTrend,
-                subtitle: 'Customer Dues',
-                onTap: () => context.push('/accounting/collect'),
-              ),
-              KpiCard(
-                title: 'Supplier Payables',
-                glCode: '2010',
-                amount: isInitialLoading ? null : payables,
-                customValue: isInitialLoading ? '...' : null,
-                icon: Icons.outbox_rounded,
-                accentColor: AppColors.brandDanger,
-                sparklineData: payablesTrend,
-                subtitle: 'Supplier Dues',
-                onTap: () => context.push('/purchases'),
-              ),
-            ],
+          // Responsive Core Financial KPIs Grid (Compact with Graphical Sparklines & Separate GL Codes)
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isTablet = constraints.maxWidth >= 720;
+              return GridView.count(
+                crossAxisCount: isTablet ? 4 : 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: isTablet ? 1.35 : 1.25,
+                children: [
+                  KpiCard(
+                    title: 'Cash in Hand',
+                    glCode: '1010',
+                    amount: isInitialLoading ? null : cashBalance,
+                    customValue: isInitialLoading ? '...' : null,
+                    icon: Icons.account_balance_wallet_rounded,
+                    accentColor: AppColors.brandEmerald,
+                    sparklineData: cashTrend,
+                    subtitle: 'Liquid Main Cash',
+                    onTap: () => context.push('/accounting/books'),
+                  ),
+                  KpiCard(
+                    title: 'Bank Balances',
+                    glCode: '1020',
+                    amount: isInitialLoading ? null : bankBalance,
+                    customValue: isInitialLoading ? '...' : null,
+                    icon: Icons.account_balance_rounded,
+                    accentColor: AppColors.brandSky,
+                    sparklineData: bankTrend,
+                    subtitle: 'Active Bank & UPI',
+                    onTap: () => context.push('/accounting/books'),
+                  ),
+                  KpiCard(
+                    title: 'Customer Receivables',
+                    glCode: '1030',
+                    amount: isInitialLoading ? null : receivables,
+                    customValue: isInitialLoading ? '...' : null,
+                    icon: Icons.call_received_rounded,
+                    accentColor: const Color(0xFF7C3AED),
+                    sparklineData: receivablesTrend,
+                    subtitle: 'Customer Dues',
+                    onTap: () => context.push('/accounting/collect'),
+                  ),
+                  KpiCard(
+                    title: 'Supplier Payables',
+                    glCode: '2010',
+                    amount: isInitialLoading ? null : payables,
+                    customValue: isInitialLoading ? '...' : null,
+                    icon: Icons.outbox_rounded,
+                    accentColor: AppColors.brandDanger,
+                    sparklineData: payablesTrend,
+                    subtitle: 'Supplier Dues',
+                    onTap: () => context.push('/purchases'),
+                  ),
+                ],
+              );
+            },
           ),
           const SizedBox(height: 12),
 
@@ -629,6 +637,8 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
           const SizedBox(height: 32),
         ],
       ),
+    ),
+    ),
     );
   }
 

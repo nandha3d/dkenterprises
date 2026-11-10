@@ -1,6 +1,41 @@
 # zoloERP Pro — Persistent Session Memory & State
 
-## Active Session & Follow-up — 2026-11-10: Windows Offline Sync Outbox Drainage, Today's Sales Live Recalculation, Multi-Company Query Scope Unscoping & Multi-Warehouse Isolation (branch main & ui)
+## Active Session & Follow-up — 2026-11-10: Fleet GPS Overlap Elimination, Square Company Cards with Modern Swipeable Carousel, Tablet Dashboard Responsiveness & Fresh Windows Compilation (branch main & ui)
+
+- **Issues Addressed & Visual Evidence Resolved:**
+  1. *Fleet Vehicle Live Telemetry Overlap & Dirty-Rect Glitch (`media_1794300274608_3aa351f5.png`):*
+     - Root Cause: In `fleet_gps_screen.dart`, disjointed mini-cards for hardware metrics (`Live Speed`, `Fuel Level`, `ECU Battery`) and delivery route progress (`Route Name`, `Stops`, `Delivered`, `Empties`, `Remaining`) lacked clean hierarchical structure and bounded containers. Furthermore, on Windows desktop without a solid background and distinct `ValueKey`, changing state across vehicles caused Skia dirty-rect repainting artifacts that superimposed new text directly onto old text.
+     - Solution:
+       - Wrapped telemetry card in `RepaintBoundary` with `ValueKey('telemetry_${selectedVehicle['id']}_$_selectedVehicleIndex')` and a solid theme background (`#0F172A` in dark mode, `#FFFFFF` in light mode), forcing complete frame erasure and repaint on state change.
+       - Re-architected HUD into a clean vertical flow:
+         1. Vehicle Top Identity Row: Flexible badge icon, vehicle number, model, and status pill (zero overflow on narrow viewports).
+         2. Location & Dispatch ETA Banner: Lat/Lng pin and ETA in a single clean row.
+         3. Live Hardware Telemetry HUD Ribbon: 3 compact pill chips for `Live Speed`, `Fuel Level`, and `ECU Battery` using `_buildMetricMiniCard`.
+         4. Mode-Specific Operations Card:
+            - Packaged Water: Route name, stops progress bar, and 3-column jar balance pills (`Delivered`, `Empties`, `Remaining`) using `_buildJarStatPill`.
+            - Bulk Tankers: Flow rate meter and 3-column stats (`Tank Capacity`, `Anti-Siphon`, `GPS Variance`).
+         5. Action Bar: Call Driver and Track Pin buttons with >=44px touch targets.
+       - Verified with `mobile/test/fleet_gps_screen_test.dart`: confirms strictly separated vertical Y-coordinates (`y=511.7 -> y=572.2 -> y=619.7 -> y=692.7 -> y=742.2 -> y=824.2`) with zero collision.
+  2. *Stale Windows Desktop Executable Causing Old UI & Route Failures (`GoException: no routes for location: /customers`):*
+     - Root Cause: The running process `dk_track_mobile.exe` (PID `31452`) was started at `12:58 PM` and running binaries compiled on November 7 and November 9. Code changes to `/customers` routes, telemetry HUD, and company cards were not present in that running memory instance.
+     - Solution: Terminated stale process `31452` and recompiled both `Debug\dk_track_mobile.exe` and `Release\dk_track_mobile.exe` (AOT `app.so` and `kernel_blob.bin` fresh as of `15:24`).
+  3. *Companies Dashboard Insights, Square Cards & Modern Swipeable Carousel (`workspace_screen.dart`):*
+     - Created modern responsive company directory:
+       - Mobile (<680px): Modern `PageView.builder` swipeable carousel with animated active pill dots, previous/next arrows, and gesture navigation.
+       - Tablet/Desktop (>=680px): Responsive 2-to-3 column `GridView.builder` with `childAspectRatio: 0.80`.
+       - Vibrant theme gradients and brand iconography: Aran Cafe (amber gradient, POS carts & dining orders), TMWS (royal blue gradient, tanker freight trips & anti-siphon valve status), DK Waters (cyan/emerald gradient, 20L can beat routes & can custody).
+       - Financial HUD: Turnover, Cash & Bank, Receivables in compact pill rows.
+       - Operational Insights Card: Category header with icon, status chip, and feature checkmarks with zero subpixel flex overflow.
+       - Verified with `mobile/test/workspace_square_cards_test.dart` (2/2 tests passed 100% green).
+  4. *Tablet Executive Dashboard Stretched KPI Cards (`executive_dashboard_screen.dart`):*
+     - Wrapped body in `ConstrainedBox(constraints: BoxConstraints(maxWidth: 1100))`.
+     - Replaced rigid 2-column `GridView.count` with responsive `LayoutBuilder`: adapts to 4 columns on tablet/desktop (`constraints.maxWidth >= 720`), displaying `Cash in Hand`, `Bank Balances`, `Customer Receivables`, and `Supplier Payables` in a balanced row with sparklines.
+- **Verification Status (100% Green across Mobile & Backend):**
+  - Flutter Mobile Test Suite (`mobile/test/`): **32/32 passed (100% green)**.
+  - Flutter Static Analysis (`flutter analyze`): **0 issues found**.
+  - Windows Executables Rebuilt: `Debug\dk_track_mobile.exe` and `Release\dk_track_mobile.exe` (`data\app.so` 10-11-2026 15:24).
+  - Laravel Tests: `OfflineSyncAndPosParityTest`: 3/3 passed (23 assertions, 100%).
+
 
 - **Issues Addressed & Visual Evidence Resolved:**
   1. *Windows Desktop Offline Sync Stalled (`5 Pending`) (`media_1794289156654_db45ca29.jpg`):*

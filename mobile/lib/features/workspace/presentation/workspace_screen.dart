@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../core/network/api_endpoints.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_colors.dart';
@@ -18,11 +19,20 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   Map<String, dynamic>? _workspaceData;
+  late PageController _pageController;
+  int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(viewportFraction: 0.90);
     _loadWorkspaceData();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadWorkspaceData() async {
@@ -118,13 +128,13 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'DK Enterprises Group',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             Text(
-              '${companies.length} Operating Entities',
-              style: TextStyle(fontSize: 11, color: mutedCol, fontWeight: FontWeight.normal),
+              '${companies.length} Operating Entities • Multi-Tenant Workspace',
+              style: GoogleFonts.inter(fontSize: 11, color: mutedCol, fontWeight: FontWeight.normal),
             ),
           ],
         ),
@@ -146,197 +156,377 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: _loadWorkspaceData,
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          children: [
-            if (_isLoading)
-              const Padding(
-                padding: EdgeInsets.only(bottom: 10),
-                child: LinearProgressIndicator(minHeight: 2),
-              ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1100),
+          child: RefreshIndicator(
+            onRefresh: _loadWorkspaceData,
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              children: [
+                if (_isLoading)
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: LinearProgressIndicator(minHeight: 2),
+                  ),
 
-            if (_errorMessage != null)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                margin: const EdgeInsets.only(bottom: 10),
-                decoration: BoxDecoration(
-                  color: AppColors.danger.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.danger.withOpacity(0.3)),
+                if (_errorMessage != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.danger.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.danger.withOpacity(0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline_rounded, size: 16, color: AppColors.danger),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _errorMessage ?? 'An error occurred',
+                            style: const TextStyle(fontSize: 12, color: AppColors.danger),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: _loadWorkspaceData,
+                          child: const Text('Retry', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // 1. Group Consolidated Financial Summary Ribbon
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: cardBg,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: borderCol, width: 1.2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Group Turnover',
+                              style: GoogleFonts.inter(fontSize: 11, color: mutedCol, fontWeight: FontWeight.w600),
+                            ),
+                            const SizedBox(height: 3),
+                            AmountText(
+                              amount: groupTurnover,
+                              style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w900, color: textCol),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(width: 1, height: 32, color: borderCol),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Cash & Bank',
+                              style: GoogleFonts.inter(fontSize: 11, color: mutedCol, fontWeight: FontWeight.w600),
+                            ),
+                            const SizedBox(height: 3),
+                            AmountText(
+                              amount: groupCashBank,
+                              style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.success),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(width: 1, height: 32, color: borderCol),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Receivables',
+                              style: GoogleFonts.inter(fontSize: 11, color: mutedCol, fontWeight: FontWeight.w600),
+                            ),
+                            const SizedBox(height: 3),
+                            AmountText(
+                              amount: groupReceivables,
+                              style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.warning),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Row(
+                const SizedBox(height: 18),
+
+                // 2. Section Header with Navigation Hint
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(Icons.info_outline_rounded, size: 16, color: AppColors.danger),
-                    const SizedBox(width: 8),
                     Expanded(
-                      child: Text(
-                        _errorMessage ?? 'An error occurred',
-                        style: const TextStyle(fontSize: 12, color: AppColors.danger),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF6366F1).withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(Icons.dashboard_customize_rounded, size: 16, color: Color(0xFF6366F1)),
+                          ),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              'Company Workspaces',
+                              style: GoogleFonts.inter(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
+                                color: textCol,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    TextButton(
-                      onPressed: _loadWorkspaceData,
-                      child: const Text('Retry', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Square Cards & Insights',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: mutedCol,
+                      ),
                     ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 12),
 
-            // 1. Compact 3-Column Financial Ribbon
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              decoration: BoxDecoration(
-                color: cardBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: borderCol, width: 1),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Group Turnover', style: TextStyle(fontSize: 11, color: mutedCol)),
-                        const SizedBox(height: 2),
-                        AmountText(
-                          amount: groupTurnover,
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textCol),
-                        ),
-                      ],
+                // 3. Responsive Layout: Swipeable Carousel on Mobile, Multi-Column Square Grid on Tablet/Desktop
+                if (companies.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    child: Center(
+                      child: Text(
+                        'No companies assigned to your profile.',
+                        style: TextStyle(color: mutedCol),
+                      ),
                     ),
-                  ),
-                  Container(width: 1, height: 28, color: borderCol),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Cash & Bank', style: TextStyle(fontSize: 11, color: mutedCol)),
-                        const SizedBox(height: 2),
-                        AmountText(
-                          amount: groupCashBank,
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.success),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(width: 1, height: 28, color: borderCol),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Receivables', style: TextStyle(fontSize: 11, color: mutedCol)),
-                        const SizedBox(height: 2),
-                        AmountText(
-                          amount: groupReceivables,
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.warning),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 14),
+                  )
+                else
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isTabletOrDesktop = constraints.maxWidth >= 680;
 
-            // 2. Section Title
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Select Company Workspace',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: textCol,
+                      if (isTabletOrDesktop) {
+                        // Tablet/Desktop: 3-column square cards grid
+                        final crossAxisCount = constraints.maxWidth >= 950 ? 3 : 2;
+                        return GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: crossAxisCount,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 0.80,
+                          ),
+                          itemCount: companies.length,
+                          itemBuilder: (context, index) {
+                            return _buildSquareCompanyCard(
+                              context: context,
+                              company: companies[index],
+                              isDark: isDark,
+                              textCol: textCol,
+                              mutedCol: mutedCol,
+                            );
+                          },
+                        );
+                      } else {
+                        // Mobile: Modern Swipeable PageView Carousel with Indicator Dots & Arrows
+                        return Column(
+                          children: [
+                            SizedBox(
+                              height: 410,
+                              child: PageView.builder(
+                                controller: _pageController,
+                                itemCount: companies.length,
+                                onPageChanged: (index) {
+                                  setState(() => _currentPage = index);
+                                },
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                                    child: _buildSquareCompanyCard(
+                                      context: context,
+                                      company: companies[index],
+                                      isDark: isDark,
+                                      textCol: textCol,
+                                      mutedCol: mutedCol,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            // Modern Navigation Bar with Dot Indicators & Swipe Arrows
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 14),
+                                  onPressed: _currentPage > 0
+                                      ? () {
+                                          _pageController.previousPage(
+                                            duration: const Duration(milliseconds: 300),
+                                            curve: Curves.easeInOut,
+                                          );
+                                        }
+                                      : null,
+                                  color: textCol,
+                                  tooltip: 'Previous Company',
+                                ),
+                                const SizedBox(width: 8),
+                                ...List.generate(companies.length, (index) {
+                                  final isActive = index == _currentPage;
+                                  return AnimatedContainer(
+                                    duration: const Duration(milliseconds: 250),
+                                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                                    height: 8,
+                                    width: isActive ? 24 : 8,
+                                    decoration: BoxDecoration(
+                                      color: isActive
+                                          ? const Color(0xFF6366F1)
+                                          : (isDark ? Colors.white24 : Colors.black12),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  );
+                                }),
+                                const SizedBox(width: 8),
+                                IconButton(
+                                  icon: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+                                  onPressed: _currentPage < companies.length - 1
+                                      ? () {
+                                          _pageController.nextPage(
+                                            duration: const Duration(milliseconds: 300),
+                                            curve: Curves.easeInOut,
+                                          );
+                                        }
+                                      : null,
+                                  color: textCol,
+                                  tooltip: 'Next Company',
+                                ),
+                              ],
+                            ),
+                            Text(
+                              'Swipe left or right to switch entities (${_currentPage + 1} of ${companies.length})',
+                              style: GoogleFonts.inter(fontSize: 11, color: mutedCol, fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        );
+                      }
+                    },
                   ),
-                ),
-                Text(
-                  'Tap any card to open',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: mutedCol,
-                  ),
-                ),
+
+                const SizedBox(height: 20),
               ],
             ),
-            const SizedBox(height: 10),
-
-            // 3. Compact Company List Cards
-            if (companies.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Center(
-                  child: Text(
-                    'No companies assigned to your profile.',
-                    style: TextStyle(color: mutedCol),
-                  ),
-                ),
-              )
-            else
-              ...companies.map((company) {
-                return _buildCompactCompanyCard(
-                  context: context,
-                  company: company,
-                  isDark: isDark,
-                  cardBg: cardBg,
-                  borderCol: borderCol,
-                  textCol: textCol,
-                  mutedCol: mutedCol,
-                );
-              }),
-
-            const SizedBox(height: 16),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildCompactCompanyCard({
+  Widget _buildSquareCompanyCard({
     required BuildContext context,
     required CompanyInfo company,
     required bool isDark,
-    required Color cardBg,
-    required Color borderCol,
     required Color textCol,
     required Color mutedCol,
   }) {
     final industry = company.industry ?? '';
-    final (badgeLabel, tagline, iconData, brandColor) = switch (industry) {
+
+    // Color Theme, Icons, and Operational Profile
+    final (
+      badgeLabel,
+      iconData,
+      primaryColor,
+      gradientColors,
+      cartInsightTitle,
+      cartInsightValue,
+      opFeature1,
+      opFeature2,
+    ) = switch (industry) {
       'cafe_bakery' => (
           'Bakery & POS',
-          'Aran Cafe Touch Terminal & Orders',
           Icons.restaurant_rounded,
           const Color(0xFFD97706),
+          isDark
+              ? [const Color(0xFF78350F).withOpacity(0.4), const Color(0xFF1E1610)]
+              : [const Color(0xFFFEF3C7), Colors.white],
+          'POS Carts & Counter Bills',
+          'Touch Billing Active',
+          'Kitchen Display & Dining Orders',
+          'Instant KOT & Table Checkout',
         ),
       'bulk_water' => (
-          'Bulk Tankers',
-          'Fleet Logistics & Trip Sheets',
-          Icons.local_shipping_rounded,
-          const Color(0xFF0284C7),
+          'Bulk Tankers (16-40 KL)',
+          Icons.fire_truck_rounded,
+          const Color(0xFF2563EB),
+          isDark
+              ? [const Color(0xFF1E3A8A).withOpacity(0.4), const Color(0xFF0F172A)]
+              : [const Color(0xFFDBEAFE), Colors.white],
+          'Fleet Logistics & Decanting',
+          'Anti-Siphon Gate Active',
+          'Heavy Borewell Tanker Trips',
+          'Live Decanting Flow Telemetry',
         ),
       'packaged_water' => (
-          '20L Can Routes',
-          'Beat Sales & Plant Refill',
+          'Packaged Water (20L Cans)',
           Icons.water_drop_rounded,
-          const Color(0xFF059669),
+          const Color(0xFF0284C7),
+          isDark
+              ? [const Color(0xFF075985).withOpacity(0.4), const Color(0xFF082F49).withOpacity(0.6)]
+              : [const Color(0xFFE0F2FE), Colors.white],
+          'Tata Ace Beat Routes',
+          'Daily Can Custody & Deposits',
+          '60-84 Can Van Distribution',
+          'Empty Jar Balance & Surrender',
         ),
       'textile' => (
-          'Textile & Loom',
-          'Fabric Stock & Wholesale Billing',
+          'Textile & Fabric Loom',
           Icons.inventory_2_rounded,
           const Color(0xFF7C3AED),
+          isDark
+              ? [const Color(0xFF5B21B6).withOpacity(0.4), const Color(0xFF1E1B4B)]
+              : [const Color(0xFFEDE9FE), Colors.white],
+          'Bale & Yard Inventory',
+          'Wholesale DC & Loom Rolls',
+          'Fabric Quality & Shade Grading',
+          'GST E-Way Bill & Challan',
         ),
       _ => (
-          'Enterprise',
-          'Billing, Invoicing & Ledger',
+          'Enterprise Workspace',
           Icons.business_rounded,
-          AppColors.primary,
+          const Color(0xFF6366F1),
+          isDark
+              ? [const Color(0xFF3730A3).withOpacity(0.4), const Color(0xFF0F172A)]
+              : [const Color(0xFFEEF2FF), Colors.white],
+          'General Operations',
+          'Multi-Branch Consolidated',
+          'Standard Sales & Expenses',
+          'Double-Entry Audit Ledger',
         ),
     };
 
@@ -355,115 +545,252 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
         : <String, dynamic>{};
     final turnover = metrics['sales_turnover'] as num? ?? 0;
     final cashBank = metrics['cash_and_bank'] as num? ?? 0;
+    final receivables = metrics['receivables'] as num? ?? 0;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderCol, width: 1),
+        gradient: LinearGradient(
+          colors: gradientColors,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: primaryColor.withOpacity(isDark ? 0.4 : 0.3),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () => _selectCompany(context, company),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(20),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            child: Row(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Vertical accent icon container
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: brandColor.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: brandColor.withOpacity(0.25),
-                      width: 1,
+                // 1. Header: Icon + Badge + Company Name
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: primaryColor.withOpacity(0.18),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: primaryColor.withOpacity(0.4)),
+                      ),
+                      child: Icon(iconData, color: primaryColor, size: 26),
                     ),
-                  ),
-                  child: Icon(iconData, color: brandColor, size: 22),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: primaryColor.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              badgeLabel,
+                              style: GoogleFonts.inter(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: primaryColor,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            company.name,
+                            style: GoogleFonts.inter(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w900,
+                              color: textCol,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
 
-                // Company Title, Badge & Tagline
-                Expanded(
+                const SizedBox(height: 14),
+
+                // 2. Financial Metrics HUD (Turnover, Cash & Bank, Receivables)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF0F172A).withOpacity(0.7) : Colors.white.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: primaryColor.withOpacity(0.2)),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Turnover', style: TextStyle(fontSize: 10, color: mutedCol)),
+                            const SizedBox(height: 2),
+                            AmountText(
+                              amount: turnover,
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textCol),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(width: 1, height: 24, color: mutedCol.withOpacity(0.3)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Cash & Bank', style: TextStyle(fontSize: 10, color: mutedCol)),
+                            const SizedBox(height: 2),
+                            AmountText(
+                              amount: cashBank,
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.success),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(width: 1, height: 24, color: mutedCol.withOpacity(0.3)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Receivables', style: TextStyle(fontSize: 10, color: mutedCol)),
+                            const SizedBox(height: 2),
+                            AmountText(
+                              amount: receivables,
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.warning),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // 3. Operational Carts & Vertical Insights Block
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withOpacity(isDark ? 0.08 : 0.06),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: primaryColor.withOpacity(0.18)),
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
+                          Icon(Icons.insights_rounded, size: 14, color: primaryColor),
+                          const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              company.name,
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: textCol,
+                              cartInsightTitle,
+                              style: GoogleFonts.inter(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w800,
+                                color: primaryColor,
                               ),
-                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: brandColor.withOpacity(0.12),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              badgeLabel,
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: brandColor,
-                              ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 3),
-                      Text(
-                        tagline,
-                        style: TextStyle(fontSize: 12, color: mutedCol),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                        decoration: BoxDecoration(
+                          color: primaryColor.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          cartInsightValue,
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: primaryColor,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
-                          Text('Turnover: ', style: TextStyle(fontSize: 11, color: mutedCol)),
-                          AmountText(
-                            amount: turnover,
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textCol),
+                          const Icon(Icons.check_circle_outline_rounded, size: 13, color: AppColors.success),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              opFeature1,
+                              style: GoogleFonts.inter(fontSize: 11, color: textCol),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                          Text('  •  Cash: ', style: TextStyle(fontSize: 11, color: mutedCol)),
-                          AmountText(
-                            amount: cashBank,
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.success),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.check_circle_outline_rounded, size: 13, color: AppColors.success),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              opFeature2,
+                              style: GoogleFonts.inter(fontSize: 11, color: textCol),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
 
-                // Chevron Forward Action
-                Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: isDark ? Colors.white10 : const Color(0xFFF1F5F9),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.chevron_right_rounded,
-                    color: brandColor,
-                    size: 20,
+                const Spacer(),
+
+                // 4. Action Button: "Enter Workspace"
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => _selectCompany(context, company),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Open Workspace',
+                          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w800),
+                        ),
+                        const SizedBox(width: 6),
+                        const Icon(Icons.arrow_forward_rounded, size: 16),
+                      ],
+                    ),
                   ),
                 ),
               ],
