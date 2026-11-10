@@ -67,10 +67,16 @@ class _CanSalesScreenState extends ConsumerState<CanSalesScreen> {
 
     final payload = {
       'customer_name': _customerController.text.trim(),
+      'cans_delivered': _deliveredCans,
       'delivered_cans': _deliveredCans,
+      'empty_cans_returned': _returnedEmpties,
       'returned_empties': _returnedEmpties,
+      'unit_price': _pricePerCan,
+      'can_rate': _pricePerCan,
       'price_per_can': _pricePerCan,
       'total_amount': _totalBill,
+      'paid_amount': _paymentMode == 'Credit' ? 0.0 : _totalBill,
+      'cash_collected': _paymentMode == 'Credit' ? 0.0 : _totalBill,
       'payment_mode': _paymentMode,
       'client_timestamp': DateTime.now().toIso8601String(),
     };
@@ -87,6 +93,7 @@ class _CanSalesScreenState extends ConsumerState<CanSalesScreen> {
     if (!mounted) return;
 
     if (result.isSuccess) {
+      ref.read(dashboardRefreshSignalProvider.notifier).state++;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Can delivery ticket issued and synced with ERP!'),

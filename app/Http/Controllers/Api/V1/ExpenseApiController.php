@@ -48,7 +48,8 @@ class ExpenseApiController extends BaseApiController
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'expense_category_id' => 'required',
+            'expense_category_id' => 'nullable',
+            'category' => 'nullable|string',
             'amount' => 'required|numeric|min:0.01',
             'warehouse_id' => 'nullable',
             'account_id' => 'nullable',
@@ -61,14 +62,54 @@ class ExpenseApiController extends BaseApiController
             return $this->sendError('Validation Error', $validator->errors(), 422);
         }
 
-        $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id');
+        $expenseCategoryId = $request->input('expense_category_id');
+        if (!$expenseCategoryId && $request->filled('category')) {
+            $expenseCategoryId = DB::table('expense_categories')
+                ->where('name', 'like', '%' . $request->input('category') . '%')
+                ->value('id');
+        }
+        $expenseCategoryId = $expenseCategoryId ?? (DB::table('expense_categories')->where('is_active', true)->value('id') ?? 1);
+
+        $context = $request->attributes->get(\App\Services\Platform\CompanyContext::class);
+        $companyId = $context?->companyId ?? ($request->header('X-Company-ID') ?: null);
         if (!$companyId && Auth::check()) {
             $companyId = DB::table('company_user')->where('user_id', Auth::id())->where('is_default', 1)->value('company_id')
                 ?? DB::table('company_user')->where('user_id', Auth::id())->value('company_id')
                 ?? 1;
         }
+        $companyId = (int) ($companyId ?: 1);
+        $branchId = $context?->branchId ?? ($request->header('X-Branch-ID') ? (int) $request->header('X-Branch-ID') : null);
+        if ($branchId === null && Auth::check()) {
+            $branchId = DB::table('company_user_branches as cub')
+                ->join('company_branches as cb', 'cb.id', '=', 'cub.branch_id')
+                ->where('cub.company_id', $companyId)
+                ->where('cub.user_id', Auth::id())
+                ->where('cb.company_id', $companyId)
+                ->where('cb.is_active', 1)
+                ->orderByRaw("CASE WHEN cb.branch_type = 'main' THEN 0 ELSE 1 END")
+                ->orderBy('cb.id')
+                ->value('cb.id');
+            $branchId = $branchId ? (int) $branchId : null;
+        }
+        $branchId = (int) ($branchId
+            ?? DB::table('company_branches')->where('company_id', $companyId)->where('is_active', 1)->orderBy('id')->value('id')
+            ?? 1);
 
-        $refNo = 'EXP-' . date('Ymd') . '-' . rand(1000, 9999);
+        if (!$context && Auth::check()) {
+            try {
+                $context = app(\App\Services\Platform\CompanyContextResolver::class)->resolve(Auth::id(), $companyId, $branchId);
+            } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+                throw $e;
+            } catch (\Throwable $e) {
+                $context = null;
+            }
+        }
+        if ($context) {
+            $companyId = $context->companyId;
+            $branchId = $context->branchId;
+        }
+
+        $refNo = 'EXP-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
         $amount = (float) $request->amount;
         $documentName = null;
 
@@ -79,38 +120,63 @@ class ExpenseApiController extends BaseApiController
                 mkdir($dir, 0755, true);
             }
             $ext = $doc->getClientOriginalExtension();
-            $documentName = 'exp_' . date('Ymd_His') . '_' . rand(100, 999) . '.' . $ext;
+            $documentName = 'exp_' . date('Ymd_His') . '_' . strtoupper(bin2hex(random_bytes(3))) . '.' . $ext;
             $doc->move($dir, $documentName);
         }
 
-        $warehouseId = $request->warehouse_id ?? (DB::table('warehouses')->where('company_id', $companyId)->value('id') ?? 1);
-        $accountId = $request->account_id ?? (DB::table('accounts')->where('is_active', true)->value('id') ?? 1);
+        $warehouseId = $this->resolveCompanyWarehouseId(
+            $companyId,
+            $branchId,
+            $request->filled('warehouse_id') ? (int) $request->warehouse_id : null
+        );
+        $accountId = $request->account_id ?? (DB::table('accounts')->where('company_id', $companyId)->where('is_active', true)->orderBy('id')->value('id') ?? 1);
 
-        $expense = Expense::create([
+        $noteText = trim(($request->input('category') ? "[{$request->input('category')}] " : '') . ($request->note ?? 'Mobile Field Expense'));
+        if ($request->latitude) {
+            $noteText .= " [GPS: {$request->latitude}, {$request->longitude}]";
+        }
+
+        $expense = new Expense();
+        $expense->forceFill([
             'reference_no' => $refNo,
-            'expense_category_id' => $request->expense_category_id,
+            'expense_category_id' => $expenseCategoryId,
             'warehouse_id' => $warehouseId,
             'account_id' => $accountId,
             'amount' => $amount,
             'user_id' => Auth::id() ?? 1,
-            'note' => $request->note . ($request->latitude ? " [GPS: {$request->latitude}, {$request->longitude}]" : ''),
+            'note' => $noteText,
             'document' => $documentName,
             'company_id' => $companyId,
         ]);
+        $expense->save();
 
-        // Post to ledger if requested
-        try {
-            $this->accountingService->postJournalEntry([
-                'entry_date' => date('Y-m-d'),
-                'reference_type' => 'Expense',
-                'reference_id' => $refNo,
-                'narration' => "Operational Expense [{$refNo}] - {$request->note}",
-                'items' => [
-                    ['account_code' => '5010', 'debit' => $amount, 'credit' => 0, 'memo' => 'Operating Expense'],
-                    ['account_code' => '1010', 'debit' => 0, 'credit' => $amount, 'memo' => 'Disbursed from Cash'],
-                ]
-            ]);
-        } catch (\Throwable $e) {}
+        // Post balanced double-entry journal entry using resolved leaf ChartOfAccount IDs
+        if ($context) {
+            try {
+                $expAcc = $this->accountingService->getAccount('expense', $context)?->id
+                    ?? \App\Models\Accounting\ChartOfAccount::forCompany($context)->where('is_active', true)->whereDoesntHave('children')
+                        ->where('type', 'expense')->orderBy('code')->value('id');
+                $cashAcc = $this->accountingService->getAccount('cash', $context)?->id
+                    ?? \App\Models\Accounting\ChartOfAccount::forCompany($context)->where('is_active', true)->whereDoesntHave('children')
+                        ->where(fn ($q) => $q->where('code', '1010')->orWhere('control_type', 'cash'))->value('id');
+
+                if ($expAcc && $cashAcc) {
+                    $this->accountingService->postJournalEntry([
+                        'entry_date' => date('Y-m-d'),
+                        'reference_type' => 'expense',
+                        'reference_id' => $expense->id,
+                        'reference_no' => $refNo,
+                        'description' => "Operational Expense [{$refNo}] - {$noteText}",
+                        'created_by' => Auth::id() ?? 1,
+                    ], [
+                        ['chart_of_account_id' => (int) $expAcc, 'debit' => $amount, 'credit' => 0, 'memo' => 'Operating Expense'],
+                        ['chart_of_account_id' => (int) $cashAcc, 'debit' => 0, 'credit' => $amount, 'memo' => 'Disbursed from Cash'],
+                    ], $context);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Mobile expense journal post warning: ' . $e->getMessage());
+            }
+        }
 
         return $this->sendResponse($expense, 'Expense recorded successfully', 201);
     }
@@ -126,6 +192,40 @@ class ExpenseApiController extends BaseApiController
             ->get();
 
         return $this->sendResponse($categories, 'Expense categories retrieved');
+    }
+
+    private function resolveCompanyWarehouseId(int $companyId, int $branchId, ?int $requestedId = null): int
+    {
+        if ($requestedId) {
+            $owned = DB::table('warehouses')->where('company_id', $companyId)->where('branch_id', $branchId)->where('id', $requestedId)->value('id')
+                ?? DB::table('warehouses')->where('company_id', $companyId)->where('id', $requestedId)->value('id');
+            if ($owned) {
+                return (int) $owned;
+            }
+            $foreignQuery = DB::table('warehouses');
+            if ($foreignQuery instanceof \App\Support\Database\CompanyScopedBuilder) {
+                $foreignQuery->withoutCompanyScope();
+            }
+            if ($foreignQuery->where('id', $requestedId)->whereNotNull('company_id')->where('company_id', '!=', $companyId)->exists()) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['warehouse_id' => 'Select a company-owned warehouse.']);
+            }
+        }
+        $existing = DB::table('warehouses')->where('company_id', $companyId)->where('branch_id', $branchId)->where('is_active', 1)->orderBy('id')->value('id')
+            ?? DB::table('warehouses')->where('company_id', $companyId)->where('branch_id', $branchId)->orderBy('id')->value('id')
+            ?? DB::table('warehouses')->where('company_id', $companyId)->where('is_active', 1)->orderBy('id')->value('id');
+        if ($existing) {
+            return (int) $existing;
+        }
+        return (int) DB::table('warehouses')->insertGetId([
+            'name' => "Branch {$branchId} Warehouse",
+            'phone' => '0000000000',
+            'address' => 'Main Branch',
+            'is_active' => 1,
+            'company_id' => $companyId,
+            'branch_id' => $branchId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 }
 

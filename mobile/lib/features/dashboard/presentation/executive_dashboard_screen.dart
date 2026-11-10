@@ -147,6 +147,28 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
       }
     });
 
+    // Auto-refresh when offline outbox mutations are drained to the server
+    ref.listen<int>(syncWorkerProvider.select((w) => w.state.pendingCount), (previous, next) {
+      if (previous != null && next < previous) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _loadDashboardData();
+          }
+        });
+      }
+    });
+
+    // Auto-refresh when an operational action signals new transactions
+    ref.listen<int>(dashboardRefreshSignalProvider, (previous, next) {
+      if (previous != null && next != previous) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _loadDashboardData();
+          }
+        });
+      }
+    });
+
     final authState = ref.watch(authNotifierProvider);
     final userRole = (authState.user?.role ?? '').toLowerCase();
     final userName = (authState.user?.username ?? authState.user?.name ?? '').toLowerCase();

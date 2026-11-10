@@ -70,11 +70,18 @@ class _TankerTripScreenState extends ConsumerState<TankerTripScreen> {
     final payload = {
       'tanker_id': 1,
       'customer_name': _customerController.text.trim(),
+      'destination_site': _customerController.text.trim(),
+      'delivery_site': _customerController.text.trim(),
       'water_quantity_litres': _waterLitres,
+      'water_quantity_kl': _waterLitres / 1000.0,
       'start_odometer': int.tryParse(_startOdoController.text.trim()) ?? 0,
       'end_odometer': int.tryParse(_endOdoController.text.trim()) ?? 0,
+      'start_km': int.tryParse(_startOdoController.text.trim()) ?? 0,
+      'end_km': int.tryParse(_endOdoController.text.trim()) ?? 0,
       'motor_pumping_charge': _motorPumpingSurcharge,
       'waiting_charge': _waitingSurcharge,
+      'trip_rate': _totalBill,
+      'billed_amount': _totalBill,
       'total_trip_amount': _totalBill,
       'client_timestamp': DateTime.now().toIso8601String(),
     };
@@ -91,6 +98,7 @@ class _TankerTripScreenState extends ConsumerState<TankerTripScreen> {
     if (!mounted) return;
 
     if (result.isSuccess) {
+      ref.read(dashboardRefreshSignalProvider.notifier).state++;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Bulk tanker trip sheet recorded successfully!'),

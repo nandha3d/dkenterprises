@@ -174,3 +174,4 @@ class _SparklinePainter extends CustomPainter {
     return false;
   }
 }
+

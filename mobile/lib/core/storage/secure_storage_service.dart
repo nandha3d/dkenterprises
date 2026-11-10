@@ -51,9 +51,13 @@ class SecureStorageService {
     await _prefs.setInt(_keyCompanyId, companyId);
     if (branchId != null) {
       await _prefs.setInt(_keyBranchId, branchId);
+    } else {
+      await _prefs.remove(_keyBranchId);
     }
     if (financialYearId != null) {
       await _prefs.setInt(_keyFinancialYearId, financialYearId);
+    } else {
+      await _prefs.remove(_keyFinancialYearId);
     }
   }
 

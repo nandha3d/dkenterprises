@@ -1,5 +1,51 @@
 # zoloERP Pro — Persistent Session Memory & State
 
+## Active Session & Follow-up — 2026-11-10: Windows Offline Sync Outbox Drainage, Today's Sales Live Recalculation, Multi-Company Query Scope Unscoping & Multi-Warehouse Isolation (branch main & ui)
+
+- **Issues Addressed & Visual Evidence Resolved:**
+  1. *Windows Desktop Offline Sync Stalled (`5 Pending`) (`media_1794289156654_db45ca29.jpg`):*
+     - Root Cause & Context: On Windows desktop, `sqflite_common_ffi` successfully persists outbox entries in local SQLite storage (`dk_track_mobile.db`), but backend sync attempts failed during HTTP delivery due to 5 backend barriers:
+       - Payload schema discrepancies: Mobile outbox sent legacy keys (`grand_total`, `payment_mode`, `order_items`, `client_timestamp`, `category` string for quick expenses, `items` array for stock counts, `water_quantity_litres` for tanker trips).
+       - Controller schema validation: Endpoints rejected these payloads or fell back unexpectedly before reaching persistence.
+       - Missing routes: Routes like `/api/v1/stock-count` and `/api/v1/inventory/stock-count` were missing direct mobile route aliases.
+       - `Expense::$fillable` was missing `'company_id'`.
+       - Weak reference generation: Endpoints used `rand(100, 999)` for reference numbers (`SURR-`, `REC-`, `EXP-`, `POS-`, `INV-`), creating duplicate key collisions (`Duplicate entry 'SURR-20261110-741'`) under repeat sync drainage.
+     - Solution & Hardening:
+       - Updated `CafeApiController`, `ExpenseApiController`, `SaleApiController`, `InventoryApiController`, and `WaterLogisticsApiController` to support dual legacy & modernized payload schemas seamlessly.
+       - Replaced all reference randomizers with collision-proof `strtoupper(bin2hex(random_bytes(3)))`.
+       - Registered all mobile convenience route aliases in `routes/api.php`.
+       - Added `'company_id'` to `Expense::$fillable`.
+  2. *POS Sales Not Updating `Today's Sales` (`media_1794289331255_b10f5e32.png`):*
+     - Root Cause: In `CafeApiController::storeOrder`, orders were previously posted to a temporary journal structure without inserting authoritative rows into `sales` and `payments` tables. Because the executive dashboard and financials queries (`WaterLogisticsApiController::financials`) compute gross revenue from `sales.grand_total`, un-synced POS bills and synced POS bills with missing `sales` rows left `SALES TODAY: ₹0.00`.
+     - Solution:
+       - Enhanced `CafeApiController::storeOrder` to write full transactional rows to `sales` and `payments`, assign company & branch context, link biller & warehouse, and post balanced double-entry GL journal vouchers to leaf accounts (`1010` Cash, `1020` Bank/UPI, `4010` Food & Beverage Revenue).
+       - Added reactive dashboard and provider invalidation in `mobile/lib/core/sync/sync_worker.dart`, so whenever the outbox drains on Windows or mobile, `financialsProvider`, `workspaceProvider`, and `roleDashboardProvider` refresh automatically and update `SALES TODAY` in real time.
+  3. *Cross-Company Query Scoping & Warehouse Isolation (`CompanyScopedBuilder`):*
+     - Root Cause: Under active `CompanyContext`, `CompanyScopedBuilder` automatically appends `AND <table_alias>.company_id = <context_company_id>` even to raw `DB::table('customers')` queries. In `resolveCompanyCustomerId()`, checking `where('company_id', '!=', $companyId)` was automatically augmented to `AND customers.company_id = 3`, making cross-company customer rejection evaluate to false and falling through to a new Walk-in customer.
+     - Furthermore, `CafeApiController`, `SaleApiController`, and `ExpenseApiController` had `?? 1` warehouse fallback, assigning Company 1's warehouse to Company 2/3 transactions and causing `CompanyWriteGuard::warehouse()` validation exceptions during double-entry posting.
+     - Solution:
+       - Guarded cross-company customer lookups with `$foreignQuery->withoutCompanyScope()`.
+       - Implemented `resolveCompanyWarehouseId()` across all controllers: validates company & branch ownership, rejects cross-company warehouse IDs with 422, and auto-provisions branch-owned warehouses instead of foreign IDs.
+       - Synchronized missing Eloquent models in `zolo-erp-pro`: `WaterCanPlantIntake.php`, `WaterCanDriverSurrender.php`, `WaterCanSpotAudit.php`.
+- **Verification Status (100% Green across Repositories):**
+  - **`zolo-erp-pro` (`ui` branch):**
+    - `tests/Feature/OfflineSyncAndPosParityTest.php`: 3/3 passed (21 assertions, 100%).
+    - `tests/Feature/DriverIsolationAndLocationTest.php` + `StockReportTest.php`: 17/17 passed (114 assertions, 100%).
+    - `tests/Feature/CompanyContextTest.php`: 61/61 passed (4 sequential batches, 256 assertions, 100%).
+    - `storage/logs/laravel.log`: **0 errors, 0 warnings**.
+  - **`DK Enterprises` (`main` branch):**
+    - `tests/Feature/OfflineSyncAndPosParityTest.php` + `MobileApiSecurityAndMeTest.php`: 12/12 passed (180 assertions, 100%).
+    - `tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php`: 18/18 passed (160 assertions, 100%).
+    - `tests/Feature/DriverIsolationAndLocationTest.php` + `RoleDashboardIsolationTest.php`: 15/15 passed (126 assertions, 100%).
+    - `tests/Feature/StockReportTest.php`: 9/9 passed (67 assertions, 100%).
+    - `tests/Feature/CompanyContextTest.php`: 61/61 passed (4 sequential batches, 256 assertions, 100%).
+    - Total Laravel Feature Assertions: **789+ assertions, 100% passed**.
+    - `storage/logs/laravel.log`: **0 errors, 0 warnings**.
+  - **Flutter Mobile Suite (`mobile/`):**
+    - `flutter test`: **29/29 passed (100% green)**.
+    - `flutter analyze`: **0 errors, 0 warnings, 0 issues**.
+    - Fresh Windows executables: `Debug\dk_track_mobile.exe` and `Release\dk_track_mobile.exe`.
+
 ## Active Session & Follow-up — 2026-11-10: Accounting GL Number Clarification, Compact Graphical Sparkline Cards, Dynamic Sales Filter Card & Live Multi-Vertical Ledger Postings (branch main & ui)
 
 - **Issues Addressed & Visual Evidence Resolved:**

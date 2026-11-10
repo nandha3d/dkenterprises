@@ -57,6 +57,22 @@ class _CashierDashboardScreenState extends ConsumerState<CashierDashboardScreen>
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<int>(syncWorkerProvider.select((w) => w.state.pendingCount), (previous, next) {
+      if (previous != null && next < previous) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _loadCashierData();
+        });
+      }
+    });
+
+    ref.listen<int>(dashboardRefreshSignalProvider, (previous, next) {
+      if (previous != null && next != previous) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _loadCashierData();
+        });
+      }
+    });
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgCol = isDark ? AppColors.darkCanvas : AppColors.lightCanvas;
     final cardBg = isDark ? AppColors.darkCard : AppColors.lightCard;

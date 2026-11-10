@@ -71,6 +71,7 @@ class _QuickExpenseScreenState extends ConsumerState<QuickExpenseScreen> {
     if (!mounted) return;
 
     if (result.isSuccess) {
+      ref.read(dashboardRefreshSignalProvider.notifier).state++;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Expense recorded and debited from cash account!'),

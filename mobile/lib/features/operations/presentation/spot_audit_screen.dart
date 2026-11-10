@@ -68,9 +68,13 @@ class _SpotAuditScreenState extends ConsumerState<SpotAuditScreen> {
     final payload = {
       'customer_id': 1,
       'customer_name': _customerController.text.trim(),
+      'driver_name': _customerController.text.trim(),
+      'expected_units': _systemRecordedJars,
+      'physical_units': _physicalCountedJars,
       'system_jars': _systemRecordedJars,
       'physical_jars': _physicalCountedJars,
       'difference': _difference,
+      'notes': _remarksController.text.trim(),
       'remarks': _remarksController.text.trim(),
       'client_timestamp': DateTime.now().toIso8601String(),
     };

@@ -34,8 +34,10 @@ class _PlantRefillScreenState extends ConsumerState<PlantRefillScreen> {
     final syncWorker = ref.read(syncWorkerProvider);
 
     final payload = {
+      'route_id': 1,
       'vehicle_no': _vehicleController.text.trim(),
       'empty_cans_handed_over': _emptyHandedOver,
+      'cans_loaded': _fullLoaded,
       'full_cans_loaded': _fullLoaded,
       'damaged_cans': _damagedJars,
       'client_timestamp': DateTime.now().toIso8601String(),

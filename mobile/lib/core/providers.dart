@@ -80,3 +80,5 @@ final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((r
   return ThemeModeNotifier(storage);
 });
 
+final dashboardRefreshSignalProvider = StateProvider<int>((ref) => 0);
+

@@ -81,6 +81,7 @@ class _PaymentCollectionScreenState extends ConsumerState<PaymentCollectionScree
       'customer_id': _selectedCustomerId ?? 1,
       'customer_name': _customerController.text.trim(),
       'amount': amount,
+      'amount_collected': amount,
       'payment_mode': _paymentMode,
       'notes': _notesController.text.trim(),
       'client_timestamp': DateTime.now().toIso8601String(),
@@ -98,6 +99,7 @@ class _PaymentCollectionScreenState extends ConsumerState<PaymentCollectionScree
     if (!mounted) return;
 
     if (result.isSuccess) {
+      ref.read(dashboardRefreshSignalProvider.notifier).state++;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Payment collection posted to ledger accounts!'),

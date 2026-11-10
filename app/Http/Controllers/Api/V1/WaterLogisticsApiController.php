@@ -104,23 +104,21 @@ class WaterLogisticsApiController extends BaseApiController
      */
     public function storePlantIntake(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'route_id' => 'required',
-            'cans_loaded' => 'required|integer|min:1',
-        ]);
+        $routeId = $request->input('route_id') ?? 1;
+        $cansLoaded = (int) ($request->input('cans_loaded') ?? $request->input('full_cans_loaded') ?? 0);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation error', $validator->errors()->toArray(), 422);
+        if ($cansLoaded < 1) {
+            return $this->sendError('Validation error', ['cans_loaded' => ['Cans loaded must be at least 1.']], 422);
         }
 
         $intake = \App\Models\WaterCanPlantIntake::create([
-            'route_id' => $request->route_id,
+            'route_id' => $routeId,
             'driver_id' => Auth::id() ?? $request->driver_id ?? 1,
             'plant_name' => $request->plant_name ?? 'Main RO Water Treatment Plant',
             'load_sequence' => $request->load_sequence ?? 1,
-            'cans_loaded' => (int)$request->cans_loaded,
+            'cans_loaded' => $cansLoaded,
             'purchase_rate_per_can' => (float)($request->purchase_rate_per_can ?? 8.00),
-            'slip_number' => $request->slip_number,
+            'slip_number' => $request->slip_number ?? ('PLANT-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)))),
             'slip_photo' => $request->slip_photo,
             'odometer_km' => (int)($request->odometer_km ?? 0),
             'latitude' => $request->latitude,
@@ -129,7 +127,7 @@ class WaterLogisticsApiController extends BaseApiController
             'notes' => $request->notes,
         ]);
 
-        $totalShiftLoaded = \App\Models\WaterCanPlantIntake::where('route_id', $request->route_id)
+        $totalShiftLoaded = \App\Models\WaterCanPlantIntake::where('route_id', $routeId)
             ->whereDate('created_at', now()->toDateString())
             ->sum('cans_loaded');
 
@@ -145,58 +143,107 @@ class WaterLogisticsApiController extends BaseApiController
      */
     public function storeTripSheet(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'tanker_id' => 'required',
-            'trip_date' => 'required|date',
-            'source_plant' => 'required|string',
-            'delivery_site' => 'required|string',
-            'billed_amount' => 'required|numeric',
-        ]);
+        $tankerId = $request->input('tanker_id') ?? 1;
+        $tripDate = $request->input('trip_date') ?? now()->toDateString();
+        $sourcePlant = $request->input('source_plant') ?? 'Main Borewell Station';
+        $destinationSite = $request->input('destination_site')
+            ?? $request->input('delivery_site')
+            ?? $request->input('customer_name')
+            ?? 'Customer Site';
+        $tripRate = (float) ($request->input('trip_rate')
+            ?? $request->input('billed_amount')
+            ?? $request->input('total_trip_amount')
+            ?? 0);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation error', $validator->errors()->toArray(), 422);
+        if ($tripRate <= 0 && !$request->filled('water_quantity_litres') && !$request->filled('water_quantity_kl')) {
+            return $this->sendError('Validation error', ['billed_amount' => ['A valid trip amount or water quantity is required.']], 422);
         }
 
-        $tripNumber = 'TRIP-' . date('Ymd') . '-' . rand(1000, 9999);
-        $trip = DB::transaction(function () use ($request, $tripNumber) {
+        $waterKl = $request->input('water_quantity_kl') !== null
+            ? (float) $request->input('water_quantity_kl')
+            : ((float) ($request->input('water_quantity_litres') ?? 10000) / 1000.0);
+
+        $companyId = (int) ($request->attributes->get(\App\Services\Platform\CompanyContext::class)?->companyId
+            ?? $request->header('X-Company-ID')
+            ?? $request->attributes->get('erp.company_id')
+            ?? (DB::table('companies')->where('id', 2)->exists() ? 2 : 1));
+
+        if (Auth::check()) {
+            try {
+                $this->resolveOperationalContext($companyId);
+            } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+                throw $e;
+            } catch (\Throwable $e) {
+            }
+        }
+
+        $customerId = $this->resolveCompanyCustomerId(
+            $companyId,
+            $request->filled('customer_id') ? (int) $request->input('customer_id') : null,
+            $request->input('customer_name')
+        );
+
+        $tripNumber = 'TRIP-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
+        $trip = DB::transaction(function () use (
+            $request, $companyId, $tripNumber, $tankerId, $customerId, $tripDate,
+            $sourcePlant, $destinationSite, $waterKl, $tripRate
+        ) {
             $record = WaterTankerTrip::create([
                 'trip_number' => $tripNumber,
-                'tanker_id' => $request->tanker_id,
-                'driver_id' => Auth::id() ?? $request->driver_id ?? 1,
-                'customer_id' => $request->customer_id ?? 1,
-                'trip_date' => $request->trip_date,
-                'source_plant' => $request->source_plant,
-                'delivery_site' => $request->delivery_site,
-                'start_km' => $request->start_km ?? 0,
-                'end_km' => $request->end_km ?? 0,
-                'diesel_expense' => $request->diesel_expense ?? 0,
-                'toll_expense' => $request->toll_expense ?? 0,
-                'driver_batta' => $request->driver_batta ?? 0,
-                'billed_amount' => $request->billed_amount,
-                'payment_status' => $request->payment_status ?? 'Pending',
-                'site_receiver_name' => $request->site_receiver_name,
-                'receiver_signature' => $request->receiver_signature,
+                'tanker_id' => $tankerId,
+                'customer_id' => $customerId,
+                'trip_date' => $tripDate,
+                'source_plant' => $sourcePlant,
+                'destination_site' => $destinationSite,
+                'water_quantity_kl' => $waterKl,
+                'trip_rate' => $tripRate,
+                'diesel_expense' => (float) ($request->input('diesel_expense') ?? 0),
+                'toll_expense' => (float) ($request->input('toll_expense') ?? 0),
+                'driver_batta' => (float) ($request->input('driver_batta') ?? 0),
+                'site_receiver_name' => $request->input('site_receiver_name') ?? $request->input('customer_name'),
+                'site_receiver_signature' => $request->input('site_receiver_signature') ?? $request->input('receiver_signature'),
                 'status' => 'Delivered',
-                'notes' => $request->notes,
+                'notes' => $request->input('notes'),
+                'created_by' => Auth::id() ?? 1,
             ]);
 
-            // Post to General Ledger
-            if ((float)$request->billed_amount > 0) {
+            // Update odometer and surcharge columns safely
+            $startKm = (int) ($request->input('start_km') ?? $request->input('start_odometer') ?? 0);
+            $endKm = (int) ($request->input('end_km') ?? $request->input('end_odometer') ?? 0);
+            DB::table('water_tanker_trips')->where('id', $record->id)->update([
+                'start_km' => $startKm,
+                'end_km' => $endKm,
+                'total_km' => max(0, $endKm - $startKm),
+                'motor_pumping_charge' => (float) ($request->input('motor_pumping_charge') ?? 0),
+                'waiting_charge' => (float) ($request->input('waiting_charge') ?? 0),
+            ]);
+
+            // Post to General Ledger using resolved leaf accounts
+            if ($tripRate > 0) {
                 try {
-                    $this->accountingService->postJournalEntry([
-                        'entry_date' => $request->trip_date,
-                        'reference_type' => 'WaterTankerTrip',
-                        'reference_id' => $tripNumber,
-                        'narration' => "Bulk Tanker Delivery [{$tripNumber}] to {$request->delivery_site}",
-                        'items' => [
-                            ['account_code' => '1030', 'debit' => (float)$request->billed_amount, 'credit' => 0, 'memo' => 'AR Water Delivery'],
-                            ['account_code' => '4010', 'debit' => 0, 'credit' => (float)$request->billed_amount, 'memo' => 'Water Logistics Revenue']
-                        ]
-                    ]);
-                } catch (\Exception $e) {}
+                    $tripCtx = $this->resolveOperationalContext($companyId);
+                    $arAcc = $this->accountingService->getAccount('ar', $tripCtx)?->id
+                        ?? \App\Models\Accounting\ChartOfAccount::forCompany($tripCtx)->where('is_active', true)->whereDoesntHave('children')->where('control_type', 'ar')->value('id');
+                    $revAcc = $this->accountingService->getAccount('sales', $tripCtx)?->id
+                        ?? \App\Models\Accounting\ChartOfAccount::forCompany($tripCtx)->where('is_active', true)->whereDoesntHave('children')->where('code', '4010')->value('id');
+                    if ($arAcc && $revAcc) {
+                        $this->accountingService->postJournalEntry([
+                            'entry_date' => $tripDate,
+                            'reference_type' => 'voucher',
+                            'reference_no' => $tripNumber,
+                            'description' => "Bulk Tanker Delivery [{$tripNumber}] to {$destinationSite}",
+                            'created_by' => Auth::id() ?? 1,
+                        ], [
+                            ['chart_of_account_id' => (int) $arAcc, 'debit' => $tripRate, 'credit' => 0, 'memo' => 'AR Water Delivery', 'partner_type' => 'customer', 'partner_id' => $customerId],
+                            ['chart_of_account_id' => (int) $revAcc, 'debit' => 0, 'credit' => $tripRate, 'memo' => 'Water Logistics Revenue'],
+                        ], $tripCtx);
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Tanker trip journal warning: ' . $e->getMessage());
+                }
             }
 
-            return $record;
+            return $record->fresh();
         });
 
         return $this->sendResponse($trip, 'Tanker trip sheet logged and posted to ERP ledger', 201);
@@ -207,60 +254,108 @@ class WaterLogisticsApiController extends BaseApiController
      */
     public function storeCanDelivery(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'route_id' => 'required',
-            'customer_id' => 'required',
-            'delivery_date' => 'required|date',
-            'cans_delivered' => 'required|integer|min:1',
-            'unit_price' => 'required|numeric',
-        ]);
+        $routeId = $request->input('route_id') ?? 1;
+        $deliveryDate = $request->input('delivery_date') ?? now()->toDateString();
+        $cansDelivered = (int) ($request->input('cans_delivered') ?? $request->input('delivered_cans') ?? 0);
+        $emptyReturned = (int) ($request->input('empty_cans_returned') ?? $request->input('empty_cans_collected') ?? $request->input('returned_empties') ?? 0);
+        $unitPrice = (float) ($request->input('can_rate') ?? $request->input('unit_price') ?? $request->input('price_per_can') ?? 35.0);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation error', $validator->errors()->toArray(), 422);
+        if ($cansDelivered < 1) {
+            return $this->sendError('Validation error', ['cans_delivered' => ['Cans delivered must be at least 1.']], 422);
         }
 
-        $deliveryNumber = 'CAN-' . date('Ymd') . '-' . rand(1000, 9999);
-        $totalAmount = (int)$request->cans_delivered * (float)$request->unit_price;
-        $cashCollected = (float)($request->cash_collected ?? 0);
+        $companyId = (int) ($request->attributes->get(\App\Services\Platform\CompanyContext::class)?->companyId
+            ?? $request->header('X-Company-ID')
+            ?? $request->attributes->get('erp.company_id')
+            ?? (DB::table('companies')->where('id', 3)->exists() ? 3 : 1));
 
-        $delivery = DB::transaction(function () use ($request, $deliveryNumber, $totalAmount, $cashCollected) {
+        if (Auth::check()) {
+            try {
+                $this->resolveOperationalContext($companyId);
+            } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+                throw $e;
+            } catch (\Throwable $e) {
+            }
+        }
+
+        $customerId = $this->resolveCompanyCustomerId(
+            $companyId,
+            $request->filled('customer_id') ? (int) $request->input('customer_id') : null,
+            $request->input('customer_name')
+        );
+
+        $deliveryNumber = 'CAN-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
+        $totalAmount = (float) ($request->input('total_amount') ?? ($cansDelivered * $unitPrice));
+        $paymentMode = $request->input('payment_mode') ?? 'Cash';
+        $cashCollected = (float) ($request->input('paid_amount')
+            ?? $request->input('cash_collected')
+            ?? (strcasecmp($paymentMode, 'Credit') === 0 ? 0.0 : $totalAmount));
+
+        $delivery = DB::transaction(function () use (
+            $companyId, $routeId, $customerId, $deliveryDate, $deliveryNumber,
+            $cansDelivered, $emptyReturned, $unitPrice, $totalAmount, $cashCollected, $paymentMode
+        ) {
             $record = WaterCanDelivery::create([
-                'delivery_number' => $deliveryNumber,
-                'route_id' => $request->route_id,
-                'driver_id' => Auth::id() ?? 1,
-                'customer_id' => $request->customer_id,
-                'delivery_date' => $request->delivery_date,
-                'cans_delivered' => $request->cans_delivered,
-                'empty_cans_collected' => $request->empty_cans_collected ?? 0,
-                'unit_price' => $request->unit_price,
+                'delivery_no' => $deliveryNumber,
+                'delivery_date' => $deliveryDate,
+                'route_id' => $routeId,
+                'customer_id' => $customerId,
+                'morning_loaded_cans' => 60,
+                'cans_delivered' => $cansDelivered,
+                'empty_cans_returned' => $emptyReturned,
+                'can_rate' => $unitPrice,
                 'total_amount' => $totalAmount,
-                'cash_collected' => $cashCollected,
-                'empty_balance_due' => (int)$request->cans_delivered - (int)($request->empty_cans_collected ?? 0),
-                'payment_mode' => $cashCollected >= $totalAmount ? 'Cash' : 'Credit',
-                'signature_url' => $request->signature_url,
-                'notes' => $request->notes,
+                'paid_amount' => $cashCollected,
+                'payment_mode' => $paymentMode,
+                'balance_cans_held' => max(0, $cansDelivered - $emptyReturned),
+                'status' => 'completed',
+                'created_by' => Auth::id() ?? 1,
             ]);
 
-            // Post to Double-entry accounting
+            // Post to Double-entry accounting using resolved leaf accounts
             try {
+                $canCtx = $this->resolveOperationalContext($companyId);
+                $cashAcc = $this->accountingService->getAccount('cash', $canCtx)?->id
+                    ?? \App\Models\Accounting\ChartOfAccount::forCompany($canCtx)->where('is_active', true)->whereDoesntHave('children')
+                        ->where(fn ($q) => $q->where('code', '1010')->orWhere('control_type', 'cash'))->value('id');
+                $bankAcc = $this->accountingService->getAccount('bank', $canCtx)?->id
+                    ?? \App\Models\Accounting\ChartOfAccount::forCompany($canCtx)->where('is_active', true)->whereDoesntHave('children')
+                        ->where(fn ($q) => $q->where('code', '1020')->orWhere('control_type', 'bank'))->value('id');
+                $arAcc = $this->accountingService->getAccount('ar', $canCtx)?->id
+                    ?? \App\Models\Accounting\ChartOfAccount::forCompany($canCtx)->where('is_active', true)->whereDoesntHave('children')
+                        ->where('control_type', 'ar')->value('id');
+                $revAcc = $this->accountingService->getAccount('sales', $canCtx)?->id
+                    ?? \App\Models\Accounting\ChartOfAccount::forCompany($canCtx)->where('is_active', true)->whereDoesntHave('children')
+                        ->where('code', '4010')->value('id');
+
                 $items = [];
                 if ($cashCollected > 0) {
-                    $items[] = ['account_code' => '1010', 'debit' => $cashCollected, 'credit' => 0, 'memo' => 'Driver Cash Collected'];
+                    $isBank = stripos($paymentMode, 'upi') !== false || stripos($paymentMode, 'bank') !== false;
+                    $depAcc = $isBank ? ($bankAcc ?: $cashAcc) : $cashAcc;
+                    if ($depAcc) {
+                        $items[] = ['chart_of_account_id' => (int) $depAcc, 'debit' => $cashCollected, 'credit' => 0, 'memo' => 'Driver Collection'];
+                    }
                 }
-                $arBalance = $totalAmount - $cashCollected;
-                if ($arBalance > 0) {
-                    $items[] = ['account_code' => '1030', 'debit' => $arBalance, 'credit' => 0, 'memo' => 'Customer Can AR Balance'];
+                $arBalance = max(0.0, $totalAmount - $cashCollected);
+                if ($arBalance > 0 && $arAcc) {
+                    $items[] = ['chart_of_account_id' => (int) $arAcc, 'debit' => $arBalance, 'credit' => 0, 'memo' => 'Customer Can AR Balance', 'partner_type' => 'customer', 'partner_id' => $customerId];
                 }
-                $items[] = ['account_code' => '4010', 'debit' => 0, 'credit' => $totalAmount, 'memo' => 'Water 20L Can Revenue'];
+                if ($revAcc) {
+                    $items[] = ['chart_of_account_id' => (int) $revAcc, 'debit' => 0, 'credit' => $totalAmount, 'memo' => 'Water 20L Can Revenue'];
+                }
 
-                $this->accountingService->postJournalEntry([
-                    'entry_date' => $request->delivery_date,
-                    'reference_type' => 'WaterCanDelivery',
-                    'reference_id' => $deliveryNumber,
-                    'narration' => "20L Can Delivery [{$deliveryNumber}]",
-                    'items' => $items,
-                ]);
-            } catch (\Exception $e) {}
+                if (count($items) >= 2) {
+                    $this->accountingService->postJournalEntry([
+                        'entry_date' => $deliveryDate,
+                        'reference_type' => 'voucher',
+                        'reference_no' => $deliveryNumber,
+                        'description' => "20L Can Delivery [{$deliveryNumber}]",
+                        'created_by' => Auth::id() ?? 1,
+                    ], $items, $canCtx);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Can delivery journal warning: ' . $e->getMessage());
+            }
 
             return $record;
         });
@@ -273,30 +368,38 @@ class WaterLogisticsApiController extends BaseApiController
      */
     public function driverCashSurrender(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'route_id' => 'required',
-            'surrender_date' => 'required|date',
-            'cash_surrendered' => 'required|numeric',
-            'empty_cans_returned' => 'required|integer',
-        ]);
+        $routeId = $request->input('route_id') ?? 1;
+        $surrenderDate = $request->input('surrender_date') ?? now()->toDateString();
+        $rawCash = $request->input('cash_surrendered')
+            ?? $request->input('net_cash_surrendered')
+            ?? $request->input('gross_cash_collected');
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation error', $validator->errors()->toArray(), 422);
+        if ($rawCash === null) {
+            return $this->sendError('Validation error', ['cash_surrendered' => ['Cash surrendered amount is required.']], 422);
         }
 
-        $receiptNumber = 'SURR-' . date('Ymd') . '-' . rand(100, 999);
-        $cashAmount = (float) $request->cash_surrendered;
-        $emptyCans = (int) $request->empty_cans_returned;
-        $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id') ?? $request->company_id ?? 3;
+        $cashAmount = (float) $rawCash;
+        $emptyCans = (int) ($request->input('empty_cans_returned') ?? 0);
+        $receiptNumber = 'SURR-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
+        $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id') ?? $request->company_id ?? (DB::table('companies')->where('id', 3)->exists() ? 3 : 1);
         $branchId = $request->header('X-Branch-ID') ?? $request->attributes->get('erp.branch_id') ?? $request->branch_id;
+
+        if (Auth::check()) {
+            try {
+                $this->resolveOperationalContext((int) $companyId, $branchId ? (int) $branchId : null);
+            } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+                throw $e;
+            } catch (\Throwable $e) {
+            }
+        }
 
         $surrender = WaterCanDriverSurrender::create([
             'surrender_receipt' => $receiptNumber,
             'company_id' => $companyId,
             'branch_id' => $branchId,
-            'route_id' => $request->route_id,
+            'route_id' => $routeId,
             'driver_id' => Auth::id() ?? 1,
-            'surrender_date' => $request->surrender_date,
+            'surrender_date' => $surrenderDate,
             'cash_surrendered' => $cashAmount,
             'empty_cans_returned' => $emptyCans,
             'filled_cans_returned' => (int) ($request->filled_cans_returned ?? 0),
@@ -308,17 +411,25 @@ class WaterLogisticsApiController extends BaseApiController
         // Post accounting journal entry if cash surrendered > 0
         if ($cashAmount > 0) {
             try {
-                $header = [
-                    'entry_date' => $request->surrender_date,
-                    'reference_type' => 'DriverCashSurrender',
-                    'reference_id' => $receiptNumber,
-                    'narration' => "Driver Cash Surrender [{$receiptNumber}] from Route ID {$request->route_id}",
-                ];
-                $items = [
-                    ['account_code' => '1010', 'debit' => $cashAmount, 'credit' => 0, 'memo' => 'Main Cash In Hand'],
-                    ['account_code' => '1030', 'debit' => 0, 'credit' => $cashAmount, 'memo' => 'Driver Settlement Clearing'],
-                ];
-                $this->accountingService->postJournalEntry($header, $items);
+                $surrCtx = $this->resolveOperationalContext((int) $companyId, $branchId ? (int) $branchId : null);
+                $cashAcc = $this->accountingService->getAccount('cash', $surrCtx)?->id
+                    ?? \App\Models\Accounting\ChartOfAccount::forCompany($surrCtx)->where('is_active', true)->whereDoesntHave('children')
+                        ->where(fn ($q) => $q->where('code', '1010')->orWhere('control_type', 'cash'))->value('id');
+                $bankAcc = $this->accountingService->getAccount('bank', $surrCtx)?->id
+                    ?? \App\Models\Accounting\ChartOfAccount::forCompany($surrCtx)->where('is_active', true)->whereDoesntHave('children')
+                        ->where(fn ($q) => $q->where('code', '1020')->orWhere('control_type', 'bank'))->value('id');
+                if ($cashAcc && $bankAcc) {
+                    $this->accountingService->postJournalEntry([
+                        'entry_date' => $surrenderDate,
+                        'reference_type' => 'voucher',
+                        'reference_no' => $receiptNumber,
+                        'description' => "Driver Cash Surrender [{$receiptNumber}] from Route ID {$routeId}",
+                        'created_by' => Auth::id() ?? 1,
+                    ], [
+                        ['chart_of_account_id' => (int) $cashAcc, 'debit' => $cashAmount, 'credit' => 0, 'memo' => 'Main Cash In Hand'],
+                        ['chart_of_account_id' => (int) $bankAcc, 'debit' => 0, 'credit' => $cashAmount, 'memo' => 'Driver Route Float Clearing'],
+                    ], $surrCtx);
+                }
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::warning('Driver surrender journal post error: ' . $e->getMessage());
             }
@@ -474,45 +585,164 @@ class WaterLogisticsApiController extends BaseApiController
      */
     public function collectPayment(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'customer_id' => 'required',
-            'amount_collected' => 'required|numeric|min:1',
-            'payment_mode' => 'required|string',
-        ]);
+        $amount = (float) ($request->input('amount_collected') ?? $request->input('amount') ?? 0);
+        $paymentMode = $request->input('payment_mode') ?? 'Cash';
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation error', $validator->errors()->toArray(), 422);
+        if ($amount < 1) {
+            return $this->sendError('Validation error', ['amount_collected' => ['Amount collected must be at least ₹1.']], 422);
         }
 
-        $receiptNumber = $request->receipt_number ?? ('REC-' . date('Ymd') . '-' . rand(1000, 9999));
-        $amount = (float)$request->amount_collected;
+        $receiptNumber = $request->input('receipt_number') ?? ('REC-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3))));
+        $companyId = (int) ($request->header('X-Company-ID') ?? $request->company_id ?? (DB::table('companies')->where('id', 3)->exists() ? 3 : 1));
+        if (Auth::check()) {
+            try {
+                $this->resolveOperationalContext($companyId);
+            } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+                throw $e;
+            } catch (\Throwable $e) {
+            }
+        }
+        $customerId = $this->resolveCompanyCustomerId(
+            $companyId,
+            $request->filled('customer_id') ? (int) $request->input('customer_id') : null,
+            $request->input('customer_name')
+        );
 
-        // Post to ledger: Debit Cash/Bank (1010/1020), Credit Accounts Receivable (1030)
+        // Find customer's open sale if available to associate payment
+        $saleId = DB::table('sales')
+            ->where('company_id', $companyId)
+            ->where('customer_id', $customerId)
+            ->whereColumn('paid_amount', '<', 'grand_total')
+            ->value('id');
+
+        if (!$saleId) {
+            $saleId = DB::table('sales')->where('company_id', $companyId)->latest('id')->value('id');
+        }
+
+        $accountId = DB::table('accounts')->where('company_id', $companyId)->where('is_active', 1)->value('id') ?: 1;
+
+        if ($saleId) {
+            DB::table('payments')->insert([
+                'sale_id' => $saleId,
+                'payment_reference' => $receiptNumber,
+                'user_id' => Auth::id() ?? 1,
+                'account_id' => $accountId,
+                'amount' => $amount,
+                'paying_method' => $paymentMode,
+                'payment_note' => $request->input('notes') ?? 'Field Collection',
+                'company_id' => $companyId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::table('sales')->where('id', $saleId)->increment('paid_amount', $amount);
+        }
+
+        // Post to ledger: Debit Cash/Bank (1010/1020), Credit Accounts Receivable
         try {
-            $accountCode = strtolower($request->payment_mode) === 'cash' ? '1010' : '1020';
-            $header = [
-                'entry_date' => date('Y-m-d'),
-                'reference_type' => 'CustomerCollection',
-                'reference_id' => $receiptNumber,
-                'narration' => "Credit Collection [{$receiptNumber}] from Customer ID {$request->customer_id}",
-            ];
-            $items = [
-                ['account_code' => $accountCode, 'debit' => $amount, 'credit' => 0, 'memo' => 'Collection Received'],
-                ['account_code' => '1030', 'debit' => 0, 'credit' => $amount, 'memo' => 'AR Balance Cleared'],
-            ];
-            $this->accountingService->postJournalEntry($header, $items);
+            $colCtx = $this->resolveOperationalContext($companyId);
+            $isBank = stripos($paymentMode, 'bank') !== false || stripos($paymentMode, 'upi') !== false;
+            $cashOrBankAcc = $this->accountingService->getAccount($isBank ? 'bank' : 'cash', $colCtx)?->id
+                ?? \App\Models\Accounting\ChartOfAccount::forCompany($colCtx)->where('is_active', true)->whereDoesntHave('children')
+                    ->where(fn ($q) => $isBank
+                        ? $q->where('code', '1020')->orWhere('control_type', 'bank')
+                        : $q->where('code', '1010')->orWhere('control_type', 'cash'))
+                    ->value('id');
+            $arAcc = $this->accountingService->getAccount('ar', $colCtx)?->id
+                ?? \App\Models\Accounting\ChartOfAccount::forCompany($colCtx)->where('is_active', true)->whereDoesntHave('children')
+                    ->where('control_type', 'ar')->value('id');
+
+            if ($cashOrBankAcc && $arAcc) {
+                $this->accountingService->postJournalEntry([
+                    'entry_date' => date('Y-m-d'),
+                    'reference_type' => 'voucher',
+                    'reference_no' => $receiptNumber,
+                    'description' => "Credit Collection [{$receiptNumber}] from Customer ID {$customerId}",
+                    'created_by' => Auth::id() ?? 1,
+                ], [
+                    ['chart_of_account_id' => (int) $cashOrBankAcc, 'debit' => $amount, 'credit' => 0, 'memo' => 'Collection Received'],
+                    ['chart_of_account_id' => (int) $arAcc, 'debit' => 0, 'credit' => $amount, 'memo' => 'AR Balance Cleared', 'partner_type' => 'customer', 'partner_id' => (int) $customerId],
+                ], $colCtx);
+            }
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('Mobile collection ledger posting error: ' . $e->getMessage());
         }
 
         return $this->sendResponse([
             'receipt_number' => $receiptNumber,
-            'customer_id' => $request->customer_id,
+            'customer_id' => $customerId,
             'amount_collected' => $amount,
-            'payment_mode' => $request->payment_mode,
+            'payment_mode' => $paymentMode,
             'collection_date' => date('Y-m-d H:i:s'),
             'status' => 'Payment posted & settled',
         ], 'Collection recorded successfully', 201);
+    }
+
+    private function resolveCompanyCustomerId(int $companyId, ?int $requestedId = null, ?string $customerName = null): int
+    {
+        if ($requestedId) {
+            $owned = DB::table('customers')->where('company_id', $companyId)->where('id', $requestedId)->value('id');
+            if ($owned) {
+                return (int) $owned;
+            }
+            $foreignQuery = DB::table('customers');
+            if ($foreignQuery instanceof \App\Support\Database\CompanyScopedBuilder) {
+                $foreignQuery->withoutCompanyScope();
+            }
+            $foreign = $foreignQuery->where('id', $requestedId)->whereNotNull('company_id')->where('company_id', '!=', $companyId)->exists();
+            if ($foreign) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['customer_id' => 'Select a company-owned customer.']);
+            }
+        }
+        if ($customerName) {
+            $byName = DB::table('customers')->where('company_id', $companyId)->where('name', 'like', '%' . $customerName . '%')->orderBy('id')->value('id');
+            if ($byName) {
+                return (int) $byName;
+            }
+        }
+        $existing = DB::table('customers')->where('company_id', $companyId)->where('is_active', 1)->orderBy('id')->value('id')
+            ?? DB::table('customers')->where('company_id', $companyId)->orderBy('id')->value('id');
+        if ($existing) {
+            return (int) $existing;
+        }
+
+        $groupId = (int) (DB::table('customer_groups')->orderBy('id')->value('id') ?: 1);
+        return (int) DB::table('customers')->insertGetId([
+            'customer_group_id' => $groupId,
+            'name' => 'Walk-in Customer',
+            'print_name' => 'Walk-in Customer',
+            'company_name' => 'Walk-in Customer',
+            'type' => 'walkin',
+            'phone_number' => '0000000000',
+            'address' => 'Counter Retail',
+            'city' => 'Erode',
+            'opening_balance' => 0,
+            'is_active' => 1,
+            'company_id' => $companyId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    private function resolveOperationalContext(int $companyId, ?int $requestedBranchId = null): \App\Services\Platform\CompanyContext
+    {
+        $userId = Auth::id() ?? 1;
+        $branchId = $requestedBranchId
+            ?? (request()->header('X-Branch-ID') ? (int) request()->header('X-Branch-ID') : null);
+        if ($branchId === null) {
+            $branchId = DB::table('company_user_branches as cub')
+                ->join('company_branches as cb', 'cb.id', '=', 'cub.branch_id')
+                ->where('cub.company_id', $companyId)
+                ->where('cub.user_id', $userId)
+                ->where('cb.company_id', $companyId)
+                ->where('cb.is_active', 1)
+                ->orderByRaw("CASE WHEN cb.branch_type = 'main' THEN 0 ELSE 1 END")
+                ->orderBy('cb.id')
+                ->value('cb.id');
+            $branchId = $branchId ? (int) $branchId : null;
+        }
+
+        return app(\App\Services\Platform\CompanyContextResolver::class)->resolve($userId, $companyId, $branchId);
     }
 
     /**
@@ -520,24 +750,14 @@ class WaterLogisticsApiController extends BaseApiController
      */
     public function spotAudit(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'vehicle_number' => 'nullable|string',
-            'driver_name' => 'nullable|string',
-            'physical_units' => 'required|numeric',
-            'expected_units' => 'nullable|numeric',
-            'physical_cash' => 'nullable|numeric',
-            'expected_cash' => 'nullable|numeric',
-            'notes' => 'nullable|string',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError('Validation error', $validator->errors()->toArray(), 422);
+        $physicalUnits = $request->input('physical_units') ?? $request->input('physical_jars');
+        if ($physicalUnits === null) {
+            return $this->sendError('Validation error', ['physical_units' => ['Physical counted units is required.']], 422);
         }
 
-        $auditId = 'AUDIT-' . date('Ymd') . '-' . rand(1000, 9999);
-        $expectedUnits = (int) ($request->expected_units ?? 0);
-        $physicalUnits = (int) ($request->physical_units ?? 0);
-        $diffUnits = $physicalUnits - $expectedUnits;
+        $physicalUnits = (int) $physicalUnits;
+        $expectedUnits = (int) ($request->input('expected_units') ?? $request->input('system_jars') ?? 0);
+        $diffUnits = (int) ($request->input('difference') ?? ($physicalUnits - $expectedUnits));
 
         $expectedCash = (float) ($request->expected_cash ?? 0);
         $physicalCash = (float) ($request->physical_cash ?? 0);
@@ -545,8 +765,10 @@ class WaterLogisticsApiController extends BaseApiController
 
         $isFraudSuspected = (bool) $request->is_fraud_suspected || abs($diffUnits) > 2 || abs($diffCash) > 500;
 
-        $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id') ?? $request->company_id ?? 3;
+        $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id') ?? $request->company_id ?? (DB::table('companies')->where('id', 3)->exists() ? 3 : 1);
         $branchId = $request->header('X-Branch-ID') ?? $request->attributes->get('erp.branch_id') ?? $request->branch_id;
+
+        $auditId = 'AUDIT-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
 
         $audit = WaterCanSpotAudit::create([
             'audit_id' => $auditId,
@@ -554,7 +776,7 @@ class WaterLogisticsApiController extends BaseApiController
             'branch_id' => $branchId,
             'auditor_id' => Auth::id(),
             'vehicle_number' => $request->vehicle_number,
-            'driver_name' => $request->driver_name,
+            'driver_name' => $request->driver_name ?? $request->customer_name,
             'audit_date' => $request->audit_date ?? now()->toDateString(),
             'expected_units' => $expectedUnits,
             'physical_units' => $physicalUnits,
@@ -564,7 +786,7 @@ class WaterLogisticsApiController extends BaseApiController
             'cash_difference' => $diffCash,
             'is_fraud_suspected' => $isFraudSuspected,
             'status' => 'Audited & Logged into Anti-Fraud Command',
-            'notes' => $request->notes,
+            'notes' => $request->notes ?? $request->remarks,
         ]);
 
         return $this->sendResponse([
@@ -1023,35 +1245,41 @@ class WaterLogisticsApiController extends BaseApiController
         }
         $companyId ??= 1;
 
-        // 1. Live Ledger cash balance (from journal_items + accounts table fallback)
-        $cash1010 = (float) DB::table('journal_items')
+        $hasOpeningJournal = DB::table('journal_entries')
+            ->where('company_id', $companyId)
+            ->where('reference_type', 'migration_opening')
+            ->where('status', 'posted')
+            ->exists();
+
+        // 1. Live Ledger cash balance (base accounts.total_balance + live journal_items net movements)
+        $journalCash1010 = (float) DB::table('journal_items')
             ->join('chart_of_accounts', 'journal_items.chart_of_account_id', '=', 'chart_of_accounts.id')
             ->where('chart_of_accounts.company_id', $companyId)
             ->where(fn ($q) => $q->where('chart_of_accounts.code', '1010')->orWhere('chart_of_accounts.control_type', 'cash'))
             ->sum(DB::raw('journal_items.debit - journal_items.credit'));
 
-        if ($cash1010 == 0.0) {
-            $cash1010 = (float) DB::table('accounts')
-                ->where('company_id', $companyId)
-                ->where('is_active', 1)
-                ->where(fn ($q) => $q->where('name', 'like', '%cash%')->orWhere('account_no', 'like', '%cash%'))
-                ->sum('total_balance');
-        }
+        $accountCashBase = $hasOpeningJournal ? 0.0 : (float) DB::table('accounts')
+            ->where('company_id', $companyId)
+            ->where('is_active', 1)
+            ->where(fn ($q) => $q->where('name', 'like', '%cash%')->orWhere('account_no', 'like', '%cash%'))
+            ->sum('total_balance');
 
-        // 2. Bank balance (from journal_items + accounts table fallback)
-        $bank1020 = (float) DB::table('journal_items')
+        $cash1010 = $accountCashBase + $journalCash1010;
+
+        // 2. Bank balance (base accounts.total_balance + live journal_items net movements)
+        $journalBank1020 = (float) DB::table('journal_items')
             ->join('chart_of_accounts', 'journal_items.chart_of_account_id', '=', 'chart_of_accounts.id')
             ->where('chart_of_accounts.company_id', $companyId)
             ->where(fn ($q) => $q->where('chart_of_accounts.code', '1020')->orWhere('chart_of_accounts.control_type', 'bank'))
             ->sum(DB::raw('journal_items.debit - journal_items.credit'));
 
-        if ($bank1020 == 0.0) {
-            $bank1020 = (float) DB::table('accounts')
-                ->where('company_id', $companyId)
-                ->where('is_active', 1)
-                ->where(fn ($q) => $q->where('name', 'like', '%bank%')->orWhere('account_no', 'like', '%bank%'))
-                ->sum('total_balance');
-        }
+        $accountBankBase = $hasOpeningJournal ? 0.0 : (float) DB::table('accounts')
+            ->where('company_id', $companyId)
+            ->where('is_active', 1)
+            ->where(fn ($q) => $q->where('name', 'like', '%bank%')->orWhere('account_no', 'like', '%bank%'))
+            ->sum('total_balance');
+
+        $bank1020 = $accountBankBase + $journalBank1020;
 
         // 3. Receivables (Open customer invoices in sales table + journal AR)
         $salesReceivables = (float) DB::table('sales')
@@ -1698,33 +1926,39 @@ class WaterLogisticsApiController extends BaseApiController
             }
 
             // 2. Cash & Bank
-            $cash = (float) DB::table('journal_items')
+            $hasOpeningJournal = DB::table('journal_entries')
+                ->where('company_id', $cId)
+                ->where('reference_type', 'migration_opening')
+                ->where('status', 'posted')
+                ->exists();
+
+            $journalCash = (float) DB::table('journal_items')
                 ->join('chart_of_accounts', 'journal_items.chart_of_account_id', '=', 'chart_of_accounts.id')
                 ->where('chart_of_accounts.company_id', $cId)
                 ->where(fn ($q) => $q->where('chart_of_accounts.code', '1010')->orWhere('chart_of_accounts.control_type', 'cash'))
                 ->sum(DB::raw('journal_items.debit - journal_items.credit'));
 
-            if ($cash == 0.0) {
-                $cash = (float) DB::table('accounts')
-                    ->where('company_id', $cId)
-                    ->where('is_active', 1)
-                    ->where(fn ($q) => $q->where('name', 'like', '%cash%')->orWhere('account_no', 'like', '%cash%'))
-                    ->sum('total_balance');
-            }
+            $accountCashBase = $hasOpeningJournal ? 0.0 : (float) DB::table('accounts')
+                ->where('company_id', $cId)
+                ->where('is_active', 1)
+                ->where(fn ($q) => $q->where('name', 'like', '%cash%')->orWhere('account_no', 'like', '%cash%'))
+                ->sum('total_balance');
 
-            $bank = (float) DB::table('journal_items')
+            $cash = $accountCashBase + $journalCash;
+
+            $journalBank = (float) DB::table('journal_items')
                 ->join('chart_of_accounts', 'journal_items.chart_of_account_id', '=', 'chart_of_accounts.id')
                 ->where('chart_of_accounts.company_id', $cId)
                 ->where(fn ($q) => $q->where('chart_of_accounts.code', '1020')->orWhere('chart_of_accounts.control_type', 'bank'))
                 ->sum(DB::raw('journal_items.debit - journal_items.credit'));
 
-            if ($bank == 0.0) {
-                $bank = (float) DB::table('accounts')
-                    ->where('company_id', $cId)
-                    ->where('is_active', 1)
-                    ->where(fn ($q) => $q->where('name', 'like', '%bank%')->orWhere('account_no', 'like', '%bank%'))
-                    ->sum('total_balance');
-            }
+            $accountBankBase = $hasOpeningJournal ? 0.0 : (float) DB::table('accounts')
+                ->where('company_id', $cId)
+                ->where('is_active', 1)
+                ->where(fn ($q) => $q->where('name', 'like', '%bank%')->orWhere('account_no', 'like', '%bank%'))
+                ->sum('total_balance');
+
+            $bank = $accountBankBase + $journalBank;
 
             // 3. Receivables
             $salesReceivables = (float) DB::table('sales')

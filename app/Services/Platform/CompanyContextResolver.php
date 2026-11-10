@@ -28,17 +28,9 @@ class CompanyContextResolver
         if ($branchId === null) {
             $authorized = (clone $branches)->get();
             if ($authorized->count() !== 1) {
-                // Robust multi-branch fallback: prioritize main branch, then first authorized branch
-                $defaultBranch = (clone $branches)->where('branch_type', 'main')->first()
-                    ?? (clone $branches)->first();
-                if ($defaultBranch) {
-                    $branchId = $defaultBranch->id;
-                } else {
-                    throw ValidationException::withMessages(['branch_id' => 'Select an authorized branch.']);
-                }
-            } else {
-                $branchId = $authorized->sole()->id;
+                throw ValidationException::withMessages(['branch_id' => 'Select an authorized branch.']);
             }
+            $branchId = $authorized->sole()->id;
         } elseif (!(clone $branches)->whereKey($branchId)->exists()) {
             throw new AuthorizationException('Branch access denied.');
         }

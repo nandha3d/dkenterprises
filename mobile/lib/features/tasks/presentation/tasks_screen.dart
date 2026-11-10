@@ -473,13 +473,46 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Records were captured offline and will sync automatically when network connectivity is established.',
-                  style: AppTypography.caption,
+                Text(
+                  syncWorker.state.lastError != null && syncWorker.state.lastError!.isNotEmpty
+                      ? 'Last attempt error: ${syncWorker.state.lastError}'
+                      : 'Records were captured offline and will sync automatically when network connectivity is established.',
+                  style: AppTypography.caption.copyWith(
+                    color: syncWorker.state.lastError != null ? AppColors.danger : null,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton.icon(
-                  onPressed: () => syncWorker.drainOutbox(),
+                  onPressed: () async {
+                    final count = syncWorker.state.pendingCount;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(count > 0 ? 'Syncing $count offline record(s) to server...' : 'Checking server sync status...'),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
+                    await syncWorker.drainOutbox();
+                    if (context.mounted) {
+                      ref.read(dashboardRefreshSignalProvider.notifier).state++;
+                      final remaining = syncWorker.state.pendingCount;
+                      if (remaining == 0) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('All offline records successfully synced to ERP server!'),
+                            backgroundColor: AppColors.success,
+                          ),
+                        );
+                      } else {
+                        final err = syncWorker.state.lastError ?? 'Server rejected sync.';
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('$remaining records pending. $err'),
+                            backgroundColor: AppColors.warning,
+                          ),
+                        );
+                      }
+                    }
+                  },
                   icon: const Icon(Icons.sync_rounded, size: 18),
                   label: const Text('Sync Outbox Now'),
                 ),

@@ -91,10 +91,24 @@ class _CafePosScreenState extends ConsumerState<CafePosScreen> {
     final db = ref.read(localDatabaseProvider);
     final syncWorker = ref.read(syncWorkerProvider);
 
+    final orderItems = _cart.entries.map((e) {
+      final item = _menuItems.firstWhere((m) => m['id'] == e.key, orElse: () => {'price': 0.0});
+      return {
+        'item_id': e.key,
+        'product_id': e.key,
+        'qty': e.value,
+        'price': (item['price'] as num?)?.toDouble() ?? 0.0,
+      };
+    }).toList();
+
     final payload = {
-      'order_items': _cart.entries.map((e) => {'item_id': e.key, 'qty': e.value}).toList(),
+      'total_amount': _totalBill,
       'grand_total': _totalBill,
+      'amount': _totalBill,
+      'payment_method': 'Cash',
       'payment_mode': 'Cash',
+      'items': orderItems,
+      'order_items': orderItems,
       'client_timestamp': DateTime.now().toIso8601String(),
     };
 
@@ -114,6 +128,8 @@ class _CafePosScreenState extends ConsumerState<CafePosScreen> {
         _cart.clear();
         _isSubmitting = false;
       });
+      ref.read(dashboardRefreshSignalProvider.notifier).state++;
+      syncWorker.drainOutbox();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Cafe POS ticket issued and drawer updated!'),
@@ -135,9 +151,14 @@ class _CafePosScreenState extends ConsumerState<CafePosScreen> {
         _isSubmitting = false;
       });
 
+      final failureMsg = result.failureOrNull?.message;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('POS order stored in offline Outbox! Will sync automatically.'),
+        SnackBar(
+          content: Text(
+            failureMsg != null && failureMsg.isNotEmpty
+                ? 'Saved to Offline Outbox ($failureMsg). Will retry automatically.'
+                : 'POS order stored in offline Outbox! Will sync automatically.',
+          ),
           backgroundColor: AppColors.warning,
         ),
       );

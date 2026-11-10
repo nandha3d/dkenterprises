@@ -81,9 +81,12 @@ class CompanySwitcherSheet extends ConsumerWidget {
                 final isSelected = company.id == authState.activeCompany?.id;
 
                 return InkWell(
-                  onTap: () {
-                    ref.read(authNotifierProvider.notifier).switchCompany(company);
-                    Navigator.of(context).pop();
+                  onTap: () async {
+                    final navigator = Navigator.of(context);
+                    await ref.read(authNotifierProvider.notifier).switchCompany(company);
+                    if (context.mounted) {
+                      navigator.pop();
+                    }
                   },
                   borderRadius: BorderRadius.circular(12),
                   child: Container(

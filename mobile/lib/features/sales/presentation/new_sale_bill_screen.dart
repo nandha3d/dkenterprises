@@ -96,6 +96,7 @@ class _NewSaleBillScreenState extends ConsumerState<NewSaleBillScreen> {
     if (!mounted) return;
 
     if (result.isSuccess) {
+      ref.read(dashboardRefreshSignalProvider.notifier).state++;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Sale bill created and posted to general ledger!'),

@@ -108,7 +108,9 @@ class RoleDashboardIsolationTest extends TestCase
         $admin = User::where('name', 'admin')->first();
         $this->assertNotNull($admin, 'Admin user must exist');
 
-        $response = $this->actingAs($admin)->get('/dashboard');
+        $response = $this->actingAs($admin)
+            ->withSession(['company_id' => 1, 'branch_id' => 1])
+            ->get('/dashboard');
         $response->assertStatus(200);
         $response->assertViewIs('backend.index');
         $response->assertSee('Dashboard');

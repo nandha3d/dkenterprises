@@ -25,12 +25,13 @@ class SyncState {
     int? pendingCount,
     DateTime? lastSyncedAt,
     String? lastError,
+    bool clearError = false,
   }) {
     return SyncState(
       status: status ?? this.status,
       pendingCount: pendingCount ?? this.pendingCount,
       lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
-      lastError: lastError ?? this.lastError,
+      lastError: clearError ? null : (lastError ?? this.lastError),
     );
   }
 }
@@ -83,6 +84,7 @@ class SyncWorker extends ChangeNotifier {
           status: SyncStatus.synced,
           pendingCount: 0,
           lastSyncedAt: DateTime.now(),
+          clearError: true,
         );
         notifyListeners();
         _isProcessing = false;
@@ -92,6 +94,7 @@ class SyncWorker extends ChangeNotifier {
       _state = _state.copyWith(
         status: SyncStatus.syncing,
         pendingCount: pending.length,
+        clearError: true,
       );
       notifyListeners();
 
@@ -103,15 +106,13 @@ class SyncWorker extends ChangeNotifier {
         final idempotencyKey = item['idempotency_key'] as String;
 
         ApiResult<dynamic> result;
-        if (method == 'POST') {
-          result = await _apiClient.post(
+        if (method == 'PUT') {
+          result = await _apiClient.put(
             endpoint,
             data: payload,
-            idempotencyKey: idempotencyKey,
             fromJson: (data) => data,
           );
         } else {
-          // Default fallback
           result = await _apiClient.post(
             endpoint,
             data: payload,
@@ -124,13 +125,16 @@ class SyncWorker extends ChangeNotifier {
           await _db.deleteMutation(id);
         } else {
           final failure = result.failureOrNull!;
+          final errDetail = failure.statusCode != null
+              ? 'HTTP ${failure.statusCode}: ${failure.message}'
+              : failure.message;
           await _db.updateMutationStatus(
             id,
             'failed',
-            error: failure.message,
+            error: errDetail,
           );
           _state = _state.copyWith(
-            lastError: failure.message,
+            lastError: errDetail,
           );
         }
       }
@@ -140,6 +144,7 @@ class SyncWorker extends ChangeNotifier {
         status: remaining == 0 ? SyncStatus.synced : SyncStatus.error,
         pendingCount: remaining,
         lastSyncedAt: DateTime.now(),
+        clearError: remaining == 0,
       );
       notifyListeners();
     } catch (e) {

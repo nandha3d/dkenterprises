@@ -72,6 +72,9 @@ class _DriverSurrenderScreenState extends ConsumerState<DriverSurrenderScreen> {
 
     final payload = {
       'driver_id': 1,
+      'route_id': 1,
+      'cash_surrendered': _netSurrender,
+      'empty_cans_returned': 0,
       'gross_cash_collected': _grossCollected,
       'route_expenses': _routeExpenses,
       'net_cash_surrendered': _netSurrender,
