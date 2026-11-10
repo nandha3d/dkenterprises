@@ -1,5 +1,54 @@
 # zoloERP Pro — Persistent Session Memory & State
 
+## Active Session & Follow-up — 2026-11-10: Accounting GL Number Clarification, Compact Graphical Sparkline Cards, Dynamic Sales Filter Card & Live Multi-Vertical Ledger Postings (branch main & ui)
+
+- **Issues Addressed & Visual Evidence Resolved:**
+  1. *Accounting GL Numbers in Titles (`(1010)`, `(1020)`, etc.) on Dashboard Cards (`media_1794286600991_0a7947e9.png`):*
+     - Root Cause & Context: The numbers in parentheses `(1010)`, `(1020)`, `(1030)`, `(2010)` represent the General Ledger (GL) Chart of Accounts (COA) codes:
+       - `1010`: Cash in Hand (Liquid Asset)
+       - `1020`: Bank Balances & UPI (Liquid Asset)
+       - `1030`: Accounts Receivable / Customer Dues (Current Asset)
+       - `2010`: Accounts Payable / Supplier Dues (Current Liability)
+     - Resolution: Cleaned titles to professional executive labels (`Cash in Hand`, `Bank Balances`, `Customer Receivables`, `Supplier Payables`) and rendered the GL code in an elegant, subtle sub-tag (`GL 1010`, `GL 1020`, `GL 1030`, `GL 2010`), preserving audit traceability while removing visual clutter from the headline.
+  2. *Compact Themed Cards with Embedded Graphical Sparkline Mini-Charts:*
+     - Created `mobile/lib/core/ui/sparkline_chart.dart`: Native Flutter 60/120fps cubic Bezier curve painter with gradient area fill and glowing current pin.
+     - Overhauled `mobile/lib/core/ui/kpi_card.dart`: Compact 16px-radius themed container with embedded `SparklineChart`, subtle border contrast, theme-colored surfaces (Emerald green, Sky blue, Violet, Coral red, Deep teal), and modern icons (`Icons.account_balance_wallet_rounded`, `Icons.account_balance_rounded`, `Icons.call_received_rounded`, `Icons.outbox_rounded`, `Icons.verified_user_rounded`).
+  3. *High-Impact Sales Performance Card with Default Monthly Sales & Dynamic Period Filtering:*
+     - Created `mobile/lib/core/ui/sales_performance_card.dart` positioned prominently at the top of the executive dashboard:
+       - Default View: `This Month (Default)` (`this_month`), calculating total gross sales across the active company.
+       - Live Today Pulse: Dedicated green pulsing badge with live today's counter/field sales (`SALES TODAY`).
+       - Dynamic Filter Presets: `This Month (Default)`, `Today`, `Yesterday`, `This Week`, `Last Week`, `Last Month`, `Quarterly (This Quarter)`, `Custom Range...` with integrated native `showDateRangePicker`.
+       - Full Multi-Vertical Backend Revenue Calculations (`WaterLogisticsApiController.php::financials`):
+         - Aran Cafe: `sales` table grand total.
+         - Tiruchendur Murugan Water Supply (TMWS): `water_tanker_trips.trip_rate` + surcharges + sales.
+         - DK Waters: `water_can_deliveries.total_amount` + sales.
+       - Embedded sales trend curve with daily multi-point trajectory points.
+  4. *Live Multi-Vertical Accounting Ledger Postings with Date Filter at Bottom:*
+     - Created `mobile/lib/core/ui/ledger_transactions_section.dart` positioned at the bottom of the dashboard:
+       - Default View: `Today (Default)` (`today`).
+       - Date Filter Chips: `Today`, `Yesterday`, `This Week`, `This Month`, `Custom...`.
+       - Journal vouchers rendered with signed amounts (`+₹...` in green `CREDIT`, `-₹...` in red `DEBIT`), category badges (`receipt`, `sale`, `expense`, `trip`, `delivery`), formatted timestamps (`Today, 04:30 PM`), and GL account codes (`Cash (1010)`, `Bank (1020)`, `Expense (5010)`, etc.).
+       - Directly supports all verticals: cafe POS settlements, tanker freight trips & diesel fuel expenses, 20L can delivery cash/UPI settlements, and operating expenses.
+  5. *Executive Dashboard Integration & Reactive Filtering:*
+     - Updated `mobile/lib/features/dashboard/presentation/executive_dashboard_screen.dart` with state variables `_salesPeriod`, `_salesStartDate`, `_salesEndDate`, `_ledgerPeriod`, `_ledgerStartDate`, `_ledgerEndDate`.
+     - Integrated `SalesPerformanceCard`, compact `KpiCard` grid with embedded sparklines, and `LedgerTransactionsSection` with real-time API query parameter updates.
+- **Verification Status (100% Green across Repositories):**
+  - Flutter Mobile Test Suite (`mobile/test/`):
+    - `sales_and_ledger_kpi_test.dart`: 4/4 passed (100%).
+    - Full suite (`auth_models_test.dart`, `customer_routing_test.dart`, `dashboard_null_test.dart`, `sales_and_ledger_kpi_test.dart`, `widget_test.dart`): **28/28 passed (100% green)**.
+  - Flutter Static Analysis: **0 errors, 0 warnings, 0 infos**.
+  - Laravel Feature Tests:
+    - `ThreeCompaniesWorkflowAndFraudTest.php`: 18/18 passed (160 assertions, 100%).
+    - `RoleDashboardIsolationTest.php`: 7/7 passed (80 assertions, 100%).
+    - `DriverIsolationAndLocationTest.php`: 8/8 passed (46 assertions, 100%).
+    - `StockReportTest.php`: 9/9 passed (67 assertions, 100%).
+    - `MobileApiSecurityAndMeTest.php`: 9/9 passed (157 assertions, 100%).
+    - Total: **51/51 passed (510 assertions, 100% green)**.
+  - Windows Executables:
+    - Debug: `mobile/build/windows/x64/runner/Debug/dk_track_mobile.exe` (built fresh).
+    - Release: `mobile/build/windows/x64/runner/Release/dk_track_mobile.exe`.
+
+
 ## Active Session & Follow-up — 2026-11-09: Complete Customer Onboarding Flow, Delivery Boy / Tanker Driver Creation, WhatsApp GPS Persistence & Windows Desktop Fresh Compilation (branch main & ui)
 
 - **Issues Addressed & Visual Evidence Resolved:**

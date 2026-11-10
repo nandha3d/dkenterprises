@@ -7,6 +7,8 @@ import '../../../core/providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/ui/kpi_card.dart';
+import '../../../core/ui/sales_performance_card.dart';
+import '../../../core/ui/ledger_transactions_section.dart';
 import '../../auth/domain/auth_models.dart';
 import 'tanker_driver_dashboard_screen.dart';
 import 'can_delivery_driver_dashboard_screen.dart';
@@ -27,6 +29,15 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
   DateTime? _lastRefreshedAt;
   bool _isFromCache = false;
 
+  // Active filter states for dynamic Sales & Ledger queries
+  String _salesPeriod = 'this_month'; // Default: Monthly Sales
+  DateTime? _salesStartDate;
+  DateTime? _salesEndDate;
+
+  String _ledgerPeriod = 'today'; // Default: Today
+  DateTime? _ledgerStartDate;
+  DateTime? _ledgerEndDate;
+
   @override
   void initState() {
     super.initState();
@@ -43,7 +54,7 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
     final db = ref.read(localDatabaseProvider);
     final authState = ref.read(authNotifierProvider);
     final companyId = authState.activeCompany?.id ?? 0;
-    final cacheKey = 'financials_company_$companyId';
+    final cacheKey = 'financials_comp_${companyId}_s_${_salesPeriod}_l_$_ledgerPeriod';
 
     // 1. Check offline cache first
     try {
@@ -61,10 +72,29 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
       // Continue to live fetch
     }
 
-    // 2. Attempt live server fetch with safe timeout
+    // 2. Prepare query parameters for dynamic backend computation
+    final queryParams = <String, dynamic>{
+      'sales_period': _salesPeriod,
+      'ledger_period': _ledgerPeriod,
+    };
+    if (_salesStartDate != null) {
+      queryParams['sales_start_date'] = DateFormat('yyyy-MM-dd').format(_salesStartDate!);
+    }
+    if (_salesEndDate != null) {
+      queryParams['sales_end_date'] = DateFormat('yyyy-MM-dd').format(_salesEndDate!);
+    }
+    if (_ledgerStartDate != null) {
+      queryParams['ledger_start_date'] = DateFormat('yyyy-MM-dd').format(_ledgerStartDate!);
+    }
+    if (_ledgerEndDate != null) {
+      queryParams['ledger_end_date'] = DateFormat('yyyy-MM-dd').format(_ledgerEndDate!);
+    }
+
+    // 3. Attempt live server fetch with safe timeout
     try {
       final result = await apiClient.get(
         ApiEndpoints.financials,
+        queryParameters: queryParams,
         fromJson: (data) => data as Map<String, dynamic>,
       ).timeout(const Duration(seconds: 8));
 
@@ -155,6 +185,44 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
     final payables = _financials?['payables'] as num? ?? 0;
     final todayCollections = _financials?['collections_today'] as num? ??
         _financials?['today_collections'] as num? ?? 0;
+
+    // Dynamic Sales Performance
+    final salesAmount = _financials?['sales_amount'] as num? ?? 0;
+    final salesToday = _financials?['sales_today'] as num? ?? 0;
+    final salesCount = (_financials?['sales_count'] as num?)?.toInt() ?? 0;
+    final salesPeriodLabel = _financials?['sales_period_label'] as String? ?? 'This Month (Default)';
+
+    final salesTrendRaw = _financials?['sales_trend'] as List<dynamic>? ?? [];
+    final salesTrend = salesTrendRaw.map<num>((e) {
+      if (e is Map) return (e['amount'] as num? ?? 0);
+      if (e is num) return e;
+      return 0;
+    }).toList();
+
+    // Core Financial Sparkline Trajectories
+    final cashTrend = (_financials?['cash_trend'] as List<dynamic>?)
+            ?.map<num>((e) => e as num)
+            .toList() ??
+        [];
+    final bankTrend = (_financials?['bank_trend'] as List<dynamic>?)
+            ?.map<num>((e) => e as num)
+            .toList() ??
+        [];
+    final receivablesTrend = (_financials?['receivables_trend'] as List<dynamic>?)
+            ?.map<num>((e) => e as num)
+            .toList() ??
+        [];
+    final payablesTrend = (_financials?['payables_trend'] as List<dynamic>?)
+            ?.map<num>((e) => e as num)
+            .toList() ??
+        [];
+
+    // Live Accounting Ledger Postings
+    final ledgerEntries = _financials?['ledger_entries'] as List<dynamic>? ??
+        _financials?['recent_transactions'] as List<dynamic>? ??
+        [];
+    final ledgerPeriodLabel =
+        _financials?['ledger_period_label'] as String? ?? 'Today (Default)';
 
     final isInitialLoading = _isLoading && _financials == null;
 
@@ -253,46 +321,76 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
           ),
           const SizedBox(height: 18),
 
-          // 2x2 Core Financial KPIs Grid
+          // High-Impact Sales Performance Card with Default Monthly Sales & Instant Range Filters
+          SalesPerformanceCard(
+            salesAmount: salesAmount,
+            todaySalesAmount: salesToday,
+            salesCount: salesCount,
+            activePeriod: _salesPeriod,
+            activePeriodLabel: salesPeriodLabel,
+            trendPoints: salesTrend,
+            verticalIndustry: industry,
+            onPeriodSelected: (period, {startDate, endDate}) {
+              setState(() {
+                _salesPeriod = period;
+                _salesStartDate = startDate;
+                _salesEndDate = endDate;
+              });
+              _loadDashboardData();
+            },
+          ),
+          const SizedBox(height: 16),
+
+          // 2x2 Core Financial KPIs Grid (Compact with Graphical Sparklines & Separate GL Codes)
           GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
-            childAspectRatio: 1.35,
+            childAspectRatio: 1.25,
             children: [
               KpiCard(
-                title: 'Cash in Hand (1010)',
+                title: 'Cash in Hand',
+                glCode: '1010',
                 amount: isInitialLoading ? null : cashBalance,
                 customValue: isInitialLoading ? '...' : null,
                 icon: Icons.account_balance_wallet_rounded,
-                iconColor: AppColors.success,
+                accentColor: AppColors.brandEmerald,
+                sparklineData: cashTrend,
+                subtitle: 'Liquid Main Cash',
                 onTap: () => context.push('/accounting/books'),
               ),
               KpiCard(
-                title: 'Bank Balances (1020)',
+                title: 'Bank Balances',
+                glCode: '1020',
                 amount: isInitialLoading ? null : bankBalance,
                 customValue: isInitialLoading ? '...' : null,
                 icon: Icons.account_balance_rounded,
-                iconColor: AppColors.primary,
+                accentColor: AppColors.brandSky,
+                sparklineData: bankTrend,
+                subtitle: 'Active Bank & UPI',
                 onTap: () => context.push('/accounting/books'),
               ),
               KpiCard(
-                title: 'Receivables (1030)',
+                title: 'Customer Receivables',
+                glCode: '1030',
                 amount: isInitialLoading ? null : receivables,
                 customValue: isInitialLoading ? '...' : null,
                 icon: Icons.call_received_rounded,
-                iconColor: AppColors.warning,
+                accentColor: const Color(0xFF7C3AED),
+                sparklineData: receivablesTrend,
                 subtitle: 'Customer Dues',
                 onTap: () => context.push('/accounting/collect'),
               ),
               KpiCard(
-                title: 'Payables (2010)',
+                title: 'Supplier Payables',
+                glCode: '2010',
                 amount: isInitialLoading ? null : payables,
                 customValue: isInitialLoading ? '...' : null,
-                icon: Icons.call_made_rounded,
-                iconColor: AppColors.danger,
+                icon: Icons.outbox_rounded,
+                accentColor: AppColors.brandDanger,
+                sparklineData: payablesTrend,
                 subtitle: 'Supplier Dues',
                 onTap: () => context.push('/purchases'),
               ),
@@ -300,13 +398,14 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
           ),
           const SizedBox(height: 12),
 
-          // Today's Collections Strip
+          // Today's Verified Collections Strip
           KpiCard(
             title: "Today's Verified Collections",
+            glCode: 'GL 1010 / 1020',
             amount: isInitialLoading ? null : todayCollections,
             customValue: isInitialLoading ? '...' : null,
-            icon: Icons.verified_rounded,
-            iconColor: AppColors.success,
+            icon: Icons.verified_user_rounded,
+            accentColor: const Color(0xFF0D9488),
             subtitle: 'Direct journal entries posted to ledger',
             onTap: () => context.push('/accounting/collect'),
           ),
@@ -489,6 +588,23 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
             ),
           ],
           const SizedBox(height: 24),
+
+          // Live Accounting Ledger Postings with Date Filtering across all verticals
+          LedgerTransactionsSection(
+            entries: ledgerEntries,
+            activePeriod: _ledgerPeriod,
+            activePeriodLabel: ledgerPeriodLabel,
+            verticalIndustry: industry,
+            onDateFilterSelected: (period, {startDate, endDate}) {
+              setState(() {
+                _ledgerPeriod = period;
+                _ledgerStartDate = startDate;
+                _ledgerEndDate = endDate;
+              });
+              _loadDashboardData();
+            },
+          ),
+          const SizedBox(height: 32),
         ],
       ),
     );
