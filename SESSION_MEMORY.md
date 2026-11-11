@@ -1,30 +1,34 @@
 # zoloERP Pro — Persistent Session Memory & State
 
-## Active Session & Follow-up — 2026-11-12: Figma Smart Animate Sliding Indicator Navigation Bar (UX Peak rI4A7whqvgo), Driver Dashboard Direct Omnipresence & UX Psychology (branch main)
+## Active Session & Follow-up — 2026-11-12: Figma Smart Animate Fluid Curved Notch & Floating Circular Indicator Navigation Bar (UX Peak rI4A7whqvgo Precision Parity) (branch main)
 
-- **Issues Addressed & Features Delivered:**
-  1. *Figma Smart Animate Sliding Fluid Indicator Navigation Bar (UX Peak `rI4A7whqvgo`):*
-     - Replaced isolated per-tab buttons with a true **Single Sliding Indicator Navigation Bar** using a 2-layer `Stack`:
-       - **Layer 1 (Sliding Indicator Pill):** An `AnimatedPositioned` container that dynamically tracks the selected slot (`pillLeft = (activeSlot * itemWidth) + (itemWidth - pillWidth) / 2`). Glides smoothly across the bar using `Curves.easeOutCubic` (320ms duration) with primary color tint (`0.12` light / `0.20` dark), crisp border accent (`0.26` / `0.40`), ambient glow, and an integrated glowing micro-dot anchor.
-       - **Layer 2 (Foreground Interactive Tabs):** High-contrast icons that smoothly spring/scale up (`AnimatedScale(scale: 1.15, duration: 220ms, curve: Curves.easeOutBack)`) and text labels that transition between muted slate and bold primary color.
-       - **Center Floating Action Button (+):** Elevated circular button with linear gradient (`Color(0xFF0284C7)` to `Color(0xFF4F46E5)`), multi-layer shadow, and 1-tap `QuickActionSheet` trigger.
-       - **Docked Elevated Geometry:** Rounded top corners (`Radius.circular(22)`), subtle top border, and soft ambient drop-shadow (`blurRadius: 20`, `offset: (0, -6)`).
-  2. *Driver Dashboard Discovery & Direct Access across DK Waters & All Entities:*
-     - User Inquiry: *"where is driver dashboards in dk waters and others?"*
-     - 5 Omnipresent Access Points:
-       - **Top Executive Dashboard Shortcut Banner (`_buildDriverDashboardShortcutBanner`):** Directly below the greeting strip on the Executive Dashboard (`🚚 DK Waters 20L Can Beat · Driver Manifest` or `🚛 TMWS Tanker Driver Dashboard` or `☕ Aran Cafe Express Touch POS`).
-       - **1st-Position Operational Command Cards:** `Can Delivery Driver Manifest & Stops` and `Tanker Driver Active Trip Dashboard` sit at position #1 under their vertical operations.
-       - **Company Workspaces Directory:** The operational insight badge on each company card is now an interactive shortcut to the entity's driver/POS view.
-       - **Module Launcher (`module_launcher_screen.dart`):** Added first-class module tiles for `Can Delivery Driver Dashboard` and `Tanker Driver Dashboard`.
-       - **Quick Action Sheet (`quick_action_sheet.dart`):** Added direct actions for `Can Driver Manifest` and `Tanker Driver Desk`.
-  3. *UX Psychology & Advanced Design Tips (UX Peak `Xzh8xjimmp8` & `2TlIg3VokY8`):*
-     - **The Goal Gradient Effect:** Added animated completion progress bars in both `CanDeliveryDriverDashboardScreen` (`25 / 60 Cans Delivered (42%)`) and `TankerDriverDashboardScreen` (`12,000 / 12,000 Litres Dispatched (100%)`).
-     - **Loss Aversion / Asset Custody Protection:** Highlighted uncollected empty jar deposit risks (`⚠️ 5 Jars Pending Collection (₹750 Deposit Value)`) and anti-siphon valve lock security.
-- **Verification Status (100% Green):**
-  - Flutter Mobile Test Suite (`mobile/test/`): **37/37 tests passed (100% green)**.
-  - Flutter Static Analysis (`flutter analyze`): **0 errors, 0 warnings, 0 issues (Clean)**.
-  - Windows Release Executable: freshly compiled in `build\windows\x64\runner\Release\dk_track_mobile.exe`.
-  - Windows Debug Executable: freshly compiled in `build\windows\x64\runner\Debug\dk_track_mobile.exe`.
+- **Issues Addressed & Visual Evidence Resolved:**
+  1. *Visual Parity between App Navbar (Image 1) and Figma Tutorial (Image 2 - UX Peak `rI4A7whqvgo`):*
+     - User Inquiry: *"this and this are same? i need exactly same navbar with smooth flow.."*
+     - Root Visual Comparison:
+       - **Image 1 (Previous App Navbar):** Displayed a rectangular flat bar with 5 slots, a static (+) button in the center, and text labels ("Home", "Tasks", "Modules", "Profile") where "Home" was enclosed in a flat rounded-rectangle pill.
+       - **Image 2 (Figma Tutorial Specification):** Displayed an uncluttered **Floating Curved Fluid Navigation Bar** with 4 clean outline tabs (Home, Clock/Tasks, Pie Chart/Modules, Person/Profile) where the active item is an **Elevated Floating Vibrant Circle** nestled inside a **Smooth Concave Cubic Bezier Cutout / Notch** that glides fluidly across tabs without text label clutter.
+     - Solution Implemented in `mobile/lib/core/ui/fluid_curved_nav_bar.dart`:
+       - **Smooth Fluid Concave Notch (`_FluidNavBarPainter`):**
+         Crafted a custom GPU canvas painter using horizontal-tangent cubic Bezier splines (`cubicTo`) dipping $26\text{px}$ down from the baseline with half-width $42\text{px}$. The notch dynamically tracks `activeX` with horizontal derivative continuity ($\mathcal{C}^1$), eliminating sharp creases.
+       - **Elevated Floating Active Circle (`activeCircleCol`):**
+         Centered directly over `activeX`, popping $14\text{px}$ above the navbar top edge. Uses vibrant lime/emerald (`#22C55E` / `#10B981`) in dark mode (matching Image 2) and vibrant primary sky (`#0284C7`) in light mode, with ambient drop shadow (`blurRadius: 14`, `spreadRadius: 1`).
+       - **Spring Icon Scaling (`AnimatedSwitcher` & `Curves.easeOutBack`):**
+         The active icon scales up into the circle with a spring bounce as the indicator glides to the selected tab.
+       - **Smart Animate Motion Flow:**
+         `AnimationController` interpolates smoothly over $340\text{ms}$ with `Curves.easeInOutCubic` (Figma prototype easing).
+       - **Uncluttered 4-Tab Alignment (1:1 with Video Prototype):**
+         - Tab 0: Home (`Icons.home_outlined` / `Icons.home_rounded`) $\to$ `/home`.
+         - Tab 1: Tasks (`Icons.access_time_rounded` / `Icons.access_time_filled_rounded`) $\to$ `/tasks`.
+         - Tab 2: Modules (`Icons.pie_chart_outline_rounded` / `Icons.pie_chart_rounded`) $\to$ `/modules`.
+         - Tab 3: Profile (`Icons.person_outline_rounded` / `Icons.person_rounded`) $\to$ `/profile`.
+       - **Quick Action (+) Integration:**
+         Added a circular gradient (+) trigger button in the AppBar actions header, granting immediate 1-tap access to `QuickActionSheet.show(context)` without cluttering or dividing the 4-tab fluid bottom bar.
+  2. *Verification & Regression Defense:*
+     - Added comprehensive widget test `mobile/test/fluid_curved_nav_bar_test.dart` verifying all 4 tab selections, state transitions, and fluid animation curves.
+     - Full test suite: **38 / 38 tests passed (100% green)**.
+     - Static analysis: `flutter analyze` reports **0 errors, 0 warnings (100% clean)**.
+     - Windows release and debug binaries compiled fresh.
 
 - **Issues Addressed & Features Delivered:**
   1. *Driver Dashboard Discovery & Direct Access across DK Waters & All Entities:*

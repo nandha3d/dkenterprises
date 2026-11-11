@@ -107,7 +107,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const WorkspaceScreen(),
       ),
 
-      // 5-Slot Bottom Bar Shell
+      // 4-Tab Fluid Curved Navigation Bar Shell (Figma Smart Animate Design)
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
         builder: (context, state, child) {
@@ -118,9 +118,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           } else if (location.startsWith('/tasks')) {
             index = 1;
           } else if (location.startsWith('/modules')) {
-            index = 3;
+            index = 2;
           } else if (location.startsWith('/profile')) {
-            index = 4;
+            index = 3;
           }
           return AppScaffold(
             currentIndex: index,
