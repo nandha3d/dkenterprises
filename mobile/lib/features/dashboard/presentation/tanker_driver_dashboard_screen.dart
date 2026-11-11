@@ -346,6 +346,56 @@ class _TankerDriverDashboardScreenState extends ConsumerState<TankerDriverDashbo
                             ],
                           ),
                         ),
+                        const SizedBox(height: 12),
+
+                        // Goal Gradient: Trip water delivery completion (UX Psychology)
+                        Builder(
+                          builder: (context) {
+                            final totalCap = (stats['total_kl'] as num?)?.toDouble() ?? 16.0;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.water_drop_rounded, size: 13, color: Colors.white70),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Daily Dispatch Quota',
+                                          style: TextStyle(
+                                            color: Colors.white.withOpacity(0.9),
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Text(
+                                      '${stats['trips_today'] ?? 1} Trip Finished · $totalCap KL',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: LinearProgressIndicator(
+                                    value: 0.75,
+                                    minHeight: 6,
+                                    backgroundColor: Colors.white.withOpacity(0.2),
+                                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF38BDF8)),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),

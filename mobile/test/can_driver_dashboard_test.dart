@@ -134,9 +134,10 @@ void main() {
 
     // Must find GPS Card for packaged water
     expect(find.textContaining('20L Can Delivery Fleet Tracking'), findsOneWidget);
-    expect(find.textContaining('TN-58-WA-101'), findsOneWidget);
+    expect(find.textContaining('TN-58-WA-101'), findsAtLeastNWidgets(1));
     expect(find.textContaining('Track / Nav'), findsOneWidget);
     expect(find.textContaining('LIVE GPS'), findsOneWidget);
+    expect(find.textContaining('CAN DRIVER MANIFEST'), findsOneWidget);
   });
 
   testWidgets('ExecutiveDashboardScreen shows 2nd GPS card for TMWS (bulk_water)', (tester) async {
@@ -174,8 +175,9 @@ void main() {
 
     // Must find GPS Card for bulk water
     expect(find.textContaining('Bulk Tanker Fleet GPS Tracking'), findsOneWidget);
-    expect(find.textContaining('TN-58-BW-2001'), findsOneWidget);
+    expect(find.textContaining('TN-58-BW-2001'), findsAtLeastNWidgets(1));
     expect(find.textContaining('Track / Nav'), findsOneWidget);
     expect(find.textContaining('LIVE GPS'), findsOneWidget);
+    expect(find.textContaining('TANKER DRIVER DESK'), findsOneWidget);
   });
 }

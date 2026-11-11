@@ -369,6 +369,13 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
             // 2. Bulk Water Tankers Vertical (TMWS)
             else if (industry == 'bulk_water') ...[
               const _Module(
+                title: 'Tanker Driver Active Dashboard',
+                description: 'Decanting flow sensor, destination site navigation & anti-siphon valve',
+                icon: Icons.local_shipping_rounded,
+                route: '/operations/tanker-dashboard',
+                color: Color(0xFF0284C7),
+              ),
+              const _Module(
                 title: 'Live Tanker GPS Fleet Radar',
                 description: 'Radar tracking, decanting flow rate, dwell time & fuel',
                 icon: Icons.share_location_rounded,
@@ -399,6 +406,13 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
             ]
             // 3. 20L Can Route Distribution Vertical (DK Waters)
             else if (industry == 'packaged_water') ...[
+              const _Module(
+                title: 'Can Delivery Driver Dashboard',
+                description: 'Live Tata Ace beat route, 60-jar load, customer stops & cash dues',
+                icon: Icons.local_shipping_rounded,
+                route: '/operations/driver-manifest',
+                color: Color(0xFF059669),
+              ),
               const _Module(
                 title: 'Tata Ace Beat GPS Radar',
                 description: 'Route beat perimeter, delivery stops & van jar balance',

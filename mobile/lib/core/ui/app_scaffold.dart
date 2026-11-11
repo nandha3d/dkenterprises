@@ -201,13 +201,26 @@ class AppScaffold extends ConsumerWidget {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: headerBg,
-          border: Border(top: BorderSide(color: borderCol, width: 1)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          border: Border(
+            top: BorderSide(
+              color: isDark ? const Color(0xFF334155).withOpacity(0.6) : borderCol,
+              width: 1.2,
+            ),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isDark ? Colors.black.withOpacity(0.45) : const Color(0xFF64748B).withOpacity(0.08),
+              blurRadius: 20,
+              offset: const Offset(0, -6),
+            ),
+          ],
         ),
         child: SafeArea(
           child: SizedBox(
-            height: 64,
+            height: 68,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _buildNavItem(
                   context: context,
@@ -225,30 +238,36 @@ class AppScaffold extends ConsumerWidget {
                   isSelected: currentIndex == 1,
                   onTap: () => context.go('/tasks'),
                 ),
-                // Center + New Button
+                // Center Floating Quick Action Button
                 Semantics(
                   button: true,
                   label: 'Create New Action',
                   child: InkWell(
                     onTap: () => QuickActionSheet.show(context),
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(26),
                     child: Container(
-                      width: 48,
-                      height: 48,
+                      width: 50,
+                      height: 50,
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.primaryDark : AppColors.primary,
+                        gradient: LinearGradient(
+                          colors: isDark
+                              ? const [Color(0xFF38BDF8), Color(0xFF0284C7)]
+                              : const [Color(0xFF0284C7), Color(0xFF4F46E5)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: (isDark ? AppColors.primaryDark : AppColors.primary).withOpacity(0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
+                            color: const Color(0xFF0284C7).withOpacity(isDark ? 0.45 : 0.35),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.add_rounded,
-                        color: isDark ? Colors.black : Colors.white,
+                        color: Colors.white,
                         size: 28,
                       ),
                     ),
@@ -288,28 +307,59 @@ class AppScaffold extends ConsumerWidget {
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final activeCol = isDark ? AppColors.primaryDark : AppColors.primary;
-    final inactiveCol = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+    final inactiveCol = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      borderRadius: BorderRadius.circular(16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+        padding: EdgeInsets.symmetric(
+          horizontal: isSelected ? 14 : 10,
+          vertical: 6,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected ? activeCol.withOpacity(isDark ? 0.18 : 0.12) : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          border: isSelected
+              ? Border.all(
+                  color: activeCol.withOpacity(isDark ? 0.35 : 0.22),
+                  width: 1,
+                )
+              : null,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 22,
-              color: isSelected ? activeCol : inactiveCol,
+            AnimatedScale(
+              scale: isSelected ? 1.15 : 1.0,
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOutBack,
+              child: Icon(
+                icon,
+                size: 22,
+                color: isSelected ? activeCol : inactiveCol,
+              ),
             ),
             const SizedBox(height: 2),
             Text(
               label,
               style: TextStyle(
                 fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
                 color: isSelected ? activeCol : inactiveCol,
+                letterSpacing: isSelected ? 0.2 : 0,
+              ),
+            ),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              margin: const EdgeInsets.only(top: 2),
+              width: isSelected ? 4 : 0,
+              height: isSelected ? 4 : 0,
+              decoration: BoxDecoration(
+                color: activeCol,
+                shape: BoxShape.circle,
               ),
             ),
           ],

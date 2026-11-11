@@ -252,7 +252,15 @@ class QuickActionSheet extends ConsumerWidget {
           route: '/hrm/attendance',
           enabled: true,
         ),
-        if (industry == 'packaged_water' || industry.isEmpty)
+        if (industry == 'packaged_water' || industry.isEmpty) ...[
+          const _ActionItem(
+            title: 'Can Driver Manifest',
+            subtitle: 'Driver route & 60 cans load',
+            icon: Icons.local_shipping_rounded,
+            color: Color(0xFF059669),
+            route: '/operations/driver-manifest',
+            enabled: true,
+          ),
           const _ActionItem(
             title: 'Can Sales POS',
             subtitle: 'Water distribution',
@@ -261,7 +269,16 @@ class QuickActionSheet extends ConsumerWidget {
             route: '/operations/can-sales',
             enabled: true,
           ),
-        if (industry == 'bulk_water' || industry.isEmpty)
+        ],
+        if (industry == 'bulk_water' || industry.isEmpty) ...[
+          const _ActionItem(
+            title: 'Tanker Driver Desk',
+            subtitle: 'Trip decanting & valve status',
+            icon: Icons.local_shipping_rounded,
+            color: Color(0xFF0284C7),
+            route: '/operations/tanker-dashboard',
+            enabled: true,
+          ),
           const _ActionItem(
             title: 'Tanker Trip',
             subtitle: 'Dispatch & surcharge',
@@ -270,6 +287,7 @@ class QuickActionSheet extends ConsumerWidget {
             route: '/operations/tanker-trip',
             enabled: true,
           ),
+        ],
         if (industry == 'cafe_bakery' || industry.isEmpty)
           const _ActionItem(
             title: 'Cafe POS',

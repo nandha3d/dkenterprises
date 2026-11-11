@@ -330,6 +330,89 @@ class _CanDeliveryDriverDashboardScreenState extends ConsumerState<CanDeliveryDr
                             ],
                           ),
                         ),
+                        const SizedBox(height: 12),
+
+                        // Goal Gradient Effect: Progress bar & delivery completion (UX Psychology)
+                        Builder(
+                          builder: (context) {
+                            final totalCount = (loadedCans is num) ? loadedCans.toDouble() : 60.0;
+                            final deliveredCount = (deliveredCans is num) ? deliveredCans.toDouble() : 0.0;
+                            final emptyCount = (emptyCans is num) ? emptyCans.toDouble() : 0.0;
+                            final ratio = totalCount > 0 ? (deliveredCount / totalCount).clamp(0.0, 1.0) : 0.0;
+                            final percent = (ratio * 100).toInt();
+                            final uncollectedEmpties = (deliveredCount - emptyCount).toInt();
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.flag_rounded, size: 13, color: Colors.white70),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Route Beat Completion',
+                                          style: TextStyle(
+                                            color: Colors.white.withOpacity(0.9),
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Text(
+                                      '${deliveredCount.toInt()} / ${totalCount.toInt()} Cans ($percent%)',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: LinearProgressIndicator(
+                                    value: ratio,
+                                    minHeight: 6,
+                                    backgroundColor: Colors.white.withOpacity(0.2),
+                                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                ),
+                                if (uncollectedEmpties > 0) ...[
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.amber.shade900.withOpacity(0.35),
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(color: Colors.amber.shade300.withOpacity(0.5)),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.shield_outlined, size: 12, color: Colors.amber),
+                                        const SizedBox(width: 6),
+                                        Expanded(
+                                          child: Text(
+                                            'Custody Alert: $uncollectedEmpties empty jars pending collection (₹${uncollectedEmpties * 150} deposit value)',
+                                            style: const TextStyle(
+                                              color: Colors.amber,
+                                              fontSize: 10.5,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),

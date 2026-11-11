@@ -371,7 +371,11 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
             'Role: ${authState.user?.role.toUpperCase() ?? "STAFF"} • ${authState.activeCompany?.name ?? ""}',
             style: AppTypography.caption.copyWith(color: mutedCol),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 14),
+
+          // Operational View Switcher / Driver Dashboard Direct Access Banner
+          _buildDriverDashboardShortcutBanner(context, isDark, industry),
+          const SizedBox(height: 16),
 
           // High-Impact Sales Performance Card with Default Monthly Sales & Instant Range Filters
           SalesPerformanceCard(
@@ -520,10 +524,19 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
           else if (industry == 'bulk_water') ...[
             _buildWorkflowActionCard(
               context: context,
+              title: 'Tanker Driver Active Trip Dashboard',
+              description: 'Live decanting flow sensor, destination sump navigation & anti-siphon lock',
+              icon: Icons.local_shipping_rounded,
+              color: const Color(0xFF0284C7),
+              onTap: () => context.push('/operations/tanker-dashboard'),
+            ),
+            const SizedBox(height: 10),
+            _buildWorkflowActionCard(
+              context: context,
               title: 'Live Tanker GPS Fleet Telematics',
               description: 'Radar tracking, decanting flow rate, dwell time & fuel',
               icon: Icons.share_location_rounded,
-              color: const Color(0xFF0284C7),
+              color: const Color(0xFF0369A1),
               onTap: () => context.push('/fleet/gps?mode=bulk_water'),
             ),
             const SizedBox(height: 10),
@@ -556,6 +569,15 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
           ]
           // 3. 20L Can Route Distribution Vertical (DK Waters)
           else if (industry == 'packaged_water') ...[
+            _buildWorkflowActionCard(
+              context: context,
+              title: 'Can Delivery Driver Manifest & Stops',
+              description: 'Live Tata Ace beat route, 60-jar load, customer stops & cash dues',
+              icon: Icons.local_shipping_rounded,
+              color: const Color(0xFF059669),
+              onTap: () => context.push('/operations/driver-manifest'),
+            ),
+            const SizedBox(height: 10),
             _buildWorkflowActionCard(
               context: context,
               title: 'Live Tata Ace Beat GPS Radar',
@@ -1321,6 +1343,150 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
             overflow: TextOverflow.ellipsis,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDriverDashboardShortcutBanner(BuildContext context, bool isDark, String industry) {
+    final (title, subtitle, badge, badgeColor, icon, route) = switch (industry) {
+      'packaged_water' => (
+        'DK Waters 20L Can Driver Dashboard',
+        'Live Tata Ace beat route · 60 cans loaded · 25/60 customer stops completed',
+        'CAN DRIVER MANIFEST',
+        const Color(0xFF059669),
+        Icons.local_shipping_rounded,
+        '/operations/driver-manifest',
+      ),
+      'bulk_water' => (
+        'TMWS Tanker Driver Dashboard',
+        'TN-58-BW-2001 (12 KL) · Active Texvalley Sump · 160 L/min Decanting',
+        'TANKER DRIVER DESK',
+        const Color(0xFF0284C7),
+        Icons.local_shipping_rounded,
+        '/operations/tanker-dashboard',
+      ),
+      'cafe_bakery' => (
+        'Aran Cafe Express Touch POS',
+        'Table dining orders, kitchen KOT dispatch & counter cash checkout',
+        'TOUCH POS BILLING',
+        const Color(0xFFD97706),
+        Icons.restaurant_rounded,
+        '/operations/cafe-pos',
+      ),
+      _ => (
+        'Operations Field Dispatch Desk',
+        'Field deliveries, customer collections & trip execution',
+        'FIELD DESK',
+        AppColors.primary,
+        Icons.engineering_rounded,
+        '/modules',
+      ),
+    };
+
+    final cardBg = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final textPrim = isDark ? Colors.white : const Color(0xFF0F172A);
+    final textSec = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+
+    return InkWell(
+      onTap: () => context.push(route),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: badgeColor.withOpacity(isDark ? 0.4 : 0.28),
+            width: 1.2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: badgeColor.withOpacity(isDark ? 0.15 : 0.08),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: badgeColor.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: badgeColor, size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: badgeColor.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          badge,
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            color: badgeColor,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '1-Tap Direct View',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: textSec,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: textPrim,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    subtitle,
+                    style: TextStyle(fontSize: 11, color: textSec),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: badgeColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.arrow_forward_rounded,
+                size: 16,
+                color: badgeColor,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

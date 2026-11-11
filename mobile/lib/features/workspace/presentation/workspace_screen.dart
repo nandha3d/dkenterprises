@@ -107,6 +107,14 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
     }
   }
 
+  Future<void> _selectCompanyAndOpen(BuildContext context, CompanyInfo company, String targetRoute) async {
+    await ref.read(authNotifierProvider.notifier).switchCompany(company);
+    if (context.mounted) {
+      context.go('/home');
+      context.push(targetRoute);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
@@ -1702,20 +1710,32 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                         ],
                       ),
                       const SizedBox(height: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
-                        decoration: BoxDecoration(
-                          color: primaryColor.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          cartInsightValue,
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: primaryColor,
+                      InkWell(
+                        onTap: () {
+                          final targetRoute = switch (industry) {
+                            'packaged_water' => '/operations/driver-manifest',
+                            'bulk_water' => '/operations/tanker-dashboard',
+                            'cafe_bakery' => '/operations/cafe-pos',
+                            _ => '/modules',
+                          };
+                          _selectCompanyAndOpen(context, company, targetRoute);
+                        },
+                        borderRadius: BorderRadius.circular(6),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                          decoration: BoxDecoration(
+                            color: primaryColor.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(6),
                           ),
-                          overflow: TextOverflow.ellipsis,
+                          child: Text(
+                            cartInsightValue,
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: primaryColor,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -1752,7 +1772,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
 
                 const Spacer(),
 
-                // 4. Action Button: "Enter Workspace"
+                // 4. Action Button: "Open Workspace"
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
