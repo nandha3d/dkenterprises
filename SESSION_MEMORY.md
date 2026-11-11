@@ -1,5 +1,43 @@
 # zoloERP Pro — Persistent Session Memory & State
 
+## Active Session & Follow-up — 2026-11-12: Fluid Curved Navbar Bounded Height (Full Menu/Content Visibility) & Enterprise Brand Color Restoration (branch main)
+
+- **Issues Addressed & Visual Evidence Resolved:**
+  1. *Missing Menus & Content Body Flattened by Unbounded Navbar (`media_1794440105849_660cbd5f.png`):*
+     - User Inquiry: *"only navigation bar? what about the menus and contents and others?"*
+     - Root Cause:
+       - In `FluidCurvedNavBar.build`, returning an unconstrained `Center(child: ...)` inside `Scaffold.bottomNavigationBar` caused Flutter's `ScaffoldLayout` to expand the bottom bar vertically to occupy the entire screen height.
+       - Consequently, `Scaffold` calculated `bodyHeight = availableHeight - bottomBarHeight = 0`, squishing the dashboard, KPI cards, charts, fleet GPS tracking, and menus completely out of view while vertically centering the navbar at $Y \approx 50\%$.
+     - Solution Implemented in `mobile/lib/core/ui/fluid_curved_nav_bar.dart`:
+       - Replaced `Center` with a strictly bounded container: `SizedBox(height: totalBarHeight, child: Align(alignment: Alignment.bottomCenter, ...))` where `totalBarHeight = 64.0 (bar) + 14.0 (circle elevation) + 12.0 (bottom padding) = 90.0px`.
+       - This guarantees `bottomNavigationBar` strictly takes $90\text{px}$, immediately giving the full remaining screen height (e.g. 750px+) to `body: child` (`RoleDashboardDispatcher`, `TasksScreen`, `ModuleLauncherScreen`, `ProfileScreen`), restoring full visibility to all executive dashboards, charts, menus, and company workspaces.
+  2. *Enterprise Brand Theme Colors Restored (`media_1794440105849_660cbd5f.png`):*
+     - User Inquiry: *"also keep our color and just use this navigation bar."*
+     - Root Cause:
+       - The initial fluid curved navbar defaulted to the tutorial's bright fitness green (`#22C55E`) in dark mode, clashing with the enterprise blue branding of Tiruchendur Murugan Water Supply (TMWS).
+     - Solution Implemented in `mobile/lib/core/ui/fluid_curved_nav_bar.dart` & `app_scaffold.dart`:
+       - Linked `activeColor` dynamically to the active company's official theme palette:
+         - **Tiruchendur Murugan Water Supply (TMWS / Bulk Water):** `AppColors.primary` (`#0284C7` / `#0369A1` in light mode, `#38BDF8` Sky Blue in dark mode).
+         - **Aran Cafe (Bakery & POS):** `AppColors.brandAmber` (`#D97706` in light mode, `#F59E0B` in dark mode).
+         - **DK Waters (Packaged Water Cans):** `AppColors.brandEmerald` (`#059669` in light mode, `#10B981` in dark mode).
+         - Default fallback: `isDark ? AppColors.primaryDark : AppColors.primary`.
+       - Dynamic active icon color: dynamically calculated via `activeCircleCol.computeLuminance() > 0.4 ? Color(0xFF0B0F17) : Colors.white`, guaranteeing $>4.5:1$ WCAG 2.1 AA contrast in all light and dark variants.
+       - Navbar card background: `AppColors.darkCard` (`#111827`) / `AppColors.lightCard` (`#FFFFFF`).
+       - Inactive icon color: `AppColors.darkTextSecondary` (`#94A3B8`) / `AppColors.lightTextSecondary` (`#475569`).
+       - Ambient drop shadow: soft brand-tinted glow (`activeCircleCol.withOpacity(...)`) replaces the tutorial's green glow.
+       - Added descriptive hover tooltips to all 4 tabs (`Home Dashboard`, `Operational Tasks`, `All Menus & Modules`, `Profile & Settings`).
+  3. *Verification & Regression Defense:*
+     - Upgraded `mobile/test/fluid_curved_nav_bar_test.dart` to assert:
+       - `navBarBox.size.height == 90.0`
+       - `bodyBox.size.height > 500.0` (zero body squishing)
+       - All 4 tab selections and fluid curved animations
+       - Brand color propagation
+     - Full test suite: **38 / 38 tests passed (100% green)**.
+     - Static analysis: `flutter analyze` reports **0 issues found (100% clean)**.
+     - Windows binaries compiled fresh:
+       - Release: `mobile/build/windows/x64/runner/Release/dk_track_mobile.exe`
+       - Debug: `mobile/build/windows/x64/runner/Debug/dk_track_mobile.exe`
+
 ## Active Session & Follow-up — 2026-11-12: Figma Smart Animate Fluid Curved Notch & Floating Circular Indicator Navigation Bar (UX Peak rI4A7whqvgo Precision Parity) (branch main)
 
 - **Issues Addressed & Visual Evidence Resolved:**

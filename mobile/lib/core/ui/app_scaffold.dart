@@ -53,6 +53,14 @@ class AppScaffold extends ConsumerWidget {
       SyncStatus.error => (AppColors.danger, 'Sync error: ${syncState.lastError ?? "Check connection"}'),
     };
 
+    final industry = authState.activeCompany?.industry ?? '';
+    final activeThemeColor = switch (industry) {
+      'cafe_bakery' => isDark ? AppColors.brandAmber : const Color(0xFFD97706),
+      'packaged_water' => isDark ? AppColors.brandEmerald : const Color(0xFF059669),
+      'bulk_water' => isDark ? AppColors.primaryDark : AppColors.primary,
+      _ => isDark ? AppColors.primaryDark : AppColors.primary,
+    };
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: headerBg,
@@ -233,6 +241,7 @@ class AppScaffold extends ConsumerWidget {
         top: false,
         child: FluidCurvedNavBar(
           currentIndex: currentIndex.clamp(0, 3),
+          activeColor: activeThemeColor,
           onTabSelected: (index) {
             switch (index) {
               case 0:
@@ -254,21 +263,25 @@ class AppScaffold extends ConsumerWidget {
               icon: Icons.home_outlined,
               activeIcon: Icons.home_rounded,
               label: 'Home',
+              tooltip: 'Home Dashboard',
             ),
             FluidNavItem(
               icon: Icons.access_time_rounded,
               activeIcon: Icons.access_time_filled_rounded,
               label: 'Tasks',
+              tooltip: 'Operational Tasks',
             ),
             FluidNavItem(
               icon: Icons.pie_chart_outline_rounded,
               activeIcon: Icons.pie_chart_rounded,
               label: 'Modules',
+              tooltip: 'All Menus & Modules',
             ),
             FluidNavItem(
               icon: Icons.person_outline_rounded,
               activeIcon: Icons.person_rounded,
               label: 'Profile',
+              tooltip: 'Profile & Settings',
             ),
           ],
         ),

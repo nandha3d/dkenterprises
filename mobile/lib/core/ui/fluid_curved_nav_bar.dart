@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../theme/app_colors.dart';
 
 class FluidNavItem {
   final IconData icon;
@@ -90,173 +91,183 @@ class _FluidCurvedNavBarState extends State<FluidCurvedNavBar> with SingleTicker
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Theme-derived palette matching Figma prototype
+    // Theme-derived palette matching our enterprise brand and company themes
     final navBg = widget.backgroundColor ??
-        (isDark ? const Color(0xFF1E293B) : Colors.white);
+        (isDark ? AppColors.darkCard : AppColors.lightCard);
     final borderCol = isDark
-        ? const Color(0xFF334155).withOpacity(0.7)
-        : const Color(0xFFE2E8F0);
+        ? AppColors.darkBorder
+        : AppColors.lightBorder;
     final activeCircleCol = widget.activeColor ??
-        (isDark ? const Color(0xFF22C55E) : const Color(0xFF0284C7));
+        (isDark ? AppColors.primaryDark : AppColors.primary);
     final activeIconCol = widget.activeIconColor ??
-        (isDark ? const Color(0xFF0F172A) : Colors.white);
+        (activeCircleCol.computeLuminance() > 0.4 ? const Color(0xFF0B0F17) : Colors.white);
     final inactiveCol = widget.inactiveColor ??
-        (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B));
+        (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary);
 
     const barHeight = 64.0;
     const notchRadius = 42.0; // Half-width of notch
     const notchDepth = 26.0;  // Depth of concave dip
     const circleRadius = 25.0; // Diameter 50.0
     const cornerRadius = 24.0;
+    const totalBarHeight = barHeight + 14.0 + 12.0; // 64 + 14 + 12 = 90.0
 
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 580),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final totalWidth = constraints.maxWidth;
-              final itemCount = widget.items.length;
-              final slotWidth = totalWidth / itemCount;
+    return SizedBox(
+      height: totalBarHeight,
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 580),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final totalWidth = constraints.maxWidth;
+                final itemCount = widget.items.length;
+                final slotWidth = totalWidth / itemCount;
 
-              // Calculate horizontal centers for each slot
-              double getSlotCenter(int index) {
-                return (index * slotWidth) + (slotWidth / 2);
-              }
+                // Calculate horizontal centers for each slot
+                double getSlotCenter(int index) {
+                  return (index * slotWidth) + (slotWidth / 2);
+                }
 
-              return AnimatedBuilder(
-                animation: _animation,
-                builder: (context, _) {
-                  final prevX = getSlotCenter(_previousIndex.clamp(0, itemCount - 1));
-                  final targetX = getSlotCenter(widget.currentIndex.clamp(0, itemCount - 1));
-                  // Interpolated X coordinate of active notch and circle
-                  final activeX = prevX + (targetX - prevX) * _animation.value;
+                return AnimatedBuilder(
+                  animation: _animation,
+                  builder: (context, _) {
+                    final prevX = getSlotCenter(_previousIndex.clamp(0, itemCount - 1));
+                    final targetX = getSlotCenter(widget.currentIndex.clamp(0, itemCount - 1));
+                    // Interpolated X coordinate of active notch and circle
+                    final activeX = prevX + (targetX - prevX) * _animation.value;
 
-                  return SizedBox(
-                    height: barHeight + 14.0, // extra 14px for elevated circle
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      alignment: Alignment.bottomCenter,
-                      children: [
-                        // 1. Fluid Scoop Notch Canvas Painter
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          height: barHeight,
-                          child: CustomPaint(
-                            size: Size(totalWidth, barHeight),
-                            painter: _FluidNavBarPainter(
-                              activeX: activeX,
-                              backgroundColor: navBg,
-                              borderColor: borderCol,
-                              notchRadius: notchRadius,
-                              notchDepth: notchDepth,
-                              cornerRadius: cornerRadius,
-                              isDark: isDark,
+                    return SizedBox(
+                      height: barHeight + 14.0, // extra 14px for elevated circle
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        alignment: Alignment.bottomCenter,
+                        children: [
+                          // 1. Fluid Scoop Notch Canvas Painter
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            height: barHeight,
+                            child: CustomPaint(
+                              size: Size(totalWidth, barHeight),
+                              painter: _FluidNavBarPainter(
+                                activeX: activeX,
+                                backgroundColor: navBg,
+                                borderColor: borderCol,
+                                notchRadius: notchRadius,
+                                notchDepth: notchDepth,
+                                cornerRadius: cornerRadius,
+                                isDark: isDark,
+                              ),
                             ),
                           ),
-                        ),
 
-                        // 2. Inactive Tab Icons
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          height: barHeight,
-                          child: Row(
-                            children: List.generate(itemCount, (index) {
-                              final item = widget.items[index];
-                              final isSelected = index == widget.currentIndex;
+                          // 2. Inactive Tab Icons
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            height: barHeight,
+                            child: Row(
+                              children: List.generate(itemCount, (index) {
+                                final item = widget.items[index];
+                                final isSelected = index == widget.currentIndex;
 
-                              return Expanded(
-                                child: InkWell(
-                                  onTap: () {
-                                    if (index != widget.currentIndex) {
-                                      HapticFeedback.lightImpact();
-                                      widget.onTabSelected(index);
-                                    }
-                                  },
-                                  borderRadius: BorderRadius.circular(cornerRadius),
-                                  splashColor: activeCircleCol.withOpacity(0.12),
-                                  highlightColor: Colors.transparent,
-                                  child: Center(
-                                    child: AnimatedOpacity(
-                                      duration: const Duration(milliseconds: 200),
-                                      opacity: isSelected ? 0.0 : 1.0,
-                                      child: Semantics(
-                                        button: true,
-                                        label: item.label,
-                                        child: Icon(
-                                          item.icon,
-                                          size: 23,
-                                          color: inactiveCol,
+                                return Expanded(
+                                  child: Tooltip(
+                                    message: item.tooltip ?? item.label,
+                                    child: InkWell(
+                                      onTap: () {
+                                        if (index != widget.currentIndex) {
+                                          HapticFeedback.lightImpact();
+                                          widget.onTabSelected(index);
+                                        }
+                                      },
+                                      borderRadius: BorderRadius.circular(cornerRadius),
+                                      splashColor: activeCircleCol.withOpacity(0.12),
+                                      highlightColor: Colors.transparent,
+                                      child: Center(
+                                        child: AnimatedOpacity(
+                                          duration: const Duration(milliseconds: 200),
+                                          opacity: isSelected ? 0.0 : 1.0,
+                                          child: Semantics(
+                                            button: true,
+                                            label: item.label,
+                                            child: Icon(
+                                              item.icon,
+                                              size: 23,
+                                              color: inactiveCol,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              );
-                            }),
+                                );
+                              }),
+                            ),
                           ),
-                        ),
 
-                        // 3. Elevated Floating Circular Active Indicator
-                        Positioned(
-                          left: activeX - circleRadius,
-                          bottom: barHeight - circleRadius - 4.0, // Elevated ~14px above navbar
-                          width: circleRadius * 2,
-                          height: circleRadius * 2,
-                          child: IgnorePointer(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: activeCircleCol,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: activeCircleCol.withOpacity(isDark ? 0.45 : 0.35),
-                                    blurRadius: 14,
-                                    spreadRadius: 1,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(isDark ? 0.35 : 0.08),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Center(
-                                child: AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 240),
-                                  transitionBuilder: (child, anim) {
-                                    return ScaleTransition(
-                                      scale: CurvedAnimation(
-                                        parent: anim,
-                                        curve: Curves.easeOutBack,
-                                      ),
-                                      child: child,
-                                    );
-                                  },
-                                  child: Icon(
-                                    widget.items[widget.currentIndex].activeIcon ??
-                                        widget.items[widget.currentIndex].icon,
-                                    key: ValueKey<int>(widget.currentIndex),
-                                    size: 24,
-                                    color: activeIconCol,
+                          // 3. Elevated Floating Circular Active Indicator
+                          Positioned(
+                            left: activeX - circleRadius,
+                            bottom: barHeight - circleRadius - 4.0, // Elevated ~14px above navbar
+                            width: circleRadius * 2,
+                            height: circleRadius * 2,
+                            child: Tooltip(
+                              message: widget.items[widget.currentIndex].tooltip ??
+                                  widget.items[widget.currentIndex].label,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: activeCircleCol,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: activeCircleCol.withOpacity(isDark ? 0.45 : 0.35),
+                                      blurRadius: 14,
+                                      spreadRadius: 1,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(isDark ? 0.35 : 0.08),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 240),
+                                    transitionBuilder: (child, anim) {
+                                      return ScaleTransition(
+                                        scale: CurvedAnimation(
+                                          parent: anim,
+                                          curve: Curves.easeOutBack,
+                                        ),
+                                        child: child,
+                                      );
+                                    },
+                                    child: Icon(
+                                      widget.items[widget.currentIndex].activeIcon ??
+                                          widget.items[widget.currentIndex].icon,
+                                      key: ValueKey<int>(widget.currentIndex),
+                                      size: 24,
+                                      color: activeIconCol,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              );
-            },
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ),
       ),
