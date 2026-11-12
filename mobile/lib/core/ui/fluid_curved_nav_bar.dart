@@ -91,18 +91,27 @@ class _FluidCurvedNavBarState extends State<FluidCurvedNavBar> with SingleTicker
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Theme-derived palette matching our enterprise brand and company themes
+    // Theme-derived palette: In light theme, the bar is vibrant enterprise blue!
     final navBg = widget.backgroundColor ??
-        (isDark ? AppColors.darkCard : AppColors.lightCard);
+        (isDark ? AppColors.darkCard : const Color(0xFF0284C7));
     final borderCol = isDark
         ? AppColors.darkBorder
-        : AppColors.lightBorder;
-    final activeCircleCol = widget.activeColor ??
-        (isDark ? AppColors.primaryDark : AppColors.primary);
+        : const Color(0xFF38BDF8).withOpacity(0.35);
+
+    // Active circle and icon colors:
+    // In light theme with a blue bar, the active circle is crisp pure white,
+    // and the icon inside it is drawn in the company / brand theme color!
+    final activeCircleCol = isDark
+        ? (widget.activeColor ?? AppColors.primaryDark)
+        : Colors.white;
+
     final activeIconCol = widget.activeIconColor ??
-        (activeCircleCol.computeLuminance() > 0.4 ? const Color(0xFF0B0F17) : Colors.white);
+        (isDark
+            ? const Color(0xFF0B0F17)
+            : (widget.activeColor ?? const Color(0xFF0284C7)));
+
     final inactiveCol = widget.inactiveColor ??
-        (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary);
+        (isDark ? AppColors.darkTextSecondary : Colors.white.withOpacity(0.85));
 
     const barHeight = 64.0;
     const notchRadius = 42.0; // Half-width of notch
@@ -186,7 +195,7 @@ class _FluidCurvedNavBarState extends State<FluidCurvedNavBar> with SingleTicker
                                         }
                                       },
                                       borderRadius: BorderRadius.circular(cornerRadius),
-                                      splashColor: activeCircleCol.withOpacity(0.12),
+                                      splashColor: isDark ? activeCircleCol.withOpacity(0.12) : Colors.white.withOpacity(0.22),
                                       highlightColor: Colors.transparent,
                                       child: Center(
                                         child: AnimatedOpacity(
@@ -223,19 +232,33 @@ class _FluidCurvedNavBarState extends State<FluidCurvedNavBar> with SingleTicker
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: activeCircleCol,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: activeCircleCol.withOpacity(isDark ? 0.45 : 0.35),
-                                      blurRadius: 14,
-                                      spreadRadius: 1,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(isDark ? 0.35 : 0.08),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
+                                  boxShadow: isDark
+                                      ? [
+                                          BoxShadow(
+                                            color: activeCircleCol.withOpacity(0.45),
+                                            blurRadius: 14,
+                                            spreadRadius: 1,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.35),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ]
+                                      : [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.16),
+                                            blurRadius: 10,
+                                            spreadRadius: 1,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                          BoxShadow(
+                                            color: const Color(0xFF0284C7).withOpacity(0.28),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
                                 ),
                                 child: Center(
                                   child: AnimatedSwitcher(
@@ -353,7 +376,9 @@ class _FluidNavBarPainter extends CustomPainter {
     // 2. Ambient drop shadow for floating container
     canvas.drawShadow(
       path,
-      Colors.black.withOpacity(isDark ? 0.35 : 0.08),
+      isDark
+          ? Colors.black.withOpacity(0.35)
+          : const Color(0xFF0284C7).withOpacity(0.35),
       12.0,
       true,
     );

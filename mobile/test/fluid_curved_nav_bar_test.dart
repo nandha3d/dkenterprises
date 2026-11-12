@@ -32,14 +32,14 @@ void main() {
                     tooltip: 'Home Dashboard',
                   ),
                   FluidNavItem(
-                    icon: Icons.access_time_rounded,
-                    activeIcon: Icons.access_time_filled_rounded,
+                    icon: Icons.assignment_outlined,
+                    activeIcon: Icons.assignment_rounded,
                     label: 'Tasks',
                     tooltip: 'Operational Tasks',
                   ),
                   FluidNavItem(
-                    icon: Icons.pie_chart_outline_rounded,
-                    activeIcon: Icons.pie_chart_rounded,
+                    icon: Icons.grid_view_outlined,
+                    activeIcon: Icons.grid_view_rounded,
                     label: 'Modules',
                     tooltip: 'All Menus & Modules',
                   ),
@@ -70,20 +70,20 @@ void main() {
     expect(bodyBox.size.height, greaterThan(500.0));
 
     // Tap Tab 1 (Tasks)
-    await tester.tap(find.byIcon(Icons.access_time_rounded));
+    await tester.tap(find.byIcon(Icons.assignment_outlined));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 350));
 
     expect(selectedIndex, 1);
-    expect(find.byIcon(Icons.access_time_filled_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.assignment_rounded), findsOneWidget);
 
     // Tap Tab 2 (Modules)
-    await tester.tap(find.byIcon(Icons.pie_chart_outline_rounded));
+    await tester.tap(find.byIcon(Icons.grid_view_outlined));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 350));
 
     expect(selectedIndex, 2);
-    expect(find.byIcon(Icons.pie_chart_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.grid_view_rounded), findsOneWidget);
 
     // Tap Tab 3 (Profile)
     await tester.tap(find.byIcon(Icons.person_outline_rounded));

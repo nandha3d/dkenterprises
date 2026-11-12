@@ -266,14 +266,14 @@ class AppScaffold extends ConsumerWidget {
               tooltip: 'Home Dashboard',
             ),
             FluidNavItem(
-              icon: Icons.access_time_rounded,
-              activeIcon: Icons.access_time_filled_rounded,
+              icon: Icons.assignment_outlined,
+              activeIcon: Icons.assignment_rounded,
               label: 'Tasks',
               tooltip: 'Operational Tasks',
             ),
             FluidNavItem(
-              icon: Icons.pie_chart_outline_rounded,
-              activeIcon: Icons.pie_chart_rounded,
+              icon: Icons.grid_view_outlined,
+              activeIcon: Icons.grid_view_rounded,
               label: 'Modules',
               tooltip: 'All Menus & Modules',
             ),
