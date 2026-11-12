@@ -3,13 +3,17 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\Category;
 use App\Models\Company;
 use App\Models\Product;
+use App\Models\Unit;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class ProductCreateSmokeTest extends TestCase
 {
+    use DatabaseTransactions;
     public function test_product_create_page_renders_cleanly(): void
     {
         $user = User::first();
@@ -79,5 +83,49 @@ class ProductCreateSmokeTest extends TestCase
         preg_match_all('/name="([a-z_]+)/', $content, $names);
         $posted = array_intersect(array_unique($names[1]), (new Product)->getFillable());
         $this->assertSame([], array_values(array_diff($posted, Schema::getColumnListing('products'))));
+    }
+
+    public function test_product_store_persists_standard_product_cleanly(): void
+    {
+        $this->assertTrue(Schema::hasColumn('products', 'product_usage'));
+
+        $user = User::firstOrFail();
+        $company = Company::where('code', 'DKWATERS')->first() ?? Company::firstOrFail();
+        $branchId = $company->branches()->first()->id ?? 1;
+        $category = Category::where('company_id', $company->id)->first();
+        $unit = Unit::where('company_id', $company->id)->whereNull('base_unit')->first()
+            ?? Unit::where('company_id', $company->id)->first()
+            ?? Unit::whereNull('base_unit')->firstOrFail();
+
+        $code = 'SMOKE-' . uniqid();
+        $response = $this->actingAs($user)
+            ->withSession([
+                'company_id' => $company->id,
+                'branch_id' => $branchId,
+            ])
+            ->post('/products', [
+                'product_usage' => 'composite',
+                'type' => 'standard',
+                'barcode_symbology' => 'C128',
+                'name' => 'Smoke Water Can 20L',
+                'code' => $code,
+                'category_id' => $category?->id,
+                'unit_id' => $unit->id,
+                'sale_unit_id' => $unit->id,
+                'purchase_unit_id' => $unit->id,
+                'cost' => 8,
+                'profit_margin_type' => 'percentage',
+                'profit_margin' => 275.00,
+                'price' => 30,
+                'tax_method' => 1,
+                'product_details' => '',
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('products', [
+            'company_id' => $company->id,
+            'code' => $code,
+            'product_usage' => 'composite',
+        ]);
     }
 }

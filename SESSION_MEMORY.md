@@ -1,5 +1,18 @@
 # zoloERP Pro — Persistent Session Memory & State
 
+## Active Session & Follow-up — 2026-11-12: Product Creation 503 Fix (`products.product_usage` Migration & `ProductController::store` Guard) (branch main)
+
+- **Root Cause Fixed:**
+  - Saving a product (`POST /products`) in the Web ERP Add Product form failed with HTTP `503` (`"Database temporarily unavailable. Contact your administrator with the request ID."`) due to `SQLSTATE[42S22]: Column not found: 1054 Unknown column 'product_usage' in 'field list'`.
+  - Migration `database/migrations/2026_11_06_000001_add_product_usage_to_products.php` had not been applied to the local MySQL database while `Product::$fillable` and `ProductMasterService` wrote `product_usage`.
+- **Changes Applied:**
+  - Hardened `database/migrations/2026_11_06_000001_add_product_usage_to_products.php` (`up()` and `down()`) with `Schema::hasColumn('products', 'product_usage')` guards and ran it against the local MySQL database.
+  - Guarded optional `product_details`, `starting_date`, and `last_date` keys in `app/Http/Controllers/ProductController.php` (`store()`).
+  - Added `DatabaseTransactions` and `test_product_store_persists_standard_product_cleanly()` in `tests/Feature/ProductCreateSmokeTest.php`.
+- **Verification:**
+  - `php artisan migrate --path=database/migrations/2026_11_06_000001_add_product_usage_to_products.php` succeeded.
+  - `php artisan test tests/Feature/ProductCreateSmokeTest.php` passed (`4 passed, 26 assertions`).
+
 ## Active Session & Follow-up — 2026-11-12: Relevant ERP Navigation Icons & Light-Theme Blue Navigation Bar (branch main)
 
 - **Issues Addressed & Visual Evidence Resolved:**

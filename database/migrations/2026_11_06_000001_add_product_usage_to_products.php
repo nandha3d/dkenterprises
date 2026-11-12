@@ -8,15 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->string('product_usage', 12)->default('composite');
-        });
+        if (!Schema::hasColumn('products', 'product_usage')) {
+            Schema::table('products', function (Blueprint $table) {
+                $table->string('product_usage', 12)->default('composite');
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn('product_usage');
-        });
+        if (Schema::hasColumn('products', 'product_usage')) {
+            Schema::table('products', function (Blueprint $table) {
+                $table->dropColumn('product_usage');
+            });
+        }
     }
 };
