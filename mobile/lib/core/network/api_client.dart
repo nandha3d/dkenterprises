@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:uuid/uuid.dart';
 import '../storage/secure_storage_service.dart';
+import 'api_endpoints.dart';
 import 'api_result.dart';
 
 /// Industrial HTTP Client wrapper for Zolo ERP Mobile.
@@ -8,14 +10,16 @@ class ApiClient {
   final Dio _dio;
   final SecureStorageService _storage;
   final Uuid _uuid = const Uuid();
+  Future<bool>? _inFlightFailover;
+  DateTime? _lastFailoverFailureAt;
 
   ApiClient(this._storage)
       : _dio = Dio(
           BaseOptions(
             baseUrl: _storage.getServerUrl(),
-            connectTimeout: const Duration(seconds: 15),
-            receiveTimeout: const Duration(seconds: 20),
-            sendTimeout: const Duration(seconds: 20),
+            connectTimeout: const Duration(seconds: 6),
+            receiveTimeout: const Duration(seconds: 15),
+            sendTimeout: const Duration(seconds: 15),
             headers: {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
@@ -48,7 +52,9 @@ class ApiClient {
           }
 
           // Attach Idempotency-Key for safe offline/retried mutations
-          if (options.method == 'POST' || options.method == 'PUT') {
+          if (options.method == 'POST' ||
+              options.method == 'PUT' ||
+              options.method == 'PATCH') {
             if (!options.headers.containsKey('Idempotency-Key')) {
               options.headers['Idempotency-Key'] = _uuid.v4();
             }
@@ -69,25 +75,121 @@ class ApiClient {
     _dio.options.baseUrl = newUrl;
   }
 
-  Future<ApiResult<T>> get<T>(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-    required T Function(dynamic data) fromJson,
-  }) async {
+  Future<bool> _tryFailoverServer() async {
+    final lastFail = _lastFailoverFailureAt;
+    if (lastFail != null &&
+        DateTime.now().difference(lastFail) < const Duration(seconds: 25)) {
+      return false;
+    }
+    final existing = _inFlightFailover;
+    if (existing != null) {
+      return existing;
+    }
+    final completer = Completer<bool>();
+    _inFlightFailover = completer.future;
+
+    unawaited(_probeFailoverCandidates().then((found) {
+      if (!found) {
+        _lastFailoverFailureAt = DateTime.now();
+      } else {
+        _lastFailoverFailureAt = null;
+      }
+      _inFlightFailover = null;
+      if (!completer.isCompleted) {
+        completer.complete(found);
+      }
+    }).catchError((_) {
+      _lastFailoverFailureAt = DateTime.now();
+      _inFlightFailover = null;
+      if (!completer.isCompleted) {
+        completer.complete(false);
+      }
+    }));
+
+    return completer.future;
+  }
+
+  Future<bool> _probeFailoverCandidates() async {
+    final current = _dio.options.baseUrl.trim();
+    final candidates = ApiEndpoints.fallbackBaseUrls
+        .where((candidate) => candidate != current)
+        .toList();
+    if (candidates.isEmpty) return false;
+
+    final raceCompleter = Completer<bool>();
+    var remaining = candidates.length;
+
+    for (final candidate in candidates) {
+      unawaited(() async {
+        try {
+          final probe = Dio(
+            BaseOptions(
+              baseUrl: candidate,
+              connectTimeout: const Duration(milliseconds: 1200),
+              receiveTimeout: const Duration(milliseconds: 1200),
+              headers: const {'Accept': 'application/json'},
+            ),
+          );
+          final res = await probe.get<dynamic>(ApiEndpoints.ping);
+          final code = res.statusCode;
+          if (!raceCompleter.isCompleted &&
+              code != null &&
+              code >= 200 &&
+              code < 300) {
+            _dio.options.baseUrl = candidate;
+            await _storage.setServerUrl(candidate);
+            raceCompleter.complete(true);
+            return;
+          }
+        } catch (_) {
+          // Candidate unreachable
+        }
+        remaining--;
+        if (remaining <= 0 && !raceCompleter.isCompleted) {
+          raceCompleter.complete(false);
+        }
+      }());
+    }
+
+    return raceCompleter.future;
+  }
+
+  Future<ApiResult<T>> _execute<T>(
+    Future<Response<dynamic>> Function() request,
+    T Function(dynamic data) fromJson,
+  ) async {
     try {
-      final response = await _dio.get(path, queryParameters: queryParameters);
-      if (response.statusCode != null &&
-          response.statusCode! >= 200 &&
-          response.statusCode! < 300) {
+      final response = await request();
+      final code = response.statusCode;
+      if (code != null && code >= 200 && code < 300) {
         return ApiSuccess(fromJson(response.data));
       }
       return ApiFailure(
         NetworkFailure(
-          statusCode: response.statusCode,
-          message: 'Server error: ${response.statusCode}',
+          statusCode: code,
+          message: 'Server error: $code',
         ),
       );
     } on DioException catch (e) {
+      final isConnErr = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.connectionError;
+      if (isConnErr && await _tryFailoverServer()) {
+        try {
+          final retryResponse = await request();
+          final code = retryResponse.statusCode;
+          if (code != null && code >= 200 && code < 300) {
+            return ApiSuccess(fromJson(retryResponse.data));
+          }
+        } on DioException catch (retryErr) {
+          return ApiFailure(_mapDioError(retryErr));
+        } catch (retryErr) {
+          return ApiFailure(
+            NetworkFailure(message: 'Unexpected client error: $retryErr'),
+          );
+        }
+      }
       return ApiFailure(_mapDioError(e));
     } catch (e) {
       return ApiFailure(
@@ -95,6 +197,13 @@ class ApiClient {
       );
     }
   }
+
+  Future<ApiResult<T>> get<T>(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    required T Function(dynamic data) fromJson,
+  }) =>
+      _execute(() => _dio.get(path, queryParameters: queryParameters), fromJson);
 
   Future<ApiResult<T>> post<T>(
     String path, {
@@ -102,36 +211,19 @@ class ApiClient {
     Map<String, dynamic>? queryParameters,
     String? idempotencyKey,
     required T Function(dynamic data) fromJson,
-  }) async {
-    try {
-      final options = Options();
-      if (idempotencyKey != null) {
-        options.headers = {'Idempotency-Key': idempotencyKey};
-      }
-      final response = await _dio.post(
+  }) {
+    final options = idempotencyKey != null
+        ? Options(headers: {'Idempotency-Key': idempotencyKey})
+        : null;
+    return _execute(
+      () => _dio.post(
         path,
         data: data,
         queryParameters: queryParameters,
         options: options,
-      );
-      if (response.statusCode != null &&
-          response.statusCode! >= 200 &&
-          response.statusCode! < 300) {
-        return ApiSuccess(fromJson(response.data));
-      }
-      return ApiFailure(
-        NetworkFailure(
-          statusCode: response.statusCode,
-          message: 'Server error: ${response.statusCode}',
-        ),
-      );
-    } on DioException catch (e) {
-      return ApiFailure(_mapDioError(e));
-    } catch (e) {
-      return ApiFailure(
-        NetworkFailure(message: 'Unexpected client error: $e'),
-      );
-    }
+      ),
+      fromJson,
+    );
   }
 
   Future<ApiResult<T>> put<T>(
@@ -139,32 +231,33 @@ class ApiClient {
     dynamic data,
     Map<String, dynamic>? queryParameters,
     required T Function(dynamic data) fromJson,
-  }) async {
-    try {
-      final response = await _dio.put(
-        path,
-        data: data,
-        queryParameters: queryParameters,
+  }) =>
+      _execute(
+        () => _dio.put(path, data: data, queryParameters: queryParameters),
+        fromJson,
       );
-      if (response.statusCode != null &&
-          response.statusCode! >= 200 &&
-          response.statusCode! < 300) {
-        return ApiSuccess(fromJson(response.data));
-      }
-      return ApiFailure(
-        NetworkFailure(
-          statusCode: response.statusCode,
-          message: 'Server error: ${response.statusCode}',
-        ),
+
+  Future<ApiResult<T>> patch<T>(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    required T Function(dynamic data) fromJson,
+  }) =>
+      _execute(
+        () => _dio.patch(path, data: data, queryParameters: queryParameters),
+        fromJson,
       );
-    } on DioException catch (e) {
-      return ApiFailure(_mapDioError(e));
-    } catch (e) {
-      return ApiFailure(
-        NetworkFailure(message: 'Unexpected client error: $e'),
+
+  Future<ApiResult<T>> delete<T>(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    required T Function(dynamic data) fromJson,
+  }) =>
+      _execute(
+        () => _dio.delete(path, data: data, queryParameters: queryParameters),
+        fromJson,
       );
-    }
-  }
 
   NetworkFailure _mapDioError(DioException e) {
     if (e.type == DioExceptionType.connectionTimeout ||

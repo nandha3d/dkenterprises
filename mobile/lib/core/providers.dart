@@ -4,10 +4,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../features/auth/data/auth_repository.dart';
 import '../features/auth/domain/auth_models.dart';
+import 'gps/gps_pinger.dart';
+import 'gps/gps_service.dart';
+import 'lifecycle/app_keep_alive_manager.dart';
 import 'network/api_client.dart';
+import 'notifications/push_notification_service.dart';
 import 'storage/local_database.dart';
 import 'storage/secure_storage_service.dart';
 import 'sync/sync_worker.dart';
+import 'theme/app_theme.dart';
 
 // SharedPreferences must be overridden in main()
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
@@ -42,9 +47,29 @@ final authNotifierProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref
 });
 
 final localeProvider = StateProvider<Locale>((ref) {
-  final storage = ref.watch(secureStorageProvider);
-  final langCode = storage.getLanguage();
-  return Locale(langCode);
+  return const Locale('en');
+});
+
+final activeRippleRoleProvider = Provider<RippleRole>((ref) {
+  final authState = ref.watch(authNotifierProvider);
+  final user = authState.user;
+  return resolveRippleRole(
+    role: user?.role,
+    username: user?.username,
+    email: user?.email,
+    roles: authState.roles,
+  );
+});
+
+final activeDriverFlavorProvider = Provider<RippleDriverFlavor>((ref) {
+  final authState = ref.watch(authNotifierProvider);
+  final user = authState.user;
+  return resolveDriverFlavor(
+    role: user?.role,
+    username: user?.username,
+    email: user?.email,
+    roles: authState.roles,
+  );
 });
 
 class ThemeModeNotifier extends StateNotifier<ThemeMode> {
@@ -81,4 +106,33 @@ final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((r
 });
 
 final dashboardRefreshSignalProvider = StateProvider<int>((ref) => 0);
+
+final pushNotificationServiceProvider =
+    ChangeNotifierProvider<PushNotificationService>((ref) {
+  final client = ref.watch(apiClientProvider);
+  return PushNotificationService(client);
+});
+
+final keepAliveManagerProvider = Provider<AppKeepAliveManager>((ref) {
+  final prefs = ref.watch(sharedPreferencesProvider);
+  final syncWorker = ref.watch(syncWorkerProvider);
+  final pushService = ref.watch(pushNotificationServiceProvider);
+  final manager = AppKeepAliveManager(
+    prefs: prefs,
+    syncWorker: syncWorker,
+    pushService: pushService,
+  );
+  ref.onDispose(manager.detach);
+  return manager;
+});
+
+final gpsServiceProvider = Provider<GpsService>((ref) {
+  return GpsService();
+});
+
+final gpsPingerProvider = ChangeNotifierProvider<GpsPinger>((ref) {
+  final client = ref.watch(apiClientProvider);
+  final gpsService = ref.watch(gpsServiceProvider);
+  return GpsPinger(client, gpsService);
+});
 

@@ -346,35 +346,43 @@
                 var lat = parseFloat(cust.latitude);
                 var lng = parseFloat(cust.longitude);
                 var radius = parseInt(cust.geofence_radius) || 150;
+                var paidAmt = parseFloat(cust.total_paid || 0);
+                var dueAmt = parseFloat(cust.due_amount || 0);
+                var pinColor = dueAmt > 0.01 ? (cust.payment_status === 'overdue' ? '#dc2626' : '#d97706') : '#059669';
+                var softBg = dueAmt > 0.01 ? (cust.payment_status === 'overdue' ? '#fef2f2' : '#fffbeb') : '#ecfdf5';
+                var badgeText = dueAmt > 0.01
+                    ? ('Due ₹' + Math.round(dueAmt).toLocaleString('en-IN'))
+                    : ('Paid ₹' + Math.round(paidAmt).toLocaleString('en-IN'));
 
                 // Geofence Circle
                 var circle = L.circle([lat, lng], {
-                    color: '#4f46e5',
-                    fillColor: '#6366f1',
-                    fillOpacity: 0.15,
+                    color: pinColor,
+                    fillColor: pinColor,
+                    fillOpacity: 0.14,
                     weight: 2,
                     radius: radius
                 }).addTo(map);
 
                 circle.bindPopup(
-                    '<div style="min-width: 200px;">' +
-                    '<strong style="color: #4f46e5; font-size: 13px;">' + cust.name + '</strong><br>' +
+                    '<div style="min-width: 220px;">' +
+                    '<strong style="color: ' + pinColor + '; font-size: 13px;">' + cust.name + '</strong><br>' +
                     '<span style="font-size: 11px; color: #64748b;">' + (cust.address || '') + '</span><br>' +
-                    '<div style="margin-top: 6px; padding: 4px 6px; background: #eef2ff; border-radius: 4px; font-size: 11px;">' +
-                    '<strong>Geofence Radius:</strong> ' + radius + ' meters<br>' +
-                    '<strong>Contact:</strong> ' + (cust.phone_number || 'N/A') +
+                    '<div style="margin-top: 6px; padding: 6px 8px; background: ' + softBg + '; border: 1px solid ' + pinColor + '33; border-radius: 6px; font-size: 11px;">' +
+                    '<strong style="color:#059669;">Paid:</strong> ₹' + paidAmt.toLocaleString('en-IN') + ' &nbsp;|&nbsp; ' +
+                    '<strong style="color:#dc2626;">Due:</strong> ₹' + dueAmt.toLocaleString('en-IN') + '<br>' +
+                    '<strong>Geofence:</strong> ' + radius + 'm · <strong>Phone:</strong> ' + (cust.phone_number || 'N/A') +
                     '</div>' +
                     '</div>'
                 );
 
                 circles['cust_' + cust.id] = circle;
 
-                // Center Pin for Customer Site
+                // Center Pin for Customer Site showing Name + Paid/Due badge
                 var siteIcon = L.divIcon({
                     className: 'custom-site-pin',
-                    html: '<div style="background: #4f46e5; color: #fff; border-radius: 4px; padding: 2px 5px; font-size: 10px; font-weight: bold; border: 1px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.3); white-space: nowrap;"><i class="fa fa-building"></i> ' + cust.name.substring(0, 15) + '...</div>',
-                    iconSize: [120, 24],
-                    iconAnchor: [60, 12]
+                    html: '<div style="background: ' + pinColor + '; color: #fff; border-radius: 6px; padding: 3px 7px; font-size: 10px; font-weight: 700; border: 1.5px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.35); white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fa fa-building"></i> <span>' + cust.name.substring(0, 14) + '</span> <span style="background: rgba(0,0,0,0.22); padding: 1px 4px; border-radius: 4px;">' + badgeText + '</span></div>',
+                    iconSize: [165, 24],
+                    iconAnchor: [82, 12]
                 });
                 L.marker([lat, lng], {icon: siteIcon}).addTo(map);
             }

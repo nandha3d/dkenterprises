@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { colors: { 'primary-container': '#0b5d52', 'dark-surface': '#17221D', 'surface-container-highest': '#e4e2dd', 'role-cafe-primary': '#C2542D', 'role-field-action': '#C9F36A', 'surface-container': '#f0eee9', 'on-tertiary-fixed': '#002112', 'tertiary': '#00452a', 'on-secondary': '#ffffff', 'money-mint': '#1FA971', 'on-error-container': '#93000a', 'inverse-primary': '#8ed4c5', 'ink': '#13201B', 'outline-variant': '#bec9c5', 'on-primary-fixed-variant': '#005046', 'role-cafe-ink': '#2B1B14', 'surface-container-low': '#f5f3ee', 'secondary-container': '#c5ee66', 'dark-ink': '#EDF3EF', 'on-primary': '#ffffff', 'on-tertiary': '#ffffff', 'surface-variant': '#e4e2dd', 'surface-tint': '#1f695e', 'secondary': '#4c6700', 'ink-muted': '#66736C', 'on-surface-variant': '#3f4946', 'dark-canvas': '#0E1512', 'surface-container-lowest': '#ffffff', 'on-primary-container': '#8dd3c5', 'role-cafe-canvas': '#FBF4EA', 'on-background': '#1b1c19', 'surface': '#FFFFFF', 'surface-tonal': '#ECEFEA', 'surface-dim': '#dcdad5', 'role-cafe-action': '#F4A62A', 'on-surface': '#1b1c19', 'critical-ruby': '#D92D20', 'hairline': '#E3E1DA', 'on-secondary-container': '#506c00', 'on-error': '#ffffff', 'money-coral': '#E8505B', 'secondary-fixed-dim': '#acd44f', 'pending-honey': '#E9A23B', 'error': '#ba1a1a', 'primary-fixed-dim': '#8ed4c5', 'tertiary-fixed': '#7ffaba', 'role-driver-canvas': '#F3F8FA', 'on-secondary-fixed': '#151f00', 'role-field-primary': '#3F7D58', 'tertiary-container': '#005f3c', 'primary': '#00443b', 'primary-fixed': '#a9f0e1', 'on-primary-fixed': '#00201b', 'tertiary-fixed-dim': '#61dda0', 'role-driver-primary': '#0E8FB3', 'info-sky': '#2E90FA', 'dark-surface-tonal': '#1F2E27', 'background': '#fbf9f4', 'on-tertiary-container': '#61dda0', 'on-secondary-fixed-variant': '#394e00', 'inverse-on-surface': '#f2f1ec', 'error-container': '#ffdad6', 'surface-bright': '#fbf9f4', 'on-tertiary-fixed-variant': '#005233', 'surface-container-high': '#eae8e3', 'inverse-surface': '#30312e', 'dark-ink-muted': '#93A39B', 'outline': '#6f7976', 'role-driver-action': '#FFC933', 'secondary-fixed': '#c7f169' }, borderRadius: { 'DEFAULT': '1rem', 'lg': '2rem', 'xl': '3rem', 'full': '9999px' }, spacing: { 'space-md': '0.75rem', 'space-xs': '0.25rem', 'space-sm': '0.5rem', 'margin': '1rem', 'space-xl': '1.5rem', 'space-lg': '1rem', 'gutter': '0.75rem' }, fontFamily: { 'display-numeral-mobile': ['Manrope'], 'display-numeral': ['Manrope'], 'label-action': ['Manrope'], 'body-md': ['Manrope'], 'caption-meta': ['Manrope'], 'sublabel-regional': ['Noto Sans Tamil'], 'headline-lg': ['Manrope'], 'body-lg': ['Manrope'], 'headline-md': ['Manrope'] }, fontSize: { 'display-numeral-mobile': ['40px', { lineHeight: '44px', letterSpacing: '-0.02em', fontWeight: '800' }], 'display-numeral': ['48px', { lineHeight: '52px', letterSpacing: '-0.03em', fontWeight: '800' }], 'label-action': ['16px', { lineHeight: '20px', letterSpacing: '0.01em', fontWeight: '700' }], 'body-md': ['14px', { lineHeight: '20px', fontWeight: '500' }], 'caption-meta': ['12px', { lineHeight: '16px', letterSpacing: '0.02em', fontWeight: '600' }], 'sublabel-regional': ['11px', { lineHeight: '14px', fontWeight: '600' }], 'headline-lg': ['28px', { lineHeight: '34px', letterSpacing: '-0.02em', fontWeight: '800' }], 'body-lg': ['16px', { lineHeight: '24px', fontWeight: '600' }], 'headline-md': ['20px', { lineHeight: '26px', letterSpacing: '-0.01em', fontWeight: '700' }] } } } };</script><style>@layer base { html, body { margin: 0; padding: 0; min-height: 100%; background-color: #FBF4EA; } body { overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } } ::-webkit-scrollbar { display: none; }</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-role-cafe-canvas font-body-md text-role-cafe-ink antialiased flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-role-cafe-canvas/90 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0 flex-1"><button aria-label="Go back" class="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-surface/80 flex items-center justify-center text-role-cafe-ink hover:bg-surface active:scale-95 transition-transform flex-shrink-0" onclick="history.back()"><span class="material-symbols-outlined text-[22px]">arrow_back_ios_new</span></button><div class="flex flex-col min-w-0 justify-center"><div class="flex items-center gap-space-xs"><h1 class="font-headline-md text-headline-md text-role-cafe-ink truncate">Order Details</h1><span class="inline-flex items-center gap-1 px-space-sm py-0.5 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-caption-meta flex-shrink-0"><span class="material-symbols-outlined text-[14px]">check_circle</span>Synced</span></div><p class="font-caption-meta text-caption-meta text-ink-muted truncate">Aran Cafe • Dine-in Table 4</p></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><button class="min-h-[44px] px-space-sm py-1 rounded-full bg-surface/80 flex items-center justify-center gap-0.5 text-role-cafe-ink hover:bg-surface active:scale-95 transition-transform" type="button"><span class="font-caption-meta text-caption-meta font-bold text-role-cafe-primary">EN</span><span class="font-caption-meta text-caption-meta text-ink-muted">|</span><span class="font-sublabel-regional text-sublabel-regional text-role-cafe-ink">தமிழ்</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-20 pb-safe bg-role-cafe-canvas"><div class="flex flex-col w-full pb-36">
+<!-- Top Operational Banner / Notification Toast (Delight moment) -->
+<div class="px-margin pt-space-sm pb-space-xs">
+<div class="flex items-center justify-between bg-surface/90 px-space-md py-space-xs rounded-full shadow-sm">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="w-2 h-2 rounded-full bg-money-mint animate-pulse"></span>
+<span class="font-caption-meta text-caption-meta text-role-cafe-ink font-bold truncate">Counter 02 Active</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted hidden sm:inline">• Till Balanced</span>
+</div>
+<div class="flex items-center gap-1 text-money-mint font-caption-meta text-caption-meta font-bold">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">cloud_done</span>
+<span>Local Journal Synced</span>
+</div>
+</div>
+</div>
+<!-- 1. Hero Order Summary Card (Terracotta Signature Slab) -->
+<div class="px-margin py-space-xs">
+<div class="bg-role-cafe-primary rounded-lg p-space-lg text-on-primary shadow-sm relative overflow-hidden">
+<!-- Decorative Organic Chai Steam Graphic Overlay (Subtle) -->
+<svg class="absolute -right-4 -bottom-6 w-36 h-36 opacity-10 pointer-events-none text-white" fill="currentColor" viewbox="0 0 100 100">
+<path d="M30,85 C25,65 45,55 35,35 C30,25 35,15 40,10 C38,20 28,30 32,45 C38,60 20,70 25,85 Z"></path>
+<path d="M55,85 C50,60 70,50 60,30 C55,20 60,10 65,5 C63,15 53,25 57,40 C63,55 45,65 50,85 Z"></path>
+</svg>
+<!-- Identifier & Badge Row -->
+<div class="flex items-center justify-between gap-space-sm relative z-10 mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-md text-headline-md font-extrabold tracking-tight text-white">#ORD-084</span>
+<span class="bg-white/20 text-white font-caption-meta text-caption-meta px-space-sm py-0.5 rounded-full font-bold">Dine-in • T4</span>
+</div>
+<!-- Status Capsule -->
+<span class="inline-flex items-center gap-1 px-space-sm py-1 rounded-full bg-white text-money-mint font-caption-meta text-caption-meta font-bold shadow-sm">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Paid • Cash</span>
+</span>
+</div>
+<!-- Massive Tabular Numerals -->
+<div class="my-space-xs relative z-10">
+<p class="font-caption-meta text-caption-meta text-white/80 uppercase tracking-wider font-semibold">Total Net Billed <span class="font-sublabel-regional text-[10px] opacity-90">(மொத்த கட்டணம்)</span></p>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="font-display-numeral-mobile text-display-numeral-mobile font-extrabold tracking-tight text-white">₹245.00</span>
+<span class="font-caption-meta text-caption-meta text-white/80 font-bold ml-1">INR (Inclusive of Taxes)</span>
+</div>
+</div>
+<!-- Metadata & Server Attribution Inset -->
+<div class="mt-space-md pt-space-sm border-t-0 bg-black/15 -mx-space-lg -mb-space-lg px-space-lg py-space-sm flex flex-col gap-1 rounded-b-lg">
+<div class="flex items-center justify-between text-white/90 font-caption-meta text-caption-meta">
+<div class="flex items-center gap-1.5 min-w-0">
+<span class="material-symbols-outlined text-[16px] text-white/80">schedule</span>
+<span class="truncate">12 Nov 2026, 12:42:55 PM</span>
+</div>
+<span class="text-white/70 font-medium">18 mins ago</span>
+</div>
+<div class="flex items-center justify-between text-white/85 font-caption-meta text-caption-meta">
+<div class="flex items-center gap-1 min-w-0 truncate">
+<span class="material-symbols-outlined text-[15px] text-white/75">badge</span>
+<span class="truncate">Priyan (Cashier) • Suresh (Captain)</span>
+</div>
+<span class="font-caption-meta text-[11px] bg-white/20 px-1.5 py-0.5 rounded text-white font-mono">Shift #02</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Micro Compliance Sub-Strip -->
+<div class="px-margin pt-1 pb-space-xs flex items-center justify-between font-caption-meta text-caption-meta text-ink-muted">
+<span class="truncate">GSTIN: 33AAAAA0000A1Z5</span>
+<span class="truncate">POS-Terminal: C02-CANVAS</span>
+</div>
+<!-- 2. Itemized Order Lines (Stacked Pure Paper Card) -->
+<div class="px-margin py-space-xs">
+<div class="bg-surface rounded-lg p-space-lg shadow-sm flex flex-col gap-space-md">
+<!-- Card Section Header -->
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-space-xs">
+<div class="w-7 h-7 rounded-full bg-role-cafe-canvas flex items-center justify-center text-role-cafe-primary">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+</div>
+<h2 class="font-body-lg text-body-lg font-bold text-role-cafe-ink">Ordered Items</h2>
+</div>
+<span class="px-space-sm py-0.5 rounded-full bg-surface-tonal text-role-cafe-ink font-caption-meta text-caption-meta font-bold">
+          3 Items • 5 Units
+        </span>
+</div>
+<!-- Items List -->
+<div class="flex flex-col gap-space-sm">
+<!-- Item 1: Madras Filter Coffee -->
+<div class="p-space-sm rounded-DEFAULT bg-surface-tonal/60 flex flex-col gap-1">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-sm min-w-0">
+<span class="w-6 h-6 rounded-full bg-role-cafe-primary/10 text-role-cafe-primary flex items-center justify-center font-bold text-caption-meta flex-shrink-0 mt-0.5">2x</span>
+<div class="min-w-0">
+<p class="font-body-md text-body-md font-bold text-role-cafe-ink truncate">Madras Filter Coffee</p>
+<p class="font-sublabel-regional text-sublabel-regional text-ink-muted">மதராஸ் ஃபில்டர் காபி</p>
+</div>
+</div>
+<div class="text-right flex-shrink-0">
+<p class="font-body-md text-body-md font-extrabold text-role-cafe-ink">₹70.00</p>
+<p class="font-caption-meta text-caption-meta text-ink-muted">₹35.00 ea</p>
+</div>
+</div>
+<!-- Kitchen Modifier Tag -->
+<div class="flex items-center gap-1.5 mt-1 pt-1 ml-8">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-role-cafe-canvas text-role-cafe-primary font-caption-meta text-[11px] font-semibold">
+<span class="material-symbols-outlined text-[13px]">soup_kitchen</span>
+              Less Sugar • Strong Decoction (Tea Counter)
+            </span>
+</div>
+</div>
+<!-- Item 2: Choco Hazelnut Bun -->
+<div class="p-space-sm rounded-DEFAULT bg-surface-tonal/60 flex flex-col gap-1">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-sm min-w-0">
+<span class="w-6 h-6 rounded-full bg-role-cafe-primary/10 text-role-cafe-primary flex items-center justify-center font-bold text-caption-meta flex-shrink-0 mt-0.5">2x</span>
+<div class="min-w-0">
+<p class="font-body-md text-body-md font-bold text-role-cafe-ink truncate">Choco Hazelnut Bun</p>
+<p class="font-sublabel-regional text-sublabel-regional text-ink-muted">சாக்கோ பன்</p>
+</div>
+</div>
+<div class="text-right flex-shrink-0">
+<p class="font-body-md text-body-md font-extrabold text-role-cafe-ink">₹140.00</p>
+<p class="font-caption-meta text-caption-meta text-ink-muted">₹70.00 ea</p>
+</div>
+</div>
+<!-- Kitchen Modifier Tag -->
+<div class="flex items-center gap-1.5 mt-1 pt-1 ml-8">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-role-cafe-canvas text-role-cafe-primary font-caption-meta text-[11px] font-semibold">
+<span class="material-symbols-outlined text-[13px]">microwave</span>
+              Warm served • Cut into 2 (Oven Station)
+            </span>
+</div>
+</div>
+<!-- Item 3: Veg Samosa -->
+<div class="p-space-sm rounded-DEFAULT bg-surface-tonal/60 flex flex-col gap-1">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-sm min-w-0">
+<span class="w-6 h-6 rounded-full bg-role-cafe-primary/10 text-role-cafe-primary flex items-center justify-center font-bold text-caption-meta flex-shrink-0 mt-0.5">1x</span>
+<div class="min-w-0">
+<p class="font-body-md text-body-md font-bold text-role-cafe-ink truncate">Veg Samosa (2 pcs)</p>
+<p class="font-sublabel-regional text-sublabel-regional text-ink-muted">காய்கறி சமோசா</p>
+</div>
+</div>
+<div class="text-right flex-shrink-0">
+<p class="font-body-md text-body-md font-extrabold text-role-cafe-ink">₹50.00</p>
+<p class="font-caption-meta text-caption-meta text-ink-muted">₹50.00 set</p>
+</div>
+</div>
+<!-- Kitchen Modifier Tag -->
+<div class="flex items-center gap-1.5 mt-1 pt-1 ml-8">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-role-cafe-canvas text-role-cafe-primary font-caption-meta text-[11px] font-semibold">
+<span class="material-symbols-outlined text-[13px]">skillet</span>
+              Extra Mint Chutney (Snack Unit)
+            </span>
+</div>
+</div>
+</div>
+<!-- Mathematical Billing Breakdown (Recessed Tonal Sub-block) -->
+<div class="bg-surface-tonal rounded-DEFAULT p-space-md flex flex-col gap-space-xs mt-space-xs">
+<div class="flex items-center justify-between font-body-md text-body-md text-role-cafe-ink">
+<span class="text-ink-muted font-medium">Subtotal (Gross)</span>
+<span class="font-bold">₹260.00</span>
+</div>
+<div class="flex items-center justify-between font-body-md text-body-md text-money-mint font-semibold">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">stars</span>
+<span>VIP Staff Courtesy (10%)</span>
+</div>
+<span>-₹26.00</span>
+</div>
+<div class="flex items-center justify-between font-caption-meta text-caption-meta text-ink-muted">
+<span>Central GST (CGST @ 2.5%)</span>
+<span class="font-medium text-role-cafe-ink">₹5.85</span>
+</div>
+<div class="flex items-center justify-between font-caption-meta text-caption-meta text-ink-muted">
+<span>State GST (SGST @ 2.5%)</span>
+<span class="font-medium text-role-cafe-ink">₹5.85</span>
+</div>
+<div class="flex items-center justify-between font-caption-meta text-caption-meta text-ink-muted">
+<span>Round Off Discrepancy</span>
+<span class="font-medium text-role-cafe-ink">-₹0.70</span>
+</div>
+<div class="h-px bg-surface-container-highest my-space-xs"></div>
+<div class="flex items-center justify-between font-headline-md text-headline-md text-role-cafe-ink pt-0.5">
+<span class="font-bold">Net Bill Total</span>
+<span class="font-extrabold text-role-cafe-primary">₹245.00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 3. Payment & Tender Audit Card -->
+<div class="px-margin py-space-xs">
+<div class="bg-surface rounded-lg p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<div class="w-7 h-7 rounded-full bg-[#E6F7F0] flex items-center justify-center text-money-mint">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+</div>
+<h2 class="font-body-lg text-body-lg font-bold text-role-cafe-ink">Payment &amp; Tender Audit</h2>
+</div>
+<span class="inline-flex items-center gap-1 px-space-sm py-0.5 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-caption-meta font-bold">
+<span class="material-symbols-outlined text-[14px]">done_all</span>
+          Settled
+        </span>
+</div>
+<div class="grid grid-cols-2 gap-gutter">
+<!-- Tendered -->
+<div class="bg-surface-tonal p-space-md rounded-DEFAULT flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted font-semibold">Tendered Cash Note</span>
+<span class="font-headline-md text-headline-md font-extrabold text-role-cafe-ink mt-0.5">₹500.00</span>
+<span class="font-caption-meta text-[11px] text-ink-muted mt-1">1x ₹500 currency note</span>
+</div>
+<!-- Change Returned -->
+<div class="bg-[#F0FAF5] p-space-md rounded-DEFAULT flex flex-col">
+<span class="font-caption-meta text-caption-meta text-money-mint font-bold">Change Returned</span>
+<span class="font-headline-md text-headline-md font-extrabold text-money-mint mt-0.5">₹255.00</span>
+<span class="font-caption-meta text-[11px] text-money-mint font-semibold mt-1">Dispensed to customer</span>
+</div>
+</div>
+<!-- Drawer and ERP sync status pills -->
+<div class="flex flex-col gap-space-xs text-caption-meta text-ink-muted">
+<div class="flex items-center gap-2 p-space-sm rounded-DEFAULT bg-surface-tonal/60">
+<span class="material-symbols-outlined text-[16px] text-role-cafe-primary">point_of_sale</span>
+<span class="font-medium text-role-cafe-ink">Drawer #02 • Auto-Kick Logged at 12:43:02 PM</span>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-DEFAULT bg-surface-tonal/60">
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-[16px] text-money-mint">account_balance</span>
+<span class="font-medium text-role-cafe-ink truncate">Cash GL 1010 • Journal #JRN-8902</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-[#E6F7F0] text-money-mint font-bold text-[11px] flex-shrink-0">ERP Posted</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 4. Kitchen KDS & Service Tracking Block -->
+<div class="px-margin py-space-xs">
+<div class="bg-surface rounded-lg p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<div class="w-7 h-7 rounded-full bg-role-cafe-canvas flex items-center justify-center text-role-cafe-action">
+<span class="material-symbols-outlined text-[18px]">restaurant</span>
+</div>
+<div>
+<h2 class="font-body-lg text-body-lg font-bold text-role-cafe-ink">KDS &amp; Service Flow</h2>
+<p class="font-caption-meta text-caption-meta text-ink-muted">Kitchen Order Ticket: KOT #084</p>
+</div>
+</div>
+<span class="px-space-sm py-1 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-caption-meta font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check</span>
+          SLA Met (8m 45s)
+        </span>
+</div>
+<!-- Interactive Mini Vertical Stepper -->
+<div class="relative pl-6 space-y-4 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-surface-container-highest">
+<!-- Event 1 -->
+<div class="relative flex items-start justify-between gap-space-sm">
+<span class="absolute -left-6 top-1 w-5 h-5 rounded-full bg-money-mint text-white flex items-center justify-center shadow-xs">
+<span class="material-symbols-outlined text-[13px]">check</span>
+</span>
+<div class="min-w-0">
+<p class="font-body-md text-body-md font-bold text-role-cafe-ink">Order Placed &amp; KOT Beamed</p>
+<p class="font-caption-meta text-caption-meta text-ink-muted">Dispatched to 3 stations (Tea, Oven, Snack)</p>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink-muted flex-shrink-0 font-mono">12:42 PM</span>
+</div>
+<!-- Event 2 -->
+<div class="relative flex items-start justify-between gap-space-sm">
+<span class="absolute -left-6 top-1 w-5 h-5 rounded-full bg-money-mint text-white flex items-center justify-center shadow-xs">
+<span class="material-symbols-outlined text-[13px]">check</span>
+</span>
+<div class="min-w-0">
+<p class="font-body-md text-body-md font-bold text-role-cafe-ink">Tea Counter Ready</p>
+<p class="font-caption-meta text-caption-meta text-ink-muted">2x Madras Filter Coffee pulled &amp; foamed</p>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink-muted flex-shrink-0 font-mono">12:46 PM</span>
+</div>
+<!-- Event 3 -->
+<div class="relative flex items-start justify-between gap-space-sm">
+<span class="absolute -left-6 top-1 w-5 h-5 rounded-full bg-money-mint text-white flex items-center justify-center shadow-xs">
+<span class="material-symbols-outlined text-[13px]">check</span>
+</span>
+<div class="min-w-0">
+<p class="font-body-md text-body-md font-bold text-role-cafe-ink">Oven &amp; Fryer Station Ready</p>
+<p class="font-caption-meta text-caption-meta text-ink-muted">Buns warmed &amp; samosa plated with chutney</p>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink-muted flex-shrink-0 font-mono">12:49 PM</span>
+</div>
+<!-- Event 4 -->
+<div class="relative flex items-start justify-between gap-space-sm">
+<span class="absolute -left-6 top-1 w-5 h-5 rounded-full bg-role-cafe-primary text-white flex items-center justify-center shadow-xs">
+<span class="material-symbols-outlined text-[13px]">room_service</span>
+</span>
+<div class="min-w-0">
+<p class="font-body-md text-body-md font-bold text-role-cafe-primary">Served to Table 4</p>
+<p class="font-caption-meta text-caption-meta text-ink-muted">Delivered by Service Captain Suresh</p>
+</div>
+<span class="font-caption-meta text-caption-meta font-bold text-role-cafe-primary flex-shrink-0 font-mono">12:51 PM</span>
+</div>
+</div>
+<!-- KDS Performance Benchmark Note -->
+<div class="bg-role-cafe-canvas rounded-DEFAULT p-space-sm flex items-center justify-between text-role-cafe-ink font-caption-meta text-caption-meta">
+<span class="flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[16px] text-money-mint">speed</span>
+          Kitchen SLA: Target &lt; 12m
+        </span>
+<span class="font-bold text-money-mint">3m 15s under target</span>
+</div>
+</div>
+</div>
+<!-- 5. Fiscal Compliance & Digital Signature Card -->
+<div class="px-margin py-space-xs">
+<div class="bg-surface rounded-lg p-space-lg shadow-sm flex items-center gap-space-md">
+<!-- Scannable Digital QR Stamp Thumbnail -->
+<div class="w-18 h-18 p-1.5 bg-surface-tonal rounded-DEFAULT flex-shrink-0 flex items-center justify-center">
+<!-- Crisp inline fiscal QR placeholder representation -->
+<svg class="w-14 h-14 text-role-cafe-ink" fill="currentColor" viewbox="0 0 24 24">
+<path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm8-2h2v2h-2v-2zm2 2h2v2h-2v-2zm-2 2h2v2h-2v-2zm4-2h2v2h-2v-2zm2 2h2v2h-2v-2zm0-4h2v2h-2v-2zm-4 4h2v2h-2v-2z"></path>
+</svg>
+</div>
+<!-- Fiscal Metadata -->
+<div class="flex flex-col min-w-0 flex-1 justify-center">
+<div class="flex items-center gap-1">
+<span class="font-body-md text-body-md font-bold text-role-cafe-ink truncate">Digital Tax Signature</span>
+<span class="material-symbols-outlined text-[16px] text-money-mint" title="E-Invoice Verified">verified</span>
+</div>
+<p class="font-caption-meta text-[11px] text-ink-muted font-mono truncate mt-0.5">SHA256: d4a1f9b2c6e...84210</p>
+<div class="flex items-center gap-space-xs mt-1 text-ink-muted font-caption-meta text-[11px]">
+<span>FSSAI: 1242300000000</span>
+<span>•</span>
+<span class="text-money-mint font-semibold">IRN Verified</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 6. Pinned Bottom Operational Action Zone (Field-ready Touch Targets) -->
+<div class="fixed bottom-0 inset-x-0 z-40 bg-role-cafe-canvas/95 backdrop-blur-md pb-safe pt-space-xs px-margin shadow-[0_-8px_24px_rgba(43,27,20,0.08)]">
+<div class="max-w-md mx-auto flex flex-col gap-space-xs pb-space-sm">
+<!-- Primary Saffron Action: Reprint Thermal Slip -->
+<button class="w-full min-h-[56px] rounded-full bg-role-cafe-action hover:bg-[#e09724] active:scale-[0.98] transition-all flex items-center justify-center gap-space-sm shadow-md text-role-cafe-ink px-space-lg" onclick="triggerSlipPrint()" type="button">
+<span class="material-symbols-outlined text-[24px]">print</span>
+<div class="flex items-baseline gap-1.5">
+<span class="font-label-action text-label-action font-extrabold">Reprint Thermal Slip</span>
+<span class="font-sublabel-regional text-sublabel-regional opacity-80">(அச்சு)</span>
+</div>
+</button>
+<!-- Secondary Row: Share on WhatsApp & Download PDF -->
+<div class="grid grid-cols-2 gap-space-xs">
+<!-- WhatsApp Share -->
+<button class="min-h-[48px] rounded-full bg-surface hover:bg-surface-container active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5 px-space-md text-role-cafe-ink shadow-sm" onclick="shareWhatsApp()" type="button">
+<span class="material-symbols-outlined text-[20px] text-money-mint">chat</span>
+<div class="flex items-baseline gap-1 min-w-0">
+<span class="font-caption-meta text-caption-meta font-bold truncate">WhatsApp</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">(பகிர்)</span>
+</div>
+</button>
+<!-- PDF Export -->
+<button class="min-h-[48px] rounded-full bg-surface hover:bg-surface-container active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5 px-space-md text-role-cafe-ink shadow-sm" onclick="downloadInvoicePDF()" type="button">
+<span class="material-symbols-outlined text-[20px] text-role-cafe-primary">picture_as_pdf</span>
+<span class="font-caption-meta text-caption-meta font-bold">Download PDF</span>
+</button>
+</div>
+<!-- Dangerous / Reversal Action: Refund / Void Bill (Opens C-12) -->
+<div class="flex flex-col gap-1 pt-0.5">
+<button class="w-full min-h-[48px] rounded-full bg-transparent hover:bg-error-container/20 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 text-money-coral" onclick="navigateToVoidScreen()" type="button">
+<span class="material-symbols-outlined text-[20px]">cancel</span>
+<span class="font-label-action text-label-action font-bold">Refund / Void Bill</span>
+<span class="font-sublabel-regional text-sublabel-regional opacity-90">(பில் ரத்து)</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+<p class="text-center font-caption-meta text-[11px] text-ink-muted">
+          Requires Manager PIN Authorization for items over ₹200.00
+        </p>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function triggerSlipPrint() {
+    const btn = event.currentTarget;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `
+      <span class="material-symbols-outlined text-[24px] animate-spin">refresh</span>
+      <span class="font-label-action text-label-action font-extrabold">Printing to Counter Slip...</span>
+    `;
+    setTimeout(() => {
+      btn.innerHTML = `
+        <span class="material-symbols-outlined text-[24px]">check</span>
+        <span class="font-label-action text-label-action font-extrabold">Slip Sent to Thermal Printer ✓</span>
+      `;
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+      }, 2000);
+    }, 900);
+  }
+
+  function shareWhatsApp() {
+    alert("Opening WhatsApp e-bill composer for customer phone: +91 98400 12345");
+  }
+
+  function downloadInvoicePDF() {
+    alert("Downloading Tax Invoice PDF #ORD-084.pdf");
+  }
+
+  function navigateToVoidScreen() {
+    // Navigation routing hook to C-12 Manager Bill Void / Refund screen
+    window.location.hash = "#screen-c12-bill-void";
+  }
+</script></main></body></html>

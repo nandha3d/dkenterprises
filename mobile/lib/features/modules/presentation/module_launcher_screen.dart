@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/ui/module_tile.dart';
+import '../../../core/ui/ripple_components.dart';
 
 class ModuleLauncherScreen extends ConsumerStatefulWidget {
   const ModuleLauncherScreen({super.key});
@@ -80,7 +82,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
     } else if (isDeliveryDriver) {
       allCategories.addAll([
         const _ModuleCategory(
-          title: '20L Can Distribution Operations',
+          title: 'Water Can Distribution Operations',
           modules: [
             _Module(
               title: 'Can Sales POS Ticket',
@@ -139,9 +141,9 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
             ),
             _Module(
               title: 'Daily Cash Drawer Closing',
-              description: 'Cash-in-hand (1010) register balance',
-              icon: Icons.menu_book_rounded,
-              route: '/accounting/books',
+              description: 'ERP cash register float & X/Z shift report',
+              icon: Icons.point_of_sale_rounded,
+              route: '/erp/pos-drawer',
               color: AppColors.brandNavy,
             ),
             _Module(
@@ -337,7 +339,7 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
           title: switch (industry) {
             'cafe_bakery' => 'Bakery & Cafe Operations',
             'bulk_water' => 'Bulk Tanker Fleet Logistics',
-            'packaged_water' => '20L Can Route Distribution',
+            'packaged_water' => 'Water Can Route Distribution',
             'textile' => 'Textile & Garment Operations',
             _ => 'Commercial Operations',
           },
@@ -515,80 +517,98 @@ class _ModuleLauncherScreenState extends ConsumerState<ModuleLauncherScreen> {
         .where((cat) => cat.modules.isNotEmpty)
         .toList();
 
+    final skin = RippleSkin.of(context);
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('All Modules'),
-      ),
+      backgroundColor: skin.canvas,
       body: Column(
         children: [
-          // Search Field Header
+          // Search Field & Profile Quick Strip
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.darkCard : AppColors.lightCard,
+              color: skin.surface,
               border: Border(bottom: BorderSide(color: borderCol, width: 1)),
             ),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (val) {
-                setState(() {
-                  _searchQuery = val.trim().toLowerCase();
-                });
-              },
-              decoration: InputDecoration(
-                hintText: 'Search modules, workflows, reports...',
-                prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear_rounded, size: 18),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() => _searchQuery = '');
-                        },
-                      )
-                    : null,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              ),
+            child: Column(
+              children: [
+                TextField(
+                  controller: _searchController,
+                  onChanged: (val) {
+                    setState(() {
+                      _searchQuery = val.trim().toLowerCase();
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Search modules, workflows, reports...',
+                    prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear_rounded, size: 18),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() => _searchQuery = '');
+                            },
+                          )
+                        : null,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                RippleActionCard(
+                  icon: Icons.person_outline_rounded,
+                  title: 'My Profile, Sync & Preferences',
+                  subtitle: 'Theme, active branch, outbox status & sign out.',
+                  onTap: () => context.push('/account/profile'),
+                ),
+              ],
             ),
           ),
 
           // Categories List
           Expanded(
-            child: ListView.separated(
+            child: ListView(
               padding: const EdgeInsets.all(16),
-              itemCount: filteredCategories.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 20),
-              itemBuilder: (ctx, catIndex) {
-                final cat = filteredCategories[catIndex];
+              children: [
+                ...filteredCategories.map(
+                  (cat) => Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          cat.title,
+                          style: AppTypography.section.copyWith(color: textCol, fontSize: 16),
+                        ),
+                        const SizedBox(height: 10),
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: cat.modules.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 8),
+                          itemBuilder: (ctx, modIndex) {
+                            final mod = cat.modules[modIndex];
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      cat.title,
-                      style: AppTypography.section.copyWith(color: textCol, fontSize: 16),
+                            return ModuleTile(
+                              title: mod.title,
+                              description: mod.description,
+                              icon: mod.icon,
+                              color: mod.color,
+                              onTap: () => context.push(mod.route),
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: cat.modules.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 8),
-                      itemBuilder: (ctx, modIndex) {
-                        final mod = cat.modules[modIndex];
-
-                        return ModuleTile(
-                          title: mod.title,
-                          description: mod.description,
-                          icon: mod.icon,
-                          color: mod.color,
-                          onTap: () => context.push(mod.route),
-                        );
-                      },
-                    ),
-                  ],
-                );
-              },
+                  ),
+                ),
+                const BackendPendingTile(
+                  title: 'Team Leave & Shift Approvals (A-41)',
+                  subtitle: 'Viewing/submitting your own leave works, while manager approval actions require new endpoints.',
+                  proposedEndpoint: 'POST /api/v1/hrm/leaves/{id}/approve',
+                  icon: Icons.event_available_rounded,
+                ),
+              ],
             ),
           ),
         ],

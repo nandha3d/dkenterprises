@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dk_track_mobile/core/providers.dart';
+import 'package:dk_track_mobile/core/storage/local_database.dart';
 import 'package:dk_track_mobile/features/auth/domain/auth_models.dart';
 import 'package:dk_track_mobile/features/auth/data/auth_repository.dart';
 import 'package:dk_track_mobile/features/dashboard/presentation/can_delivery_driver_dashboard_screen.dart';
@@ -14,6 +15,19 @@ class _MockAuthNotifier extends StateNotifier<AuthState> implements AuthNotifier
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _SeededLocalDatabase extends LocalDatabase {
+  final Map<String, dynamic> _seed;
+  _SeededLocalDatabase(this._seed);
+
+  @override
+  Future<dynamic> getCache(String key) async => _seed[key];
+
+  @override
+  Future<void> saveCache(String key, dynamic data) async {
+    _seed[key] = data;
+  }
 }
 
 void main() {
@@ -40,10 +54,39 @@ void main() {
       activeFinancialYear: null,
     );
 
+    final seededDb = _SeededLocalDatabase({
+      'driver_manifest_can_delivery': {
+        'driver_type': 'delivery',
+        'vehicle': {
+          'vehicle_number': 'TN-58-WA-101 (Tata Ace)',
+          'route_name': 'Anna Nagar & Teppakulam Route',
+        },
+        'can_inventory': {
+          'loaded_cans': 60,
+          'delivered_cans': 25,
+          'empty_cans_on_truck': 20,
+          'remaining_full_cans': 35,
+        },
+        'cash': {'in_hand': 1450.0},
+        'stops': [
+          {
+            'id': 1,
+            'customer_id': 5,
+            'name': 'Hotel Saravana Bhavan',
+            'address': 'Main Road, Erode',
+            'latitude': 11.3410,
+            'longitude': 77.7172,
+            'has_gps': true,
+          },
+        ],
+      },
+    });
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           sharedPreferencesProvider.overrideWithValue(prefs),
+          localDatabaseProvider.overrideWithValue(seededDb),
           authNotifierProvider.overrideWith((ref) => _MockAuthNotifier(state)),
         ],
         child: const MaterialApp(
@@ -78,10 +121,33 @@ void main() {
       activeFinancialYear: null,
     );
 
+    final seededDb = _SeededLocalDatabase({
+      'driver_manifest_tanker': {
+        'driver_type': 'tanker',
+        'vehicle': {
+          'vehicle_number': 'TN-58-BW-2001',
+          'model': 'Tata LPT 2518 (20KL)',
+          'current_odometer': 45200,
+        },
+        'active_trip': {
+          'trip_number': 'TMWS-TRIP-2026-002',
+          'customer_id': 4,
+          'customer_name': 'The Chennai Silks (Dyeing Unit)',
+          'destination_site': 'Industrial Dyeing Unit',
+          'address': 'Perundurai SIPCOT Industrial Area',
+          'water_quantity_kl': 16.0,
+          'latitude': 11.0845,
+          'longitude': 77.2941,
+        },
+        'stats': {'trips_today': 4, 'total_kl': 48.0},
+      },
+    });
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           sharedPreferencesProvider.overrideWithValue(prefs),
+          localDatabaseProvider.overrideWithValue(seededDb),
           authNotifierProvider.overrideWith((ref) => _MockAuthNotifier(state)),
         ],
         child: const MaterialApp(
@@ -99,7 +165,7 @@ void main() {
     expect(find.textContaining('FLOW: 0 L/min'), findsOneWidget);
   });
 
-  testWidgets('ExecutiveDashboardScreen shows 2nd GPS card for DK Waters (packaged_water)', (tester) async {
+  testWidgets('ExecutiveDashboardScreen renders Stitch A-01 Live Fleet Strip & Quick Modules for DK Waters (packaged_water)', (tester) async {
     tester.view.physicalSize = const Size(1200, 2000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -132,15 +198,15 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 15));
 
-    // Must find GPS Card for packaged water
-    expect(find.textContaining('20L Can Delivery Fleet Tracking'), findsOneWidget);
-    expect(find.textContaining('TN-58-WA-101'), findsAtLeastNWidgets(1));
-    expect(find.textContaining('Track / Nav'), findsOneWidget);
-    expect(find.textContaining('LIVE GPS'), findsOneWidget);
-    expect(find.textContaining('CAN DRIVER MANIFEST'), findsOneWidget);
+    // Must find Stitch A-01 Cash in Hand Hero, Live Fleet Strip & Packaged Water Quick Modules
+    expect(find.textContaining('CASH IN HAND'), findsOneWidget);
+    expect(find.textContaining('Live Fleet Strip'), findsOneWidget);
+    expect(find.textContaining('Open Radar'), findsOneWidget);
+    expect(find.textContaining('Water Can Beat POS'), findsOneWidget);
+    expect(find.textContaining('Can Route Manifest'), findsOneWidget);
   });
 
-  testWidgets('ExecutiveDashboardScreen shows 2nd GPS card for TMWS (bulk_water)', (tester) async {
+  testWidgets('ExecutiveDashboardScreen renders Stitch A-01 Live Fleet Strip & Quick Modules for TMWS (bulk_water)', (tester) async {
     tester.view.physicalSize = const Size(1200, 2000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -173,11 +239,11 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 15));
 
-    // Must find GPS Card for bulk water
-    expect(find.textContaining('Bulk Tanker Fleet GPS Tracking'), findsOneWidget);
-    expect(find.textContaining('TN-58-BW-2001'), findsAtLeastNWidgets(1));
-    expect(find.textContaining('Track / Nav'), findsOneWidget);
-    expect(find.textContaining('LIVE GPS'), findsOneWidget);
-    expect(find.textContaining('TANKER DRIVER DESK'), findsOneWidget);
+    // Must find Stitch A-01 Cash in Hand Hero, Live Fleet Strip & Bulk Water Quick Modules
+    expect(find.textContaining('CASH IN HAND'), findsOneWidget);
+    expect(find.textContaining('Live Fleet Strip'), findsOneWidget);
+    expect(find.textContaining('Open Radar'), findsOneWidget);
+    expect(find.textContaining('Tanker Trip Desk'), findsOneWidget);
+    expect(find.textContaining('Live Tanker Radar'), findsOneWidget);
   });
 }

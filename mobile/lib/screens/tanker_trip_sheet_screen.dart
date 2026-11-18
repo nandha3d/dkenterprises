@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:geolocator/geolocator.dart';
+import '../features/operations/presentation/water_order_helpers.dart';
 import '../models/models.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
@@ -28,6 +31,9 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
 
   List<Map<String, dynamic>> _tankers = [];
   Map<String, dynamic>? _selectedTanker;
+  List<Map<String, dynamic>> _pickupPoints =
+      kDefaultWaterPickupPoints.map((e) => Map<String, dynamic>.from(e)).toList();
+  Map<String, dynamic>? _selectedPickupPoint;
   List<Map<String, dynamic>> _destinations = [];
   Map<String, dynamic>? _selectedDestination;
 
@@ -39,6 +45,18 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
   final _tollController = TextEditingController(text: '180');
   final _dieselController = TextEditingController(text: '1200');
   final _receiverController = TextEditingController(text: 'Site Receiver');
+  final _extraChargeController = TextEditingController(text: '0');
+  final _discountController = TextEditingController(text: '0');
+  final _adjustmentNoteController = TextEditingController();
+  final _extVehicleController = TextEditingController();
+  final _extVendorController = TextEditingController();
+  final _vendorPayableController = TextEditingController(text: '0');
+
+  bool _isOutsourcedVehicle = false;
+  String _paymentMode = 'Account / Credit';
+  String _gpayStatus = 'pending_verification';
+  String _paymentAccount = 'GPAY - KAVIN AXIS';
+  GpayProofAttachment? _gpayProof;
 
   // Operational State
   bool _isLoading = true;
@@ -90,6 +108,12 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
     _tollController.dispose();
     _dieselController.dispose();
     _receiverController.dispose();
+    _extraChargeController.dispose();
+    _discountController.dispose();
+    _adjustmentNoteController.dispose();
+    _extVehicleController.dispose();
+    _extVendorController.dispose();
+    _vendorPayableController.dispose();
     super.dispose();
   }
 
@@ -106,12 +130,18 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
         if (routesData['tankers'] is List && (routesData['tankers'] as List).isNotEmpty) {
           _tankers = List<Map<String, dynamic>>.from(routesData['tankers'] as List);
         } else {
-          _tankers = [
-            {'id': 1, 'number': 'TN 34 AF 4954', 'capacity_kl': 20.0, 'driver': 'Suresh Kumar'},
-            {'id': 2, 'number': 'TN 33 BK 8821', 'capacity_kl': 40.0, 'driver': 'P. Murugan'},
-          ];
+          _tankers = kDefaultTmwsTankerFleet.map((e) => Map<String, dynamic>.from(e)).toList();
         }
-        _selectedTanker = _tankers.first;
+        _selectedTanker = _tankers.isNotEmpty ? _tankers.first : null;
+
+        if (routesData['pickup_points'] is List &&
+            (routesData['pickup_points'] as List).isNotEmpty) {
+          _pickupPoints = List<Map<String, dynamic>>.from(routesData['pickup_points'] as List);
+        } else {
+          _pickupPoints =
+              kDefaultWaterPickupPoints.map((e) => Map<String, dynamic>.from(e)).toList();
+        }
+        _selectedPickupPoint = _pickupPoints.isNotEmpty ? _pickupPoints.first : null;
 
         _destinations = List<Map<String, dynamic>>.from(results[1] as List);
         if (_destinations.isNotEmpty) {
@@ -139,7 +169,14 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
     });
 
     try {
-      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (kIsWeb || (!Platform.isAndroid && !Platform.isIOS)) {
+        _fallbackToManualOdometer('Desktop session uses manual/telemetry odometer');
+        _startTripClock();
+        return;
+      }
+
+      serviceEnabled = await Geolocator.isLocationServiceEnabled()
+          .timeout(const Duration(seconds: 4), onTimeout: () => false);
       if (!serviceEnabled) {
         _fallbackToManualOdometer('Location services are disabled on device');
         _startTripClock();
@@ -166,12 +203,22 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
       _isGpsActive = true;
       _useManualOverride = false;
 
-      final initialPos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      _lastGpsPosition = initialPos;
+      Position? initialPos;
+      try {
+        initialPos = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+          timeLimit: const Duration(seconds: 6),
+        );
+      } catch (_) {
+        initialPos = await Geolocator.getLastKnownPosition();
+      }
+      if (!mounted) return;
+      if (initialPos != null) {
+        _lastGpsPosition = initialPos;
+      }
 
       // Start streaming location updates
+      await _positionStreamSub?.cancel();
       _positionStreamSub = Geolocator.getPositionStream(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
@@ -180,6 +227,7 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
       ).listen(
         (Position position) => _onGpsPositionUpdate(position),
         onError: (e) {
+          if (!mounted) return;
           _fallbackToManualOdometer('GPS stream interrupted: $e');
         },
       );
@@ -367,9 +415,15 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
     return (totalWait - _freeWaitingGraceMins).clamp(0, 9999);
   }
 
+  double _getExtraCharge() =>
+      (double.tryParse(_extraChargeController.text.trim()) ?? 0.0).clamp(0.0, double.infinity);
+
+  double _getDiscountAmount() =>
+      (double.tryParse(_discountController.text.trim()) ?? 0.0).clamp(0.0, double.infinity);
+
   double _calculateTotalFare() {
-    if (_selectedTanker == null) return 0.0;
-    final capKl = (_selectedTanker!['capacity_kl'] as num? ?? 20.0).toDouble();
+    if (_selectedTanker == null && !_isOutsourcedVehicle) return 0.0;
+    final capKl = (_selectedTanker?['capacity_kl'] as num? ?? 14.0).toDouble();
 
     // 1. Base Water Trip Fare
     final baseFare = capKl * 140.0; // ₹2,800 for 20KL
@@ -387,14 +441,17 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
     final billableWaitMins = _getBillableWaitingMinutes();
     final waitingCharge = billableWaitMins * _waitingRatePerMin;
 
-    // 5. Toll Gate Expense
+    // 5. Toll Gate Expense + Extra / Discount Adjustments
     final toll = double.tryParse(_tollController.text) ?? 0.0;
+    final extra = _getExtraCharge();
+    final discount = _getDiscountAmount();
 
-    return baseFare + distanceCharge + motorCharge + waitingCharge + toll;
+    return (baseFare + distanceCharge + motorCharge + waitingCharge + toll + extra - discount)
+        .clamp(0.0, double.infinity);
   }
 
   Future<void> _submitTripSheet() async {
-    if (_selectedTanker == null) return;
+    if (_selectedTanker == null && !_isOutsourcedVehicle) return;
     setState(() => _isSubmitting = true);
 
     final startKm = int.tryParse(_odometerStartController.text) ?? 142810;
@@ -413,14 +470,28 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
     final destinationName = _selectedDestination != null
         ? (_selectedDestination!['name'] ?? 'Site')
         : 'Commercial Site';
+    final pickupName = (_selectedPickupPoint?['name'] ?? 'Veerappampalayam Borewell').toString();
+    final extraCharge = _getExtraCharge();
+    final discountAmount = _getDiscountAmount();
+    final paidForPayload = _paymentMode == 'Account / Credit'
+        ? 0.0
+        : (_paymentMode == 'GPay / UPI' && _gpayStatus == 'pending_verification'
+            ? 0.0
+            : totalFare);
 
     final tripRecord = TankerTripRecord(
       tripNumber: tripNo,
-      tankerId: _selectedTanker!['id'] as int? ?? 1,
-      vehicleNumber: (_selectedTanker!['number'] ?? _selectedTanker!['tanker_no'] ?? 'TN-34-AF').toString(),
-      capacityKl: (_selectedTanker!['capacity_kl'] as num? ?? 20.0).toDouble(),
+      tankerId: _isOutsourcedVehicle ? 0 : (_selectedTanker?['id'] as int? ?? 1),
+      vehicleNumber: _isOutsourcedVehicle
+          ? _extVehicleController.text.trim()
+          : (_selectedTanker?['vehicle_number'] ??
+                  _selectedTanker?['number'] ??
+                  _selectedTanker?['tanker_no'] ??
+                  '')
+              .toString(),
+      capacityKl: (_selectedTanker?['capacity_kl'] as num? ?? 14.0).toDouble(),
       customerName: destinationName,
-      loadSource: 'Borewell Hub (Perundurai)',
+      loadSource: pickupName,
       destinationSite: destinationName,
       startKm: startKm,
       endKm: endKm,
@@ -439,7 +510,39 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
       tripDate: DateTime.now(),
     );
 
-    await _apiService.submitTankerTrip(tripRecord);
+    await _apiService.submitTankerTrip(
+      tripRecord,
+      extraFields: {
+        if (_selectedPickupPoint?['id'] != null) 'pickup_point_id': _selectedPickupPoint!['id'],
+        'pickup_point_name': pickupName,
+        if (_isOutsourcedVehicle) ...{
+          'is_outsourced_vehicle': true,
+          'external_vehicle_no': _extVehicleController.text.trim(),
+          'external_vendor_name': _extVendorController.text.trim(),
+          'vendor_payable_amount':
+              double.tryParse(_vendorPayableController.text.trim()) ?? 0.0,
+        },
+        'extra_charge': extraCharge,
+        'discount_amount': discountAmount,
+        if (_adjustmentNoteController.text.trim().isNotEmpty)
+          'adjustment_note': _adjustmentNoteController.text.trim(),
+        'payment_mode': _paymentMode,
+        'payment_verification_status': _paymentMode == 'GPay / UPI'
+            ? _gpayStatus
+            : (_paymentMode == 'Cash' ? 'confirmed' : 'not_applicable'),
+        if (_paymentMode == 'GPay / UPI') ...{
+          'payment_status_flag': _gpayStatus,
+          'payment_account': _gpayProof?.paymentAccount ?? _paymentAccount,
+          'claimed_upi_amount': totalFare,
+          if (_gpayProof != null && _gpayProof!.referenceNo.isNotEmpty)
+            'payment_ref': _gpayProof!.referenceNo,
+          if (_gpayProof?.base64Data != null) 'payment_proof_base64': _gpayProof!.base64Data,
+        } else if (_paymentMode == 'Cash') ...{
+          'payment_account': 'CASH',
+        },
+        'paid_amount': paidForPayload,
+      },
+    );
 
     if (mounted) {
       setState(() => _isSubmitting = false);
@@ -526,6 +629,10 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
 
                   // 6. Fleet Expenses (Diesel & Toll)
                   _buildExpenseCard(t),
+                  const SizedBox(height: 14),
+
+                  // 6b. +Extra / -Discount & GPay Verification Card
+                  _buildAdjustmentsAndPaymentCard(t),
                   const SizedBox(height: 16),
 
                   // 7. Live Bill Fare Preview & Submit Button
@@ -720,35 +827,106 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
             children: [
               Icon(Icons.local_shipping, size: 16, color: AppColors.textMuted(context)),
               const SizedBox(width: 8),
-              Text(
-                t ? 'வாகனம் மற்றும் வாடிக்கையாளர்' : 'Tanker Vehicle & Customer Site',
-                style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.textMuted(context)),
+              Expanded(
+                child: Text(
+                  t ? 'வாகனம், பிக்கப் & வாடிக்கையாளர்' : 'Tanker Vehicle, Borewell & Customer',
+                  style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.textMuted(context)),
+                ),
+              ),
+              FilterChip(
+                selected: _isOutsourcedVehicle,
+                label: const Text('Outside / வெளி வண்டி', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700)),
+                onSelected: (v) => setState(() => _isOutsourcedVehicle = v),
               ),
             ],
           ),
           const SizedBox(height: 10),
-          DropdownButtonFormField<Map<String, dynamic>>(
-            value: _selectedTanker,
-            style: TextStyle(color: AppColors.text(context), fontSize: 12.5),
-            decoration: InputDecoration(
-              isDense: true,
-              labelText: t ? 'டேங்கர் வாகனம்' : 'Assigned Tanker',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          if (!_isOutsourcedVehicle)
+            DropdownButtonFormField<Map<String, dynamic>>(
+              value: _selectedTanker,
+              isExpanded: true,
+              style: TextStyle(color: AppColors.text(context), fontSize: 12.5),
+              decoration: InputDecoration(
+                isDense: true,
+                labelText: t ? 'டேங்கர் வாகனம்' : 'Vehicle Number (Assigned Tanker)',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              ),
+              items: _tankers.map((tanker) {
+                return DropdownMenuItem<Map<String, dynamic>>(
+                  value: tanker,
+                  child: Text(formatTankerOptionLabel(tanker), overflow: TextOverflow.ellipsis),
+                );
+              }).toList(),
+              onChanged: (val) => setState(() => _selectedTanker = val),
+            )
+          else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _extVehicleController,
+                    textCapitalization: TextCapitalization.characters,
+                    style: TextStyle(color: AppColors.text(context), fontSize: 12.5),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      labelText: t ? 'வெளி வண்டி எண் *' : 'Outside Vehicle No *',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextFormField(
+                    controller: _extVendorController,
+                    style: TextStyle(color: AppColors.text(context), fontSize: 12.5),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      labelText: t ? 'உரிமையாளர் பெயர்' : 'Vendor Name',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            items: _tankers.map((tanker) {
-              final number = tanker['number'] ?? tanker['tanker_no'] ?? 'Tanker';
-              final kl = tanker['capacity_kl'] ?? 20;
-              return DropdownMenuItem<Map<String, dynamic>>(
-                value: tanker,
-                child: Text('$number ($kl KL)'),
-              );
-            }).toList(),
-            onChanged: (val) => setState(() => _selectedTanker = val),
-          ),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _vendorPayableController,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              style: TextStyle(color: AppColors.text(context), fontSize: 12.5),
+              decoration: InputDecoration(
+                isDense: true,
+                labelText: t ? 'வண்டி வாடகை (₹)' : 'Vendor Payable (₹)',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ],
+          if (_pickupPoints.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            DropdownButtonFormField<Map<String, dynamic>>(
+              value: _selectedPickupPoint,
+              isExpanded: true,
+              style: TextStyle(color: AppColors.text(context), fontSize: 12.5),
+              decoration: InputDecoration(
+                isDense: true,
+                labelText: t ? 'தண்ணி பிடிக்கிற இடம் (Borewell)' : 'Water Pickup / Borewell Point',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              ),
+              items: _pickupPoints.map((p) {
+                final name = (p['name'] ?? 'Pickup Point').toString();
+                return DropdownMenuItem<Map<String, dynamic>>(
+                  value: p,
+                  child: Text(name, overflow: TextOverflow.ellipsis),
+                );
+              }).toList(),
+              onChanged: (val) => setState(() => _selectedPickupPoint = val),
+            ),
+          ],
           const SizedBox(height: 10),
           DropdownButtonFormField<Map<String, dynamic>>(
             value: _selectedDestination,
+            isExpanded: true,
             style: TextStyle(color: AppColors.text(context), fontSize: 12.5),
             decoration: InputDecoration(
               isDense: true,
@@ -757,10 +935,10 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             ),
             items: _destinations.map((c) {
-              final name = c['name'] ?? 'Site';
+              final name = (c['name'] ?? 'Site').toString();
               return DropdownMenuItem<Map<String, dynamic>>(
                 value: c,
-                child: Text(name),
+                child: Text(name, overflow: TextOverflow.ellipsis),
               );
             }).toList(),
             onChanged: (val) => setState(() => _selectedDestination = val),
@@ -1269,13 +1447,128 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
     );
   }
 
+  Widget _buildAdjustmentsAndPaymentCard(bool t) {
+    final isGpay = _paymentMode == 'GPay / UPI';
+    return GlassCard(
+      padding: const EdgeInsets.all(14),
+      borderRadius: 16,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            t ? 'கூடுதல் கட்டணம் / தள்ளுபடி & ஜிபே சரிபார்ப்பு' : '+ Extra / - Discount & Payment Proof',
+            style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w800, color: AppColors.text(context)),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: _extraChargeController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  style: TextStyle(color: AppColors.text(context), fontSize: 12),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    labelText: t ? '+ கூடுதல் (₹)' : '+ Extra Charge (₹)',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onChanged: (_) => setState(() {}),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextFormField(
+                  controller: _discountController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  style: TextStyle(color: AppColors.text(context), fontSize: 12),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    labelText: t ? '- தள்ளுபடி (₹)' : '- Discount (₹)',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onChanged: (_) => setState(() {}),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          TextFormField(
+            controller: _adjustmentNoteController,
+            style: TextStyle(color: AppColors.text(context), fontSize: 12),
+            decoration: InputDecoration(
+              isDense: true,
+              labelText: t ? 'குறிப்பு (எ.கா. 2வது மாடி பைப்)' : 'Adjustment Note',
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: ['Cash', 'GPay / UPI', 'Account / Credit'].map((mode) {
+              return ChoiceChip(
+                selected: _paymentMode == mode,
+                label: Text(mode, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                onSelected: (_) => setState(() => _paymentMode = mode),
+              );
+            }).toList(),
+          ),
+          if (isGpay) ...[
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                ChoiceChip(
+                  selected: _gpayStatus == 'pending_verification',
+                  label: const Text('Pending Confirmation (பெண்டிங்)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                  onSelected: (_) => setState(() => _gpayStatus = 'pending_verification'),
+                ),
+                ChoiceChip(
+                  selected: _gpayStatus == 'confirmed',
+                  label: const Text('Confirmed', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                  onSelected: (_) => setState(() => _gpayStatus = 'confirmed'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: () async {
+                final att = await showAttachGpayProofDialog(
+                  context,
+                  initialRef: _gpayProof?.referenceNo,
+                  initialPath: _gpayProof?.filePath,
+                  initialAccount: _gpayProof?.paymentAccount ?? _paymentAccount,
+                );
+                if (att != null && mounted) {
+                  setState(() {
+                    _gpayProof = att;
+                    _paymentAccount = att.paymentAccount;
+                    if (att.hasProof) _gpayStatus = 'confirmed';
+                  });
+                }
+              },
+              icon: const Icon(Icons.add_a_photo_rounded, size: 16),
+              label: Text(
+                _gpayProof?.hasProof == true
+                    ? 'GPay Proof Attached (${_gpayProof!.paymentAccount})'
+                    : 'Attach GPay Screenshot / Photo',
+                style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _buildLiveBillPreviewCard(
     bool t,
     double totalFare,
     double excessKm,
     int billableWaitMins,
   ) {
-    final capKl = (_selectedTanker?['capacity_kl'] as num? ?? 20.0).toDouble();
+    final capKl = (_selectedTanker?['capacity_kl'] as num? ?? 14.0).toDouble();
     final baseFare = capKl * 140.0;
     final excessKmCharge = excessKm * _excessKmRate;
     final motorMins = int.tryParse(_motorMinutesController.text) ?? 0;
@@ -1325,6 +1618,16 @@ class _TankerTripSheetScreenState extends State<TankerTripSheetScreen> {
             _buildBillLineItem(
               'Site Waiting Delay ($billableWaitMins mins @ ₹$_waitingRatePerMin/min)',
               '₹ ${waitCharge.toStringAsFixed(2)}',
+            ),
+          if (_getExtraCharge() > 0)
+            _buildBillLineItem(
+              '+ Extra Charge',
+              '₹ ${_getExtraCharge().toStringAsFixed(2)}',
+            ),
+          if (_getDiscountAmount() > 0)
+            _buildBillLineItem(
+              '- Discount',
+              '-₹ ${_getDiscountAmount().toStringAsFixed(2)}',
             ),
 
           const SizedBox(height: 16),

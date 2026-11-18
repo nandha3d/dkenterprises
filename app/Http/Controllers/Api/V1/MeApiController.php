@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\Platform\CapabilityService;
 use App\Services\Platform\CompanyContext;
 use App\Services\Platform\LegacyModuleAdapter;
+use App\Support\StaffIdentityResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,26 +25,26 @@ class MeApiController extends BaseApiController
             return $this->sendError('Unauthenticated', ['auth' => 'Valid Sanctum token required.'], 401);
         }
 
-        // 1. Roles & Permissions
-        $roles = $user->roles->pluck('name')->values()->all();
-        if (empty($roles)) {
-            $roleRecord = DB::table('roles')->where('id', $user->role_id)->first();
-            if ($roleRecord) {
-                $roles[] = $roleRecord->name;
-            }
-        }
+        // 1. Roles, Identity & Vertical Locking
+        $roles = StaffIdentityResolver::resolveUserRoles($user);
+        $isSuperAdmin = StaffIdentityResolver::isSuperAdmin($user, $roles);
+        $roleSlug = StaffIdentityResolver::resolveRoleSlug($user, $roles);
+        $roleLabel = StaffIdentityResolver::resolveRoleLabel($roleSlug);
+        $allowedCompanyIds = StaffIdentityResolver::resolveAllowedCompanyIds($user, $roleSlug);
 
         $permissions = $user->getAllPermissions()->pluck('name')->values()->all();
-        // If Admin / role_id 1, ensure all system permissions are accessible
-        if ($user->role_id == 1 || in_array('Admin', $roles, true)) {
+        if ($isSuperAdmin) {
             $allPerms = DB::table('permissions')->pluck('name')->values()->all();
             $permissions = array_values(array_unique(array_merge($permissions, $allPerms)));
         }
 
-        // 2. Accessible Companies
-        $memberships = DB::table('company_user')
-            ->join('companies', 'company_user.company_id', '=', 'companies.id')
-            ->where('company_user.user_id', $user->id)
+        // 2. Accessible Companies (Super Admin = all active group companies; Staff/Drivers = single assigned vertical)
+        $memberships = DB::table('companies')
+            ->leftJoin('company_user', function ($join) use ($user) {
+                $join->on('companies.id', '=', 'company_user.company_id')
+                    ->where('company_user.user_id', '=', $user->id);
+            })
+            ->whereIn('companies.id', $allowedCompanyIds)
             ->where('companies.status', 'active')
             ->select(
                 'companies.id',
@@ -54,8 +55,10 @@ class MeApiController extends BaseApiController
                 'companies.timezone',
                 'companies.country_code',
                 'companies.state_code',
-                'company_user.is_default'
+                DB::raw('COALESCE(company_user.is_default, 0) as is_default')
             )
+            ->orderByDesc('is_default')
+            ->orderBy('companies.id')
             ->get();
 
         $companiesData = [];
@@ -124,43 +127,36 @@ class MeApiController extends BaseApiController
             ];
         }
 
-        // Active context determination
-        $activeCompanyId = (int) ($request->header('X-Company-ID') ?? $defaultCompanyId);
+        // Active context determination (non-super-admin cannot cross verticals via X-Company-ID)
+        $requestedCompanyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : null;
+        $activeCompanyId = ($isSuperAdmin && $requestedCompanyId && collect($companiesData)->firstWhere('id', $requestedCompanyId))
+            ? $requestedCompanyId
+            : (int) ($defaultCompanyId ?? ($companiesData[0]['id'] ?? 1));
         $activeCompany = collect($companiesData)->firstWhere('id', $activeCompanyId);
         $activeBranchId = (int) ($request->header('X-Branch-ID') ?? ($activeCompany['branches'][0]->id ?? 1));
         $activeFiscalYearId = (int) ($request->header('X-Financial-Year-ID') ?? ($activeCompany['fiscal_years'][0]->id ?? 1));
 
         $primaryRole = $roles[0] ?? 'Staff';
-        $roleSlug = match(strtolower($user->name)) {
-            'admin' => 'superAdmin',
-            'driver' => 'deliveryDriver',
-            'tanker_driver', 'tanker' => 'tankerDriver',
-            'cashier' => 'cashier',
-            'agent', 'field_agent' => 'fieldAgent',
-            default => match(strtolower($primaryRole)) {
-                'admin', 'superadmin', 'owner' => 'superAdmin',
-                'delivery driver', 'deliverydriver', 'driver' => 'deliveryDriver',
-                'tanker driver', 'tankerdriver' => 'tankerDriver',
-                'field agent', 'fieldagent', 'agent' => 'fieldAgent',
-                'cashier' => 'cashier',
-                default => 'staff',
-            },
-        };
+        $displayName = StaffIdentityResolver::resolveDisplayName($user, $roleSlug, $activeCompanyId);
 
         return $this->sendResponse([
             'user' => [
                 'id' => $user->id,
-                'name' => $user->name,
+                'name' => $displayName,
+                'username' => $user->name,
+                'display_name' => $displayName,
                 'email' => $user->email,
                 'phone' => $user->phone,
                 'role' => $primaryRole,
                 'role_slug' => $roleSlug,
+                'role_label' => $roleLabel,
                 'role_id' => $user->role_id,
                 'warehouse_id' => $user->warehouse_id,
                 'biller_id' => $user->biller_id,
             ],
             'roles' => $roles,
             'permissions' => $permissions,
+            'can_switch_companies' => $isSuperAdmin && count($companiesData) > 1,
             'companies' => $companiesData,
             'active_context' => [
                 'company_id' => $activeCompanyId,

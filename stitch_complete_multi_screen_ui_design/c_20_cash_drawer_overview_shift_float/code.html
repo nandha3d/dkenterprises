@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#FBF4EA;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}.material-symbols-outlined{font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 24;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-tint": "#1f695e", "surface": "#FFFFFF", "on-secondary-fixed": "#151f00", "on-primary-fixed": "#00201b", "tertiary-fixed": "#7ffaba", "on-background": "#1b1c19", "on-secondary": "#ffffff", "dark-surface": "#17221D", "primary-container": "#0b5d52", "surface-container-high": "#eae8e3", "dark-canvas": "#0E1512", "background": "#fbf9f4", "surface-bright": "#fbf9f4", "critical-ruby": "#D92D20", "hairline": "#E3E1DA", "secondary-fixed": "#c7f169", "on-primary": "#ffffff", "ink-muted": "#66736C", "on-primary-fixed-variant": "#005046", "on-primary-container": "#8dd3c5", "secondary-container": "#c5ee66", "secondary-fixed-dim": "#acd44f", "role-cafe-primary": "#C2542D", "primary-fixed-dim": "#8ed4c5", "money-coral": "#E8505B", "pending-honey": "#E9A23B", "role-cafe-action": "#F4A62A", "error": "#ba1a1a", "surface-variant": "#e4e2dd", "tertiary-container": "#005f3c", "surface-container-highest": "#e4e2dd", "inverse-surface": "#30312e", "on-surface": "#1b1c19", "inverse-primary": "#8ed4c5", "info-sky": "#2E90FA", "surface-container-lowest": "#ffffff", "role-driver-canvas": "#F3F8FA", "dark-surface-tonal": "#1F2E27", "role-cafe-ink": "#2B1B14", "surface-dim": "#dcdad5", "outline-variant": "#bec9c5", "ink": "#13201B", "tertiary": "#00452a", "primary-fixed": "#a9f0e1", "role-cafe-canvas": "#FBF4EA", "on-tertiary-fixed-variant": "#005233", "role-driver-primary": "#0E8FB3", "dark-ink-muted": "#93A39B", "surface-container": "#f0eee9", "error-container": "#ffdad6", "outline": "#6f7976", "on-tertiary-container": "#61dda0", "surface-container-low": "#f5f3ee", "role-field-primary": "#3F7D58", "secondary": "#4c6700", "primary": "#00443b", "on-surface-variant": "#3f4946", "on-tertiary-fixed": "#002112", "role-driver-action": "#FFC933", "role-field-action": "#C9F36A", "inverse-on-surface": "#f2f1ec", "on-secondary-container": "#506c00", "on-secondary-fixed-variant": "#394e00", "on-tertiary": "#ffffff", "money-mint": "#1FA971", "surface-tonal": "#ECEFEA", "on-error-container": "#93000a", "dark-ink": "#EDF3EF", "tertiary-fixed-dim": "#61dda0", "on-error": "#ffffff" }, "borderRadius": { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, "spacing": { "space-xl": "1.5rem", "space-md": "0.75rem", "gutter": "0.75rem", "space-xs": "0.25rem", "space-lg": "1rem", "margin": "1rem", "space-sm": "0.5rem" }, "fontFamily": { "label-action": ["Manrope"], "headline-md": ["Manrope"], "caption-meta": ["Manrope"], "sublabel-regional": ["Noto Sans Tamil"], "body-md": ["Manrope"], "headline-lg": ["Manrope"], "body-lg": ["Manrope"], "display-numeral-mobile": ["Manrope"], "display-numeral": ["Manrope"] }, "fontSize": { "label-action": ["16px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "700" }], "headline-md": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "caption-meta": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "sublabel-regional": ["11px", { "lineHeight": "14px", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }], "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "display-numeral-mobile": ["40px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "display-numeral": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "800" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-role-cafe-canvas font-body-md text-role-cafe-ink antialiased min-h-screen flex flex-col"><header class="fixed top-0 w-full z-50 pt-safe bg-role-cafe-canvas/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(43,27,20,0.05)]"><div class="h-28 px-margin flex flex-col justify-center gap-space-xs"><div class="flex items-center justify-between w-full"><div class="flex items-center gap-space-sm"><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-headline-md text-headline-md text-role-cafe-ink leading-none">Aran Cafe</span><span class="px-space-xs py-0.5 rounded-full bg-role-cafe-primary/10 text-role-cafe-primary font-caption-meta text-[10px] uppercase font-bold tracking-wider">Main Branch</span></div><span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-semibold leading-none mt-0.5">அரண் காபி</span></div></div><div class="flex items-center gap-space-xs"><div class="inline-flex items-center gap-1 px-space-sm py-1 rounded-full bg-money-mint/15 text-money-mint font-caption-meta text-caption-meta"><span class="material-symbols-outlined text-[14px]">check_circle</span><span>Synced</span></div><button class="relative w-11 h-11 rounded-full flex items-center justify-center text-role-cafe-ink hover:bg-surface-tonal/60 transition-colors"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-critical-ruby"></span></button><button class="px-space-xs py-1 rounded-full bg-surface-tonal text-role-cafe-ink font-caption-meta text-caption-meta font-bold hover:bg-hairline transition-colors flex items-center gap-0.5"><span>EN</span><span class="text-ink-muted text-[10px]">|</span><span class="font-sublabel-regional text-[10px]">தமிழ்</span></button><div class="flex items-center gap-1.5 pl-0.5"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><span class="font-caption-meta text-caption-meta text-role-cafe-ink font-bold hidden sm:inline">Priyan</span></div></div></div><div class="flex items-center justify-between bg-surface/90 rounded-full px-space-md py-1 shadow-[0_1px_4px_rgba(43,27,20,0.04)]"><div class="inline-flex items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap"><span class="w-2 h-2 rounded-full bg-money-mint"></span><span class="font-caption-meta text-caption-meta text-role-cafe-ink font-bold">Shift #02</span><span class="text-ink-muted text-caption-meta font-normal">•</span><span class="font-caption-meta text-caption-meta text-role-cafe-ink font-medium">Counter C-02</span><span class="text-ink-muted text-caption-meta font-normal">•</span><span class="font-caption-meta text-caption-meta text-role-cafe-primary font-bold">Float ₹5,000</span></div><div class="text-ink-muted font-caption-meta text-[11px] font-semibold uppercase tracking-wide">Drawer</div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-28 pb-28 px-margin bg-role-cafe-canvas"><div class="flex flex-col w-full gap-space-md">
+<!-- 1. Top Status Banner & Operational Telemetry -->
+<div class="w-full bg-surface rounded-DEFAULT p-space-md shadow-[0_2px_8px_rgba(43,27,20,0.04)] flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="inline-flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-money-mint/15 text-money-mint font-caption-meta text-caption-meta">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-money-mint opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-money-mint"></span>
+</span>
+<span class="font-bold tracking-wide">DRAWER #02 ACTIVE</span>
+</div>
+<div class="inline-flex items-center gap-1 text-ink-muted font-caption-meta text-caption-meta">
+<span class="material-symbols-outlined text-[15px] text-money-mint">electrical_services</span>
+<span class="font-semibold">Relay Online</span>
+</div>
+</div>
+<div class="flex flex-col gap-0.5 pt-1">
+<div class="text-role-cafe-ink font-body-md text-body-md font-bold leading-tight">
+        Shift #02 • Counter C-02
+      </div>
+<div class="text-ink-muted font-caption-meta text-caption-meta leading-snug">
+        Opened 07:02 AM • Cashier: <span class="font-bold text-role-cafe-ink">Priyan (#104)</span> • Supervisor: <span class="font-bold text-role-cafe-ink">Revathi (MGR)</span>
+</div>
+</div>
+<div class="mt-1 flex items-center gap-1.5 p-2 rounded-lg bg-surface-tonal text-ink-muted text-caption-meta font-caption-meta">
+<span class="material-symbols-outlined text-role-cafe-primary text-[16px] shrink-0">bolt</span>
+<span class="truncate">Solenoid Auto-Kick Enabled • Last trigger 12:43 PM (Bill #A-894)</span>
+</div>
+</div>
+<!-- 2. Hero Card: Physical Cash in Drawer -->
+<div class="w-full bg-role-cafe-primary text-on-primary rounded-lg p-space-lg flex flex-col gap-space-md relative overflow-hidden shadow-[0_8px_20px_-4px_rgba(194,84,45,0.3)]">
+<!-- Subtle Watermark Decor -->
+<span class="material-symbols-outlined absolute -right-4 -bottom-6 text-[140px] text-on-primary/10 select-none pointer-events-none">
+      point_of_sale
+    </span>
+<div class="flex flex-col relative z-10 gap-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-role-cafe-action text-[20px]">account_balance_wallet</span>
+<span class="font-caption-meta text-caption-meta uppercase tracking-wider text-on-primary/90 font-bold">
+            Physical Cash in Drawer
+          </span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-action">பணப் பெட்டி இருப்பு</span>
+</div>
+<!-- Hero Numeral -->
+<div class="font-display-numeral-mobile text-display-numeral-mobile tracking-tight font-extrabold text-on-primary mt-1">
+        ₹12,885.00
+      </div>
+<!-- Live Expected Cash Equation Pill -->
+<div class="mt-2 p-2.5 rounded-DEFAULT bg-black/20 backdrop-blur-md text-on-primary/95 text-caption-meta font-caption-meta leading-relaxed">
+<div class="flex items-center gap-1 font-bold text-role-cafe-action mb-0.5">
+<span class="material-symbols-outlined text-[14px]">calculate</span>
+<span>Expected Cash Formula (நிகர கணக்கு):</span>
+</div>
+<div class="font-mono text-[11px] leading-tight">
+          ₹12,885 = Float (₹5,000) + Cash Sales (₹8,470) − Refunds (₹245) − Expenses (₹340)
+        </div>
+</div>
+</div>
+<!-- 3 Bento Micro-KPIs inside Hero -->
+<div class="grid grid-cols-3 gap-2 pt-1 relative z-10">
+<div class="bg-black/15 rounded-DEFAULT p-2 flex flex-col">
+<span class="text-[10px] uppercase font-bold text-on-primary/75 tracking-wider">Base Float</span>
+<span class="font-body-lg text-body-lg font-bold text-on-primary leading-tight mt-0.5">₹5,000</span>
+<span class="text-[9px] text-on-primary/60 mt-0.5">Locked 07:02 AM</span>
+</div>
+<div class="bg-black/15 rounded-DEFAULT p-2 flex flex-col">
+<span class="text-[10px] uppercase font-bold text-on-primary/75 tracking-wider">Cash Added</span>
+<span class="font-body-lg text-body-lg font-bold text-role-cafe-action leading-tight mt-0.5">+₹7,885</span>
+<span class="text-[9px] text-on-primary/60 mt-0.5">Physical intake</span>
+</div>
+<div class="bg-black/15 rounded-DEFAULT p-2 flex flex-col justify-between">
+<span class="text-[10px] uppercase font-bold text-on-primary/75 tracking-wider">Status</span>
+<span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-money-mint text-white text-[10px] font-bold self-start mt-0.5">
+<span class="material-symbols-outlined text-[10px]">check</span>0.00 Var
+        </span>
+<span class="text-[9px] text-on-primary/60 mt-0.5">Balanced</span>
+</div>
+</div>
+</div>
+<!-- 3. Cash Drawer Overflow Alert / Safe Drop Notice -->
+<div class="w-full bg-pending-honey/15 rounded-DEFAULT p-space-md flex flex-col gap-space-sm shadow-[0_2px_6px_rgba(233,162,59,0.1)]">
+<div class="flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-pending-honey text-[22px] shrink-0 mt-0.5">warning</span>
+<div class="flex flex-col gap-0.5">
+<div class="font-body-md text-body-md font-bold text-role-cafe-ink">
+          Cash Threshold Limit Exceeded
+        </div>
+<div class="font-caption-meta text-caption-meta text-role-cafe-ink/80 leading-snug">
+          Till cash is <span class="font-bold text-role-cafe-primary">₹12,885.00</span> (limit: ₹10,000). For security, execute a mid-shift cash drop of <span class="font-bold">₹7,000</span> to the branch floor safe.
+        </div>
+</div>
+</div>
+<button class="w-full h-11 px-space-md rounded-full bg-role-cafe-ink text-surface font-label-action text-caption-meta flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-all" id="quickDropBtn">
+<span class="material-symbols-outlined text-[18px] text-role-cafe-action">move_to_inbox</span>
+<span>Quick Cash Drop to Safe (பண வைப்பு)</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+<!-- 4. Shift Tender Breakdown & Ledger Movements -->
+<div class="w-full bg-surface rounded-DEFAULT p-space-md shadow-[0_2px_8px_rgba(43,27,20,0.04)] flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div>
+<div class="font-headline-md text-headline-md text-role-cafe-ink">Shift #02 Ledger Movements</div>
+<div class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary">தற்போதைய பண வரவு செலவு விவரம்</div>
+</div>
+<span class="px-space-xs py-1 rounded-full bg-surface-tonal text-ink-muted font-caption-meta text-caption-meta font-bold">
+        142 Orders
+      </span>
+</div>
+<!-- Cash Drawer Movements -->
+<div class="flex flex-col gap-space-xs">
+<div class="text-[11px] uppercase font-bold tracking-wider text-ink-muted px-1">Physical Cash Activity</div>
+<!-- Row 1: Cash Sales -->
+<div class="flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low hover:bg-surface-tonal transition-colors">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-full bg-money-mint/15 text-money-mint flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-bold text-role-cafe-ink">Cash Sales Collected</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">54 Cash bills • GL 1010</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-body-lg text-body-lg font-bold text-money-mint">+₹8,470.00</span>
+<span class="block text-[10px] text-money-mint font-semibold">Tender In</span>
+</div>
+</div>
+<!-- Row 2: Opening Base Float -->
+<div class="flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low hover:bg-surface-tonal transition-colors">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-full bg-surface-tonal text-role-cafe-ink flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">lock_clock</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-bold text-role-cafe-ink">Opening Base Float</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Shift start denomination verified</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-body-lg text-body-lg font-bold text-role-cafe-ink">₹5,000.00</span>
+<span class="block text-[10px] text-ink-muted">Fixed Float</span>
+</div>
+</div>
+<!-- Row 3: Customer Refunds -->
+<div class="flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low hover:bg-surface-tonal transition-colors">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-full bg-money-coral/15 text-money-coral flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">replay</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-bold text-role-cafe-ink">Customer Refunds / Voids</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">1 bill • #REV-8409 (Revathi appvd)</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-body-lg text-body-lg font-bold text-money-coral">−₹245.00</span>
+<span class="block text-[10px] text-money-coral font-semibold">Tender Out</span>
+</div>
+</div>
+<!-- Row 4: Direct Expenses Paid -->
+<div class="flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low hover:bg-surface-tonal transition-colors">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-full bg-money-coral/15 text-money-coral flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">receipt</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-bold text-role-cafe-ink">Cafe Expenses Paid from Till</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Fresh milk replenishment + ice (2 vchr)</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-body-lg text-body-lg font-bold text-money-coral">−₹340.00</span>
+<span class="block text-[10px] text-money-coral font-semibold">Petty Cash Out</span>
+</div>
+</div>
+<!-- Row 5: Cash Handed Over -->
+<div class="flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low hover:bg-surface-tonal transition-colors">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-full bg-surface-tonal text-ink-muted flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">savings</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-bold text-role-cafe-ink">Cash Handed to Owner / Safe</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Pending shift-end handover</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-body-lg text-body-lg font-bold text-ink-muted">₹0.00</span>
+<span class="block text-[10px] text-ink-muted">In Drawer</span>
+</div>
+</div>
+</div>
+<!-- Non-Cash Settlements (Audit Context) -->
+<div class="flex flex-col gap-space-xs pt-2">
+<div class="flex items-center justify-between px-1">
+<span class="text-[11px] uppercase font-bold tracking-wider text-ink-muted">Digital Settlements (Audit Only)</span>
+<span class="text-[10px] font-bold text-role-cafe-primary">Not In Till</span>
+</div>
+<div class="p-3 rounded-DEFAULT bg-surface-tonal flex flex-col gap-2">
+<div class="flex items-center justify-between text-body-md font-body-md">
+<div class="flex items-center gap-1.5 text-role-cafe-ink">
+<span class="material-symbols-outlined text-[18px] text-info-sky">qr_code_scanner</span>
+<span>Instant UPI / QR Collections</span>
+</div>
+<span class="font-bold text-role-cafe-ink">₹16,420.00</span>
+</div>
+<div class="flex items-center justify-between text-body-md font-body-md">
+<div class="flex items-center gap-1.5 text-role-cafe-ink">
+<span class="material-symbols-outlined text-[18px] text-ink-muted">credit_card</span>
+<span>Card POS Swipes (PineLabs)</span>
+</div>
+<span class="font-semibold text-ink-muted">₹0.00</span>
+</div>
+<div class="flex items-center justify-between text-body-md font-body-md">
+<div class="flex items-center gap-1.5 text-role-cafe-ink">
+<span class="material-symbols-outlined text-[18px] text-pending-honey">account_balance</span>
+<span>Customer Khata / Credit Due</span>
+</div>
+<span class="font-semibold text-role-cafe-ink">₹650.00</span>
+</div>
+<div class="pt-2 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta font-bold text-role-cafe-ink uppercase tracking-wide">Total Gross Shift Billing</span>
+<span class="text-[11px] text-ink-muted">Cash + UPI + Credit (142 orders)</span>
+</div>
+<span class="font-headline-md text-headline-md font-extrabold text-role-cafe-primary">₹24,890.00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 5. Current Float Denomination Matrix (Interactive Till Count Preview) -->
+<div class="w-full bg-surface rounded-DEFAULT p-space-md shadow-[0_2px_8px_rgba(43,27,20,0.04)] flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-role-cafe-primary text-[20px]">pin</span>
+<div class="flex flex-col">
+<span class="font-body-lg text-body-lg font-bold text-role-cafe-ink leading-tight">Denomination Breakdown</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Active physical count inside cash tray</span>
+</div>
+</div>
+<button class="text-role-cafe-primary font-caption-meta text-caption-meta font-bold flex items-center gap-0.5" id="toggleDenomBtn">
+<span>View Notes</span>
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+</div>
+<!-- Denominations Grid -->
+<div class="grid grid-cols-2 gap-2 pt-1" id="denomGrid">
+<div class="p-2 rounded-DEFAULT bg-surface-container-low flex items-center justify-between">
+<span class="font-bold text-role-cafe-ink text-body-md">₹500 <span class="text-ink-muted font-normal text-caption-meta">× 14</span></span>
+<span class="font-bold text-role-cafe-ink text-body-md">₹7,000</span>
+</div>
+<div class="p-2 rounded-DEFAULT bg-surface-container-low flex items-center justify-between">
+<span class="font-bold text-role-cafe-ink text-body-md">₹200 <span class="text-ink-muted font-normal text-caption-meta">× 18</span></span>
+<span class="font-bold text-role-cafe-ink text-body-md">₹3,600</span>
+</div>
+<div class="p-2 rounded-DEFAULT bg-surface-container-low flex items-center justify-between">
+<span class="font-bold text-role-cafe-ink text-body-md">₹100 <span class="text-ink-muted font-normal text-caption-meta">× 15</span></span>
+<span class="font-bold text-role-cafe-ink text-body-md">₹1,500</span>
+</div>
+<div class="p-2 rounded-DEFAULT bg-surface-container-low flex items-center justify-between">
+<span class="font-bold text-role-cafe-ink text-body-md">₹50 <span class="text-ink-muted font-normal text-caption-meta">× 11</span></span>
+<span class="font-bold text-role-cafe-ink text-body-md">₹550</span>
+</div>
+<div class="p-2 rounded-DEFAULT bg-surface-container-low flex items-center justify-between">
+<span class="font-bold text-role-cafe-ink text-body-md">₹20 <span class="text-ink-muted font-normal text-caption-meta">× 8</span></span>
+<span class="font-bold text-role-cafe-ink text-body-md">₹160</span>
+</div>
+<div class="p-2 rounded-DEFAULT bg-surface-container-low flex items-center justify-between">
+<span class="font-bold text-role-cafe-ink text-body-md">₹10 <span class="text-ink-muted font-normal text-caption-meta">× 6</span></span>
+<span class="font-bold text-role-cafe-ink text-body-md">₹60</span>
+</div>
+<div class="col-span-2 p-2 rounded-DEFAULT bg-surface-container-low flex items-center justify-between">
+<span class="font-bold text-role-cafe-ink text-body-md">Coins (₹5, ₹2, ₹1 mixed)</span>
+<span class="font-bold text-role-cafe-ink text-body-md">₹15.00</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-2 rounded-DEFAULT bg-role-cafe-primary/10">
+<span class="font-caption-meta text-caption-meta font-bold text-role-cafe-primary uppercase">Sum of Physical Cash</span>
+<span class="font-body-lg text-body-lg font-extrabold text-role-cafe-primary">₹12,885.00</span>
+</div>
+</div>
+<!-- 6. Primary Action Slabs (56px minimum height) -->
+<div class="flex flex-col gap-space-sm pt-2">
+<!-- Primary CTA: Saffron Full Width Slab -->
+<a class="w-full h-14 min-h-[56px] rounded-full bg-role-cafe-action text-role-cafe-ink font-label-action text-label-action flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(244,166,42,0.35)] active:scale-[0.98] transition-transform" data-path="reconcile" href="#">
+<span class="material-symbols-outlined text-[24px]">verified</span>
+<span>Reconcile &amp; Handover Drawer (இருப்பு சரிபார்த்தல்)</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</a>
+<!-- Secondary Action Slabs Grid -->
+<div class="grid grid-cols-2 gap-space-sm">
+<!-- Cash Book Audit Button -->
+<a class="h-14 min-h-[56px] px-space-sm rounded-full bg-surface text-role-cafe-primary font-label-action text-caption-meta font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-transform text-center" data-path="cashbook-audit" href="#">
+<span class="material-symbols-outlined text-[18px]">menu_book</span>
+<span>Cash Book (GL 1010)</span>
+</a>
+<!-- Open Cash Drawer Kick Button -->
+<button class="h-14 min-h-[56px] px-space-sm rounded-full bg-surface-tonal text-role-cafe-ink font-label-action text-caption-meta font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform text-center" id="manualKickBtn">
+<span class="material-symbols-outlined text-[18px] text-role-cafe-action">lock_open</span>
+<span>Manual Kick (PIN)</span>
+</button>
+</div>
+</div>
+<!-- 7. Compliance & Audit Hardware Footer -->
+<div class="w-full py-space-sm flex flex-col items-center justify-center text-center gap-1">
+<div class="flex items-center gap-1.5 text-ink-muted text-caption-meta font-caption-meta">
+<span class="material-symbols-outlined text-[14px]">hardware</span>
+<span>Till ID: <span class="font-bold text-role-cafe-ink">HW-POS-TILL-02</span> • Serial: CR-4100</span>
+</div>
+<div class="text-[11px] text-ink-muted font-body-md max-w-[320px]">
+      Auto-open solenoid relay active. Daily shift reconciliation is mandated prior to user handover or logout.
+    </div>
+</div>
+<!-- Subtle Success Toast Container for Micro-interactions -->
+<div class="fixed top-32 left-1/2 -translate-x-1/2 z-50 bg-role-cafe-ink text-surface px-4 py-2 rounded-full font-caption-meta text-caption-meta shadow-xl flex items-center gap-2 opacity-0 pointer-events-none transition-opacity duration-300" id="actionToast">
+<span class="material-symbols-outlined text-role-cafe-action text-[18px]" id="toastIcon">check_circle</span>
+<span id="toastMsg">Command Sent</span>
+</div>
+</div>
+<script>
+  (function initDrawerInteractions() {
+    const toast = document.getElementById('actionToast');
+    const toastMsg = document.getElementById('toastMsg');
+    const toastIcon = document.getElementById('toastIcon');
+    let toastTimeout;
+
+    function showToast(msg, icon = 'check_circle') {
+      if (!toast) return;
+      clearTimeout(toastTimeout);
+      toastMsg.textContent = msg;
+      toastIcon.textContent = icon;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      toast.classList.add('opacity-100');
+
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none');
+        toast.classList.remove('opacity-100');
+      }, 2400);
+    }
+
+    const manualKickBtn = document.getElementById('manualKickBtn');
+    if (manualKickBtn) {
+      manualKickBtn.addEventListener('click', () => {
+        showToast('Solenoid Kick Pulse Dispatched (Drawer Opened)', 'lock_open');
+      });
+    }
+
+    const quickDropBtn = document.getElementById('quickDropBtn');
+    if (quickDropBtn) {
+      quickDropBtn.addEventListener('click', () => {
+        showToast('Initiating Safe Drop Form (₹7,000)...', 'move_to_inbox');
+      });
+    }
+
+    const toggleDenomBtn = document.getElementById('toggleDenomBtn');
+    const denomGrid = document.getElementById('denomGrid');
+    if (toggleDenomBtn && denomGrid) {
+      let expanded = true;
+      toggleDenomBtn.addEventListener('click', () => {
+        expanded = !expanded;
+        if (expanded) {
+          denomGrid.classList.remove('hidden');
+          toggleDenomBtn.innerHTML = '<span>Hide Notes</span><span class="material-symbols-outlined text-[16px]">expand_less</span>';
+        } else {
+          denomGrid.classList.add('hidden');
+          toggleDenomBtn.innerHTML = '<span>View Notes</span><span class="material-symbols-outlined text-[16px]">expand_more</span>';
+        }
+      });
+    }
+  })();
+</script></main><div class="fixed bottom-0 w-full z-50 pb-safe pointer-events-none"><div class="px-margin pb-4 w-full flex justify-center"><nav class="pointer-events-auto h-16 w-full max-w-[420px] bg-surface rounded-full shadow-[0_8px_24px_-4px_rgba(43,27,20,0.12)] px-2 flex items-center justify-between relative" data-active-classes="bg-role-cafe-action/20 text-role-cafe-primary font-bold"><a class="flex-1 h-12 rounded-full flex flex-col items-center justify-center gap-0.5 text-ink-muted transition-all duration-200 active:scale-95" data-path="counter" href="#"><span class="material-symbols-outlined text-[20px]">point_of_sale</span><span class="font-caption-meta text-[11px] leading-tight">Counter</span></a><a class="flex-1 h-12 rounded-full flex flex-col items-center justify-center gap-0.5 text-ink-muted transition-all duration-200 active:scale-95" data-path="orders" href="#"><span class="material-symbols-outlined text-[20px]">receipt_long</span><span class="font-caption-meta text-[11px] leading-tight">Orders</span></a><a aria-current="page" class="flex-1 h-12 rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-200 active:scale-95 bg-role-cafe-action/20 text-role-cafe-primary font-bold" data-path="drawer" href="#"><span class="material-symbols-outlined text-[20px]">lock_open</span><span class="font-caption-meta text-[11px] leading-tight">Drawer</span></a><a class="flex-1 h-12 rounded-full flex flex-col items-center justify-center gap-0.5 text-ink-muted transition-all duration-200 active:scale-95" data-path="kitchen" href="#"><span class="material-symbols-outlined text-[20px]">soup_kitchen</span><span class="font-caption-meta text-[11px] leading-tight">Kitchen</span></a><a class="flex-1 h-12 rounded-full flex flex-col items-center justify-center gap-0.5 text-ink-muted transition-all duration-200 active:scale-95" data-path="me" href="#"><span class="material-symbols-outlined text-[20px]">account_circle</span><span class="font-caption-meta text-[11px] leading-tight">Me</span></a></nav></div></div></body></html>

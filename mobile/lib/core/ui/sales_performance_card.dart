@@ -80,7 +80,7 @@ class SalesPerformanceCard extends StatelessWidget {
     final verticalLabel = switch (verticalIndustry) {
       'cafe_bakery' => 'Bakery Counter & POS Sales',
       'bulk_water' => 'Tanker Freight & Water Decanting',
-      'packaged_water' => '20L Can Deliveries & Bottle Sales',
+      'packaged_water' => 'Water Can Deliveries & Bottle Sales',
       'textile' => 'Fabric & Yarn Sales',
       _ => 'Commercial Revenue',
     };

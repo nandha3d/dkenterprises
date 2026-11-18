@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#F3F8FA;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary-fixed": "#a9f0e1", "on-primary-fixed": "#00201b", "role-cafe-primary": "#C2542D", "pending-honey": "#E9A23B", "surface-container-lowest": "#ffffff", "money-mint": "#1FA971", "on-tertiary-fixed": "#002112", "on-tertiary-container": "#61dda0", "inverse-surface": "#30312e", "dark-ink": "#EDF3EF", "surface-container-highest": "#e4e2dd", "on-secondary-container": "#506c00", "on-secondary": "#ffffff", "surface-tint": "#1f695e", "background": "#fbf9f4", "role-driver-primary": "#0E8FB3", "on-surface-variant": "#3f4946", "on-background": "#1b1c19", "info-sky": "#2E90FA", "surface-tonal": "#ECEFEA", "surface": "#FFFFFF", "on-error-container": "#93000a", "secondary-fixed": "#c7f169", "on-surface": "#1b1c19", "tertiary": "#00452a", "surface-container-high": "#eae8e3", "outline": "#6f7976", "dark-surface-tonal": "#1F2E27", "on-error": "#ffffff", "outline-variant": "#bec9c5", "tertiary-fixed": "#7ffaba", "inverse-on-surface": "#f2f1ec", "surface-dim": "#dcdad5", "on-tertiary-fixed-variant": "#005233", "tertiary-container": "#005f3c", "on-secondary-fixed-variant": "#394e00", "on-tertiary": "#ffffff", "role-driver-action": "#FFC933", "role-field-action": "#C9F36A", "hairline": "#E3E1DA", "on-secondary-fixed": "#151f00", "dark-ink-muted": "#93A39B", "critical-ruby": "#D92D20", "surface-container": "#f0eee9", "primary-container": "#0b5d52", "secondary": "#4c6700", "secondary-fixed-dim": "#acd44f", "role-cafe-ink": "#2B1B14", "on-primary": "#ffffff", "ink-muted": "#66736C", "on-primary-fixed-variant": "#005046", "primary": "#00443b", "on-primary-container": "#8dd3c5", "money-coral": "#E8505B", "secondary-container": "#c5ee66", "error": "#ba1a1a", "surface-variant": "#e4e2dd", "error-container": "#ffdad6", "ink": "#13201B", "dark-canvas": "#0E1512", "role-cafe-canvas": "#FBF4EA", "role-cafe-action": "#F4A62A", "surface-bright": "#fbf9f4", "surface-container-low": "#f5f3ee", "tertiary-fixed-dim": "#61dda0", "role-field-primary": "#3F7D58", "dark-surface": "#17221D", "primary-fixed-dim": "#8ed4c5", "role-driver-canvas": "#F3F8FA", "inverse-primary": "#8ed4c5" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "space-lg": "1rem", "space-md": "0.75rem", "space-sm": "0.5rem", "gutter": "0.75rem", "space-xs": "0.25rem", "margin": "1rem", "space-xl": "1.5rem" }, fontFamily: { "body-lg": ["Manrope"], "headline-md": ["Manrope"], "body-md": ["Manrope"], "display-numeral-mobile": ["Manrope"], "caption-meta": ["Manrope"], "sublabel-regional": ["Noto Sans Tamil"], "label-action": ["Manrope"], "display-numeral": ["Manrope"], "headline-lg": ["Manrope"] }, fontSize: { "body-lg": ["16px", { lineHeight: "24px", fontWeight: "600" }], "headline-md": ["20px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "700" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "500" }], "display-numeral-mobile": ["40px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800" }], "caption-meta": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "sublabel-regional": ["11px", { lineHeight: "14px", fontWeight: "600" }], "label-action": ["16px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "700" }], "display-numeral": ["48px", { lineHeight: "52px", letterSpacing: "-0.03em", fontWeight: "800" }], "headline-lg": ["28px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "800" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-role-driver-canvas text-ink flex flex-col min-h-screen selection:bg-role-driver-primary selection:text-surface"><header class="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><button aria-label="Back" class="w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-surface-tonal transition-colors shrink-0" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><div class="flex flex-col min-w-0"><h1 class="font-headline-md text-headline-md text-ink truncate leading-tight">Spot Empty Can Audit</h1><span class="font-sublabel-regional text-sublabel-regional text-ink-muted leading-tight mt-0.5">பாட்டில் இருப்பு தணிக்கை</span></div></div><div class="flex items-center gap-space-xs shrink-0"><div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E6F7F0] text-money-mint select-none"><span class="material-symbols-outlined text-[14px] font-bold">check_circle</span><span class="font-caption-meta text-caption-meta font-bold tracking-tight">Synced</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full px-margin pt-20 pb-safe bg-role-driver-canvas"><div class="flex flex-col w-full pb-8 space-y-4">
+<!-- 1. Telemetry & Field Audit Banner -->
+<div class="bg-surface rounded-lg p-space-md shadow-sm">
+<div class="flex items-center justify-between gap-space-sm mb-3">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-role-driver-canvas text-role-driver-primary">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<div class="flex items-baseline gap-1">
+<span class="font-caption-meta text-caption-meta font-extrabold tracking-wide uppercase">Field Quality &amp; Inventory Audit</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-driver-primary/80">கள தணிக்கை</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-money-mint font-caption-meta text-caption-meta">
+<span class="inline-block w-2 h-2 rounded-full bg-money-mint animate-pulse"></span>
+<span>Active Stop</span>
+</div>
+</div>
+<!-- Telemetry Strip Grid -->
+<div class="bg-surface-tonal rounded-[14px] p-2.5 grid grid-cols-2 gap-2 text-ink">
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-ink-muted text-[18px] shrink-0">alt_route</span>
+<div class="min-w-0">
+<p class="font-caption-meta text-caption-meta text-ink-muted truncate">Route / பாதை</p>
+<p class="font-body-md text-body-md font-bold truncate">Anna Nagar (#01)</p>
+</div>
+</div>
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-ink-muted text-[18px] shrink-0">local_shipping</span>
+<div class="min-w-0">
+<p class="font-caption-meta text-caption-meta text-ink-muted truncate">Vehicle / வண்டி</p>
+<p class="font-body-md text-body-md font-bold truncate">TN-58-WA-101</p>
+</div>
+</div>
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-ink-muted text-[18px] shrink-0">badge</span>
+<div class="min-w-0">
+<p class="font-caption-meta text-caption-meta text-ink-muted truncate">Driver / ஓட்டுநர்</p>
+<p class="font-body-md text-body-md font-bold truncate">R. Muthu</p>
+</div>
+</div>
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-ink-muted text-[18px] shrink-0">pin_drop</span>
+<div class="min-w-0">
+<p class="font-caption-meta text-caption-meta text-ink-muted truncate">GPS Accuracy</p>
+<p class="font-body-md text-body-md font-bold truncate">11.3410 N (±3.8m)</p>
+</div>
+</div>
+</div>
+</div>
+<!-- 2. Customer Location Picker Card -->
+<div class="bg-surface rounded-lg p-space-md shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-baseline gap-1.5">
+<span class="font-body-md text-body-md font-bold text-ink">Customer / Delivery Point</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">வாடிக்கையாளர் இடம்</span>
+</div>
+<button class="text-role-driver-primary flex items-center gap-0.5 font-caption-meta text-caption-meta font-bold" type="button">
+<span>Switch Stop</span>
+<span class="material-symbols-outlined text-[16px]">swap_horiz</span>
+</button>
+</div>
+<div class="bg-surface-tonal rounded-[18px] p-3 flex flex-col gap-2.5">
+<div class="flex items-start justify-between gap-2">
+<div class="min-w-0">
+<h2 class="font-headline-md text-headline-md text-ink leading-tight truncate">Hotel Saravana Bhavan</h2>
+<p class="font-body-md text-body-md text-ink-muted mt-0.5">Main Road, Sector 4, Erode • <span class="font-bold text-ink">#CK-9842</span></p>
+</div>
+<div class="w-10 h-10 rounded-full bg-role-driver-canvas flex items-center justify-center shrink-0 text-role-driver-primary">
+<span class="material-symbols-outlined text-[22px]">storefront</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-1.5">
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E6F7F0] text-money-mint">
+<span class="material-symbols-outlined text-[14px]">my_location</span>
+<span class="font-caption-meta text-caption-meta font-bold">✓ GPS Matched (14m)</span>
+</div>
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface text-ink-muted">
+<span class="material-symbols-outlined text-[14px] text-pending-honey">local_shipping</span>
+<span class="font-caption-meta text-caption-meta font-semibold">Delivery Stop #5 of 18</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 3. Jar Balance Verification (Hero Card in Aqua / Tonal Surface) -->
+<div class="bg-surface rounded-lg p-space-md shadow-sm">
+<div class="flex items-baseline justify-between mb-3">
+<div>
+<h3 class="font-headline-md text-headline-md text-ink">Can Container Ledger Audit</h3>
+<p class="font-sublabel-regional text-sublabel-regional text-ink-muted">கேன் இருப்பு சரிபார்ப்பு</p>
+</div>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-role-driver-canvas text-role-driver-primary font-caption-meta text-caption-meta font-bold">
+        20L Standard
+      </span>
+</div>
+<!-- Comparison Bento Grid -->
+<div class="grid grid-cols-1 gap-3">
+<!-- System Ledger Readout -->
+<div class="bg-surface-tonal rounded-[20px] p-4 flex items-center justify-between">
+<div>
+<div class="flex items-baseline gap-1">
+<span class="font-body-md text-body-md font-bold text-ink">System Ledger Jar Balance</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted block">சிஸ்டம் இருப்பு (வாடிக்கையாளர் வசம்)</span>
+<p class="font-caption-meta text-caption-meta text-ink-muted mt-1">Ref Ticket: DKW-DEL-2026-0412</p>
+</div>
+<div class="text-right">
+<span class="font-display-numeral-mobile text-display-numeral-mobile text-ink font-extrabold tracking-tight">14</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted block font-semibold uppercase">Cans</span>
+</div>
+</div>
+<!-- Physically Counted Jars Stepper -->
+<div class="bg-role-driver-canvas rounded-[20px] p-4">
+<div class="flex items-center justify-between mb-2">
+<div>
+<span class="font-body-md text-body-md font-bold text-ink">Physically Counted Jars</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-driver-primary block">நேரடி எண்ணிக்கை சரிபார்த்தல்</span>
+</div>
+<span class="font-caption-meta text-caption-meta font-bold text-role-driver-primary bg-surface px-2.5 py-1 rounded-full shadow-sm">Live Count</span>
+</div>
+<!-- 64px Tactile Stepper Unit -->
+<div class="flex items-center justify-between gap-3 mt-3">
+<button aria-label="Decrease can count" class="w-16 h-16 rounded-[18px] bg-surface flex items-center justify-center text-ink active:scale-95 transition-transform shadow-sm select-none" id="btn-dec" type="button">
+<span class="material-symbols-outlined text-[28px]">remove</span>
+</button>
+<div class="flex-1 flex flex-col items-center justify-center bg-surface h-16 rounded-[18px] shadow-sm">
+<span class="font-display-numeral-mobile text-display-numeral-mobile text-ink font-extrabold leading-none" id="physical-count">14</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase tracking-wider text-[10px]">Cans Audited</span>
+</div>
+<button aria-label="Increase can count" class="w-16 h-16 rounded-[18px] bg-role-driver-action flex items-center justify-center text-ink active:scale-95 transition-transform shadow-sm select-none" id="btn-inc" type="button">
+<span class="material-symbols-outlined text-[28px]">add</span>
+</button>
+</div>
+<!-- Preset Chips -->
+<div class="flex items-center gap-1.5 mt-3 overflow-x-auto pb-1">
+<button class="px-3 py-1.5 rounded-full bg-surface font-caption-meta text-caption-meta font-bold text-role-driver-primary shrink-0 active:scale-95 transition-transform" id="chip-match" type="button">
+            Match System (14)
+          </button>
+<button class="px-3 py-1.5 rounded-full bg-surface font-caption-meta text-caption-meta font-bold text-ink shrink-0 active:scale-95 transition-transform" id="chip-plus1" type="button">
+            +1 Extra Can
+          </button>
+<button class="px-3 py-1.5 rounded-full bg-surface font-caption-meta text-caption-meta font-bold text-money-coral shrink-0 active:scale-95 transition-transform" id="chip-shortage" type="button">
+            Shortage Alert (-1)
+          </button>
+</div>
+</div>
+<!-- Variance Result Capsule -->
+<div class="bg-[#E6F7F0] rounded-[18px] p-3.5 flex items-center justify-between transition-colors" id="variance-container">
+<div class="flex items-center gap-2.5">
+<div class="w-10 h-10 rounded-full bg-money-mint/20 flex items-center justify-center text-money-mint shrink-0" id="variance-icon-wrap">
+<span class="material-symbols-outlined text-[22px]" id="variance-icon">check_circle</span>
+</div>
+<div>
+<div class="flex items-baseline gap-1">
+<span class="font-body-md text-body-md font-extrabold text-money-mint" id="variance-title">Exact Match (0 Cans)</span>
+</div>
+<p class="font-caption-meta text-caption-meta text-ink/70" id="variance-formula">(Physical 14 − System 14 = 0 Discrepancy)</p>
+</div>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-money-mint font-bold shrink-0">வித்தியாசம்: 0</span>
+</div>
+</div>
+</div>
+<!-- 4. Container Condition Breakdown Card -->
+<div class="bg-surface rounded-lg p-space-md shadow-sm">
+<div class="flex items-baseline justify-between mb-3">
+<div>
+<h3 class="font-headline-md text-headline-md text-ink">Jar Condition Breakdown</h3>
+<p class="font-sublabel-regional text-sublabel-regional text-ink-muted">கேன்களின் நிலை வகைப்பாடு</p>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Must Sum to Physical (<span class="font-bold text-ink" id="condition-sum">14</span>)</span>
+</div>
+<!-- 3 Mini Stepper Tiles -->
+<div class="grid grid-cols-3 gap-2">
+<!-- Sound & Reusable -->
+<div class="bg-surface-tonal rounded-[16px] p-2.5 flex flex-col items-center text-center">
+<div class="w-7 h-7 rounded-full bg-[#E6F7F0] text-money-mint flex items-center justify-center mb-1">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+</div>
+<span class="font-caption-meta text-caption-meta font-bold text-ink leading-tight">Sound / Good</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted leading-tight mb-2">பயன்பாடு</span>
+<div class="flex items-center justify-center w-full gap-1 mt-auto">
+<button class="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-ink active:scale-95" onclick="adjustCondition('sound', -1)" type="button">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+</button>
+<span class="font-body-lg text-body-lg font-extrabold text-ink w-6 text-center" id="count-sound">14</span>
+<button class="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-ink active:scale-95" onclick="adjustCondition('sound', 1)" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+</div>
+<!-- Minor Crack / Neck Chipped -->
+<div class="bg-surface-tonal rounded-[16px] p-2.5 flex flex-col items-center text-center">
+<div class="w-7 h-7 rounded-full bg-[#FDF5E8] text-pending-honey flex items-center justify-center mb-1">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+</div>
+<span class="font-caption-meta text-caption-meta font-bold text-ink leading-tight">Chipped Neck</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted leading-tight mb-2">சேதம்</span>
+<div class="flex items-center justify-center w-full gap-1 mt-auto">
+<button class="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-ink active:scale-95" onclick="adjustCondition('crack', -1)" type="button">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+</button>
+<span class="font-body-lg text-body-lg font-extrabold text-pending-honey w-6 text-center" id="count-crack">0</span>
+<button class="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-ink active:scale-95" onclick="adjustCondition('crack', 1)" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+</div>
+<!-- Severe Damage / Missing Seal -->
+<div class="bg-surface-tonal rounded-[16px] p-2.5 flex flex-col items-center text-center">
+<div class="w-7 h-7 rounded-full bg-[#FDECEE] text-money-coral flex items-center justify-center mb-1">
+<span class="material-symbols-outlined text-[16px]">dangerous</span>
+</div>
+<span class="font-caption-meta text-caption-meta font-bold text-ink leading-tight">Severe / Lost</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted leading-tight mb-2">நீக்குதல்</span>
+<div class="flex items-center justify-center w-full gap-1 mt-auto">
+<button class="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-ink active:scale-95" onclick="adjustCondition('damage', -1)" type="button">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+</button>
+<span class="font-body-lg text-body-lg font-extrabold text-money-coral w-6 text-center" id="count-damage">0</span>
+<button class="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-ink active:scale-95" onclick="adjustCondition('damage', 1)" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- 5. Supervisor & Driver Remarks -->
+<div class="bg-surface rounded-lg p-space-md shadow-sm">
+<div class="flex items-baseline justify-between mb-2">
+<span class="font-body-md text-body-md font-bold text-ink">Supervisor / Driver Remarks</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">தணிக்கை குறிப்பு</span>
+</div>
+<!-- Chips for quick insertion -->
+<div class="flex items-center gap-1.5 overflow-x-auto pb-2 mb-2">
+<button class="px-2.5 py-1 rounded-full bg-surface-tonal text-ink font-caption-meta text-caption-meta font-medium shrink-0 active:scale-95" onclick="appendTag('✓ All Intact &amp; Counted')" type="button">
+        ✓ All Intact
+      </button>
+<button class="px-2.5 py-1 rounded-full bg-surface-tonal text-ink font-caption-meta text-caption-meta font-medium shrink-0 active:scale-95" onclick="appendTag('Customer Confirmed Breakage')" type="button">
+        Customer Confirmed Breakage
+      </button>
+<button class="px-2.5 py-1 rounded-full bg-surface-tonal text-ink font-caption-meta text-caption-meta font-medium shrink-0 active:scale-95" onclick="appendTag('Security Seal Checked')" type="button">
+        Security Seal Checked
+      </button>
+<button class="px-2.5 py-1 rounded-full bg-surface-tonal text-ink font-caption-meta text-caption-meta font-medium shrink-0 active:scale-95" onclick="appendTag('Empties Stored in Shade')" type="button">
+        Empties Stored in Shade
+      </button>
+</div>
+<div class="bg-surface-tonal rounded-[16px] p-3">
+<textarea class="w-full bg-transparent font-body-md text-body-md text-ink outline-none resize-none leading-relaxed" id="audit-remarks" placeholder="Type audit notes here..." rows="3">Inspected customer commercial storage rack. All 14 20L DK Waters embossed cans physically present with intact blue collars. Custody ledger verified with store manager Mr. Ganesan.</textarea>
+</div>
+</div>
+<!-- 6. Inspection Evidence Photo Capture -->
+<div class="bg-surface rounded-lg p-space-md shadow-sm">
+<div class="flex items-baseline justify-between mb-2">
+<span class="font-body-md text-body-md font-bold text-ink">Audit Photo Proof</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">புகைப்பட சான்று</span>
+</div>
+<div class="relative w-full h-48 rounded-[20px] overflow-hidden bg-surface-tonal">
+<img class="w-full h-full object-cover" data-alt="A clean, direct operational photograph of 14 neatly stacked bright blue 20-litre DK Waters commercial water jugs on a stainless steel rack inside Hotel Saravana Bhavan storage room in Erode. Crisp natural lighting, clear plastic seal intact on neck rims, high detail documentary style, authentic delivery telemetry atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCStzGYd-WQoa33oYn--5Yf6Hap6ZGLz9D2slxdH83ou_TrfCWIwjM6y7WwklD2E5lzDN1Ybr_iV2MJ2_TlJL7MGZc7efZixbn6ysztS225lhehfXfrQ-7l0Rt0xcjrOSplpDipaqqxIPaxbaXs7Coh-ejjyMgtBUxnLLuhhhguhhWz0hu5U8Cg4mz8H2tp2TV70pbRiLMTXM4PQ7h0EQT9n6HQ09bJhyI2KL8QJJ0"/>
+<!-- Timestamp / Watermark Overlay Pill -->
+<div class="absolute bottom-2.5 left-2.5 right-2.5 bg-ink/80 backdrop-blur-md rounded-[12px] p-2 flex items-center justify-between text-dark-ink">
+<div class="flex items-center gap-1.5 min-w-0">
+<span class="material-symbols-outlined text-role-driver-action text-[16px] shrink-0">pin_drop</span>
+<p class="font-caption-meta text-[11px] leading-tight truncate">
+            GPS: 11.3410, 77.7172 • 12 Nov 2026, 10:48 AM
+          </p>
+</div>
+<div class="inline-flex items-center gap-1 text-money-mint font-caption-meta text-[11px] font-bold shrink-0 ml-1">
+<span class="material-symbols-outlined text-[13px]">verified_user</span>
+<span>Verified Stamp ✓</span>
+</div>
+</div>
+</div>
+<!-- Actions for Photo -->
+<div class="flex items-center gap-2 mt-3">
+<button class="flex-1 h-12 rounded-full bg-surface-tonal text-ink flex items-center justify-center gap-1.5 font-label-action text-label-action active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px]">photo_camera</span>
+<span>Retake Photo</span>
+</button>
+<button class="flex-1 h-12 rounded-full bg-surface-tonal text-ink flex items-center justify-center gap-1.5 font-label-action text-label-action active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px]">add_a_photo</span>
+<span>Add Angle</span>
+</button>
+</div>
+</div>
+<!-- 7. Security & Sync Notice -->
+<div class="flex items-center justify-center gap-2 px-margin text-center">
+<span class="material-symbols-outlined text-role-driver-primary text-[18px]">cloud_sync</span>
+<p class="font-caption-meta text-caption-meta text-ink-muted">
+      Instant cloud ledger reconciliation • Stored offline in Outbox if network drops.
+    </p>
+</div>
+<!-- 8. Thumb-Zone Action Slab -->
+<div class="pt-2">
+<button class="w-full h-14 rounded-full bg-role-driver-action text-ink font-label-action text-label-action flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-transform" id="submit-audit-btn" type="button">
+<span>Confirm &amp; Record Spot Audit</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink/80">(தணிக்கை பதிவுசெய்)</span>
+<span class="material-symbols-outlined text-[22px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<script>
+  let systemCount = 14;
+  let physicalCount = 14;
+  let conditionBreakdown = { sound: 14, crack: 0, damage: 0 };
+
+  const physicalEl = document.getElementById('physical-count');
+  const varianceContainer = document.getElementById('variance-container');
+  const varianceTitle = document.getElementById('variance-title');
+  const varianceFormula = document.getElementById('variance-formula');
+  const varianceIcon = document.getElementById('variance-icon');
+  const varianceIconWrap = document.getElementById('variance-icon-wrap');
+  const conditionSum = document.getElementById('condition-sum');
+
+  function updateVarianceUI() {
+    physicalEl.innerText = physicalCount;
+    conditionSum.innerText = physicalCount;
+    const diff = physicalCount - systemCount;
+
+    if (diff === 0) {
+      varianceContainer.className = "bg-[#E6F7F0] rounded-[18px] p-3.5 flex items-center justify-between transition-colors";
+      varianceIconWrap.className = "w-10 h-10 rounded-full bg-money-mint/20 flex items-center justify-center text-money-mint shrink-0";
+      varianceIcon.innerText = "check_circle";
+      varianceTitle.className = "font-body-md text-body-md font-extrabold text-money-mint";
+      varianceTitle.innerText = "Exact Match (0 Cans)";
+      varianceFormula.innerText = "(Physical 14 − System 14 = 0 Discrepancy)";
+    } else if (diff < 0) {
+      varianceContainer.className = "bg-[#FDECEE] rounded-[18px] p-3.5 flex items-center justify-between transition-colors";
+      varianceIconWrap.className = "w-10 h-10 rounded-full bg-money-coral/20 flex items-center justify-center text-money-coral shrink-0";
+      varianceIcon.innerText = "report_problem";
+      varianceTitle.className = "font-body-md text-body-md font-extrabold text-money-coral";
+      varianceTitle.innerText = `Shortage (${Math.abs(diff)} Can${Math.abs(diff) > 1 ? 's' : ''})`;
+      varianceFormula.innerText = `(Physical ${physicalCount} − System ${systemCount} = ${diff} Missing)`;
+    } else {
+      varianceContainer.className = "bg-[#FDF5E8] rounded-[18px] p-3.5 flex items-center justify-between transition-colors";
+      varianceIconWrap.className = "w-10 h-10 rounded-full bg-pending-honey/20 flex items-center justify-center text-pending-honey shrink-0";
+      varianceIcon.innerText = "info";
+      varianceTitle.className = "font-body-md text-body-md font-extrabold text-pending-honey";
+      varianceTitle.innerText = `Surplus (+${diff} Cans)`;
+      varianceFormula.innerText = `(Physical ${physicalCount} − System ${systemCount} = +${diff} Extra)`;
+    }
+  }
+
+  document.getElementById('btn-dec').addEventListener('click', () => {
+    if (physicalCount > 0) {
+      physicalCount--;
+      conditionBreakdown.sound = Math.max(0, physicalCount - (conditionBreakdown.crack + conditionBreakdown.damage));
+      document.getElementById('count-sound').innerText = conditionBreakdown.sound;
+      updateVarianceUI();
+    }
+  });
+
+  document.getElementById('btn-inc').addEventListener('click', () => {
+    physicalCount++;
+    conditionBreakdown.sound++;
+    document.getElementById('count-sound').innerText = conditionBreakdown.sound;
+    updateVarianceUI();
+  });
+
+  document.getElementById('chip-match').addEventListener('click', () => {
+    physicalCount = 14;
+    conditionBreakdown.sound = 14;
+    conditionBreakdown.crack = 0;
+    conditionBreakdown.damage = 0;
+    document.getElementById('count-sound').innerText = 14;
+    document.getElementById('count-crack').innerText = 0;
+    document.getElementById('count-damage').innerText = 0;
+    updateVarianceUI();
+  });
+
+  document.getElementById('chip-plus1').addEventListener('click', () => {
+    physicalCount = 15;
+    conditionBreakdown.sound = 15;
+    document.getElementById('count-sound').innerText = 15;
+    updateVarianceUI();
+  });
+
+  document.getElementById('chip-shortage').addEventListener('click', () => {
+    physicalCount = 13;
+    conditionBreakdown.sound = 13;
+    document.getElementById('count-sound').innerText = 13;
+    updateVarianceUI();
+  });
+
+  window.adjustCondition = function(type, delta) {
+    if (type === 'crack') {
+      const next = conditionBreakdown.crack + delta;
+      if (next >= 0 && (conditionBreakdown.sound - delta >= 0)) {
+        conditionBreakdown.crack = next;
+        conditionBreakdown.sound -= delta;
+      }
+    } else if (type === 'damage') {
+      const next = conditionBreakdown.damage + delta;
+      if (next >= 0 && (conditionBreakdown.sound - delta >= 0)) {
+        conditionBreakdown.damage = next;
+        conditionBreakdown.sound -= delta;
+      }
+    } else if (type === 'sound') {
+      const next = conditionBreakdown.sound + delta;
+      if (next >= 0) {
+        conditionBreakdown.sound = next;
+        physicalCount = conditionBreakdown.sound + conditionBreakdown.crack + conditionBreakdown.damage;
+        updateVarianceUI();
+      }
+    }
+    document.getElementById('count-sound').innerText = conditionBreakdown.sound;
+    document.getElementById('count-crack').innerText = conditionBreakdown.crack;
+    document.getElementById('count-damage').innerText = conditionBreakdown.damage;
+  };
+
+  window.appendTag = function(tagText) {
+    const textarea = document.getElementById('audit-remarks');
+    if (!textarea.value.includes(tagText)) {
+      textarea.value = textarea.value.trim() + " " + tagText + ".";
+    }
+  };
+
+  document.getElementById('submit-audit-btn').addEventListener('click', () => {
+    const btn = document.getElementById('submit-audit-btn');
+    btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-[20px]">sync</span><span>Reconciling Ledger...</span>`;
+    setTimeout(() => {
+      btn.className = "w-full h-14 rounded-full bg-money-mint text-surface font-label-action text-label-action flex items-center justify-center gap-2 shadow-sm";
+      btn.innerHTML = `<span class="material-symbols-outlined text-[22px]">check</span><span>Audit Synced to Ledger ✓</span>`;
+    }, 700);
+  });
+</script></main></body></html>

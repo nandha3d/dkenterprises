@@ -27,6 +27,9 @@ dependencies:
   google_fonts: ^8.2.1
   sqflite_common_ffi: ^2.4.5
   url_launcher: ^6.3.3
+  flutter_map: ^8.3.2
+  latlong2: ^0.10.1
+  permission_handler: ^13.0.2
 
 dev_dependencies:
   flutter_test:

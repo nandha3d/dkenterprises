@@ -31,8 +31,18 @@ class CapabilityServiceProvider extends ServiceProvider
                 if ($readPermission) $route->middleware(\App\Http\Middleware\RequireCompanyPermission::class.':'.implode(',', $readPermission));
                 $key = match ($controller) {
                     'WaterLogisticsController' => 'operations.water_logistics',
-                    'WaterLogisticsApiController' => str_starts_with($route->uri(), 'api/v1/mobile/') ? null : 'operations.water_logistics',
-                    'CafeOperationsController', 'CafeApiController' => 'operations.cafe_bakery',
+                    'WaterLogisticsApiController' => (
+                        str_starts_with($route->uri(), 'api/v1/mobile/')
+                        || str_starts_with($route->uri(), 'api/v1/notifications')
+                        || str_starts_with($route->uri(), 'api/v1/devices/')
+                        || str_starts_with($route->uri(), 'api/v1/admin/')
+                    ) ? null : 'operations.water_logistics',
+                    'CafeOperationsController' => 'operations.cafe_bakery',
+                    'CafeApiController' => (
+                        str_starts_with($route->uri(), 'api/v1/cafe')
+                        || str_starts_with($route->uri(), 'api/v1/operations/cafe-pos')
+                        || str_starts_with($route->uri(), 'api/v1/mobile/operations/cafe-pos')
+                    ) ? null : 'operations.cafe_bakery',
                     'RepairController', 'RepairApiController' => 'service.repair',
                     'ProjectManagementController' => 'operations.projects',
                     'ProductionController', 'RecipeController', 'ManufacturingController' => 'manufacturing.production',

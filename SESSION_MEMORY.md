@@ -1,5 +1,350 @@
 # zoloERP Pro — Persistent Session Memory & State
 
+## Active Session & Follow-up — 2026-11-18: Portable Toolchain on F:\dev, Full Flutter Verification & Release APK Built (branch main)
+
+- **F:\dev Portable Mobile Development Toolchain:**
+  - Per explicit user instruction (*"the project drive itself enough"*), installed all mobile build requirements entirely on `F:\dev`:
+    - Java: Microsoft OpenJDK 17 (`F:\dev\jdk-17\bin\java.exe`)
+    - Android SDK: `F:\dev\android-sdk` (`cmdline-tools\latest`, `platform-tools\adb.exe`, `platforms\android-34`, `android-35`, `android-36`, `android-37.0`, `build-tools\34.0.0`, `build-tools\36.0.0`, `cmake\3.22.1`, `ndk\28.2.13676579`)
+    - Flutter SDK: Flutter 3.50.0 Stable / Dart 3.14.0 (`F:\dev\flutter\bin\flutter.bat`)
+  - Configured persistent environment variables (`JAVA_HOME`, `ANDROID_HOME`, `PATH`), accepted all Android licenses, and disabled unused Windows desktop flags (`flutter config --no-enable-windows-desktop`) avoiding Windows developer mode elevation constraints.
+- **Mobile Engine & Test Fixes:**
+  - Added `AppColors.darkSurface` alias in [`app_colors.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/theme/app_colors.dart) for Ripple dark surface compatibility.
+  - Made `Row` and its children in `DriverMapCalloutBubble` const in [`gps_map_interactive_sheets.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/ui/gps_map_interactive_sheets.dart).
+  - Updated `_bookOrderFirst` in [`can_sales_screen.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/can_sales_screen.dart) to ensure `_pricePerCan` is pre-filled from `created['can_rate'] ?? 35.0` (or `35.0` offline), preventing rate validation failures on booked order closure.
+  - Fixed scroll assertions in [`master_spec_sections3_to_6_test.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/test/master_spec_sections3_to_6_test.dart) and tapped `Book Order First` directly via persistent action bar in [`water_can_order_workflow_test.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/test/water_can_order_workflow_test.dart).
+  - Upgraded Gradle Wrapper to `9.3.1` in [`gradle-wrapper.properties`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/android/gradle/wrapper/gradle-wrapper.properties) and AGP to `9.1.1` in [`settings.gradle.kts`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/android/settings.gradle.kts), and configured `compileSdk = 37` in [`build.gradle.kts`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/android/app/build.gradle.kts).
+- **Verification Status:**
+  - `flutter analyze`: **No issues found! (ran in 14.5s)** (exit code `0`).
+  - `flutter test`: **83/83 tests passed! (0 failures)** (exit code `0`).
+  - `flutter build apk --release`: **Successfully built [app-release.apk](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/build/app/outputs/flutter-apk/app-release.apk)** (73,086,220 bytes / 69.7 MB, built at 06:08:46 AM).
+
+## Active Session & Follow-up — 2026-11-17 (Part 3): Complete 4-Phase Client Review Implementation (13 Work Items across Backend & Mobile, branch main)
+
+Executed all 4 Phases documented in [`docs/14_CLIENT_REVIEW_TRANSCRIPTION_AND_MASTER_IMPLEMENTATION_PLAN.md`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/docs/14_CLIENT_REVIEW_TRANSCRIPTION_AND_MASTER_IMPLEMENTATION_PLAN.md) via 4 parallel Flash agents with clean file-ownership boundaries:
+
+- **Backend Schema, Models, Seeders & Go-Live Reset (`database/`, `app/Models/`, `app/Console/Commands/`):**
+  - Added guarded migrations [`2026_11_17_000001_add_tmws_fleet_pickup_points_and_payment_proofs.php`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/database/migrations/2026_11_17_000001_add_tmws_fleet_pickup_points_and_payment_proofs.php) and [`2026_11_17_000002_add_spreadsheet_ledger_and_multi_branch_columns.php`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/database/migrations/2026_11_17_000002_add_spreadsheet_ledger_and_multi_branch_columns.php).
+  - Created [`WaterPickupPoint`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/app/Models/WaterPickupPoint.php) and expanded `$fillable` on [`WaterTanker`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/app/Models/WaterTanker.php), [`WaterTankerTrip`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/app/Models/WaterTankerTrip.php), [`WaterCanDelivery`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/app/Models/WaterCanDelivery.php), [`Expense`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/app/Models/Expense.php), and [`Supplier`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/app/Models/Supplier.php).
+  - Created [`TmwsFleetAndPickupPointsSeeder`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/database/seeders/TmwsFleetAndPickupPointsSeeder.php) (9 TMWS trucks + `OUTSIDE-TIEUP`, 8 Erode pickup points, and `Tata Ace EV` & `Tata Ace Diesel` van routes), [`AranMultiBranchSeeder`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/database/seeders/AranMultiBranchSeeder.php) (`ARAN1`, `ARAN2`, branch-locked managers, 10 regular vendors, 7 ledger accounts), and [`ErpResetForGoliveCommand`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/app/Console/Commands/ErpResetForGoliveCommand.php) (`php artisan erp:reset-for-golive {--force} {--seed-masters} {--keep-customers}`).
+- **Backend Controllers, Routes & Tests (`app/Http/Controllers/Api/V1/`, `routes/api.php`, `tests/Feature/`):**
+  - Updated [`WaterLogisticsApiController`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/app/Http/Controllers/Api/V1/WaterLogisticsApiController.php): `opening_balance` included in `customersList`, `fleetLive`, `attachCustomerFinancialSummary`, and `customerFullHistory`; added `pickupPointsIndex`, `storePickupPoint`, inline walk-in customer creation (`resolveOrderCustomerId`), rotating driver `tanker_id` override, outsourced vehicle tracking, `+Extra / -Discount`, GPay `pending_verification` vs `confirmed` + `verifyWaterPaymentProof`, bakery van delivery payloads (`bakery_supply`), and `resetDemoDataForGolive`.
+  - Updated [`ExpenseApiController`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/app/Http/Controllers/Api/V1/ExpenseApiController.php) (`storeBatch`, `accountsSummary`), [`PurchaseApiController`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/app/Http/Controllers/Api/V1/PurchaseApiController.php) (`regularVendors`, `quickStore`), [`CafeApiController`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/app/Http/Controllers/Api/V1/CafeApiController.php), [`CapabilityServiceProvider`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/app/Providers/CapabilityServiceProvider.php), and [`routes/api.php`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/routes/api.php), plus added [`ClientReviewWorkflowsTest.php`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/tests/Feature/ClientReviewWorkflowsTest.php).
+- **Mobile Bug Fixes & Feature Modules (`mobile/lib/`):**
+  - **Phase 1 Fixes:** Fixed Cafe POS 404 fallback chain (`posOrders -> cafeOrders -> sales` + local held cache) in [`pos_repository.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/pos/data/pos_repository.dart); hid `Initial Cans Held` & `Security Deposit (₹)` on `bulk_water` (`TMWS`) onboarding in [`customer_form_screen.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/customers/presentation/customer_form_screen.dart) & [`field_agent_screen.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/screens/field_agent_screen.dart); added 1-tap `Sign Out` button (`Key('appbar_logout_btn')` / `Key('driver_header_logout_btn')`) in [`app_scaffold.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/ui/app_scaffold.dart) and [`tanker_driver_dashboard_screen.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/dashboard/presentation/tanker_driver_dashboard_screen.dart).
+  - **Phase 2 Tanker & GPay Upgrades:** Updated [`api_endpoints.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/network/api_endpoints.dart), [`water_order_helpers.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/water_order_helpers.dart), [`tanker_trip_screen.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/tanker_trip_screen.dart), [`tanker_trip_sheet_screen.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/screens/tanker_trip_sheet_screen.dart), [`api_service.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/services/api_service.dart), and [`gps_map_interactive_sheets.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/ui/gps_map_interactive_sheets.dart) with Inline Walk-in Customer entry, TMWS Vehicle + Compartment selectors, `Outside / Tie-Up Vehicle (வெளி வண்டி)`, 8 Water Pickup Points dropdown, `+Extra / -Discount`, and GPay `Pending` vs `Confirmed` + proof verification.
+  - **Phase 3 (`2026 Accounts` & Quick Purchase) + Phase 4 (Bakery Van & `ARAN1`/`ARAN2`):** Upgraded [`quick_expense_screen.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/expenses/presentation/quick_expense_screen.dart) with multi-row `2026 Accounts` batch mode + 7-account balances strip; created [`quick_purchase_screen.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/quick_purchase_screen.dart) wired via [`app_router.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/routing/app_router.dart), [`quick_action_sheet.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/ui/quick_action_sheet.dart), and [`executive_dashboard_screen.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/dashboard/presentation/executive_dashboard_screen.dart) (with Go-Live Reset dialog); added Bakery & Biscuits van supply + GPay Proof on [`can_sales_screen.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/can_sales_screen.dart) & [`can_delivery_driver_dashboard_screen.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/dashboard/presentation/can_delivery_driver_dashboard_screen.dart); added `ARAN1`/`ARAN2` branch switcher in [`cafe_pos_screen.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/cafe_pos_screen.dart) & [`cashier_dashboard_screen.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/dashboard/presentation/cashier_dashboard_screen.dart); updated [`ripple_menu_card_ui_test.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/test/ripple_menu_card_ui_test.dart).
+- **Verification Status:**
+  - `php -l` across all 18 created/modified PHP files: **18/18 passed (`TOTAL_PHP_LINT_FAILURES=0`)**.
+  - `php artisan list erp` & `php artisan route:list --path=api/v1`: confirmed `erp:reset-for-golive` and all 10 new/updated endpoints registered.
+  - Static Dart check across 21 created/modified Dart files (`()`, `{}`, `[]`, `pubspec.yaml` imports, relative paths, and `ApiEndpoints.*` references): **21/21 passed (`TOTAL_DART_STATIC_ERRORS=0`)**.
+  - *Environment blockers:* `php artisan test tests/Feature/ClientReviewWorkflowsTest.php` failed DB connection (`Unknown database 'dk_enterprises_erp'`), and `flutter analyze` / `flutter test` / APK build could not execute because Flutter/Android SDKs are not yet installed on this machine.
+
+## Active Session & Follow-up — 2026-11-17 (Part 2): Client Live Review Audio Transcription, Bug Audit & Master 4-Phase Implementation Plan (branch main)
+
+- **Master Specification Document Created:** [`docs/14_CLIENT_REVIEW_TRANSCRIPTION_AND_MASTER_IMPLEMENTATION_PLAN.md`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/docs/14_CLIENT_REVIEW_TRANSCRIPTION_AND_MASTER_IMPLEMENTATION_PLAN.md)
+  - Transcribed and analyzed all **6 client audio recordings** (`17-11-2026 12.19.m4a`, `12.33.m4a`, `12.35.m4a`, `13.03.m4a`, `13.07.m4a`, `13.23.m4a`) and all **3 iPad review screenshots** (`2026 Accounts` Google Sheet, `TMWS Onboard New Customer`, and `Counter POS Terminal` `api/v1/pos/orders` 404 error).
+  - Audited and documented verified codebase root causes & line references for critical blockers:
+    1. `PosRepository::submitOrder()` + `/api/v1/pos/orders` 404 fallback gap in `pos_repository.dart` / `routes/api.php` / `CafeApiController.php`.
+    2. `Initial Cans Held` & `Security Deposit (₹)` leaking into `TMWS` (`bulk_water`) customer onboarding in `customer_form_screen.dart`.
+    3. `customers.opening_balance` (`₹15,000`) omitted from `customersList()`/`fleetLive()` SELECT and `attachCustomerFinancialSummary()` due totals in `WaterLogisticsApiController.php`.
+    4. Missing 1-tap `Logout` button on non-cafe driver `AppScaffold` header in `app_scaffold.dart`.
+  - Authored a **4-Phase, 13-Work-Item Flash-Agent Implementation Blueprint** covering:
+    - **Phase 1:** Critical bug fixes (POS 404 fallback, TMWS onboarding form gating, `opening_balance` Due computation, Driver visible Logout).
+    - **Phase 2:** TMWS real fleet variants (`Comet 14KL` × 2, `Taurus 25KL` × 3, `Eicher 9KL` [4–9KL] × 2, `Tata 407 5KL` [2–5KL] × 1, `Pondicherry 25ft Trailer` × 1) + Outside Tie-Up Vehicle (`வெளி வண்டி`), **8 Water Pickup Points (`water_pickup_points`)**, Inline Walk-in Customer entry, Rotating Driver Vehicle Selector, `+Extra / -Discount`, and GPay/UPI `Pending` vs `Confirmed` verification with screenshot upload.
+    - **Phase 3:** `2026 Accounts` Multi-Row Batch Cash In/Out Ledger (`Kavin Axis`, `Sasi`, `Axis OD LOAN`, `DeekTex`, `Kavin KVB`, `Kavin Canara`, `CASH`) & Mobile Quick Purchase Bill / Regular Supplier Entry (~10 regular vendors).
+    - **Phase 4:** `ARAN1` / `ARAN2` Multi-Branch isolation, Van Bakery/Biscuit B2B supply mode on `Tata Ace EV` & `Tata Ace Diesel`, and `php artisan erp:reset-for-golive` clean reset command.
+- **Status / Next Action:** Awaiting user confirmation to launch Flash implementation agents against `docs/14_CLIENT_REVIEW_TRANSCRIPTION_AND_MASTER_IMPLEMENTATION_PLAN.md`.
+
+## Active Session & Follow-up — 2026-11-17: Driver/Delivery Boy Today's Work & Timelines + GPS Map Shortened Customer Pins, Pop-Over Bubbles & Customer 360° Interactive History (branch main)
+
+- **Backend API Enhancements ([`routes/api.php`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/routes/api.php), [`WaterLogisticsApiController.php`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/app/Http/Controllers/Api/V1/WaterLogisticsApiController.php)):**
+  - Added `GET /api/v1/mobile/fleet/driver-activity` (`driverActivityTimeline` + alias) and `GET /api/v1/mobile/customers/{id}/history` (`customerFullHistory` + alias).
+  - Enriched `attachCustomerFinancialSummary()` via `enrichCustomerSummaries()` with `orders_count`, `total_cans_bought`, `total_kl_bought`, `cans_held`, `deposit_held`, `recent_purchases` (when/where/how much/payment mode/driver), and `recent_payments`.
+  - Enriched `fleetLive()` via `attachDriverTodayActivity()` so every tanker and can delivery route returns `today_summary` (loaded, refills, deliveries/trips, empties, km, motor/dwell time, cash collected, surrendered, in hand) and chronological `today_timeline`, while safely guarding optional columns (`isset()` / `Schema::hasColumn()`).
+- **Mobile Shared Interactive Map & Details Components ([`api_endpoints.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/network/api_endpoints.dart), [`gps_map_interactive_sheets.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/ui/gps_map_interactive_sheets.dart)):**
+  - Added `ApiEndpoints.fleetDriverActivity` and `ApiEndpoints.customerHistory(id)`.
+  - Added `shortenCustomerMapName()`, `CompactCustomerMapPin` (shortened customer name + Paid/Due badge), `CustomerMapCalloutBubble`, and `DriverMapCalloutBubble` (pop-over bubbles shown when clicking pins).
+  - Built `DriverFullDetailsSheet` (`showDriverFullDetailsSheet`) with Today's Work Summary 2x2 Bento cards, category filters (`All Events`, `Deliveries`/`Trips`, `Loading & Dispatch`, `Cash`/`Motor / Decant`, `GPS Live`), and chronological vertical activity timeline.
+  - Built `CustomerFullDetailsSheet` (`showCustomerFullDetailsSheet`) with Payment Obligation ("Should Pay Now", `% Paid` progress bar, `Total Billed`, `Paid Amount`, `Due Amount`, Cash/UPI breakdown, Jars Held & Deposit, quick actions) and interactive 3-tab explorer (`Purchases` showing When/Where/How Much/Driver/Empties with `All`/`Due`/`Paid` filters and expandable cards, `Payments` receipts, and `Timeline` chronological ledger with running balance).
+- **Wired Screens & Tests ([`fleet_gps_screen.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/screens/fleet_gps_screen.dart), [`executive_dashboard_screen.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/dashboard/presentation/executive_dashboard_screen.dart), [`customers_screen.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/screens/customers_screen.dart)):**
+  - Wired 2-step Pin -> Pop-Over Bubble -> Full Details flow on both `FleetGpsScreen` and `ExecutiveDashboardScreen`'s Owner Live GPS Map, wired direct tap-to-timeline `DriverFullDetailsSheet` on all driver/delivery boy locator cards & `Live Fleet Strip`, and wired `CustomerFullDetailsSheet` tap on `CustomersScreen`.
+  - Updated [`ErpGstSyncAndFleetMapTest.php`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/tests/Feature/ErpGstSyncAndFleetMapTest.php), [`fleet_gps_screen_test.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/test/fleet_gps_screen_test.dart), [`gps_map_and_daily_sales_test.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/test/gps_map_and_daily_sales_test.dart), and [`workspace_square_cards_test.dart`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/test/workspace_square_cards_test.dart).
+- **Verification Status:**
+  - `php -l routes/api.php`, `php -l app/Http/Controllers/Api/V1/WaterLogisticsApiController.php`, `php -l tests/Feature/ErpGstSyncAndFleetMapTest.php`: **No syntax errors detected**.
+  - Balanced delimiter & dangling-reference check across all 8 created/modified Dart files: **0 unbalanced delimiters, 0 dangling references**.
+  - *Environment blockers:* `phpunit` failed (`SQLSTATE[HY000] [1049] Unknown database 'dk_enterprises_erp'`), and `flutter analyze` / `flutter test` could not execute because `flutter` SDK is not installed on this host environment after the 2026-11-15 OS refresh.
+
+## Active Session & Follow-up — 2026-11-14 (Part 3): Owner Live GPS Command Center (Drivers/Delivery Boys & Paid/Due Map) (branch main)
+
+- **Owner-First Live GPS & Customer Paid/Due Map ([`executive_dashboard_screen.dart`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/dashboard/presentation/executive_dashboard_screen.dart)):**
+  - Placed `_buildOwnerWaterGpsCommandSection` (`ValueKey('owner_water_gps_command_section')`) FIRST below `_buildCompanySwitcherStrip` (above `CASH IN HAND` / `_buildHeroCashCard`) whenever an Admin views `bulk_water` (`TMWS`) or `packaged_water` (`DK Waters`).
+  - Renders Owner KPI pills (`Drivers Live`/`Tankers Live`, `Paid`, `Due`, `Overdue`), interactive filter chips (`All`, `Drivers Only`, `Due`, `Overdue`, `Paid`), a 300px interactive `FlutterMap` with live driver/delivery boy pins (`driverName`, `vehicleNo`, `speedKmh`) and customer Paid/Due/Overdue pins + geofence circles, tap-to-inspect bottom sheets (`_showOwnerDriverSheet`, `_showOwnerCustomerSheet`), Fit All / Full Screen Map controls, and a horizontal Active Drivers / Delivery Boys locator strip while preserving `_buildLiveFleetStrip` compatibility.
+  - Wrapped `_isLoading`/`_errorMessage` in a stable `Column` in `ListView` and deferred `onMapReady` `_fitOwnerMapBounds` to a post-frame callback to prevent `MapInteractiveViewer` build-phase `setState` collisions, and bounded header rows against RenderFlex overflow.
+- **Full-Screen `FleetGpsScreen`, `WorkspaceScreen` Shortcut & Backend `fleetLive` ([`fleet_gps_screen.dart`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/screens/fleet_gps_screen.dart), [`workspace_screen.dart`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/workspace/presentation/workspace_screen.dart), [`WaterLogisticsApiController.php`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/app/Http/Controllers/Api/V1/WaterLogisticsApiController.php)):**
+  - Updated `WaterLogisticsApiController::fleetLive` to accept both `vertical` and `industry`, resolve packaged/bulk water company IDs cleanly for Admins, supply Madurai fallback coordinates for routes/tankers with missing/zero coordinates, and attach customer paid/due financial summaries.
+  - Upgraded `FleetGpsScreen` `_VehicleMapPin` with driver names, `_openVehicleDetailSheet` (`Call Driver`, `Center on Map`), and a horizontal Live Drivers & Delivery Boys locator strip.
+  - Added a `GPS Map` `OutlinedButton.icon` alongside `Open Workspace` on `bulk_water` and `packaged_water` company cards in `WorkspaceScreen` routing to `/fleet/gps?mode=$industry`.
+- **Tests & Build Verification ([`workspace_square_cards_test.dart`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/test/workspace_square_cards_test.dart)):**
+  - `php -l app/Http/Controllers/Api/V1/WaterLogisticsApiController.php`: `No syntax errors detected`; `php -d memory_limit=1024M vendor/bin/phpunit tests/Feature/ErpGstSyncAndFleetMapTest.php tests/Feature/DriverIsolationAndLocationTest.php`: `OK (10 tests, 79 assertions)`.
+  - Added 2 widget tests in `workspace_square_cards_test.dart` verifying Owner GPS & Paid/Due map renders above `CASH IN HAND` for both `packaged_water` and `bulk_water`.
+  - `cd mobile; flutter analyze`: `No issues found! (ran in 9.3s)` (exit code `0`).
+  - `cd mobile; flutter test`: `82/82` passed (`00:19 +82: All tests passed!`).
+  - `cd mobile; flutter build apk --release`: `Built build\app\outputs\flutter-apk\app-release.apk (69.0MB)` in `101.1s` (exit code `0`).
+
+## Active Session & Follow-up — 2026-11-14 (Part 2): Admin Company Selection, Blank `(Main)` Name Fix, POS Shift/KDS 404 Fallbacks & Android Release APK (branch main)
+
+- **Admin Company Selection & Blank ` (Main)` Header Fix ([`workspace_screen.dart`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/workspace/presentation/workspace_screen.dart), [`executive_dashboard_screen.dart`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/dashboard/presentation/executive_dashboard_screen.dart), [`auth_models.dart`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/auth/domain/auth_models.dart), [`auth_repository.dart`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/auth/data/auth_repository.dart), [`app_router.dart`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/routing/app_router.dart), [`app_scaffold.dart`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/ui/app_scaffold.dart)):**
+  - Fixed empty string `""` `trade_name` handling in `CompanyInfo.fromJson` (and `BranchInfo.fromJson` / `FinancialYearInfo.fromJson`) via `_firstNonEmpty` so header chips never render `" (Main)"`, and added `AppScaffold` fallbacks (`'DK Enterprises'` / `'Main'`) plus tapping the header chip (`context.go('/workspace')`) and `Group Workspace` action button for any `isAdmin`.
+  - Seeded `user`/`roles`/`permissions`/`companies` from `/mobile/login` in `AuthNotifier` (adding `_mergeCompanyLists`, `_resolveAndPersistContext`, and `syncCompaniesFromWorkspace`) so `/me` failures or empty lists no longer wipe out companies.
+  - Updated `WorkspaceScreen` (`_parseWorkspaceCompanies`, `_resolveEffectiveCompanies`, `_syncAuthCompanies`) to merge `/mobile/workspace` companies even when `authState.companies` is empty, and updated `app_router.dart` so Admins land on `/workspace` (`isStaffOrDriver ? '/home' : '/workspace'`) and are not redirected away when `companies.length <= 1`.
+  - Added an in-dashboard 1-tap Company Switcher strip (`_buildCompanySwitcherStrip` with `'Group Insights'` + per-company `ChoiceChip`s) below `_buildGreetingHeader` in `ExecutiveDashboardScreen` and parallelized `/mobile/workspace` (`wsFuture` 4s timeout) + fleet + financials loading so total timeout stays `<= 8s`.
+- **POS Shift/KDS 404 Offline Fallbacks & `/mobile/customers` Safe Unwrap ([`pos_models.dart`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/pos/domain/pos_models.dart), [`pos_repository.dart`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/pos/data/pos_repository.dart), [`field_agent_dashboard_screen.dart`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/dashboard/presentation/field_agent_dashboard_screen.dart)):**
+  - Added `PosShift.toJson()` and `_shiftCacheKey` offline/404 fallbacks in `PosRepository` (`fetchCurrentShift`, `openShift`, `closeShift`) plus 404 empty-list fallbacks for `fetchKdsTickets` and `fetchReorderRequests` so remote servers without `/api/v1/pos/shifts/*` do not crash `PosDrawerScreen`.
+  - Updated `FieldAgentDashboardScreen` to safely unwrap `data['data'] ?? data['customers']` on `/mobile/customers` instead of casting `data as List<dynamic>`.
+- **Tests & Release APK Verification ([`workspace_square_cards_test.dart`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/test/workspace_square_cards_test.dart)):**
+  - Added test `'renders workspace company selection cards from API even when authState.companies is empty'` verifying empty `trade_name` fallback and 3 rendered company cards when `authState.companies` is `[]`.
+  - `cd mobile; flutter analyze`: **No issues found! (ran in 9.5s)** (exit code `0`).
+  - `cd mobile; flutter test`: **80/80 passed (`00:16 +80: All tests passed!`)**.
+  - `cd mobile; flutter build apk --release`: **Built `build\app\outputs\flutter-apk\app-release.apk` (68.8MB) in 97.2s** (exit code `0`).
+
+## Active Session & Follow-up — 2026-11-14: LayoutBuilder `slot == null`/Stack Overflow Fixes, Dynamic Container Sizes, Scrollable+Typeable Counters, Plant Refill Validation & Android Release APK (branch main)
+
+- **`LayoutBuilder` Stack Overflow & `slot == null` Assertions Eliminated (`mobile/lib/core/ui/` & `mobile/lib/features/`):**
+  - Replaced `LayoutBuilder` inside [`AdaptivePageConstraint`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/ui/adaptive_layout.dart) with `Align` + `ConstrainedBox(constraints: BoxConstraints(maxWidth: maxWidth))`.
+  - Replaced nested multi-child-parent `LayoutBuilder`s with `Builder` + `MediaQuery.sizeOf(context).width` in `quick_action_sheet.dart`, `tasks_screen.dart`, `executive_dashboard_screen.dart`, `workspace_screen.dart`, `tanker_driver_dashboard_screen.dart`, `attendance_screen.dart`, and `cafe_pos_screen.dart`.
+  - Fixed a 16px horizontal `Row` overflow in [`CanDeliveryDriverDashboardScreen`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/dashboard/presentation/can_delivery_driver_dashboard_screen.dart#L1074-L1103) by wrapping the inner delivery count row/text with `Expanded` + `Flexible(overflow: TextOverflow.ellipsis)`.
+- **Dynamic Container Sizes & Scrollable + Typeable Counters ([`scrollable_counter_field.dart`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/ui/scrollable_counter_field.dart)):**
+  - Added `kWaterContainerSizes` (`20L Can`, `10L Can`, `5L Can`, `2L Box`, `1L Box`, `500ml Box`, `300ml Box`, `Custom`), `WaterContainerSizeSelector`, `ScrollableWheelNumber` (vertical drum wheel + tap-to-type numeric dialog with `+5/+10/+20/+50/+100` quick adds), and stateful `ScrollableCounterRow` + `ScrollableHeroCounter` across [`PlantRefillScreen`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/plant_refill_screen.dart), [`CanOrderScreen`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/can_order_screen.dart), [`CanSalesScreen`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/can_sales_screen.dart), [`DriverSurrenderScreen`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/driver_surrender_screen.dart), [`SpotAuditScreen`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/spot_audit_screen.dart), and [`water_order_helpers.dart`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/water_order_helpers.dart).
+  - Removed hardcoded `'20L'` UI strings across water operations, dashboards, quick actions, tasks, login/workspace labels, and test expectations, and updated [`WaterLogisticsApiController.php`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/app/Http/Controllers/Api/V1/WaterLogisticsApiController.php) (`syncCanDeliveryToErp` + `storePlantIntake`) to persist `can_size` dynamically.
+- **Plant Refill Manifest, Outbox 422 Loop & Notification Stock-Alerts Fixes (`PlantRefillScreen`, `WaterLogisticsApiController::storePlantIntake`, `SyncWorker`, `NotificationsScreen`):**
+  - Pre-filled `Vehicle / Route Van` in `PlantRefillScreen` from `ApiEndpoints.driverManifest`, allowed submitting empty-can handover or damaged-jar intake even when `cans_loaded == 0` (`storePlantIntake` accepts `empty_cans_handed_over`, `damaged_cans`, `can_size` when total `>= 1`), and stopped queueing permanent HTTP `422`/`403`/`400` validation errors into the offline Outbox.
+  - Updated [`SyncWorker`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/sync/sync_worker.dart) (`drainOutbox` + `discardFailedMutations`) to purge permanent `400`/`403`/`404`/`422` validation mutations after `attempts >= 2`, and added a `'Clear Failed'` button + safe Map/List unwrapping for `Inventory Low-Stock Alerts` (`data['data']` in `ApiEndpoints.reportStock`) in [`NotificationsScreen`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/notifications/presentation/notifications_screen.dart).
+- **Verification Status (after final edits):**
+  - `php -l app/Http/Controllers/Api/V1/WaterLogisticsApiController.php`: **No syntax errors detected**.
+  - `cd mobile; flutter analyze`: **No issues found! (ran in 8.7s)**.
+  - `cd mobile; flutter test`: **79/79 passed (`+79: All tests passed!`, 0 failures)**.
+  - `cd mobile; flutter build apk --release`: **Built `mobile\build\app\outputs\flutter-apk\app-release.apk` (68.7MB) in 100.2s**.
+
+## Active Session & Follow-up — 2026-11-14: ERP Sales Orders Lifecycle, Recurring Delivery Scheduling Module (20L Can & Bulk Tanker), Render/Modal Crash Fixes & Map Module Skipped (branch main)
+
+- **Sales Order First & Full ERP Fulfillment (`VerticalSaleSyncService.php`, `WaterLogisticsApiController.php`, `WaterLogisticsController.php`):**
+  - Replaced `"New Order"` / `"New Can Order"` labels across Mobile & Web with `"Create Order"` / `"Create Can Order"` / `"Create Sales Order"`.
+  - Backed open 20L Water Can (`SO-CAN-*`) and Bulk Water Tanker (`SO-TNK-*`) orders with ERP `sales_orders` (`status: open`) + `commercial_order_items` on creation, added open-order customization (`POST /api/v1/water/can-orders/{id}/adjust` and `POST /api/v1/water/tanker-orders/{id}/adjust`), and fulfilled into canonical ERP `sales` (`Sales Bill`) on completion.
+  - Fixed `WaterLogisticsApiController::invoicesList` SQL 503 (`Unknown column coa.sale_id`) by batch-querying `commercial_order_allocations` on `consumer_type = 'sale'` & `consumer_id`, fixed `$isPendingDispatch` scope in `storeTripSheet` (`WaterLogisticsApiController.php`), and replaced broken `companies.industry` queries with `company_industry_settings.profile_key` lookups in `resolveBulkWaterCompanyId`, `resolvePackagedWaterCompanyId`, and `authorizeScheduleVertical`.
+  - Updated `ResolveCompanyContext` so multi-company Super Admins calling `/api/v1/water/schedules*` cleanly resolve `bulk_water` (`TMWS`) or `packaged_water` (`DKWATERS`) even without `X-Company-ID` or while browsing non-water companies (e.g., `ARANCAFE`), while preserving strict 403 cross-vertical isolation for `deliveryDriver`, `tankerDriver`, and `cashier`.
+- **Customizable Recurring Delivery Schedules (`DeliverySchedule.php`, `DeliveryScheduleService.php`, `delivery_schedules_screen.dart`, `schedules.blade.php`):**
+  - Implemented `daily`, `every_n_days`, `weekly` (Mon–Sun), `biweekly`, `monthly`, and `one_time` recurring delivery plans across both 20L Can and Bulk Tanker verticals with `/api/v1/water/schedules*` endpoints (`index`, `store`, `update`, `toggle`, `skip`, `generate-now`, `generate-due`) and `'is_regular_scheduled' => true` metadata distinguishing `Regular · ...` scheduled orders from `Created Today (On-Day)`.
+  - Built [`DeliverySchedulesScreen`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/delivery_schedules_screen.dart) (`/operations/schedules`) and updated [`CanOrderScreen`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/can_order_screen.dart), [`TasksScreen`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/tasks/presentation/tasks_screen.dart), [`CanDeliveryDriverDashboardScreen`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/dashboard/presentation/can_delivery_driver_dashboard_screen.dart), [`TankerDriverDashboardScreen`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/dashboard/presentation/tanker_driver_dashboard_screen.dart), [`TankerTripScreen`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/tanker_trip_screen.dart), and [`QuickActionSheet`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/ui/quick_action_sheet.dart).
+- **Flutter Layout, Disposal & Overflow Fixes (`water_order_helpers.dart`, `delivery_schedules_screen.dart`):**
+  - Fixed modal bottom-sheet `TextEditingController` use-after-dispose crashes across `showAdjustWaterOrderSheet`, `showCreateTankerOrderSheet`, and `_openScheduleEditor` via reusable [`SheetLifecycleScope`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/water_order_helpers.dart).
+  - Fixed narrow-viewport `RenderFlex` overflow in [`OrderOriginBadge`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/water_order_helpers.dart) using `Flexible` + `TextOverflow.ellipsis`, alongside the `TasksScreen` `Start Moving` layout fix resolving the `_RenderInputPadding` `RenderBox was not laid out` error.
+- **Map Module Skipped:** Per user instruction, `fleet_gps_screen.dart`, `fleet_tracking.blade.php`, and `location_picker_screen.dart` were left unchanged.
+- **Verification Status (after final edits):**
+  - `php -d memory_limit=1024M vendor/bin/phpunit tests/Feature/SalesOrderAndDeliveryScheduleTest.php tests/Feature/WaterCanOrderWorkflowTest.php tests/Feature/ErpGstSyncAndFleetMapTest.php tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php tests/Feature/VerticalIsolationAndPushActivityTest.php tests/Feature/DriverIsolationAndLocationTest.php tests/Feature/LowLevelSpecSections3To6Test.php`: **OK (45 tests, 466 assertions)** in 16.694s.
+  - `cd mobile; flutter analyze`: **No issues found! (5.1s)**.
+  - `cd mobile; flutter test`: **79/79 passed (`+79: All tests passed!`, 0 failures)** in ~18s (including new `test/sales_order_and_schedule_test.dart`, updated `test/water_can_order_workflow_test.dart`, and updated `test/ripple_menu_card_ui_test.dart`).
+  - `cd mobile; flutter build windows --debug`: **Built `build\windows\x64\runner\Debug\dk_track_mobile.exe` (39.5s)** (stopped prior locking instance PID `10520` before final install copy).
+
+## Active Session & Follow-up — 2026-11-13: Clean Wireframe Codes, Freeze Fixes, Madurai GPS Map (Paid/Due), Daily Sales Graphs, ERP+GST Sync & Always-On Driver GPS (branch main)
+
+- **Removed Internal Wireframe Codes & Anti-Cheat Layer Jargon (`mobile/lib/`):**
+  - Removed all internal wireframe screen IDs (`(D-01)`..`(D-14)`, `(T-02)`..`(T-12)`, `(C-02)`..`(C-42)`, `(G-04)`) and internal shield layer prefixes (`Layer 1`, `Layer 3`, `Layer 6`, `Layer 7`) from user-facing UI across `can_sales_screen.dart`, `driver_surrender_screen.dart`, `tasks_screen.dart`, `quick_action_sheet.dart`, `cafe_pos_screen.dart`, `pos_drawer_screen.dart`, `pos_kitchen_screen.dart`, `pos_orders_screen.dart`, and `app_router.dart` while preserving every anti-cheat guard and order-first validation.
+- **Freeze Fixes Across API Probing, Notifications & Desktop GPS:**
+  - Replaced sequential multi-host blocking probes and slow GPS calls across `api_client.dart`, `notifications_screen.dart`, `tanker_trip_sheet_screen.dart`, and `GpsService` (`mobile/lib/core/gps/gps_service.dart` timeouts and desktop bypass).
+- **Clean Madurai GPS Seed & Cross-Vertical Catalog Cleanup (`database/seeders/CleanGpsCustomersAndOrdersSeeder.php`):**
+  - Cleared accumulated duplicate/test customers & orders and seeded clean Madurai GPS-tagged customers (`customers = 21`, `gps_customers = 20`), 14-day ERP+GST history (`sales = 98`, `gst_transaction_projections = 98`), open orders (`open_cans = 4`, `open_trips = 2`), and removed pre-existing shared `TEX-*` SKUs from companies `1, 2, 3`.
+- **Full ERP & GST Compliance Sync (`app/Services/ERP/VerticalSaleSyncService.php`, `WaterLogisticsApiController.php`, `CafeApiController.php`):**
+  - Synced completed 20L Can deliveries (`hsn_sac: 22019010`), Bulk Tanker trips (`hsn_sac: 22019090`), and Cafe POS orders to `sales`, `product_sales`, `payments`, and `gst_transaction_projections` without double-counting in `/api/v1/mobile/financials`, plus 7/14/30-day `daily_sales_series`.
+- **Loanapp-Style Interactive GPS Customer Ledger Map & Location Picker (`fleet_gps_screen.dart`, `location_picker_screen.dart`, `fleet_tracking.blade.php`):**
+  - Upgraded `FleetGpsScreen` to display customer pins directly on OpenStreetMap with inline customer name, Paid/Due/Overdue badges, geofence circles, status filters (`All`/`Due`/`Overdue`/`Paid`), search, `Fit All`, `My GPS Location`, and bottom customer billing/order detail sheet (with `tileProvider` injection support and `_mapReady` guard). Added tap-to-pin `LocationPickerScreen` and Web Leaflet Paid/Due labels.
+- **Admin Daily Sales Graphs & Always-On Driver GPS Enforcement (`daily_sales_chart.dart`, `executive_dashboard_screen.dart`, `HomeController.php`, `backend/index.blade.php`, `charts-custom.js`, `gps_service.dart`, `gps_pinger.dart`, `gps_enforcement_gate.dart`):**
+  - Added interactive `DailySalesChart` (`7D | 14D | 30D` toggle + day tap breakdown) on Mobile Admin `ExecutiveDashboardScreen` and `#dailySalesChart` Chart.js grouped chart on Web Admin Dashboard.
+  - Wired `GpsEnforcementGate` + `GpsPinger` (fixing double-dispose on `gpsPingerProvider` and wrapping blocked child in `AbsorbPointer` + `ExcludeSemantics`) requiring active unmocked GPS on mobile for `deliveryDriver` and `tankerDriver` and emitting supervisor alerts when `gps_enabled = false` or `is_mocked = true` hits `/api/v1/mobile/fleet/ping`.
+- **Modernized Card & List Surfaces (`app_theme.dart`, `customers_screen.dart`, `driver_surrender_screen.dart`, `can_sales_screen.dart`):**
+  - Upgraded `AppTheme.cardTheme`, `CustomersScreen` Paid/Due/Overdue cards & Live Due Map button, `DriverSurrenderScreen`, and `CanSalesScreen` section headers.
+- **Verification Status:**
+  - `php -d memory_limit=1024M vendor/bin/phpunit tests/Feature/ErpGstSyncAndFleetMapTest.php tests/Feature/LowLevelSpecSections3To6Test.php tests/Feature/ThreeCompaniesWorkflowAndFraudTest.php tests/Feature/WaterCanOrderWorkflowTest.php`: **OK (28 tests, 314 assertions)** in 17.334s. *(Note: full `php artisan test` without `-d memory_limit=1024M` hit 128M PHP memory limit on unrelated legacy views, and `DesignTokensTest.php` reports 4 pre-existing CSS/Blade token failures in `workspace-home.css`, `fleet_tracking.blade.php`, `mobile/index.blade.php`, etc.)*
+  - `cd mobile; flutter analyze`: **No issues found! (6.1s)**.
+  - `cd mobile; flutter test`: **74/74 passed (0 failures)** in 16s (including `test/gps_map_and_daily_sales_test.dart`, updated `test/fleet_gps_screen_test.dart`, and `test/dashboard_null_test.dart`).
+  - `cd mobile; flutter build windows --debug`: **Built `build\windows\x64\runner\Debug\dk_track_mobile.exe` (178.5s)**.
+
+## Active Session & Follow-up — 2026-11-13: App-Wide Bento Card Density, Layered Gradient Icon Medallions & Zero-Blank-Card Redesign (branch main)
+
+- **Shared Design Components (`mobile/lib/core/ui/ripple_components.dart`, `mobile/lib/core/ui/module_tile.dart`):**
+  - Added [`RippleIconBadge`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/ui/ripple_components.dart): layered 44–48px glossy squircle icon medallion with dual-stop accent gradient, crisp hairline rim border, soft ambient drop shadow, subtle top specular highlight, and dark/light adaptive foreground icon contrast.
+  - Added [`RippleMenuTileCard`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/ui/ripple_components.dart): compact, high-density bento menu card combining `RippleIconBadge`, optional pill `badge`, directional launch indicator circle, subtle corner gradient wash, crisp accent border, and low-opacity bottom-end decorative watermark (`ExcludeSemantics`).
+  - Added `rippleGridTileExtent(context, ...)` helper so grid cards use compact accessibility-scaled `mainAxisExtent` heights instead of `childAspectRatio` boxes that ballooned into blank whitespace on desktop/tablet widths.
+  - Upgraded `RippleActionCard` (`ripple_components.dart`) and [`ModuleTile`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/ui/module_tile.dart) (`ModuleLauncherScreen`, `TradeHubScreen`, `MoneyHubScreen`) to use `RippleIconBadge`, subtle gradient card washes, and launch chevron pills while removing deprecated `.withOpacity(...)` usage in `ModuleTile`.
+- **Upgraded Grid & Card Pages Across the App:**
+  - [`QuickActionSheet`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/core/ui/quick_action_sheet.dart): Replaced flat pale boxes and `childAspectRatio: 1.6` with responsive 2/3-column `RippleMenuTileCard` grids, domain-coded icon medallions, workflow badges (`D-01`, `D-02`, `D-05`, `EOD`, `TRIP`, `POS`, `X/Z`, `AUDIT`, `PUNCH`), and `Expanded` header title overflow safety on 430px viewports.
+  - [`TasksScreen`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/tasks/presentation/tasks_screen.dart): Replaced `20L Can Van Operations (D-11)` blank `childAspectRatio: 1.45` grid with `RippleMenuTileCard` + distinct vertical/workflow colors and `D-01`..`D-14` badges; upgraded `_buildCafeOperationsList` and `_buildTankerWorkAndMyTrips` (`Bulk Tanker Operations (4 Modules)`) to use `RippleIconBadge`; added `Expanded` / `Flexible` guards on the Tanker Dispatch Desk badge row and `My Completed Trips & GPS Trail (T-12)` header row to eliminate narrow-screen overflows.
+  - [`ExecutiveDashboardScreen`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/dashboard/presentation/executive_dashboard_screen.dart): Upgraded `_buildQuickModuleTile` to `RippleMenuTileCard` and enriched `_buildBentoCard` KPI tiles with compact contextual `RippleIconBadge` headers, corner washes, and subtle watermark icons.
+  - [`CafePosScreen`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/cafe_pos_screen.dart): Replaced both the POS product catalog grid and the dining Table Selector modal grid from `childAspectRatio` squares to `rippleGridTileExtent`-sized tiles (`RippleMenuTileCard` for tables with `ACTIVE`/`BUSY`/`FREE` badges; category-aware `_productVisual` `RippleIconBadge` + gradient wash inside `_PosProductCard`).
+- **Verification Status (after final edits):**
+  - Added [`mobile/test/ripple_menu_card_ui_test.dart`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/test/ripple_menu_card_ui_test.dart) covering `RippleMenuTileCard`, `RippleIconBadge`, `ModuleTile`, `RippleActionCard`, `TasksScreen` (`D-11` & `T-07`), and `QuickActionSheet` across phone (`360px`–`480px`), tablet (`760px`–`960px`), desktop (`1020px`), `1.45x` font scale, and Light/Dark Ripple skins.
+  - `cd mobile; flutter analyze`: **No issues found! (4.3s)**.
+  - `cd mobile; flutter test`: **68/68 passed (0 failures)** in 12s.
+  - `cd mobile; flutter build windows --debug`: **Built `build\windows\x64\runner\Debug\dk_track_mobile.exe` (20.3s)**.
+
+## Active Session & Follow-up — 2026-11-13: Two-Stage 20L Water Can "Order-First" Workflow Across Mobile, Web & Laravel API (branch main)
+
+- **Core Business Rule Implemented ("Order-First Policy"):**
+  - Delivery boys, vertical Incharges, and Super Admins can create a 20L customer can order **first** (e.g., `7` cans requested) **before** moving to the customer's shop, triggering immediate Super Admin / Owner & Incharge notifications (`New Can Order: <N> Cans`), then mark movement (`in_transit` via `Start Moving`), and finally close the order at the customer's shop via the 7-Layer Anti-Cheat validation (`Close & Deliver Order` -> `status = completed`).
+  - Direct unordered deliveries (`POST /api/v1/water/can-deliveries` without `order_id` or `ORD-...` `client_order_ref`) by non-admin delivery drivers are rejected with HTTP `422` (`error_code: ORDER_FIRST_REQUIRED`) + fraud alert notification.
+- **Database & Laravel Backend (`database/migrations/2026_11_13_000001_add_order_workflow_to_water_can_deliveries_table.php`, `WaterCanDelivery.php`, `routes/api.php`, `WaterLogisticsApiController.php`, `routes/web.php`, `WaterLogisticsController.php`):**
+  - Added `ordered_cans`, `ordered_by`, `ordered_at`, `en_route_at`, `completed_at`, `order_source`, and `order_notes` columns to `water_can_deliveries`.
+  - Added REST endpoints under `/api/v1/water`: `GET can-orders`, `POST can-orders` (`storeCanOrder`), `POST can-orders/{id}/start` (`startCanOrder`), `POST can-orders/{id}/close` (`closeCanOrder`), and `POST can-orders/{id}/cancel` (`cancelCanOrder`), plus web routes (`water-logistics.can-orders.store`, `.start`, `.close`).
+  - Excluded `NON_COMPLETED_CAN_STATUSES` from revenue, `driverCashSurrender`, `roleDashboard`, `invoicesList`, `financials`, and web totals so unclosed open orders never inflate sales or stock until `completed`.
+  - Updated `customersList` to return all company-locked active DK Waters customers for `deliveryDriver` order creation, and `driverManifest` to include `pending_orders` and open-order stats.
+- **Web Portals (`resources/views/backend/role_dashboards/can_driver.blade.php`, `resources/views/backend/water_logistics/index.blade.php`):**
+  - Added **Open Can Orders**, **New Can Order** (`#canOrderModal` -> `Book Order & Notify Owner`), inline **Start Moving**, and **Close & Deliver** (`#closeOrderModal*` / `#closeCanOrderModal*`) modals while preserving strict vertical isolation.
+- **Mobile & Windows Desktop (`dk_track_mobile`):**
+  - Added [`CanOrderScreen`](file:///d:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/lib/features/operations/presentation/can_order_screen.dart) (`/operations/can-order`, Stage 1 order creation with customer picker, qty stepper + quick chips, mock-GPS check, offline `ORD-OFFLINE-*` queue fallback, and `Book Order & Notify Owner`).
+  - Updated `CanDeliveryDriverDashboardScreen`, `TasksScreen`, `QuickActionSheet`, `AppRouter`, and `CanSalesScreen` (`initialOrder` pre-fill, `Order-First Lock: Book Order Before Delivering` banner & `Step 1: Book Order & Notify Owner` inline flow when opened ad-hoc by a delivery driver, and `Close & Deliver Order` closing to `/water/can-orders/{id}/close`).
+- **Verification Status (after final edits):**
+  - `php artisan test tests/Feature/WaterCanOrderWorkflowTest.php tests/Feature/VerticalIsolationAndPushActivityTest.php tests/Feature/RoleDashboardIsolationTest.php tests/Feature/LowLevelSpecSections3To6Test.php tests/Feature/DriverIsolationAndLocationTest.php tests/Feature/MobileApiSecurityAndMeTest.php tests/Feature/DashboardSmokeTest.php tests/Feature/ErpSecurityAndGapsTest.php tests/Feature/CompanyContextTest.php tests/Feature/PosApiTest.php`: **109 passed (829 assertions)** in 40.96s (including all 3 tests / 40 assertions in `WaterCanOrderWorkflowTest`). *(Earlier combined run with `ThreeCompaniesWorkflowAndFraudTest.php` passed 126/127, with 1 pre-existing live-MySQL failure in `ThreeCompaniesWorkflowAndFraudTest::test_multi_company_isolation_and_distinct_entities` due to pre-existing shared `TEX-*` SKUs across companies 1–3.)*
+  - `cd mobile; flutter analyze`: **No issues found! (4.2s)**.
+  - `cd mobile; flutter test`: **65/65 passed (0 failures)** including all 4 new widget tests in `test/water_can_order_workflow_test.dart`.
+  - `cd mobile; flutter build windows --debug`: **Built `build\windows\x64\runner\Debug\dk_track_mobile.exe` (21.6s)**.
+
+## Active Session & Follow-up — 2026-11-13: KPSTA 5-Menu Docked Nav, Wide-Viewport Grid, Vertical RBAC Isolation, Clean Staff Display Names, Real-Time Activity Push Notifications & Keep-Alive (branch main)
+
+- **Master Low-Level Plan Created:**
+  - Authored `docs/13_MASTER_LOW_LEVEL_IMPLEMENTATION_PLAN_FOR_HYDROGEN.md` (`MASTER LOW-LEVEL IMPLEMENTATION PLAN (FOR GEMINI 4 HYDROGEN)`) and executed all Workstreams 1–7.
+- **Workstream 1 — Wide Aspect Ratio Fix & Responsive Tablet/Desktop Layout (`mobile/lib/core/ui/adaptive_layout.dart`, `app_scaffold.dart`, `tanker_driver_dashboard_screen.dart`):**
+  - Replaced breakpoint tree-swapping in `AdaptivePageConstraint` (`maxWidth = 1600`) with a consistent `LayoutBuilder -> Align -> SizedBox(width: effectiveWidth)` wrapper so wide viewports never drop body content.
+  - Added 2-column responsive tablet/desktop layout on `TankerDriverDashboardScreen` when `constraints.maxWidth >= 860` and wrapped overflow-prone telemetry header/split rows in `Expanded` / `Flexible`.
+- **Workstream 2 — Floating Theme-Colored 5-Menu Curved Bottom Nav Bar + Center `+` (`mobile/lib/core/routing/role_navigation.dart`, `fluid_curved_nav_bar.dart`, `app_scaffold.dart`, `quick_action_sheet.dart`):**
+  - Standardized all 4 roles (`admin`, `driver`, `cafe`, `fieldAgent`) to 5 bottom nav items with center `+` (`isCenterAction: true`) at index `2`, removed the top AppBar yellow `+`, and added Profile shortcut icon for `RippleRole.cafe`.
+  - Updated `FluidCurvedNavBar` to a floating rounded capsule (`cornerRadius: 22.0`, `EdgeInsets.fromLTRB(14, 0, 14, 10)` outer float gap, `ConstrainedBox(maxWidth: 620)` centered on wide screens, `90.0px` height invariant) colored dynamically by each role's `RippleSkin` / `ColorScheme` (`navBackground`, `navActiveCircle`, `navActiveIcon`, `navInactiveIcon`, `skin.action` for `+`; theme-tinted dark surface in Dark Mode).
+- **Workstream 3 — Human Display Names & Role Labels (`app/Support/StaffIdentityResolver.php`, `MeApiController.php`, `HrmApiController.php`, `WaterLogisticsApiController.php`, `mobile/lib/features/auth/domain/auth_models.dart`, `tanker_driver_dashboard_screen.dart`, `can_delivery_driver_dashboard_screen.dart`, `attendance_screen.dart`):**
+  - Normalized lowercase role slugs (`tanker_driver` -> `K. Murugan` / `Bulk Tanker Driver`, `driver`/`can_driver`/`can_delivery` -> `S. Karthik` / `20L Can Delivery Driver`, `cashier` -> `A. Priya` / `Cafe POS Cashier`, `agent` -> `R. Senthil` / `Field Collection Incharge`, `admin` -> `DK Super Admin`) in UI titles while keeping `username` intact for auth.
+- **Workstream 4 — Strict Single-Vertical Locking & Zero Cross-Vertical Leakage (`StaffIdentityResolver.php`, `MeApiController.php`, `HrmApiController.php`, `WaterLogisticsApiController.php`, `CapabilityServiceProvider.php`, `app_router.dart`, `quick_action_sheet.dart`, `driver_surrender_screen.dart`):**
+  - Locked non-superadmin users strictly to their single assigned vertical company (`can_switch_companies: false`, 403 on cross-vertical API writes or `/mobile/workspace`, `GoRouter` redirect guards on mobile).
+  - Fixed `HrmApiController::resolveDepotGeofence()` to resolve TMWS as `Tiruchendur Murugan Water Supply Mother Plant (Perundurai)` (never `DK Waters`), and split `DriverSurrenderScreen` so tanker drivers see `Bulk Tanker Trip & Freight Settlement` instead of 20L `Van Jar Count Reconciliation`.
+  - Fixed `app/Providers/CapabilityServiceProvider.php` so `/api/v1/notifications*` and `/api/v1/devices/*` bypass `company.context` + `operations.water_logistics` middleware cleanly across all roles and Super Admin multi-branch sessions.
+- **Workstream 5 — Real-Time Activity Push Notifications (`app/Services/Notifications/ActivityNotificationService.php`, `HrmApiController.php`, `WaterLogisticsApiController.php`, `mobile/lib/core/notifications/push_notification_service.dart`, `app_scaffold.dart`, `providers.dart`, `main.dart`):**
+  - Emitted persistent notifications to Super Admins and vertical Incharges on attendance check-in/out, plant intake, trip sheet/process order, can delivery, cash surrender, customer onboard, payment collection, and spot audit; added `/api/v1/notifications/all/read` support.
+  - Wired `PushNotificationService` (`ChangeNotifier` polling `/api/v1/notifications`, `ApiEndpoints.devicePushToken`, floating heads-up `SnackBar` via `rootScaffoldMessengerKey`, bell unread badge).
+- **Workstream 6 — Always-Live Memory Management & Keep-Alive (`mobile/lib/core/lifecycle/app_keep_alive_manager.dart`, `main.dart`, `android/app/src/main/AndroidManifest.xml`, dashboards/`TasksScreen`/`DriverSurrenderScreen`):**
+  - Added `AppKeepAliveManager` (`WidgetsBindingObserver`) trimming `imageCache` cleanly on pause/memory pressure without discarding Riverpod state/timers, added `AutomaticKeepAliveClientMixin` to primary dashboards & tabs, and declared `WAKE_LOCK`, `FOREGROUND_SERVICE*`, `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`, and `POST_NOTIFICATIONS` in `AndroidManifest.xml`.
+- **Verification Status:**
+  - `php -d memory_limit=1024M vendor/bin/phpunit tests/Feature/VerticalIsolationAndPushActivityTest.php tests/Feature/RoleDashboardIsolationTest.php tests/Feature/LowLevelSpecSections3To6Test.php tests/Feature/PosApiTest.php tests/Feature/DriverIsolationAndLocationTest.php tests/Feature/MobileApiSecurityAndMeTest.php tests/Feature/DashboardSmokeTest.php tests/Feature/ErpSecurityAndGapsTest.php tests/Feature/CompanyContextTest.php`: **OK (106 tests, 789 assertions)** in 38.72s. *(Note: running all 1,006 legacy tests in `tests/Feature` reports pre-existing unrelated `503`/`422` failures in legacy `BranchIsolationTest`, `CompanyGroupInsightTest`, and `ApiV1Test` when optional `phpunit.xml` env flags are false.)*
+  - `cd mobile; flutter analyze`: **No issues found! (4.2s)**.
+  - `cd mobile; flutter test`: **61 tests -> All tests passed! (0 failures)** including `test/fluid_curved_nav_bar_test.dart` (floating capsule margins & RippleSkin colors on `1280x720` desktop and `390x844` phone) and `test/vertical_gating_and_keepalive_test.dart`.
+  - `cd mobile; flutter build windows --debug`: **Built `build\windows\x64\runner\Debug\dk_track_mobile.exe` (17.0s)**.
+
+## Active Session & Follow-up — 2026-11-13: Hardcoded Value Elimination & Bulk Water Tanker Order Processing Workflow (branch main)
+
+- **Hardcoded Defaults Removed Across Laravel & Flutter:**
+  - **Mobile Services & Legacy Fallbacks (`mobile/lib/services/api_service.dart`, `tmws_vertical_screen.dart`, `tanker_trip_sheet_screen.dart`, `ticket_machine_screen.dart`, `spot_audit_screen.dart`, `dk_waters_vertical_screen.dart`):** Replaced hardcoded customer arrays (`Titan Corporate Campus`, `9842100001..05`), hardcoded vehicles (`TN-58-BW-2001`, `TN-58-WA-101`), fake financial balances (`42500.0`, `185000.0`), fake routes/trips, and static SKU lists with live empty/null-safe API responses.
+  - **Mobile Feature Screens (`can_sales_screen.dart`, `tanker_trip_screen.dart`, `attendance_screen.dart`, `tasks_screen.dart`, `workspace_screen.dart`, `fleet_gps_screen.dart`, `cafe_pos_screen.dart`, `pos_print_preview_sheet.dart`, `can_delivery_driver_dashboard_screen.dart`):**
+    - Cleared pre-filled customer/rate/inventory defaults (`Balaji Cafe`, `14`/`60` cans, `35.0` rate, `150.0` deposit, `'1234'`/`'2580'` PINs, `'dkenterprises@upi'`, `'DKW-SHOP-1'`), loading company `gstin`, `upi_vpa`, `manager_override_pin`, `jar_deposit_rate`, and `rate_slabs` dynamically from `/api/v1/mobile/driver/manifest`.
+    - Replaced hardcoded GPS coordinates (`11.3410/77.7172`), fake weekly hours, static employee names (`R. Murugan`, `EMP-108`), and pre-started chronometer/odometer values (`48210`, `'07:32:00'`) with real `Geolocator.getCurrentPosition()` and manifest telemetry.
+    - Replaced hardcoded sparklines, turnover figures, and 3-vertical static cards in `workspace_screen.dart` with dynamic loops over active companies and API metrics.
+  - **Web Blade Portals & Laravel Controllers (`WaterLogisticsApiController.php`, `WaterLogisticsController.php`, `PosApiController.php`, `CafeOperationsController.php`, `tanker_driver.blade.php`, `can_driver.blade.php`, `cashier.blade.php`, `field_agent.blade.php`, `quick_pos.blade.php`, `water_logistics/index.blade.php`):**
+    - Removed hardcoded `TN-58-BW-2001`, `TN-58-WA-101`, `Aran Cafe Cashier Desk`, `POS-SAMPLE-001`, `0042`, `ARAN-FC-01`, `dkenterprises@upi`, `rand(5, 75)` credit aging, and fake flow/battery telemetry fallbacks.
+    - Resolved company GSTIN dynamically from `tax_registrations` / `settings_json` without querying non-existent `companies.gstin` columns.
+- **Bulk Water Tanker Driver Order Processing Queue Implemented End-to-End:**
+  - **Backend Endpoints:**
+    - `POST /api/v1/water/trips/{id}/process` (`WaterLogisticsApiController::processTripOrder`, route `api.v1.water.trips.process`).
+    - `POST water-logistics/trip/{id}/process` (`WaterLogisticsController::processTankerOrder`, route `water-logistics.trip.process`).
+    - `GET /api/v1/mobile/driver/manifest` (`WaterLogisticsApiController::driverManifest`) returns `pending_trips`, `recent_trips`, `telemetry`, `company_name`, `gstin`, `upi_vpa`, and `manager_override_pin` (also supports `?driver_type=tanker`).
+  - **Web Portal (`resources/views/backend/role_dashboards/tanker_driver.blade.php` & `resources/views/backend/water_logistics/index.blade.php`):**
+    - Dispatchers create `dispatched` / `completed` orders via Workflow Mode on `water-logistics/index.blade.php`.
+    - Tanker drivers see **Assigned Bulk Tanker Orders Queue** directly on `/dashboard`, with inline `Start Moving`, `Arrived at Site`, and **Process & Complete** (`#processTankerOrderModal`) actions.
+  - **Mobile / Windows Desktop App (`TankerDriverDashboardScreen`, `TasksScreen`, `TankerTripScreen`):**
+    - Tanker drivers open **ASSIGNED ORDERS QUEUE** on `TankerDriverDashboardScreen` (or open a pending order from `TasksScreen`), launch `TankerTripScreen(initialTrip: order)`, track Transit -> Site Dwell -> Motor Start/Stop -> Odometer Delta, and tap **Complete & Post Trip Sheet** (submitting to `/water/trips/{id}/process`).
+- **Verification Status:**
+  - `php -d memory_limit=1024M vendor/bin/phpunit tests/Feature/RoleDashboardIsolationTest.php tests/Feature/LowLevelSpecSections3To6Test.php tests/Feature/PosApiTest.php tests/Feature/DriverIsolationAndLocationTest.php tests/Feature/MobileApiSecurityAndMeTest.php tests/Feature/DashboardSmokeTest.php`: **35/35 passed (440 assertions)**.
+  - Note: Running with `ThreeCompaniesWorkflowAndFraudTest.php` gives **52/53 passed**, with 1 pre-existing DB-seed failure in `ThreeCompaniesWorkflowAndFraudTest::test_multi_company_isolation_and_distinct_entities` due to pre-existing shared `TEX-*` SKUs across companies in local MySQL. `DesignTokensTest.php` also has pre-existing unrelated stylesheet/blade token violations (`workspace-home.css`, `fleet_tracking.blade.php`, `mobile/index.blade.php`).
+  - `cd mobile; flutter analyze`: **No issues found! (ran in 4.8s)**.
+  - `cd mobile; flutter test`: **54/54 passed (0 failures)**.
+  - `cd mobile; flutter build windows --debug`: **Built `build\windows\x64\runner\Debug\dk_track_mobile.exe`**.
+
+## Active Session & Follow-up — 2026-11-13: Master Low-Level Agent Specification Document Created (`docs/12_MASTER_LOW_LEVEL_AGENT_ERP_POS_AND_TELEMATICS_SPEC.md`) (branch main)
+
+- **Master Low-Level Specification Document (`docs/12_MASTER_LOW_LEVEL_AGENT_ERP_POS_AND_TELEMATICS_SPEC.md`):**
+  - Created comprehensive, zero-hallucination low-level agent specification covering:
+    1. Whole-ERP Multi-Company Architecture, Canonical Backend (`app/`) & Mobile (`mobile/lib/`) File Maps, and Database Schema Truth Table (anti-hallucination guardrails).
+    2. SensiblePOS Enterprise Capabilities (`Price Tiers`, `Fast Bill vs. KOT`, `PLU/Barcode/Weigh-Scale`, `Item Modifiers`, `Packing Charge & Auto Round-Off`, `Rush Hour Strip`).
+    3. Multi-Format POS Printing & Label Design (`thermal_80mm` with Counter Token stub, `thermal_58mm` pocket slip, `kot_ticket`, `sticker_label_50x25mm` TSPL2 barcode sticker, `can_neck_tag_50x38mm` RO+UV+Ozonized seal tag) + `mobile/lib/core/ui/pos_print_preview_sheet.dart`.
+    4. Truck Driver Detailed Trip Sheet (`TankerTripScreen` + `WaterLogisticsApiController`) with 5-phase state machine, Live GPS movement tracking, Travel Time vs. Site Dwell Time chronometer, Automatic Motor Start/Stop timing & surcharge calculation, and GPS Distance vs. Odometer reading anti-fraud variance audit.
+    5. 7-Layer Water Can Delivery Boy Anti-Cheat & Mobile Fraud Prevention Architecture (`Customer Credit PIN + WhatsApp Alert`, `Master Customer Rate Lock`, `Empty Jar Custody Equation + Stack Photo Proof`, `Hardware Mock-GPS Detection + 100m Geofence + Shop Wall QR Scan`, `Stoppage Dwell Detector + Van Stock Lock`, `Dynamic Amount-Locked BharatQR`, and `Blind Denomination Cash Surrender`).
+- **Paused per User Instruction:** Stopped immediately after completing the specification document so the user can switch the agent model.
+
+## Active Session & Follow-up — 2026-11-12: Web & Mobile POS Unification, Tablet 2-Pane Responsive Architecture, Geofenced Attendance (`D-14`/`T-09`/`C-42`), Driver Work/Trips (`D-11`/`T-07`/`T-12`) & Complete ERP Security/Gap Implementation (branch main)
+
+- **Web POS & Mobile/Tablet POS Unified 1:1 (`resources/views/backend/cafe/quick_pos.blade.php`, `app/Http/Controllers/CafeOperationsController.php`, `mobile/lib/features/operations/presentation/cafe_pos_screen.dart`):**
+  - Rebuilt `resources/views/backend/cafe/quick_pos.blade.php` and `CafeOperationsController` from a static alert placeholder into the Stitch **Chai & Crema** (`C-02`..`C-06`) 2-pane split POS terminal (`#FBF4EA` canvas, `#C2542D` terracotta primary, `#F4A62A` honey action, `Manrope` typography).
+  - Connected Web POS `Pay & Post to ERP`, `Hold / Send KOT`, `Open Drawer Shift`, and `Held & Recent Bills` directly to `PosApiController` (`Sale`, `Product_Sale`, `Payment`, `CashRegister`, `Table`, `InventoryMovementService`, and `AccountingPostingService`).
+  - Upgraded `CafePosScreen` (`mobile/lib/features/operations/presentation/cafe_pos_screen.dart`) with the Stitch `Rush Hour Super-Fast` top sellers row, inline `- qty +` steppers, long-press `86 Sold Out` availability toggle (`PATCH /api/v1/pos/products/{id}/availability`), and an adaptive 2-pane split layout on Tablet/Desktop (`width >= 840px`: Left 62% catalog with 3-4 columns, Right 38% persistent `Current Order Ticket` with line steppers, discount input, tender selector, Hold/KOT, Print 80mm, and 1-tap Pay).
+- **Geofenced Attendance (`D-14`, `T-09`, `C-42`) Implemented End-to-End (`app/Http/Controllers/Api/V1/HrmApiController.php`, `mobile/lib/features/hrm/presentation/attendance_screen.dart`):**
+  - Added `GET /api/v1/hrm/attendance/status` and enhanced `POST /api/v1/hrm/attendance/check-in` & `check-out` with Haversine distance calculation (`haversineDistanceMeters`) against the company plant/depot geofence (`radius_meters = 150`), company-scoped `Employee`/`Attendance` resolution, today's shift timeline, and 5-day weekly logged hours (`Mon..Fri`).
+  - Rebuilt `AttendanceScreen` with an isolated `_ShiftDurationTimerText` leaf widget (zero full-screen rebuilds on 1Hz timer ticks), `RepaintBoundary`-isolated `_GeofenceRadarPainter`, `Facial Biometric & Odometer` card (`Liveness 99.8%`, `FACE ID PASS`), `Today's Shift Log`, `Weekly Logged Hours` bar chart, and a 60px tactile `PUNCH CHECK-IN / CHECK-OUT` slab.
+- **Driver Work & Tanker My Trips (`D-11`, `T-07`, `T-12`) + Tablet-Wide Adaptive Layout (`mobile/lib/features/tasks/presentation/tasks_screen.dart`, `mobile/lib/core/ui/adaptive_layout.dart`, `mobile/lib/core/ui/app_scaffold.dart`):**
+  - Added `WindowSizeClass` and `AdaptivePageConstraint` (`MediaQuery.sizeOf(context)`) in `mobile/lib/core/ui/adaptive_layout.dart` and wired `AppScaffold` so all screens and the bottom `FluidCurvedNavBar` align cleanly on tablet viewports.
+  - Upgraded `TasksScreen` to render `D-11` (20L Can Van Operations Bento + Route Beat Stops), `T-07` (Bulk Tanker Logistics Desk + 4 Operations Modules), and `T-12` (`My Completed Trips & GPS Trail` backed by `GET /api/v1/water/trips` and `GET /api/v1/water/trips/{id}/trail`).
+- **Login Screen (`G-02`) Alignment, Automatic Local/Cloud Endpoint Failover & Windows Desktop Binary Rebuild (`mobile/lib/core/network/api_client.dart`, `mobile/lib/core/network/api_endpoints.dart`, `mobile/lib/core/storage/secure_storage_service.dart`, `mobile/lib/features/auth/presentation/login_screen.dart`):**
+  - Updated `ApiEndpoints.defaultBaseUrl` and `SecureStorageService.getServerUrl()` to default to the active local ERP backend (`http://dk-track.test/api/v1`) and added `ApiClient._tryFailoverServer()` so any connection error automatically probes `ApiEndpoints.fallbackBaseUrls` (`http://dk-track.test/api/v1`, `https://dk-track.test/api/v1`, `http://127.0.0.1:8000/api/v1`, `https://dkenterprises.animazon.in/api/v1`) via `/health` and switches to the live endpoint before retrying.
+  - Aligned the Stitch `G-02` `LoginScreen` Top Lagoon Hero (`width: double.infinity`, `clipBehavior: Clip.antiAlias` with centered `maxWidth: 460` + `16px` horizontal padding) with the rising `Account Login` card (`maxWidth: 460` + `16px` horizontal padding) and added 1-tap server preset chips in `ERP Server Settings`.
+  - Rebuilt the Windows desktop executable (`dk_track_mobile.exe`).
+- **Verification:**
+  - `php artisan test tests/Feature/ErpSecurityAndGapsTest.php tests/Feature/PosApiTest.php tests/Feature/OfflineSyncAndPosParityTest.php tests/Feature/MobileApiSecurityAndMeTest.php`: **`21 passed (312 assertions)`**.
+  - `cd mobile; flutter analyze`: **`No issues found!`**.
+  - `cd mobile; flutter test`: **`49 passed (0 failures)`**.
+
+## Active Session & Follow-up — 2026-11-12: Complete ERP Security & Error Audit + Full Implementation of All 10 Stitch Backend & Mobile Gaps (branch main)
+
+- **Complete ERP Security & Error Audit Fixes (`app/Http/Controllers/Api/V1/`, `app/Http/Middleware/ResolveCompanyContext.php`, `routes/api.php`):**
+  1. **Mobile Login Brute-Force Rate Limiting (`routes/api.php`):** Added `->middleware('throttle:api-login')` to `POST /api/v1/mobile/login`.
+  2. **Role Privilege Escalation Fix (`WaterLogisticsApiController::mobileLogin`):** Restricted client-supplied `role` override strictly to verified Admin users (`role_id == 1` or `'Admin'`). Non-admin users always receive their true database role slug.
+  3. **Cross-Tenant IDOR Fix in Customer Ledger (`ReportApiController::customerLedger`):** Scoped `Customer`, `Sale`, and `payments` strictly by authorized `$companyId` via `CompanyContextResolver::authorizedCompany()`.
+  4. **Cross-Tenant IDOR Fix in Customer GPS Pinning (`WaterLogisticsApiController::updateCustomerLocation`):** Enforced `where('company_id', $companyId)` before updating customer coordinates (`404` on foreign company customer).
+  5. **Mass-Assignment & Warehouse Ownership Hardening (`ProductApiController::{store,update}`):** Replaced `$request->all()` with explicit `$validated` whitelist, removed non-existent `in_stock` / `track_inventory` / `branch_id` columns on `products`, and verified `Warehouse::where('company_id', $companyId)` before writing `product_warehouse`.
+  6. **Strict Company Scoping across Reports, Expenses & Role Dashboards (`ReportApiController`, `ExpenseApiController`, `WaterLogisticsApiController::roleDashboard`):** Removed hardcoded `company_id = 1` and fake fallback numbers (`2100.0`, `1450.0`, `overdue_accounts = 4`, `pending_kitchen_orders = 2`).
+  7. **Accounting Journal Call Fix (`RepairApiController::updateStatus`):** Fixed broken `AccountingService::postJournalEntry()` call to resolve active company leaf accounts (`1010`, `4010`) and pass the canonical array structure.
+  8. **HRM Leave Schema Fix (`HrmApiController`):** Fixed SQL column mismatch where `leaves()` and `leaveTypes()` queried non-existent `leave_types.type_name` and `days` (actual schema: `name`, `annual_quota`), and scoped attendance/leave operations by company.
+  9. **Multi-Branch Auto-Resolution (`ResolveCompanyContext`):** Automatically selects the user's primary active branch (preferring branches with an active warehouse) when `X-Branch-ID` is omitted on mobile API calls.
+- **All 10 Stitch Backend & Mobile Gaps Implemented (`docs/11_STITCH_UI_BACKEND_ALIGNMENT_AND_GAPS.md`):**
+  1. **P1 (`C-08`) Cafe KDS & Kitchen Tickets:** `GET /api/v1/pos/kds`, `POST /api/v1/pos/kds/{id}/status` (`PosApiController` + `PosKitchenScreen`).
+  2. **P1 (`C-34`) Menu 86 / Availability Toggle:** `PATCH /api/v1/pos/products/{id}/availability` (`PosApiController` + `PosKitchenScreen`).
+  3. **P1 (`C-32`, `C-33`) Production Batch & Wastage:** `POST /api/v1/pos/production-batches`, `POST /api/v1/pos/wastage` (`PosApiController` + `PosKitchenScreen`).
+  4. **P1 (`C-36`) Kitchen Reorder Requests:** `GET /api/v1/pos/reorder-requests`, `POST /api/v1/pos/reorder-requests` (`PosApiController` + `PosKitchenScreen`).
+  5. **P2 (`G-04`) Notification & Alert Feed:** `GET /api/v1/notifications`, `POST /api/v1/notifications/{id}/read`, `POST /api/v1/devices/push-token` (`WaterLogisticsApiController` + `NotificationsScreen`).
+  6. **P2 (`A-14`, `F-03`) Quotations & Credit Limit Override:** `GET/POST /api/v1/quotations`, `POST /api/v1/quotations/{id}/convert` (`SaleApiController`), `POST /api/v1/customers/{id}/credit-limit` (`PartnerApiController` + `TradeHubScreen`).
+  7. **P2 (`A-41`) HRM Leave Approval/Rejection:** `POST /api/v1/hrm/leaves/{id}/approve`, `POST /api/v1/hrm/leaves/{id}/reject` (`HrmApiController` + `MoneyHubScreen`).
+  8. **P2 (`T-12`) Tanker Trip History & GPS Breadcrumbs:** `GET /api/v1/water/trips`, `GET /api/v1/water/trips/{id}/trail` (`WaterLogisticsApiController`).
+  9. **P3 (`A-33`) Direct Supplier Payment Voucher:** `POST /api/v1/suppliers/{id}/pay` (`PartnerApiController` + `MoneyHubScreen`).
+  10. **P3 (`C-06`, `D-04`) Mobile Thermal Print Job:** `POST /api/v1/pos/orders/{id}/print-job` (`PosApiController` + `CafePosScreen` & `PosOrdersScreen`).
+- **POS `/api/v1/pos/bootstrap` 404 Resilience (`mobile/lib/features/pos/data/pos_repository.dart`):**
+  - Cleared Laravel route cache (`php artisan optimize:clear`) and added automatic 404 fallback in `PosRepository.fetchBootstrap()`, `fetchOrders()`, and `submitOrder()` so `Counter POS Terminal` seamlessly falls back to `/mobile/products`, `/cafe/menu`, `/mobile/customers`, and `/cafe/orders` if connected to a remote server where `/pos/bootstrap` is not yet deployed.
+- **Verification:**
+  - `php artisan test tests/Feature/ErpSecurityAndGapsTest.php tests/Feature/PosApiTest.php tests/Feature/OfflineSyncAndPosParityTest.php tests/Feature/MobileApiSecurityAndMeTest.php`: **`20 passed (302 assertions)`**.
+  - `flutter analyze`: **`No issues found!`**.
+
+## Active Session & Follow-up — 2026-11-12: Google Stitch "Ripple" UI Full Screen Rebuilds (`A-01`, `D-01`, `T-01`, `C-01`, `F-01`, `G-02`), POS Multi-Company Isolation & Backend Gap Register (branch main)
+
+- **Elephant & Goldfish Plugin (`egm`):**
+  - Verified already installed at `C:\Users\gnand\.gemini\config\plugins\egm\plugin.json` (`antigravity-plugins-official/plugin/egm` v`0.1.1`).
+- **ERP POS API Backend Module & Strict Multi-Company Isolation (`app/Http/Controllers/Api/V1/PosApiController.php`, `routes/api.php`, `tests/Feature/PosApiTest.php`):**
+  - Implemented 11 company-scoped (`/api/v1/pos/*`) routes (`bootstrap`, `tables`, `shifts/{current,open,close}`, `orders`, `orders/{id}`, `orders/{id}/resume`, `orders/{id}/held`, `orders/{id}/refund`) backed directly by ERP `CashRegister`, `Table`, `Sale`, `Product_Sale`, `Payment`, `Returns`, `ProductReturn`, `DocumentNumberService`, `InventoryMovementService`, and `AccountingPostingService`.
+  - Enforced strict `company_id = $companyId` scoping on `Product`, `Category`, `Warehouse`, `Biller`, and `Customer` queries plus `companySupportsDiningTables()` so dining tables only appear for cafe/bakery/restaurant companies.
+  - Scoped `PosRepository` cache key per company (`pos_bootstrap_v1_company_${activeCompanyId ?? 0}`) in `mobile/lib/features/pos/data/pos_repository.dart` and tied `posRepositoryProvider` / `posNotifierProvider` in `mobile/lib/features/pos/presentation/pos_notifier.dart` to `activeCompany?.id`.
+- **Stitch "Ripple" Primary Dashboards & Login Screen Rebuilt (`mobile/`) — English-Only:**
+  - **`A-01 Admin Home` (`mobile/lib/features/dashboard/presentation/executive_dashboard_screen.dart`):** Rebuilt to Stitch Lagoon design with time-aware greeting + `LAGOON` shield badge, `#0B5D52` `CASH IN HAND` hero card (`#C9F36A` lime numeral + inline `SparklineChart` + `GL 1010` today collections bar), horizontal attention strip, 2x2 Bento metric grid (`Bank Balances`, `Receivables`, `Payables`, `Journal Postings`), `Sales Performance` card (`Today | 7D | Month` + custom range + smooth area-line chart), `Live Fleet Strip` horizontal scroll cards for `bulk_water` & `packaged_water` (no fake fallback vehicles), industry-scoped 2x2 `Quick Modules` grid, and `Issue New Commercial Sale Bill` pill CTA.
+  - **`C-01 Cafe Home` (`mobile/lib/features/dashboard/presentation/cashier_dashboard_screen.dart`):** Rebuilt to Stitch Chai & Crema design with shift status & float strip, `#C2542D` `GROSS COUNTER BILLING` hero card, 3-tile KPI bento (`ORDERS`, `DRAWER`, `AVG ORDER`), `SETTLEMENT BREAKDOWN` digital vs cash split bar, `#F4A62A` `Open Touch POS Terminal` pill CTA, 3 quick action tiles (`Standard Sale`, `Reconcile Drawer`, `View All Bills`), `Open KOTs / Held` & `Low Stock SKUs` alert chips, and `Top Counter Items` list from live POS bootstrap catalog.
+  - **`D-01 Can Driver Today` (`mobile/lib/features/dashboard/presentation/can_delivery_driver_dashboard_screen.dart`):** Rebuilt to Stitch Aqua Day design with driver profile & `ACTIVE BEAT` / `Synced ✓` header card, `#0E8FB3` `ROUTE BEAT COMPLETION` hero card (circular progress ring + 2x2 `LOADED / DELIVERED / EMPTY CANS / REMAINING` bento), `+ Customer` + `#FFC933` `Spot Bill` pill row, `Today's Scheduled Stops` (`Route Beat Customer Stops`) with `GPS Verified` / `No GPS Set` badges and Navigate / WhatsApp GPS / Deliver actions, and bottom `COLLECTED CASH IN POUCH` + `Surrender Cash` card.
+  - **`T-01 Tanker Driver Today` (`mobile/lib/features/dashboard/presentation/tanker_driver_dashboard_screen.dart`):** Rebuilt to Stitch Aqua Day design with driver context & plate card, `#0E8FB3` `Dual-Chamber Telemetry` hero card (`VALVE SECURED` badge, 2x2 odometer/trips/KL/payload grid, `CH-1 / CH-2` split bar), `Assigned Destination & Trip` card (`Google Maps` + `WhatsApp GPS`), `Decanting Meter & Flow` radial gauge card, `Anti-Siphon Protection Active` card, and `#FFC933` `Complete Trip` + `Decanting & Fuel Log` pill buttons.
+  - **`F-01 Field Collection & KYC Desk` (`mobile/lib/features/dashboard/presentation/field_agent_dashboard_screen.dart`):** Rebuilt to Stitch Field Sage design with beat context bar, `#3F7D58` `TOTAL RECEIVABLES` hero card + 3-col micro-bento & recovery ring, `#C9F36A` `Collect Dues →` & `+ Onboard Client` action slabs, search & filter pills (`All Assigned`, `Outstanding Dues`, `No GPS Tag`, `Geotagged`), priority customer cards with `Tag GPS` / `Update GPS` & `Collect`, and `BEAT GEOTAG TRACKER`.
+  - **`G-02 Login` (`mobile/lib/features/auth/presentation/login_screen.dart`):** Rebuilt to Stitch Lagoon hero header (`DK Group`, `Live` badge, server settings gear, crest icon) with overlapping rounded-24 `Account Login` card, tonal inputs, full-width pill button, and `Demo Role Fast-Login Options` grid (`Admin`, `Can Driver`, `Tanker Driver`, `Cafe Cashier`, `Field Agent`).
+  - **High-Contrast `RippleHeroPill` & Industry-Scoped Hubs (`mobile/lib/core/ui/ripple_components.dart`, `mobile/lib/features/dashboard/presentation/admin_hubs.dart`):** Replaced M3 `ActionChip` in `RippleHeroBanner` with `RippleHeroPill` to eliminate white-on-white pill text, and scoped `TradeHubScreen` / `MoneyHubScreen` actions by `activeCompany?.industry`.
+- **Verification:**
+  - `flutter analyze`: `No issues found!`.
+  - `flutter test`: `47` tests passed (`0` failures), including `stitch_ripple_and_pos_test.dart`, `can_driver_dashboard_test.dart`, `dashboard_null_test.dart`, `sales_and_ledger_kpi_test.dart`, and `widget_test.dart`.
+  - `php artisan test tests/Feature/PosApiTest.php tests/Feature/OfflineSyncAndPosParityTest.php tests/Feature/MobileApiSecurityAndMeTest.php`: `16 passed (246 assertions)`.
+
 ## Active Session & Follow-up — 2026-11-12: Product Creation 503 Fix (`products.product_usage` Migration & `ProductController::store` Guard) (branch main)
 
 - **Root Cause Fixed:**
@@ -3788,316 +4133,5 @@ User: can job work be edited after submission, e.g. a wrongly entered service bi
 - GRN/DC corrections remain reverse + re-enter (bill → GRN → DC order), now guided by error help.
 - Follow-up (same day): JWO-00003's "Dyeing" process (id 37) has no default charge item/rate, so the service bill opened on "Select service" with no GST shown. Now: `serviceProducts` = all active service items (not cut by the 200-product list); `chargeDefault` = item + rate of the last job work bill of the same process → same job worker → company, or the only service item; preview says "Pick the processing charge item and enter the rate…" when incomplete; "No service item yet. Create one" hint. Billed GRNs get "Print bill" (A4 tax bill via /compliance/documents/purchase/{id}/print?format=a4).
 - Service bill form now has read-only "GST" (rate · amount) and "Bill total (with GST)" fields after the rate (`data-bill-gst`/`data-bill-total`, filled by previewServiceBill), plus a note that the rate comes from the charge item (Products).
-- Prints (user asked why "Print bill" shows a purchase bill, expecting a GRN): two documents. New Job Work GRN print `GET /operations/receipt/{id}/print` (`OperationsController::receiptDocument`, view `operations/job_work_grn.blade.php`, challan CSS, 2 copies: sent / accepted / rejected / loss, outputs, warehouses, service bill ref, no GST) + "Print GRN" on every GRN row. Service bill print: `DocumentRenderingService::jobWorkBill` (render time, also for already-posted bills) titles it "Job work service bill", Against "GRN … · DC … · Order …", drops bale_no equal to the bill number; `CommercialApplicationService` no longer defaults bale_no for job work bills. Test assertions in `IndustryFlowIntegrationTest::test_grey_fabric_…`. Blade gotcha: `@endif@if(` does not compile — keep a space.
-
-## 99. Sales Parity With Purchase (2026-10-26, branch ui)
-
-User: "whatever we did for purchase that should go for the sales too".
-- Bug: the Sales Orders tab posted the bill form to /sales with sale_status 2 → a pending sales BILL, never a SalesOrder (company 23 has none). Now `command-center-form.js` posts orders-mode sales to `config.ordersUrl` (POST /commercial/orders/sale → `OrderLifecycleService::createSale`) with `promised_date` = Delivery Date (`entry_date`); after any order save the page returns to `?orders=1`. `commercial-orders.js` sets `form.dataset.ordersMode`, labels Order Date / Delivery Date, SO placeholder.
-- Bug: the sales page had no `#side-order-list` panel at all, so SOs never listed. Added (copy of purchase).
-- SO cards = PO cards: untouched → Edit (`loadSalesOrderToForm`, hidden `replaces_order_id` + reason; `storeSale` cancels the old order "Replaced: reason" and creates the new one; retry-safe), Print, Delete (POST …/cancel with reason); touched → Amend qty/rate, Cancel rest.
-- SO print: `DocumentRenderingService::salesOrder` (GST from `CommercialPricing::preview`, title "Sales order", "SO No.", Delivery Date); route `documents/{documentKind}` regex now includes `sales_order`; permission sales-index. `#commercial-orders` carries `data-print-url`.
-- Tests: `tests/Feature/SalesOrderLifecycleTest.php` (2). Browser E2E on company 14 (SO 1 open, SO 2/3 cancelled probes).
-
-## 100. End-to-End Ledger Check and the Bugs It Found (2026-10-27, branch ui)
-
-User: test everything end to end (purchase, sales, GRN, DC, job work) and especially accounts; e.g. does the job worker's name "GRD" for 3200 cc leak into stock/lots/sales bills?
-- New `tests/Feature/TextileEndToEndLedgerTest.php` (167 assertions): PO → bill; supplier GRN → bill; supplier part payment; job work DC 400 → GRN 380 accepted (grey→dyed) / 10 rejected to quarantine / 10 loss; service bill with "GRD" → corrected (rebill); 6 m rework from quarantine → back dyed; 4 m debit note from quarantine; SO → invoice; customer DC → invoice; customer payment; credit note restock; edited (replaced) invoice. After every stage `assertBooksAgree`: each journal balances, stock projections = stock ledger, inventory account = stock value, AR/AP ledgers = open items, output/input GST ledgers = tax on documents in force. "GRD" stays a supplier alias + bill note only; product name, lots and the customer invoice keep "3200 cc …".
-- Bugs found and fixed:
-  1. `InventoryMovementService`: the quarantine block covered transfer destinations, so a job work GRN with rejects into a quarantine-flagged warehouse failed. Now only the source of an issue/transfer is checked.
-  2. Rework DC of rejects out of quarantine was blocked: new stock purpose `rework` (StockMovementCommand allowed list + quarantine exemption); `OperationStock::command(..., $purpose)`; `JobWorkService::send` passes it for rework.
-  3. Purchase returns could only leave the bill's warehouse, so rejects in quarantine could not go back to the supplier. `ReturnService` now also allows a quarantine warehouse ("Return goods from the bill's warehouse or from a quarantine warehouse.").
-- Error-help entries updated for both messages.
-
----
-
-## 101. Unified Add Product Popup Across All Commercial/Material Pages (2026-10-26, branch ui)
-- **User Feedback & Requirements:**
-  - "when we goto add product, it goes to the old type add product, but what we wanted is, we need same page as a popup in all the places, here some UI, there some UI is not good, make it unify, we have a dedicated add product page in the product section, we have to make the same as a popup."
-- **Key Architectural Solutions:**
-  1. **Shared Unified Add Product Modal Partial (`backend.product.partials.quick_create_modal`):**
-     - Completely unified the "+ Create item" modal across all commercial (`/purchases`, `/sales`) and material movement (`/goods-received-notes`, `/delivery-challans`) screens.
-     - Exactly mirrors the design system and layout of the dedicated `/products/create` page:
-       - **Top 3 Primary Cards (`<x-ui.section-box>`):** Product Details (Blue accent), Pricing & Tax (Emerald accent), Media, Details & SEO (Purple accent).
-       - **Full-Width Inventory Stripe (`.zolo-inventory-stripe`):** Amber theme with modern toggle switch buttons (`.zolo-switch-track` & `.zolo-switch-thumb`), indicator dots, semantic color accents, and an inline Alert Quantity input.
-       - **Dynamic Responsive Extended Grid (`.quick-product-extended-details-container`):** Toggles Initial Stock, Warehouse Price Difference, Variants & Attributes, Batch & Expiry, IMEI / Serial Numbers, and Promotional Price with zero gaps using dynamic column span packing (`applyQuickModalDynamicGridSpans()`).
-       - **Inline Sub-Modals & Master Creation:** Inline [+] modal creation for Category (`#quick-create-category-modal`) and Brand (`#quick-create-brand-modal`) via AJAX (`/categories/quick-store`, `/brands/quick-store`).
-       - **Smart Pricing & Margin Sync:** Two-way reactive calculation between Cost, Profit Margin, and Selling Price.
-       - **Random Code Generator:** Instant code generation (`#btn-quick-code-gen`) with duplicate prevention.
-     - Modularized client-side behavior into `public/js/quick-product-modal.js`.
-     - Replaced disparate legacy modals across `purchase/index.blade.php`, `sale/index.blade.php`, `goods_received_note/index.blade.php`, `delivery_challan/index.blade.php`, `partials/command-center-form.blade.php`.
-     - Updated `material-document.js` to serialize the unified modal's full payload to `POST /products/quick-store`.
-
----
-
-## 102. Complete System Audit & 7,232 Exhaustive Combinatorial Test Cases Suite (2026-10-26, branch ui)
-- **User Feedback & Requirements:**
-  - "complete audit this and create a test case for each and every options, i need atleast 5000 test cases should be covered with all the possible ways."
-- **Audit Findings & Implementation:**
-  1. **Quick Store Extended Option Persistence Audit:**
-     - Enhanced `CommercialController::quickStoreProduct()` to validate and persist all extended options:
-       - `promotion`, `promotion_price`, `starting_date`, `last_date` saved to `$product`.
-       - `is_diffPrice` & `diff_price[]` persisted to `Product_Warehouse` with branch/company isolation.
-       - `is_batch`, `batch_no[]`, `expired_date[]`, `batch_qty[]` persisted to `ProductBatch` and `Product_Warehouse`.
-       - `is_imei` & `imei_number[]` persisted to `Product_Warehouse`.
-       - `is_initial_stock` & `stock[]` persisted to opening `Product_Warehouse` records.
-       - `is_variant`, `variant_option[]`, `variant_value[]` normalized and saved.
-     - Updated `purchase/index.blade.php` and `sale/index.blade.php` to send full `FormData` with arrays and toggle flags on AJAX quick store.
-  2. **Exhaustive Combinatorial Test Suite Architecture (7,232 Tests / 51,554 Assertions):**
-     - **Suite 1: `tests/Unit/ProductOptionsComprehensiveMatrixTest.php` (6,232 Tests, 42,588 Assertions):**
-       - `test_product_core_options_combinatorial_matrix` (2,592 test cases): Full Cartesian product of (4 Product Types x 6 Symbologies x 2 Margin Types x 2 Tax Methods x 3 Stock Policies x 3 Warranty Types x 3 Guarantee Types).
-       - `test_pricing_and_margin_two_way_calculation_permutations` (1,000 test cases): 20 cost bases x 10 profit margins x 2 margin types x 5 tax slabs x 2 tax methods verifying two-way reactive calculation and float precision.
-       - `test_inventory_stripe_toggle_states_and_grid_spans_permutations` (640 test cases): 64 binary toggle permutations ($2^6$) across 10 warehouse variations verifying zero-gap responsive grid column packing.
-       - `test_barcode_symbologies_and_code_validation_permutations` (500 test cases): 100 code variations per symbology testing character sets, check digits, and regex constraints for C128, C39, EAN8, EAN13, UPCA.
-       - `test_product_hsn_and_sac_code_tax_mapping_permutations` (500 test cases): 25 variations x 4 types x 5 tax slabs verifying valid 2/4/6/8-digit HSN codes, 6-digit SAC codes, and intra-state CGST/SGST splits.
-     - **Suite 2: `tests/Unit/CommercialCommandCenterExhaustiveMatrixTest.php` (1,000 Tests, 8,966 Assertions):**
-       - `test_commercial_command_center_tab_navigation_and_state_matrix` (300 test cases): Modes (bills, orders, returns) x Modules (purchases, sales) x Query states (?orders=1, ?returns=1).
-       - `test_commercial_voucher_line_item_math_matrix` (500 test cases): 10 rates x 5 quantities x 5 tax rates x 2 discounts verifying line amount, tax, two-way in-cell rate recalculation, and single-tax lock behavior.
-       - `test_compliance_returns_and_note_approval_workflow_matrix` (200 test cases): 2 sides (purchase/sale) x 5 reason codes x 2 statuses x 10 amount variations verifying debit note vs credit note mapping and approval workflow.
-- **Verification Evidence:**
-  - `php -d memory_limit=1G vendor/phpunit/phpunit/phpunit tests/Unit/ProductOptionsComprehensiveMatrixTest.php tests/Unit/CommercialCommandCenterExhaustiveMatrixTest.php`:
-    **OK (7232 tests, 51554 assertions) in 00:02.175 (2.17 seconds)**.
-
----
-
-## 103. Executive Interactive HTML Test Report Dashboard (Commit a6ed17a, branch ui)
-- **User Feedback & Requirements:**
-  - "give the detailed testcase with the results in the html file."
-- **Deliverable Architecture:**
-  - Created self-contained executive test dashboard: `public/reports/test_audit_report.html` (72 KB, offline-ready, zero external runtime dependencies).
-  - Accessible via local web server at: `http://zolo-erp-pro.test/reports/test_audit_report.html` or direct file path: `d:\PROJECTS\WEBSITES\zolo-erp-pro\public\reports\test_audit_report.html`.
-  - Executive KPI Cards: 7,246 total tests (100% pass, 0 failures, 51,631 assertions, 2.18s wall time).
-  - Interactive Suite Filtering Pills, instant keystroke search, product type and barcode dropdown filters, deep-inspection parameter drawer, and CSV/print export.
-
----
-
-## 104. Upstream Synchronization & Clean Merge (2026-10-27, branch ui)
-- Synchronized branch `ui` with remote tracking `origin/ui` (commits `9902420`, `6aeab06`, `cb1ad4e`, `75f7485`).
-- Cleanly resolved conflicts across `command-center-nav.blade.php`, `commercial-orders.js`, `purchase/index.blade.php`, `sale/index.blade.php`, and `SESSION_MEMORY.md`.
-- Maintained 100% architectural coherence: unified `quick_create_modal.blade.php` popup, modular `returns-workspace.blade.php` & `returns-side.blade.php` tabs, sidebar IA restructure, and 7,246 passing automated tests.
-
----
-
-## 105. Textile Suppliers & Products Catalog Provisioning (2026-10-27, branch ui)
-- **User Request:** "create suppliers and few products for textiles."
-- **Architectural & Master Design:**
-  - Implemented an idempotent, multi-company seeder: `database/seeders/TextileMasterSeeder.php`, hooked into `database/seeders/DatabaseSeeder.php`.
-  - **UOM Provisioning:** Ensured standard textile units `MTR` (Meter), `KGS` (Kilogram), `DOZ` (Dozen, 12x factor), and `PCS` (Pieces).
-  - **Brand Masters:** Created authentic textile brands (`Ramraj Cotton`, `Liva (Aditya Birla)`, `Coats India`, `Vardhman Textiles`, `Arvind Mills`).
-  - **Category Hierarchy:** Created `Textiles & Handlooms` root category with specialized subcategories:
-    - `Yarn & Spinning` (default HSN: `5205`)
-    - `Grey & Woven Fabrics` (default HSN: `5208`)
-    - `Dyed & Finished Fabrics` (default HSN: `5208`)
-    - `Apparel & Made-ups` (default HSN: `6109`)
-    - `Textile Trims & Accessories` (default HSN: `5401`)
-  - **Textile Suppliers Provisioned:**
-    1. `Lakshmi Spinning Mills Ltd` (Coimbatore, GSTIN: `33AAACL2890A1ZB`, Yarn supplier, credit: 30 days)
-    2. `Sri Balaji Weaving & Powerloom Works` (Erode, GSTIN: `33AAHFS4455K1Z4`, Grey cloth, credit: 21 days)
-    3. `Surat Synthetic & Rayon Weaves Pvt Ltd` (Surat, Gujarat, GSTIN: `24AAACS9988P1Z6`, Interstate synthetic fabrics, credit: 45 days)
-    4. `Rainbow Textile Processors & Dyers` (Perundurai, GSTIN: `33AAACR5566M1Z2`, Dyeing/bleaching/mercerizing job work, credit: 15 days)
-    5. `Coats India Threads & Accessories Ltd` (Tiruppur, GSTIN: `33AAACC0123L1Z9`, Sewing threads & trims, credit: 30 days)
-    6. `Tirupur Knit Knots Garment Trims` (Tiruppur, GSTIN: `33AABCT7788Q1Z1`, Elastic tapes, buttons, zip fasteners, credit: 15 days)
-  - **Textile Products Provisioned (Catalog & Stock):**
-    1. `TEX-YRN-40C` — Cotton Combed Yarn 40s (Auto-Coner) (Unit: KGS, HSN: 5205, Cost: ₹280, Price: ₹325, Stock: 500 KGS)
-    2. `TEX-YRN-30H` — Cotton Carded Hosiery Yarn 30s (Unit: KGS, HSN: 5205, Cost: ₹250, Price: ₹295, Stock: 400 KGS)
-    3. `TEX-KNT-180G` — Single Jersey Cotton Knit Fabric 180 GSM (Raw Grey) (Unit: KGS, HSN: 6006, Cost: ₹260, Price: ₹310, Stock: 350 KGS)
-    4. `TEX-GRY-63W` — 100% Cotton Grey Fabric 40x40 / 92x88 (63 inch Width) (Unit: MTR, HSN: 5208, Cost: ₹48, Price: ₹62, Stock: 1,200 MTR)
-    5. `TEX-PC-SHT58` — Poly-Cotton Grey Sheeting Fabric (58 inch) (Unit: MTR, HSN: 5513, Cost: ₹38, Price: ₹50, Stock: 800 MTR)
-    6. `TEX-POP-WHT` — Pure Cotton Poplin Dyed Fabric - Super White (58 inch) (Unit: MTR, HSN: 5208, Cost: ₹72, Price: ₹95, Stock: 800 MTR)
-    7. `TEX-KNT-NVY` — Bio-Washed Combed Cotton Single Jersey (Navy Blue) (Unit: KGS, HSN: 6006, Cost: ₹340, Price: ₹420, Stock: 250 KGS)
-    8. `TEX-RAY-BLK` — Rayon / Viscose Liva Fabric 30s Dyed (Jet Black) (Unit: MTR, HSN: 5408, Cost: ₹65, Price: ₹88, Stock: 600 MTR)
-    9. `TEX-DHT-GOLD8` — Classic Gold Jari Border Cotton Dhoti (Double / 8 Muzham) (Unit: PCS, HSN: 5208, Cost: ₹320, Price: ₹550, Stock: 150 PCS)
-    10. `TEX-TSH-PK3` — Men's Combed Cotton Round Neck T-Shirt (Pack of 3) (Unit: PCS, HSN: 6109, Cost: ₹290, Price: ₹499, Stock: 200 PCS)
-    11. `TEX-TWL-500G` — Premium Cotton Terry Bath Towel 500 GSM (75x150 cm) (Unit: PCS, HSN: 6302, Cost: ₹180, Price: ₹320, Stock: 180 PCS)
-    12. `TEX-THD-40C` — High Tenacity Spun Polyester Sewing Thread 40/2 (Cone 1000m) (Unit: PCS, HSN: 5401, Cost: ₹35, Price: ₹55, Stock: 300 PCS)
-  - **Stock Linkage:** Each product was initialized with active inventory balances in `product_warehouse` linked to the primary active warehouse.
-  - **Testing Evidence:**
-    - `tests/Feature/TextileMasterSeederTest.php`: 1 passed, 154 assertions.
-    - Full regression suites: 100% passing across Optech and Product Options combinatorial test matrices.
-
----
-
-## 106. Resolution of Empty Products List & Script Injection Hardening (2026-10-27, branch ui)
-- **User Request:** "no products in the list?" with screenshot of `http://zolo-erp-pro.test/products` showing an empty table header with no rows.
-- **Root Cause Analysis:**
-  1. **Premature Script Termination by Dev Server Injector:**
-     - In `resources/views/backend/product/index.blade.php` line 310, the print popup handler contained:
-       `newWin.document.write('...<body onload="window.print()">'+divToPrint.innerHTML+'</body>');`
-     - Laravel Herd Studio (or local development proxies) injects their debugging toolbars by doing a substring replacement before `</body>` in the HTTP response HTML (`</script><div id="herd-ai-root"></div>...</body>`).
-     - Because `</body>` appeared literally inside a JavaScript `<script>` tag in `@push('scripts')`, Herd replaced that occurrence, introducing an unescaped `</script>` tag directly in the middle of JavaScript code!
-     - The browser immediately terminated parsing the `<script>` tag at line 310. All subsequent JavaScript—including `productDetails()` and `$('#product-data-table').DataTable({...})`—was dumped raw into the HTML DOM as broken attributes (`tempimage="new"`, `canvas="document.createElement..."`).
-     - This produced compile-time `SyntaxError: Invalid or unexpected token`, completely preventing DataTables from initializing.
-  2. **Secondary API Vulnerability Guard:**
-     - In `ProductController::productData()`, `$request['all_permission']` was queried via `in_array()` without checking whether it was null, which would throw a fatal PHP 8 `TypeError` if omitted in API requests.
-- **Fixes Applied:**
-  1. In `resources/views/backend/product/index.blade.php`, replaced literal `'</body>'` with `'<\/body>'` and switched AJAX URL to `{{ url('products/product-data') }}`.
-  2. Proactively audited and escaped `</body>` and `</html>` strings across all print scripts in the application (`stock_count/index.blade.php`, `print_barcode_rongta.blade.php`, `gift_card/index.blade.php`, `customer_index.blade.php`, `transfer/index.blade.php`, `supplier/view.blade.php`, `return_purchase/index.blade.php`, `return/index.blade.php`, `quotation/index.blade.php`, `delivery/index.blade.php`, `delivery/index_new.blade.php`, `sale/pos.blade.php`).
-  3. In `ProductController::productData()`, safeguarded `$all_permission = (array) ($request->input('all_permission') ?? []);`.
-- **Verification & Evidence:**
-  - Automated Playwright browser test loaded `http://zolo-erp-pro.test/products` with active session:
-    - Zero console errors, zero syntax errors.
-    - `Is DataTable initialized on #product-data-table? true`.
-    - All 10 initial paginated products (and 14 total textile items across pages) rendered cleanly with stock, prices, codes, and action dropdowns.
-    - Verified visual layout via browser screenshot `products_working.png`.
-  - Automated PHPUnit tests: All 43 textile tests passed (498 assertions).
-
----
-
-## 107. Pull Latest Upstream & Merge Synchronization (2026-10-27, branch ui)
-- Synchronized branch `ui` with remote tracking `origin/ui` (commit `d68e040`: "Add error help, SO edit/print, job work GRN/rebill").
-- Cleanly resolved merge conflicts in:
-  1. `public/js/commercial-orders.js` — unified `isReturns` handling with collaborator's new Sales Order / Purchase Order field swapping, help attributes, and SO edit/print actions.
-  2. `resources/views/backend/sale/index.blade.php` — removed duplicate `#side-order-list` declaration.
-  3. `SESSION_MEMORY.md` — consolidated sections 94-100 from collaborator with sections 101-106 from local.
-- Verified database migrations, seeders, and catalog items.
-
----
-
-## 108. Database Migration Audit, ERP Health Diagnostic & Legacy Commercial Documents Repair (2026-10-27, branch ui)
-- **User Request:** "and check all the migrations are done properly. because some of the items are not working as like the collaborators version."
-- **Audit & Root Cause Analysis:**
-  1. **Database Migrations Check:**
-     - Verified all 66+ migrations via `php artisan migrate:status`. All upstream and local migrations had executed.
-  2. **Discrepancy Investigation ("items not working as like collaborator's version"):**
-     - **Missing Tax Categories on Company 1:** Company 1 had zero entries in `tax_categories`, leaving products without GST slabs and breaking tax determination / dropdowns.
-     - **Missing Tax Ledgers & Semantic Roles:** Company 1 and Company 2 lacked standard input/output GST ledgers and semantic mappings (`output_tax_cgst`, `output_tax_sgst`, `output_tax_igst`, `input_tax_cgst`, `input_tax_sgst`, `input_tax_igst`, `rounding`).
-     - **Unlinked Physical Stock Movements:** 30 catalog products had warehouse stock without initial entries in `stock_movements`.
-     - **Unassigned Legacy / FMCG Records (Root Cause of 302 print redirects and Foreign Line errors):**
-       - 10 purchases, 12 sales, 1 return, 12 purchase items, 10 sale items, and 5 products (FMCG items from e2e scripts) had `branch_id = null` or `company_id = null`.
-       - When rendering or printing documents (e.g. `/compliance/documents/purchase/{id}/print?format=a4`), `DocumentRenderingService::source` threw `ValidationException: Print and dispatch require a posted document in this branch.` because `(int) null !== 1`.
-       - When inspecting lines, `DocumentRenderingService::capture` threw `LogicException: Document contains a foreign line.` because `(int) line->company_id !== context->companyId`.
-- **Fixes Applied:**
-  1. **GST Categories & Ledgers Installed:**
-     - Ran `GstSetupService::installDefaults($context, 1)` to install 10 standard GST categories, map 14 products, and sync 19 parties.
-     - Ran `GstSetupService::ensureLedgers(1)` and `ensureLedgers(2)` creating input/output tax accounts and semantic mappings.
-  2. **Stock & Accounting Reconciliation:**
-     - Executed `php artisan erp:stock-opening` and `php artisan erp:stock-reconcile` (stock reconciled).
-     - Posted opening inventory valuation journal entries and ran `php artisan erp:ledger-reconcile --rebuild --force` for both companies.
-     - Confirmed all 9 ERP health checks pass on Company 1 and Company 2 (`"ok": true`).
-  3. **Data Repair Migration (`database/migrations/2026_10_27_000001_repair_legacy_unassigned_commercial_documents.php`):**
-     - Backfills unassigned categories, units, and products where `company_id IS NULL` to Company 1.
-     - Backfills `purchases`, `sales`, and `returns` where `branch_id` or `company_id` is null from their warehouse and assigns the matching financial year.
-     - Synchronizes child line tables (`product_purchases`, `product_sales`, `product_returns`, `purchase_product_return`) to inherit `company_id` from parent documents.
-     - Maps products without `tax_category_id` to standard GST slab.
-     - Committed as commit `840bff1`.
-- **Verification & Test Evidence:**
-  - `php artisan test tests/Feature/DocumentEntryWebTest.php`: **12 passed (101 assertions, 100% GREEN, including PO print layout)**.
-  - `php artisan test tests/Feature/OptechMasterWebTest.php tests/Feature/IndustryFlowIntegrationTest.php tests/Feature/SalesOrderLifecycleTest.php tests/Feature/PurchaseOrderLifecycleTest.php tests/Feature/JobWorkReturnsReworkTest.php`: **42 passed (328 assertions, 100% GREEN)**.
-  - `php artisan test tests/Feature/TextileEndToEndLedgerTest.php`: **1 passed (167 assertions, 100% GREEN)**.
-  - `node tests/JavaScript/error-help.test.cjs`: **4 passed (100% GREEN)**.
-  - `php artisan erp:health --company=1` & `--company=2`: **ALL 9 CHECKS PASSED (`"ok": true`)**.
-
----
-
-## 109. Local Dev Stack Moved to Laravel Herd + Portable MySQL (2026-10-27, branch ui)
-
-WSL (and its MariaDB on 3308) was deleted; the live dev DB was lost.
-- PHP/site: Laravel Herd free (PHP 8.5, `http://zolo-erp-pro.test`). User declined Herd Pro, so the DB is not in Herd.
-- DB: portable MySQL 8.4 dev instance `C:\Users\vigne\zolo-mysql-dev` (127.0.0.1:3306, root no password, user zolo_erp, DB zoloerp; binaries shared from `C:\Users\vigne\zolo-mysql84`). Separate from the disposable test server on 33084.
-- Restored from `database/backups/erp-backup-094b8eb5-...zip` (2026-10-19, companies 1/14/15/16) and migrated through `2026_10_25_000001`. Data entered after 2026-10-19 (incl. Sweet Soil companies 17/18) is not in it; pulling it from the VPS is pending user approval.
-- `.env` DB_PORT 3308 → 3306. `run-erp.bat` now starts the dev MySQL and Herd PHP `php -S :8080` (no WSL). `config/database.php` uses `Pdo\Mysql::ATTR_SSL_CA` on PHP ≥ 8.5 (deprecation noise), old constant on 8.3 prod.
-- Verified: `/login` 200 on :8080 and on zolo-erp-pro.test.
-
-## 110. Draft tabs failed on http://zolo-erp-pro.test (2026-10-27, branch ui)
-
-Every draft tab click showed "Unable to complete this action." Cause: `crypto.randomUUID` exists only in secure contexts (HTTPS / localhost). Old dev URL `localhost:8080` was secure; Herd `http://*.test` is not. `grid.resetFormToNew()` → `command-center-form.js:215` threw, `openTab` catch turned the JS error into the generic message. Drafts themselves were fine.
-- Fix: `crypto.randomUUID` polyfill (via `getRandomValues`) in `<head>` of `backend/layout/main.blade.php`; covers command-center-form, commercial-orders, material-document.
-- Verified in Chrome on zolo-erp-pro.test: all 6 purchase draft tabs open with no banner.
-
-## 111. Dashboard quick actions pointed at duplicate legacy forms (2026-10-27, branch ui)
-
-New Sale / New Purchase opened old `/sales/create` / `/purchases/create` "Add Sale" forms — second implementation of the workspaces.
-- Quick actions + topbar "+" menu now open `sales.index?new=1`, `purchases.index?new=1`, `expenses.index?new=1` (expense page auto-opens its modal on `new=1`). "Stock" quick action → `/operations/stock` (products list only when operations off).
-- `SaleController::create` / `PurchaseController::create` redirect to the workspace; `backend/sale/create.blade.php` and `backend/purchase/create.blade.php` deleted; purchase store failure redirects go to the workspace. Classic rows removed from `tests/Browser/document-layout.spec.mjs`.
-- `LegacyStockShadowWebTest`: 4 failures on document-number prefix (`MJ-`/`PUR-`/`SR-`/`PR-` vs `ERP-`), unrelated.
-
-## 112. Job work service bill: their bill no + fully prefilled Edit bill (2026-10-27, branch ui)
-
-User: service bill print showed our PUR-xxxxx as Bill No.; wanted every field editable and prefilled on Edit bill.
-- Service bill form (job_work_workspace.blade.php) adds Their bill no. (`supplier_invoice_no`), Their bill date, Due date, Remarks. Edit bill prefills business date (original bill date), their no/date, due date, remarks, item/qty/rate/charge mode.
-- `JobWorkService::serviceBill` validates + passes them; remarks stored as `attributes_json.job_work_remarks` (added to CommercialApplicationService attribute whitelist) and appended to the note.
-- A4 print (all purchase bills, not orders): Bill No. = supplier's bill no when set, plus Bill Date and "Our Ref." = PUR no; date label becomes Entry Date. `DocumentRenderingService::dto` reads it live from the purchase row (`supplier_bill_no` / `supplier_bill_date`).
-- Tests: ManufacturingJobWorkTest rebill + IndustryFlowIntegrationTest print assertions; job work, print, DocumentEntryWeb, Optech suites green.
-
-## 113. Add / Edit Product screen fixes (2026-10-27, branch ui)
-
-Found by driving /products/create in Chrome at 1536x730:
-- Service type: page hid unit + cost and ProductController store/update zeroed unit/cost, so a service made here could not be billed per unit (job work per MTR). Now service keeps unit (required) + cost (blank → 0); only digital zeroes them. Edit page on-load handler fixed too.
-- `.zolo-toggle-pill { display:inline-flex !important }` beat jQuery .hide(): batch/IMEI/variant/initial-stock pills never hid for service/combo/digital. Added `[style*="display: none"]` override in zolo-erp-neo.css.
-- Price → margin with blank cost gave Infinity → blank required margin → save blocked. recalcMargin skips when cost ≤ 0 (percentage); margin no longer `required`; server stores blank as 0. Switching % / flat keeps price. Edit page on load recalculated price from cost+margin (overwrote saved price) — now keeps price.
-- Quick-add: unit added was not selected and sale/purchase units stayed empty (now selected + populated; sub-unit selects its base). Brand/category/unit errors were silent (now shown in the dialog with error-help bar); forms reset after save.
-- Category → HSN: HSN placeholder shows the category's default HSN (data-hsn on options).
-- One screen: duplicate bottom Cancel/Save bar removed (create + edit); inventory stripe pills flow inline (no 3rd row, no stray divider). create/edit now fit 1536x730 with no scroll.
-- Double help icons on Daily Sale Objective / Tax Method removed (field-help ⓘ stays).
-- Dev-only: "Invalid or unexpected token" on /products is Herd's injected toolbar script landing inside a JS '</body>' string (print code); not in production.
-- Note: another session was editing this tree in parallel (staged Modules/Optech* deletions, many controllers).
-
-## 114. Draft tab UI + auto-draft fixes on Purchase / Sales (2026-10-27, branch ui)
-
-- Top bar broke when a draft had a long title ("New Purchase Bill (from GRN #GRN-00001)"): `.comm-navbar-center-wrap` wrapped, breadcrumb went above the viewport and TOTAL pill dropped. commercial-workspace.css: center wrap nowrap, title group `flex: 1 1 0` + overflow hidden, title ellipsis, actions never wrap.
-- Auto-draft saved junk: blank item rows (Draft 2 had 8) and phantom drafts holding only defaults (Draft 6: no party, no lines — made by a pill click). document-workspace.js: blank rows (no product id, no item name) are neither captured nor restored; adapter `empty(state)` = no party, no lines, no supplier bill no / reference. document-drafts.js: autosave, page-hide flush and "+" never create a server draft for an empty form; an unused never-saved tab is dropped when switching away. Explicit "Save draft" still saves anything.
-- Verified in Chrome on purchases and sales: pill clicks create no draft, Draft 2 restores 1 row, header stays one row, typing a supplier bill no still autosaves.
-- Existing junk drafts (company 14 purchase Draft 6 empty; Drafts 4/5 had one blank row) left for the user to close.
-
-## 115. No duplicate screens, no navigation fallbacks (2026-10-27, branch ui)
-
-User rule: one page per screen; list duplicates with file:line and wait for confirmation before deleting. Full table of retired screens: ENGINEERING_REFERENCE.md §11 "One entry point per screen".
-- Returns: `/return-sale`, `/return-purchase`, their `create`, `/compliance/returns` and `/compliance/{kind}/{id}/return` redirect to the workspace Returns tab (`?returns=1[&bill=id]`); old return views + compliance notes/return views deleted. Shift+F2/Shift+F12 open the tab. Gap: the tab has no draft tabs.
-- Removed: topbar "+" menu, legacy `/report/profit_loss` and `/balancesheet`, unused `0main_rtl` layout, `Optech*` scaffold modules, missing `create/edit` resource routes for DC/GRN.
-- Navigation links no longer branch to old pages on `ERP_*_ENABLED`; flags still hide whole sections when off. Production needs all three flags true.
-- Open decision: Express Voucher Entry vs Voucher Hub (different posting engines, both claim F9).
-- Full suite (phpunit, unlimited memory) after this work: 846 tests; remaining failures are document-number prefixes (LegacyStockShadowWebTest), `profit_margin` column in test schema, dimension/volume fixtures, DeliveryChallanWebTest 422 (fails with my route change reverted too).
-
-## 116. Sales terms, line GST override, unknown item prompt (2026-10-27, branch ui)
-
-- Sales Terms: editable credit days like purchase (`syncTerms`, hidden for Cash, customer standard days on user pick); sales header labels got field help.
-- Line GST: row tax select editable in GST mode; `tax_rate_override` honoured by TaxDeterminationService (company slabs only, snapshot `product_rate`), CommercialPricing preview and CommercialApplicationService (legacy). `public/js/line-tax-override.js` marks and warns; `GstSetupService::entryConfig()` returns `slabs`.
-- Unknown item: `public/js/unknown-product.js` asks, then opens the page's Create item form with the typed name; saved product fills that row. Hooked into search bar, row name Enter and Save.
-- Concurrent work seen in the checkout (not mine): `layout/partials/print-letterhead.blade.php`, `erp-print.css/js`. Its `tax_registrations` query 500s WorkspaceSecurityTest and ProductAliasTest manager test in the test DB.
-
-## 117. Professional report / list printing (2026-10-28, branch ui)
-- Problem: report Print buttons called `window.print()` on the live screen (sidebar, filters, pagination, 1 clipped sheet); DataTables print icon gave a bare table.
-- Fix (global): `resources/views/backend/layout/partials/print-letterhead.blade.php` (company letterhead from Company profile + active tax registration, FY, printed by/at; hidden on screen) included in `#content` of `layout/main`; `public/css/erp-print.css` (A4 @page, "Page X of Y", printed-document styles, `@media print` fallback that unlocks the one-screen shell); `public/js/erp-print.js` replaces DataTables `print` action: fetches all rows (`length=-1`) for server-side tables, prints letterhead + title + filters used + table + totals in a hidden iframe. `window.ErpPrint.table(head, body, footer, title)` for custom lists.
-- 31 report/accounting/trade views: `onclick="window.print()"` -> `data-erp-print`. Sales/Purchase "Print Register" (`command-center-form.js`) now prints a Sales/Purchase Register table.
-- Best Seller report never loaded Chart.js (missing `@section('charts', '1')`) - fixed.
-- Not changed: dedicated document templates (A4/80mm/58mm invoices, tax invoice, challans, labels, barcodes).
-- Verified with Playwright -> page.pdf on 23 report pages + 11 list pages + sales register.
-
-## 118. Developer login, per-company section switches, People/HRM/Settings command bars (2026-10-28, branch ui)
-
-User: People, HRM and Settings did not follow the modern UI; add a developer role login that manages all admins and can switch sections / subsections off (e.g. HRM) — user chose **per company** and an **artisan command** for the login.
-- Developer = Admin account with `users.is_developer` (migration 2026_10_27_000001, also `company_menu_switches`). `php artisan erp:developer email [--password=]` creates/updates it and grants every company + branch. Local login: developer@zoloerp.local (password printed once on 2026-10-28; reset with the command).
-- `/developer` (DeveloperController, view backend/developer/index, css/pages/developer.css): admin logins (add with companies, block/activate, set password, companies) + section/screen ticks for the ACTIVE company. Admins never see/edit developer accounts (UserController guardDeveloper + hidden from list).
-- `App\Services\Platform\MenuSwitches`: catalog = rendered sidebar (sections `a[href=#key]`, screens `li[id]`, Settings pages from the search index); OFF rows store blocked paths (+query). Enforced by sidebar DOM filter (main.blade.php), `EnforceMenuSwitches` middleware in the web group (sorted after company context: redirect /dashboard with reason, AJAX 403), SettingsCatalog and command-bar pills. Developers are exempt. Never blocked: /, /login, /dashboard, /settings, /developer, own profile/password.
-- New components: x-section-command-bar (generic), x-people-command-bar, x-hrm-command-bar. All 3 People + 10 HRM pages (+ create/edit forms, HRM settings, HRM panel) use them with btn-primary actions; old `hrm.partial.menu` + its CSS deleted (user OK 2026-10-28). Settings bar added to Gift Cards, Coupons, Tables, WhatsApp x3, Notifications, Languages, My Profile, Document Series.
-- Not changed (different shells): Financial Year setup (standalone HTML, overflows), Business Profile (operations layout), Addons; Settings › Backup Database links to a retired page (410) — reported, not removed.
-- Tests: tests/Feature/MenuSwitchesTest.php (4). DesignTokens, DocumentEntryWeb, ProductCreateSmoke, LegacyCatalogIsolation, SwitchableCapability, CompanyProfile green. NavigationWebTest passes but needs ~478 MB (same with my hooks removed: pre-existing), so it dies under the default 128M CLI limit.
-
-## 107. Herd database availability diagnosis (2026-11-04, branch ui)
-
-- Investigated the Herd preview showing "Database temporarily unavailable". Direct GET to `http://zolo-erp-pro.test/login` returns Laravel's HTTP 503 response; Herd nginx and PHP are serving the application.
-- Current `.env`, portable MySQL `my.ini`, and the pre-existing uncommitted `run-erp.bat` change all use port 3307. No MySQL process serves that port. The only observed `mysqld.exe` process belongs to XAMPP, not the portable development database.
-- Laravel logs confirm `SQLSTATE[HY000] [2002]` with an actively refused connection. Earlier logs show access denied for the application user before the port change.
-- Recovery: start `C:\Users\vigne\zolo-mysql-dev\start.cmd`, then reload the Herd site. The existing `run-erp.bat` also starts this database before serving localhost:8080. Starting Herd alone does not start this separate portable database.
-- This was a diagnosis request. No services, database settings, credentials, or application code were changed. The user's existing `run-erp.bat` edit was preserved.
-- Follow-up recovery: started the existing portable MySQL 8.4 server directly with its existing `my.ini` after the user reported the same error again. MySQL completed crash recovery and is ready on port 3307 (PID 10156, tool session 69626). No database configuration, credentials, or application code changed.
-- Verification: `GET http://zolo-erp-pro.test/login` now returns HTTP 200; Laravel logs also show a successful authenticated company-selection page. Reloading the browser should now work. The portable database still requires startup after a reboot; automatic startup was not configured.
-
-## ZTEX live local data reset and four-profile sample — 2026-11-06 (branch ui)
-
-- User explicitly requested a clean slate in zoloERP Textiles. Target verified as ZTEX, company 14, Main branch 2, FY 2026–27 (ID 2), on the running local MySQL `zoloerp` database. Backed up the full database before reset to the encrypted, checksum-verified 205-table archive `database/backups/erp-backup-10721e72-c83d-478c-983e-92e0d03ca929.zip`. The key is stored separately and privately.
-- Rehearsed the company-scoped cleanup, seeded new data, and audited it inside a single transaction before committing the same workflow. Foreign keys stayed enabled. Before/after row fingerprints verified all shared and other-company rows. The reset removed old parties, products, operational records, accounting history, and their report projections. It reinstalled the current standard chart and default Cash and Bank. It kept the company, branch, fiscal year, and document series counters.
-- Created 3 demo customers, 3 demo suppliers, and 3 products (grey cotton, dyed poplin, and textile processing service). Manufacturing covers PO, supplier GRN, purchase, dyeing, printing, finishing, unprocessed return, processing loss, capitalized and expensed service bills, customer-owned processing, sales order, invoice, and returns. Wholesale covers a bale sale from a customer DC. Distributor covers B2B/B2C invoices. Wholesale & Distributor covers the 10+1 scheme. The original Manufacturing profile and capability settings were restored at the end.
-- A fresh process read the committed data and reproduced `scratch/textile-live-reset-audit.json`. All 56 chart accounts (20 with activity) and 37 mappings passed. General and monthly ledgers, Day Book, Cash Book, Trial Balance, P&L, Balance Sheet, AR/AP ageing, stock valuation, GST, ITC-04, GRNI/GDNI, and the wholesale dot-matrix print were checked. `erp:health` passed all 9 checks. Trial balance debit and credit each equal INR 187,489.65. Closing inventory equals INR 40,290.7678. No application code changes were needed for this task.
-
-## UI merge and production rollout — 2026-11-06
-
-- Reconciled local `ui` with `origin/ui` in `e53a1c1`, retaining both session histories, the Parties command bar, the Customer Returns link, and the voucher preview and product updates. Preserved concurrent uncommitted controller and report edits in the `ui` checkout.
-- Reused the existing product margin migration in the isolated cutover test fixture (`3d4d384`) to address a failure from the previous main acceptance run. The UI branch already guarded the print letterhead against a missing optional tax table.
-- Verified the full migration chain on disposable MySQL. It created active company `ZTEX` with 15 products, 3 customers, and 9 suppliers. A second `migrate --force` reported no pending migrations. All 26 targeted UI tests passed, with the existing empty `ExampleTest` discovery warning.
-- Atomically advanced `origin/ui` and `origin/main` to `3d4d384d9a4fc998f83069f8db7afd0502742184` and updated local `main`. GitHub acceptance run `42212044075` started. The production deployment and migration are pending the acceptance result.
-- Cancelled acceptance run `42212044075` after disposable MySQL health checks exposed missing posting mappings and unposted sample quantities. The associated VPS deployment was skipped.
-- Commit `ae637a9` makes the Textile setup transactional, installs core and GST posting mappings, and seeds catalog entries at zero stock while preserving existing products and suppliers. Disposable MySQL passed all nine ERP health checks. An explicit rerun preserved an existing product name and quantity. The accounting report test also passed after scoping its heading assertion to the report.
-- Atomically advanced local and remote release references to `ae637a9523efb8aec602e1fa9a5b80b479dcfbfe`. The new main acceptance run gates the production deployment.
-- Acceptance run `42212573724` failed its legacy fixture because the Textile migration added a second company before the single-company backfill rehearsal. Commit `96c057a` moves the new-company migration after that rehearsal and verifies the current Journal entries heading. All 44 legacy MySQL tests passed locally. Pushed `96c057a` to `main`; its acceptance run is `42213247436`. `origin/ui` received a separate documentation commit during the rollout.
-- Earlier GitHub runs also found legacy styles, a stale expected party statement count, and an accounting rollback fixture that assumed an empty company table. Commit `60f2e97` moves inline CSS to page stylesheets, uses brand tokens, checks all six posted statement movements, and fixes the Guided Tour startup and empty ledger tables found during Chrome verification. Commit `0cca23f` rehearses accounting rollback before the Textile company and chart are created. Targeted design, Textile contract and rollback checks passed. Pushed both fixes to `main` from an isolated worktree.
+- Prints (user asked why "Print bill" shows a purchase bill, expecting a GRN): two documents. New Job Work GRN print `GET /operations/receipt/{id}/print` (`OperationsController::receiptDocument`, view `operations/job_work_grn.blade.php`, challan CSS, 2 copies: sent / accepted / rejected / loss, outputs, warehouses, service bill ref, no GST) + "Print GRN" on 
+... [truncated for diff preview]

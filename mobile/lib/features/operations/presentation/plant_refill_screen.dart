@@ -5,6 +5,7 @@ import '../../../core/network/api_endpoints.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/ui/scrollable_counter_field.dart';
 
 class PlantRefillScreen extends ConsumerStatefulWidget {
   const PlantRefillScreen({super.key});
@@ -15,10 +16,52 @@ class PlantRefillScreen extends ConsumerStatefulWidget {
 
 class _PlantRefillScreenState extends ConsumerState<PlantRefillScreen> {
   final _vehicleController = TextEditingController();
+  String _selectedCanSize = '20L Can';
+  int _routeId = 1;
   int _emptyHandedOver = 0;
   int _fullLoaded = 0;
   int _damagedJars = 0;
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDriverManifest();
+  }
+
+  Future<void> _loadDriverManifest() async {
+    final client = ref.read(apiClientProvider);
+    final res = await client.get<Map<String, dynamic>>(
+      ApiEndpoints.driverManifest,
+      fromJson: (data) {
+        if (data is Map && data['data'] is Map) {
+          return Map<String, dynamic>.from(data['data'] as Map);
+        }
+        return data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{};
+      },
+    );
+    if (!mounted) return;
+    if (res.isSuccess) {
+      final m = res.dataOrNull ?? const <String, dynamic>{};
+      final veh = m['vehicle'];
+      if (veh is Map) {
+        final routeId = int.tryParse((veh['id'] ?? '').toString());
+        if (routeId != null && routeId > 0) {
+          _routeId = routeId;
+        }
+        final vehicleNo = veh['vehicle_number']?.toString().trim() ?? '';
+        final routeName = veh['route_name']?.toString().trim() ?? '';
+        if (_vehicleController.text.trim().isEmpty) {
+          if (vehicleNo.isNotEmpty) {
+            _vehicleController.text = vehicleNo;
+          } else if (routeName.isNotEmpty) {
+            _vehicleController.text = routeName;
+          }
+        }
+      }
+      if (mounted) setState(() {});
+    }
+  }
 
   @override
   void dispose() {
@@ -27,15 +70,30 @@ class _PlantRefillScreenState extends ConsumerState<PlantRefillScreen> {
   }
 
   Future<void> _submitRefill() async {
+    if (_emptyHandedOver <= 0 && _fullLoaded <= 0 && _damagedJars <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Enter at least 1 empty, loaded, or damaged container count.'),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isSubmitting = true);
 
     final client = ref.read(apiClientProvider);
     final db = ref.read(localDatabaseProvider);
     final syncWorker = ref.read(syncWorkerProvider);
 
+    final vehicleText = _vehicleController.text.trim().isNotEmpty
+        ? _vehicleController.text.trim()
+        : 'Assigned Route Van';
+
     final payload = {
-      'route_id': 1,
-      'vehicle_no': _vehicleController.text.trim(),
+      'route_id': _routeId,
+      'vehicle_no': vehicleText,
+      'can_size': _selectedCanSize,
       'empty_cans_handed_over': _emptyHandedOver,
       'cans_loaded': _fullLoaded,
       'full_cans_loaded': _fullLoaded,
@@ -53,8 +111,10 @@ class _PlantRefillScreenState extends ConsumerState<PlantRefillScreen> {
     );
 
     if (!mounted) return;
+    setState(() => _isSubmitting = false);
 
     if (result.isSuccess) {
+      ref.read(dashboardRefreshSignalProvider.notifier).state++;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Plant refill manifest confirmed and stock updated!'),
@@ -62,6 +122,15 @@ class _PlantRefillScreenState extends ConsumerState<PlantRefillScreen> {
         ),
       );
       Navigator.of(context).pop();
+    } else if (result.failureOrNull?.statusCode == 422 ||
+        result.failureOrNull?.statusCode == 403 ||
+        result.failureOrNull?.statusCode == 400) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.failureOrNull?.message ?? 'Validation error checking refill manifest.'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
     } else {
       await db.queueMutation(
         id: const Uuid().v4(),
@@ -72,6 +141,7 @@ class _PlantRefillScreenState extends ConsumerState<PlantRefillScreen> {
       );
       await syncWorker.refreshPendingCount();
 
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Refill manifest saved to offline Outbox!'),
@@ -105,6 +175,7 @@ class _PlantRefillScreenState extends ConsumerState<PlantRefillScreen> {
                   TextFormField(
                     controller: _vehicleController,
                     decoration: const InputDecoration(
+                      hintText: 'e.g. TN-38-AQ-4411 (Route Van)',
                       prefixIcon: Icon(Icons.local_shipping_rounded, size: 20),
                     ),
                   ),
@@ -117,13 +188,42 @@ class _PlantRefillScreenState extends ConsumerState<PlantRefillScreen> {
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
+              child: WaterContainerSizeSelector(
+                selectedSize: _selectedCanSize,
+                onChanged: (size) => setState(() => _selectedCanSize = size),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  _buildStepperRow('Empty Cans Handed Over', _emptyHandedOver, (val) => setState(() => _emptyHandedOver = val), textCol),
+                  ScrollableCounterRow(
+                    title: 'Empty Cans Handed Over',
+                    subtitle: '$_selectedCanSize · Scroll wheel or tap to type',
+                    value: _emptyHandedOver,
+                    onChanged: (val) => setState(() => _emptyHandedOver = val),
+                    titleColor: textCol,
+                  ),
                   const Divider(height: 24),
-                  _buildStepperRow('Full Sealed Cans Loaded', _fullLoaded, (val) => setState(() => _fullLoaded = val), textCol),
+                  ScrollableCounterRow(
+                    title: 'Full Sealed Cans Loaded',
+                    subtitle: '$_selectedCanSize · Scroll wheel or tap to type',
+                    value: _fullLoaded,
+                    onChanged: (val) => setState(() => _fullLoaded = val),
+                    titleColor: textCol,
+                  ),
                   const Divider(height: 24),
-                  _buildStepperRow('Damaged / Leakage Jars', _damagedJars, (val) => setState(() => _damagedJars = val), textCol),
+                  ScrollableCounterRow(
+                    title: 'Damaged / Leakage Jars',
+                    subtitle: '$_selectedCanSize · Scroll wheel or tap to type',
+                    value: _damagedJars,
+                    onChanged: (val) => setState(() => _damagedJars = val),
+                    titleColor: textCol,
+                  ),
                 ],
               ),
             ),
@@ -144,33 +244,4 @@ class _PlantRefillScreenState extends ConsumerState<PlantRefillScreen> {
       ),
     );
   }
-
-  Widget _buildStepperRow(String title, int value, ValueChanged<int> onChanged, Color textCol) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(title, style: AppTypography.body.copyWith(color: textCol)),
-        Row(
-          children: [
-            IconButton.filledTonal(
-              onPressed: value > 0 ? () => onChanged(value - 1) : null,
-              icon: const Icon(Icons.remove_rounded, size: 18),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Text(
-                '$value',
-                style: AppTypography.title.copyWith(fontSize: 20),
-              ),
-            ),
-            IconButton.filledTonal(
-              onPressed: () => onChanged(value + 1),
-              icon: const Icon(Icons.add_rounded, size: 18),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
 }
-

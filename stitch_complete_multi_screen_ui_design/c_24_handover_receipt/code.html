@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-container": "#f0eee9", "on-primary-container": "#8dd3c5", "surface-bright": "#fbf9f4", "secondary-fixed-dim": "#acd44f", "surface-container-high": "#eae8e3", "role-field-primary": "#3F7D58", "info-sky": "#2E90FA", "error-container": "#ffdad6", "surface-container-lowest": "#ffffff", "critical-ruby": "#D92D20", "secondary": "#4c6700", "on-tertiary": "#ffffff", "on-secondary": "#ffffff", "primary": "#00443b", "primary-fixed-dim": "#8ed4c5", "on-background": "#1b1c19", "ink-muted": "#66736C", "on-primary-fixed": "#00201b", "surface-container-low": "#f5f3ee", "on-secondary-fixed-variant": "#394e00", "on-tertiary-fixed-variant": "#005233", "tertiary-fixed-dim": "#61dda0", "on-secondary-fixed": "#151f00", "pending-honey": "#E9A23B", "tertiary-container": "#005f3c", "surface-container-highest": "#e4e2dd", "inverse-primary": "#8ed4c5", "role-driver-primary": "#0E8FB3", "role-cafe-canvas": "#FBF4EA", "role-cafe-ink": "#2B1B14", "surface-tint": "#1f695e", "outline": "#6f7976", "secondary-container": "#c5ee66", "on-surface-variant": "#3f4946", "inverse-surface": "#30312e", "tertiary-fixed": "#7ffaba", "surface-tonal": "#ECEFEA", "on-tertiary-fixed": "#002112", "role-cafe-action": "#F4A62A", "surface-dim": "#dcdad5", "on-secondary-container": "#506c00", "role-driver-action": "#FFC933", "on-error": "#ffffff", "dark-ink": "#EDF3EF", "dark-surface": "#17221D", "primary-fixed": "#a9f0e1", "on-primary-fixed-variant": "#005046", "background": "#fbf9f4", "on-tertiary-container": "#61dda0", "dark-ink-muted": "#93A39B", "on-error-container": "#93000a", "money-coral": "#E8505B", "hairline": "#E3E1DA", "role-cafe-primary": "#C2542D", "role-driver-canvas": "#F3F8FA", "dark-canvas": "#0E1512", "money-mint": "#1FA971", "secondary-fixed": "#c7f169", "on-primary": "#ffffff", "surface-variant": "#e4e2dd", "on-surface": "#1b1c19", "tertiary": "#00452a", "primary-container": "#0b5d52", "ink": "#13201B", "outline-variant": "#bec9c5", "error": "#ba1a1a", "role-field-action": "#C9F36A", "dark-surface-tonal": "#1F2E27", "surface": "#FFFFFF", "inverse-on-surface": "#f2f1ec" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "space-sm": "0.5rem", "margin": "1rem", "space-xs": "0.25rem", "gutter": "0.75rem", "space-md": "0.75rem", "space-xl": "1.5rem", "space-lg": "1rem" }, fontFamily: { "display-numeral": ["Manrope"], "label-action": ["Manrope"], "caption-meta": ["Manrope"], "body-md": ["Manrope"], "display-numeral-mobile": ["Manrope"], "body-lg": ["Manrope"], "headline-md": ["Manrope"], "sublabel-regional": ["Noto Sans Tamil"], "headline-lg": ["Manrope"] }, fontSize: { "display-numeral": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "label-action": ["16px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "700" }], "caption-meta": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }], "display-numeral-mobile": ["40px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "headline-md": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "sublabel-regional": ["11px", { "lineHeight": "14px", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "800" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-role-cafe-canvas font-body-md text-role-cafe-ink flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-role-cafe-canvas/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe"><div class="h-20 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><button aria-label="Go back" class="w-11 h-11 rounded-full flex items-center justify-center bg-surface text-role-cafe-primary hover:bg-surface-tonal transition-colors active:scale-95" onclick="history.back()"><span class="material-symbols-outlined text-[22px]">arrow_back</span></button><div class="flex flex-col min-w-0"><h1 class="font-headline-md text-headline-md text-role-cafe-ink truncate">Handover Receipt</h1><span class="font-sublabel-regional text-sublabel-regional text-ink-muted -mt-0.5 truncate">கைமாற்ற ரசீது</span></div></div><div class="flex items-center gap-space-sm shrink-0"><div class="inline-flex items-center gap-space-xs px-2.5 py-1 rounded-full bg-[#E6F7F0] text-money-mint"><span class="material-symbols-outlined text-[16px]">check_circle</span><span class="font-caption-meta text-caption-meta font-bold">Synced ✓</span></div><div class="inline-flex items-center p-0.5 rounded-full bg-surface-tonal"><button class="px-2 py-1 rounded-full bg-surface text-role-cafe-ink font-caption-meta text-caption-meta shadow-sm" type="button">EN</button><button class="px-2 py-1 rounded-full text-ink-muted font-sublabel-regional text-sublabel-regional" type="button">தமிழ்</button></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-20 px-margin pb-safe bg-role-cafe-canvas"><div class="flex flex-col w-full pb-8 space-y-space-md">
+<!-- Operational Header Context Pill -->
+<div class="flex items-center justify-between bg-surface px-margin py-2.5 rounded-full shadow-sm">
+<div class="flex items-center gap-space-xs text-ink-muted">
+<span class="material-symbols-outlined text-[18px] text-role-cafe-primary">storefront</span>
+<span class="font-caption-meta text-caption-meta font-bold text-role-cafe-ink">Shift #02 • Counter C-02</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-money-mint animate-pulse"></span>
+<span class="font-caption-meta text-caption-meta font-bold text-money-mint">Aran Main Branch</span>
+</div>
+</div>
+<!-- Hero Success Card -->
+<div class="relative overflow-hidden rounded-[28px] bg-role-cafe-primary text-on-primary p-space-lg shadow-sm">
+<!-- Ambient Warm Ripple Graphics -->
+<div class="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-role-cafe-action/20 blur-2xl pointer-events-none"></div>
+<div class="absolute -bottom-16 -left-16 w-52 h-52 rounded-full bg-black/15 blur-xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col items-center text-center">
+<!-- Animated Mint Ripple Badge -->
+<div class="relative flex items-center justify-center my-space-xs">
+<div class="absolute w-20 h-20 rounded-full bg-surface/20 animate-ping opacity-60"></div>
+<div class="relative w-16 h-16 rounded-full bg-surface flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-[36px] text-money-mint font-bold" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-primary mt-space-sm font-extrabold tracking-tight">Shift Closed &amp; Handover Complete!</h2>
+<p class="font-sublabel-regional text-sublabel-regional text-on-primary/80 mt-0.5">ஷிப்ட் வெற்றிகரமாக முடிந்தது • பெட்டகம் பூட்டப்பட்டது</p>
+<div class="inline-flex items-center gap-1.5 px-3 py-1 mt-space-sm rounded-full bg-black/20 text-on-primary/90 font-caption-meta text-caption-meta">
+<span class="material-symbols-outlined text-[15px]">lock_clock</span>
+<span>12 Nov 2026, 03:04:18 PM • Session Locked</span>
+</div>
+<!-- Hero Numeral Block -->
+<div class="w-full bg-surface/10 backdrop-blur-sm rounded-2xl p-space-md mt-space-md flex flex-col items-center">
+<span class="font-caption-meta text-caption-meta tracking-wider uppercase text-on-primary/80 font-bold">Cash Handed Over to Safe / Vault</span>
+<span class="font-sublabel-regional text-sublabel-regional text-on-primary/70 -mt-0.5">மேலாளர் பெட்டக வைப்புத் தொகை</span>
+<div class="font-display-numeral-mobile text-display-numeral-mobile text-on-primary tracking-tight font-extrabold my-0.5">
+          ₹7,885<span class="text-[26px] opacity-80">.00</span>
+</div>
+<div class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface text-role-cafe-primary font-caption-meta text-caption-meta font-bold shadow-xs">
+<span class="material-symbols-outlined text-[14px]">verified_user</span>
+<span>Bag Seal #AK-8921 • Verified &amp; Locked</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Custody & Personnel Handover Bento Card -->
+<div class="rounded-[24px] bg-surface p-space-md shadow-sm space-y-space-sm">
+<div class="flex items-center justify-between pb-1">
+<div>
+<h3 class="font-body-lg text-body-lg text-role-cafe-ink font-bold leading-tight">Custody Transfer</h3>
+<p class="font-sublabel-regional text-sublabel-regional text-ink-muted">பொறுப்பு ஒப்படைப்பு சரிபார்ப்பு</p>
+</div>
+<span class="material-symbols-outlined text-role-cafe-primary text-[22px]">swap_horiz</span>
+</div>
+<!-- 2-Column Custody Split -->
+<div class="grid grid-cols-2 gap-space-xs">
+<!-- Relinquished By -->
+<div class="bg-surface-tonal/60 rounded-xl p-space-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-1 text-ink-muted font-caption-meta text-caption-meta">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span>
+<span>Relinquished By</span>
+</div>
+<p class="font-sublabel-regional text-sublabel-regional text-ink-muted -mt-0.5">ஒப்படைத்தவர்</p>
+<div class="flex items-center gap-space-xs mt-2">
+<div class="w-8 h-8 rounded-full bg-role-cafe-primary text-on-primary flex items-center justify-center font-bold text-xs shrink-0">
+              PS
+            </div>
+<div class="min-w-0">
+<p class="font-body-md text-body-md text-role-cafe-ink font-bold truncate">Priyan S.</p>
+<p class="font-caption-meta text-[11px] leading-tight text-ink-muted truncate">#104 • Cashier</p>
+</div>
+</div>
+</div>
+<div class="mt-2.5 pt-1.5 border-t-0 bg-surface/80 rounded-lg p-1.5 text-center">
+<span class="font-caption-meta text-[11px] text-money-mint font-bold flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[13px]">key</span> PIN: •••• (03:00 PM)
+          </span>
+</div>
+</div>
+<!-- Received By -->
+<div class="bg-surface-tonal/60 rounded-xl p-space-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-1 text-ink-muted font-caption-meta text-caption-meta">
+<span class="material-symbols-outlined text-[14px]">arrow_downward</span>
+<span>Received By</span>
+</div>
+<p class="font-sublabel-regional text-sublabel-regional text-ink-muted -mt-0.5">பெற்றுக்கொண்டவர்</p>
+<div class="flex items-center gap-space-xs mt-2">
+<div class="w-8 h-8 rounded-full bg-role-cafe-action text-role-cafe-ink flex items-center justify-center font-bold text-xs shrink-0">
+              RS
+            </div>
+<div class="min-w-0">
+<p class="font-body-md text-body-md text-role-cafe-ink font-bold truncate">Revathi S.</p>
+<p class="font-caption-meta text-[11px] leading-tight text-ink-muted truncate">Branch Manager</p>
+</div>
+</div>
+</div>
+<div class="mt-2.5 pt-1.5 border-t-0 bg-surface/80 rounded-lg p-1.5 text-center">
+<span class="font-caption-meta text-[11px] text-money-mint font-bold flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[13px]">key</span> PIN: •••• (03:02 PM)
+          </span>
+</div>
+</div>
+</div>
+<!-- Security Micro-banner -->
+<div class="bg-[#E6F7F0] text-money-mint rounded-xl px-3 py-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] shrink-0">enhanced_encryption</span>
+<p class="font-caption-meta text-caption-meta leading-tight font-semibold">
+        Dual-key custody verified in cash office. Solenoid Drawer #02 locked.
+      </p>
+</div>
+</div>
+<!-- Cash & Drawer Reconciliation Summary (Audit Breakdown) -->
+<div class="rounded-[24px] bg-surface p-space-md shadow-sm space-y-space-sm">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-body-lg text-body-lg text-role-cafe-ink font-bold leading-tight">Reconciliation Audit</h3>
+<p class="font-sublabel-regional text-sublabel-regional text-ink-muted">பண இருப்பு தணிக்கை சுருக்கம்</p>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-caption-meta font-bold">
+<span class="material-symbols-outlined text-[15px]">done_all</span>
+<span>Exact Match</span>
+</span>
+</div>
+<!-- Tonal Rows -->
+<div class="space-y-1.5 pt-1">
+<div class="flex items-center justify-between p-2.5 rounded-xl bg-surface-tonal/40">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-role-cafe-ink font-medium">Opening Base Float</span>
+<span class="font-caption-meta text-[11px] text-ink-muted">துவக்க இருப்பு (07:02 AM)</span>
+</div>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold tabular-nums">₹5,000.00</span>
+</div>
+<div class="flex items-center justify-between p-2.5 rounded-xl bg-surface-tonal/40">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-money-mint font-bold">+ Net Cash Shift Added</span>
+<span class="font-caption-meta text-[11px] text-ink-muted">நிகர ரொக்க வரவு (விற்பனை - செலவு)</span>
+</div>
+<span class="font-body-lg text-body-lg text-money-mint font-bold tabular-nums">+₹7,885.00</span>
+</div>
+<div class="flex items-center justify-between p-2.5 rounded-xl bg-surface-tonal/40">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-role-cafe-ink font-medium">Expected Till Sum</span>
+<span class="font-caption-meta text-[11px] text-ink-muted">இருக்க வேண்டிய கணக்குத் தொகை</span>
+</div>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold tabular-nums">₹12,885.00</span>
+</div>
+<div class="flex items-center justify-between p-2.5 rounded-xl bg-surface-tonal/40">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-role-cafe-ink font-medium">Physical Counted Sum</span>
+<span class="font-caption-meta text-[11px] text-ink-muted">நேரில் எண்ணப்பட்ட மொத்த ரொக்கம்</span>
+</div>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold tabular-nums">₹12,885.00</span>
+</div>
+<!-- Variance Zero Discrepancy Highlight -->
+<div class="flex items-center justify-between p-2.5 rounded-xl bg-[#E6F7F0] text-money-mint">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-bold">Discrepancy / Variance</span>
+<span class="font-sublabel-regional text-[10px]">பூஜ்ய வித்தியாசம் (கணக்கு சரி)</span>
+</div>
+</div>
+<span class="font-body-lg text-body-lg font-extrabold tabular-nums">₹0.00</span>
+</div>
+</div>
+<!-- Split Allocation Cards -->
+<div class="grid grid-cols-2 gap-space-xs pt-1">
+<div class="bg-surface-tonal rounded-xl p-2.5 flex flex-col justify-between">
+<div>
+<span class="font-caption-meta text-[11px] text-ink-muted font-bold uppercase tracking-wider block">To Safe / Vault</span>
+<span class="font-body-lg text-body-lg text-role-cafe-primary font-extrabold tabular-nums block mt-0.5">₹7,885.00</span>
+</div>
+<span class="font-caption-meta text-[11px] text-ink-muted mt-2 block">Slip #DS-2026-881</span>
+</div>
+<div class="bg-surface-tonal rounded-xl p-2.5 flex flex-col justify-between">
+<div>
+<span class="font-caption-meta text-[11px] text-ink-muted font-bold uppercase tracking-wider block">Retained in Drawer</span>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-extrabold tabular-nums block mt-0.5">₹5,000.00</span>
+</div>
+<span class="font-caption-meta text-[11px] text-ink-muted mt-2 block">For Shift #03 Dinesh K.</span>
+</div>
+</div>
+</div>
+<!-- Digital & Sales Performance Snapshot -->
+<div class="rounded-[24px] bg-surface p-space-md shadow-sm space-y-space-sm">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-body-lg text-body-lg text-role-cafe-ink font-bold leading-tight">Total Shift Turnover</h3>
+<p class="font-sublabel-regional text-sublabel-regional text-ink-muted">ஷிப்ட் மொத்த விற்பனைச் சுருக்கம்</p>
+</div>
+<div class="text-right">
+<span class="font-body-lg text-body-lg text-role-cafe-primary font-extrabold tabular-nums">₹24,890.00</span>
+<span class="block font-caption-meta text-[11px] text-ink-muted font-semibold">142 Invoices</span>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-space-xs pt-1">
+<div class="bg-surface-tonal/60 rounded-xl p-2 text-center">
+<span class="material-symbols-outlined text-[18px] text-info-sky">qr_code_scanner</span>
+<span class="block font-caption-meta text-[11px] text-ink-muted mt-0.5">UPI / QR</span>
+<span class="block font-body-md text-body-md text-role-cafe-ink font-bold tabular-nums">₹16,420</span>
+<span class="block font-caption-meta text-[10px] text-ink-muted">82 Bills</span>
+</div>
+<div class="bg-surface-tonal/60 rounded-xl p-2 text-center">
+<span class="material-symbols-outlined text-[18px] text-pending-honey">menu_book</span>
+<span class="block font-caption-meta text-[11px] text-ink-muted mt-0.5">Khata / Credit</span>
+<span class="block font-body-md text-body-md text-role-cafe-ink font-bold tabular-nums">₹650</span>
+<span class="block font-caption-meta text-[10px] text-ink-muted">4 Bills</span>
+</div>
+<div class="bg-surface-tonal/60 rounded-xl p-2 text-center">
+<span class="material-symbols-outlined text-[18px] text-money-coral">receipt_long</span>
+<span class="block font-caption-meta text-[11px] text-ink-muted mt-0.5">Petty Expense</span>
+<span class="block font-body-md text-body-md text-role-cafe-ink font-bold tabular-nums">₹340</span>
+<span class="block font-caption-meta text-[10px] text-ink-muted">2 Vouchers</span>
+</div>
+</div>
+<button class="w-full py-2.5 rounded-xl bg-surface-tonal text-role-cafe-primary font-caption-meta text-caption-meta font-bold flex items-center justify-center gap-1 hover:bg-surface-container active:scale-[0.99] transition-all" type="button">
+<span>View Detailed Shift Z-Report (C-23)</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+<!-- Tamper-Proof Cryptographic & GL Ledger Stamp -->
+<div class="rounded-[24px] bg-surface p-space-md shadow-sm space-y-space-sm">
+<div class="flex items-center gap-space-sm">
+<!-- QR Code Simulation Block -->
+<div class="w-14 h-14 bg-surface-tonal rounded-xl flex items-center justify-center shrink-0 p-1">
+<svg class="w-full h-full text-role-cafe-ink" fill="currentColor" viewbox="0 0 24 24">
+<path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm8-2h10v10H12V2zm2 2v6h6V4h-6zM2 14h10v8H2v-8zm2 2v4h6v-4H4zm14 0h4v2h-4v-2zm-4 0h2v4h-2v-4zm4 4h4v2h-4v-2zm-2-2h2v4h-2v-4zM5 5h2v2H5V5zm12 1h2v2h-2V6zM5 17h2v2H5v-2z"></path>
+</svg>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center gap-1 text-money-mint font-caption-meta text-caption-meta font-bold">
+<span class="material-symbols-outlined text-[15px]">security</span>
+<span>Digital Fiscal Signature Verified</span>
+</div>
+<p class="font-caption-meta text-[11px] text-ink-muted font-mono truncate mt-0.5">
+          SHA256: 8e71fa039b42c8d1947e4fa1...3e82
+        </p>
+<span class="inline-block mt-0.5 font-sublabel-regional text-[10px] text-ink-muted">மின்னணு கையொப்பம் சரிபார்க்கப்பட்டது</span>
+</div>
+</div>
+<!-- General Ledger Postings -->
+<div class="bg-surface-tonal/40 rounded-xl p-space-xs font-mono text-[11px] space-y-1">
+<div class="flex items-center justify-between text-role-cafe-ink">
+<span class="text-ink-muted font-medium">DR GL1015 (Vault Cash Transit)</span>
+<span class="font-bold">₹7,885.00</span>
+</div>
+<div class="flex items-center justify-between text-role-cafe-ink">
+<span class="text-ink-muted font-medium">CR GL1010 (Till Cash on Hand)</span>
+<span class="font-bold">₹7,885.00</span>
+</div>
+<div class="pt-1 flex items-center justify-between text-money-mint font-caption-meta text-[10px] font-bold">
+<span>Status: Immutable Audit Entry Posted</span>
+<span class="material-symbols-outlined text-[13px]">done</span>
+</div>
+</div>
+</div>
+<!-- Operational Flow Bottom Action Slabs -->
+<div class="space-y-space-xs pt-space-xs">
+<!-- Primary Print Slab (56px) -->
+<button class="w-full h-14 rounded-full bg-role-cafe-action text-role-cafe-ink font-label-action text-label-action font-extrabold flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-transform" type="button">
+<span class="material-symbols-outlined text-[22px]">print</span>
+<span>Print Handover Receipt (ரசீது அச்சிடு)</span>
+</button>
+<!-- Secondary Split Slabs -->
+<div class="grid grid-cols-2 gap-space-xs">
+<button class="h-12 rounded-full bg-surface text-role-cafe-primary font-caption-meta text-caption-meta font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">share</span>
+<span>Share PDF (பகிர்)</span>
+</button>
+<button class="h-12 rounded-full bg-surface text-critical-ruby font-caption-meta text-caption-meta font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span>Lock Terminal (G-02)</span>
+</button>
+</div>
+<!-- Done / Return Link -->
+<div class="text-center pt-2">
+<a class="inline-flex items-center gap-1 font-caption-meta text-caption-meta font-bold text-ink-muted hover:text-role-cafe-ink" href="#">
+<span>Done (Return to Cafe Home C-01)</span>
+<span class="material-symbols-outlined text-[15px]">chevron_right</span>
+</a>
+</div>
+</div>
+</div></main></body></html>

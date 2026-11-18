@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "ink-muted": "#66736C", "on-primary-fixed": "#00201b", "inverse-surface": "#30312e", "critical-ruby": "#D92D20", "surface": "#FFFFFF", "surface-container-high": "#eae8e3", "on-secondary-fixed-variant": "#394e00", "secondary-container": "#c5ee66", "on-tertiary": "#ffffff", "primary-container": "#0b5d52", "role-driver-action": "#FFC933", "error": "#ba1a1a", "hairline": "#E3E1DA", "surface-bright": "#fbf9f4", "on-error": "#ffffff", "on-error-container": "#93000a", "surface-variant": "#e4e2dd", "role-cafe-action": "#F4A62A", "surface-container-low": "#f5f3ee", "pending-honey": "#E9A23B", "money-coral": "#E8505B", "role-field-action": "#C9F36A", "on-surface-variant": "#3f4946", "surface-tint": "#1f695e", "surface-container-highest": "#e4e2dd", "on-primary-container": "#8dd3c5", "role-driver-primary": "#0E8FB3", "secondary-fixed-dim": "#acd44f", "dark-canvas": "#0E1512", "money-mint": "#1FA971", "role-cafe-ink": "#2B1B14", "primary-fixed-dim": "#8ed4c5", "role-field-primary": "#3F7D58", "on-primary": "#ffffff", "on-tertiary-fixed": "#002112", "secondary": "#4c6700", "ink": "#13201B", "inverse-primary": "#8ed4c5", "surface-dim": "#dcdad5", "role-cafe-primary": "#C2542D", "on-tertiary-fixed-variant": "#005233", "surface-container": "#f0eee9", "role-driver-canvas": "#F3F8FA", "info-sky": "#2E90FA", "on-secondary-container": "#506c00", "role-cafe-canvas": "#FBF4EA", "tertiary-fixed": "#7ffaba", "on-background": "#1b1c19", "dark-ink": "#EDF3EF", "background": "#fbf9f4", "on-primary-fixed-variant": "#005046", "secondary-fixed": "#c7f169", "on-tertiary-container": "#61dda0", "outline": "#6f7976", "tertiary-fixed-dim": "#61dda0", "primary-fixed": "a9f0e1", "dark-ink-muted": "#93A39B", "primary": "#00443b", "surface-container-lowest": "#ffffff", "tertiary": "#00452a", "on-surface": "#1b1c19", "outline-variant": "#bec9c5", "dark-surface-tonal": "#1F2E27", "on-secondary": "#ffffff", "inverse-on-surface": "#f2f1ec", "on-secondary-fixed": "#151f00", "dark-surface": "#17221D", "tertiary-container": "#005f3c", "surface-tonal": "#ECEFEA", "error-container": "#ffdad6" }, "borderRadius": { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, "spacing": { "space-xs": "0.25rem", "margin": "1rem", "space-lg": "1rem", "space-sm": "0.5rem", "space-md": "0.75rem", "space-xl": "1.5rem", "gutter": "0.75rem" }, "fontFamily": { "sublabel-regional": ["Noto Sans Tamil"], "label-action": ["Manrope"], "body-lg": ["Manrope"], "display-numeral": ["Manrope"], "caption-meta": ["Manrope"], "headline-lg": ["Manrope"], "display-numeral-mobile": ["Manrope"], "body-md": ["Manrope"], "headline-md": ["Manrope"] }, "fontSize": { "sublabel-regional": ["11px", { "lineHeight": "14px", "fontWeight": "600" }], "label-action": ["16px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "display-numeral": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "caption-meta": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "display-numeral-mobile": ["40px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }], "headline-md": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "700" }] } } } };</script><style>@layer base { html, body { min-height: 100%; margin: 0; padding: 0; background-color: #F3F8FA; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } } .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 24; }</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-role-driver-canvas text-ink antialiased flex flex-col min-h-screen selection:bg-role-driver-action selection:text-ink"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(19,32,27,0.04)]"><div class="h-20 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><button aria-label="Go Back" class="w-12 h-12 rounded-full flex items-center justify-center text-ink active:scale-95 transition-transform shrink-0" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><div class="flex flex-col min-w-0"><div class="flex items-baseline gap-1.5 truncate"><h1 class="font-headline-md text-headline-md text-ink truncate">Tasks &amp; Outbox</h1></div><span class="font-sublabel-regional text-sublabel-regional text-ink-muted truncate tracking-normal">பணிகள் &amp; ஆஃப்லைன் பெட்டகம்</span></div></div><div class="flex items-center gap-space-sm shrink-0"><div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E6F7F0] text-money-mint"><span class="material-symbols-outlined text-[16px]">cloud_done</span><span class="font-caption-meta text-caption-meta font-bold tracking-wider uppercase">Synced</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full px-margin pt-20 pb-28 bg-role-driver-canvas"><div class="flex flex-col w-full pb-6 space-y-4">
+<!-- Driver Vehicle & Shift Badge Bar -->
+<div class="flex items-center justify-between px-space-xs">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-full bg-role-driver-primary text-surface flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">local_shipping</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5 truncate">
+<span class="font-headline-md text-headline-md text-ink leading-tight">R. Muthu</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-tonal text-ink-muted font-caption-meta text-caption-meta font-bold">TN-58-WA-101</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">டாடா ஏஸ் • வழித்தடம் #01 (ஈரோடு தெற்கு)</span>
+</div>
+</div>
+<div class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-surface text-role-driver-primary font-caption-meta text-caption-meta font-bold">
+<span class="material-symbols-outlined text-[16px]">water_drop</span>
+<span>20L Can Cargo</span>
+</div>
+</div>
+<!-- Segmented Control Tabs (56px ergonomic touch height for driving cabs) -->
+<div class="p-1 rounded-full bg-surface-container flex items-center justify-between gap-1 w-full select-none" id="mainSegmentedTabs">
+<button class="flex-1 h-12 rounded-full flex flex-col items-center justify-center transition-all duration-200 bg-surface text-ink shadow-[0_2px_8px_rgba(19,32,27,0.06)] active:scale-95" id="tabBtn-stops" onclick="switchDriverTab('stops')" type="button">
+<span class="font-label-action text-label-action font-bold leading-tight">Stops (5)</span>
+<span class="font-sublabel-regional text-[10px] leading-3 text-ink-muted">நிறுத்தங்கள்</span>
+</button>
+<button class="flex-1 h-12 rounded-full flex flex-col items-center justify-center transition-all duration-200 text-ink-muted hover:text-ink active:scale-95" id="tabBtn-outbox" onclick="switchDriverTab('outbox')" type="button">
+<span class="font-label-action text-label-action font-bold leading-tight flex items-center gap-1">
+        Outbox
+        <span class="w-2 h-2 rounded-full bg-pending-honey animate-pulse"></span>
+<span class="text-pending-honey">(3)</span>
+</span>
+<span class="font-sublabel-regional text-[10px] leading-3 text-ink-muted">பெட்டகம்</span>
+</button>
+<button class="flex-1 h-12 rounded-full flex flex-col items-center justify-center transition-all duration-200 text-ink-muted hover:text-ink active:scale-95" id="tabBtn-retries" onclick="switchDriverTab('retries')" type="button">
+<span class="font-label-action text-label-action font-bold leading-tight">Retries (0)</span>
+<span class="font-sublabel-regional text-[10px] leading-3 text-ink-muted">தோல்வி</span>
+</button>
+</div>
+<!-- SECTION 1: Outbox Sync Hero Banner (Aqua Day System) -->
+<div class="rounded-lg bg-role-driver-primary text-surface p-space-lg flex flex-col relative overflow-hidden">
+<!-- Tactile water wave background embellishment -->
+<div class="absolute -right-8 -bottom-10 w-44 h-44 rounded-full bg-surface/10 pointer-events-none blur-2xl"></div>
+<div class="absolute right-4 top-4 text-surface/20 pointer-events-none">
+<span class="material-symbols-outlined text-[72px]">cloud_sync</span>
+</div>
+<!-- Status Header & Count -->
+<div class="flex items-center gap-2 mb-2">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface/20 backdrop-blur text-surface font-caption-meta text-caption-meta font-bold">
+<span class="w-2 h-2 rounded-full bg-role-driver-action animate-ping"></span>
+        SQLite Local Vault v2.4
+      </span>
+<span class="font-caption-meta text-caption-meta text-surface/80 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">cell_tower</span> Edge Signal
+      </span>
+</div>
+<div class="flex flex-col mt-1">
+<div class="flex items-baseline gap-2">
+<span class="font-display-numeral-mobile text-display-numeral-mobile text-surface font-extrabold tabular-nums">3</span>
+<h2 class="font-headline-md text-headline-md text-surface font-bold">Local Records Pending Sync</h2>
+</div>
+<p class="font-sublabel-regional text-sublabel-regional text-surface/85 tracking-wide mt-0.5">
+        3 ஆஃப்லைன் பதிவுகள் சாதனத்தில் சேமிக்கப்பட்டுள்ளன • பாதுகாப்பு உறுதி
+      </p>
+</div>
+<!-- SQLite & Sync Telemetry Meta -->
+<div class="mt-4 p-space-md rounded-DEFAULT bg-surface/15 flex flex-col gap-1.5 backdrop-blur-sm">
+<div class="flex items-center justify-between text-surface/90 font-caption-meta text-caption-meta">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">schedule</span> Last Synced: 12 Nov, 10:42 AM
+        </span>
+<span class="font-bold text-role-driver-action">Auto-Sync on 4G</span>
+</div>
+<div class="w-full bg-surface/25 h-1.5 rounded-full overflow-hidden">
+<div class="bg-role-driver-action h-full rounded-full transition-all duration-500" style="width: 68%;"></div>
+</div>
+</div>
+<!-- Massive Ergonomic Sync Button (Sun-Yellow Accent #FFC933, 56px height) -->
+<button class="mt-4 w-full h-14 rounded-full bg-role-driver-action text-ink font-label-action text-label-action font-extrabold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform" id="syncActionBtn" onclick="triggerManualSync()" type="button">
+<span class="material-symbols-outlined text-[24px]" id="syncBtnIcon">cloud_upload</span>
+<span id="syncBtnText">Sync Outbox Now (உடனே ஒத்திசை)</span>
+</button>
+</div>
+<!-- SECTION 2: Beat Deliveries Queue Container -->
+<div class="flex flex-col space-y-3" id="stopsSection">
+<!-- Section Header with Route Badge -->
+<div class="flex items-center justify-between pt-2">
+<div class="flex flex-col">
+<h3 class="font-headline-md text-headline-md text-ink font-bold flex items-center gap-1.5">
+<span>Scheduled Can Deliveries</span>
+<span class="w-6 h-6 rounded-full bg-role-driver-primary/10 text-role-driver-primary font-caption-meta text-caption-meta flex items-center justify-center font-bold">5</span>
+</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">பாதை வழங்கல் பணிகள் • வரிசைப்படி செல்லவும்</span>
+</div>
+<div class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-surface text-ink font-caption-meta text-caption-meta font-bold">
+<span class="material-symbols-outlined text-[16px] text-role-driver-primary">alt_route</span>
+        Beat #01 • Anna Nagar
+      </div>
+</div>
+<!-- STOP CARD 1 (Pending Next - High Priority) -->
+<div class="rounded-lg bg-surface p-space-lg flex flex-col space-y-3 transition-transform">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-role-driver-primary text-surface font-headline-md text-headline-md flex items-center justify-center font-extrabold shrink-0">
+            #5
+          </div>
+<div class="flex flex-col min-w-0">
+<h4 class="font-body-lg text-body-lg font-extrabold text-ink leading-tight truncate">Hotel Saravana Bhavan</h4>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted truncate">ஹோட்டல் சரவண பவன் • பெருந்துறை ரோடு</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-caption-meta font-bold">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> GPS Verified
+          </span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-pending-honey/15 text-pending-honey font-caption-meta text-[11px] font-bold">
+            High Priority
+          </span>
+</div>
+</div>
+<!-- Address & Landmark Slabs -->
+<div class="p-space-sm rounded-DEFAULT bg-surface-container flex items-start gap-2">
+<span class="material-symbols-outlined text-role-driver-primary text-[20px] mt-0.5 shrink-0">pin_drop</span>
+<div class="flex flex-col text-ink font-body-md text-body-md leading-snug">
+<span>14 Perundurai Main Rd, Opp. New Bus Stand</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Landmark: South Gate Entry • Unload at Kitchen Dock</span>
+</div>
+</div>
+<!-- Payload & Commercial Metrics Grid -->
+<div class="grid grid-cols-2 gap-gutter">
+<div class="p-space-sm rounded-DEFAULT bg-role-driver-canvas flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Cargo Exchange</span>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="font-headline-md text-headline-md text-ink font-extrabold tabular-nums">14</span>
+<span class="font-caption-meta text-caption-meta text-ink font-bold">Delivered</span>
+</div>
+<span class="font-caption-meta text-[11px] text-ink-muted">Collect: 12 Empties</span>
+</div>
+<div class="p-space-sm rounded-DEFAULT bg-role-driver-canvas flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Expected Cash / Credit</span>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="font-headline-md text-headline-md text-money-mint font-extrabold tabular-nums">₹280</span>
+</div>
+<span class="font-caption-meta text-[11px] text-ink-muted">Cash / NetBanking</span>
+</div>
+</div>
+<!-- Action Buttons Pair (Min 56px height) -->
+<div class="grid grid-cols-2 gap-gutter pt-1">
+<button class="h-14 rounded-full bg-surface-tonal text-ink font-label-action text-label-action font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px] text-role-driver-primary">near_me</span>
+<span>Map (வரைபடம்)</span>
+</button>
+<button class="h-14 rounded-full bg-role-driver-action text-ink font-label-action text-label-action font-extrabold flex items-center justify-center gap-1.5 active:scale-95 transition-transform" type="button">
+<span>Deliver (வழங்கு)</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- STOP CARD 2 -->
+<div class="rounded-lg bg-surface p-space-lg flex flex-col space-y-3">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-surface-container text-ink font-headline-md text-headline-md flex items-center justify-center font-extrabold shrink-0">
+            #6
+          </div>
+<div class="flex flex-col min-w-0">
+<h4 class="font-body-lg text-body-lg font-extrabold text-ink leading-tight truncate">Sri Krishna Sweets &amp; Bakery</h4>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted truncate">ஸ்ரீ கிருஷ்ணா ஸ்வீட்ஸ் • கிளாக் டவர்</span>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-caption-meta font-bold">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> GPS Verified
+        </span>
+</div>
+<div class="p-space-sm rounded-DEFAULT bg-surface-container flex items-start gap-2">
+<span class="material-symbols-outlined text-role-driver-primary text-[20px] mt-0.5 shrink-0">location_on</span>
+<div class="flex flex-col text-ink font-body-md text-body-md leading-snug">
+<span>Brough Road Junction, Near Clock Tower</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Back alley entrance for heavy vehicle</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-gutter">
+<div class="p-space-sm rounded-DEFAULT bg-role-driver-canvas flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Cargo Exchange</span>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="font-headline-md text-headline-md text-ink font-extrabold tabular-nums">8</span>
+<span class="font-caption-meta text-caption-meta text-ink font-bold">Cans</span>
+</div>
+<span class="font-caption-meta text-[11px] text-ink-muted">Collect: 8 Empties</span>
+</div>
+<div class="p-space-sm rounded-DEFAULT bg-role-driver-canvas flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Expected Cash</span>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="font-headline-md text-headline-md text-money-mint font-extrabold tabular-nums">₹160</span>
+</div>
+<span class="font-caption-meta text-[11px] text-ink-muted">Direct Cash Collection</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-gutter pt-1">
+<button class="h-14 rounded-full bg-surface-tonal text-ink font-label-action text-label-action font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px]">near_me</span>
+<span>Navigate</span>
+</button>
+<button class="h-14 rounded-full bg-role-driver-action text-ink font-label-action text-label-action font-extrabold flex items-center justify-center gap-1.5 active:scale-95 transition-transform" type="button">
+<span>Deliver</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- STOP CARD 3 (Missing GPS Pin Callout) -->
+<div class="rounded-lg bg-surface p-space-lg flex flex-col space-y-3">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-surface-container text-ink font-headline-md text-headline-md flex items-center justify-center font-extrabold shrink-0">
+            #7
+          </div>
+<div class="flex flex-col min-w-0">
+<h4 class="font-body-lg text-body-lg font-extrabold text-ink leading-tight truncate">Senthil Murugan Cafe</h4>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted truncate">செந்தில் முருகன் கஃபே • காந்திஜி ரோடு</span>
+</div>
+</div>
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-pending-honey/15 text-pending-honey font-caption-meta text-caption-meta font-bold">
+<span class="material-symbols-outlined text-[14px]">wrong_location</span> No GPS Pin
+        </div>
+</div>
+<div class="p-space-sm rounded-DEFAULT bg-[#FDF5E8] flex items-center justify-between gap-2">
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-pending-honey text-[20px] shrink-0">my_location</span>
+<span class="font-body-md text-body-md text-ink truncate">Gandhiji Road Cross (First delivery on beat)</span>
+</div>
+<button class="px-3 py-1.5 rounded-full bg-surface text-pending-honey font-caption-meta text-caption-meta font-bold shrink-0 active:scale-95" type="button">
+          Capture GPS
+        </button>
+</div>
+<div class="grid grid-cols-2 gap-gutter">
+<div class="p-space-sm rounded-DEFAULT bg-role-driver-canvas flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Payload</span>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="font-headline-md text-headline-md text-ink font-extrabold tabular-nums">12</span>
+<span class="font-caption-meta text-caption-meta text-ink font-bold">Cans</span>
+</div>
+<span class="font-caption-meta text-[11px] text-ink-muted">Collect: 10 Empties</span>
+</div>
+<div class="p-space-sm rounded-DEFAULT bg-role-driver-canvas flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Amount</span>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="font-headline-md text-headline-md text-ink font-extrabold tabular-nums">₹240</span>
+</div>
+<span class="font-caption-meta text-[11px] text-ink-muted">UPI QR Code</span>
+</div>
+</div>
+<div class="pt-1">
+<button class="w-full h-14 rounded-full bg-role-driver-action text-ink font-label-action text-label-action font-extrabold flex items-center justify-center gap-1.5 active:scale-95 transition-transform" type="button">
+<span>Deliver to Senthil Murugan</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- SECTION 3: Offline Outbox Queue (Always visible & interactive) -->
+<div class="flex flex-col space-y-3 pt-2" id="outboxSection">
+<!-- Header with Auto-Retry Countdown Badge -->
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<h3 class="font-headline-md text-headline-md text-ink font-bold flex items-center gap-1.5">
+<span>Queued Field Transactions</span>
+<span class="w-6 h-6 rounded-full bg-pending-honey/20 text-pending-honey font-caption-meta text-caption-meta flex items-center justify-center font-bold">3</span>
+</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">காத்திருக்கும் பரிவர்த்தனைகள் • சர்வருடன் ஒத்திசைக்கப்படும்</span>
+</div>
+<div class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#FDF5E8] text-pending-honey font-caption-meta text-caption-meta font-bold">
+<span class="material-symbols-outlined text-[15px] animate-spin">sync</span>
+<span id="retryTimer">Retry in 45s</span>
+</div>
+</div>
+<!-- Outbox Item 1: Can Delivery Ticket (POS / Cash) -->
+<div class="rounded-lg bg-surface p-space-md flex flex-col space-y-2">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-start gap-3">
+<div class="w-11 h-11 rounded-DEFAULT bg-surface-container text-role-driver-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">receipt_long</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-body-md text-body-md text-ink font-extrabold">Delivery Slip #DKW-DEL-8941</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink leading-tight">Anand Bakery &amp; Tea</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted mt-0.5">10 Cans Delivered • 10 Empties • ₹200 Cash</span>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FDF5E8] text-pending-honey font-caption-meta text-[11px] font-bold shrink-0">
+<span class="material-symbols-outlined text-[13px]">pending</span> Pending
+        </span>
+</div>
+<div class="flex items-center justify-between pt-1 text-ink-muted font-caption-meta text-caption-meta">
+<span class="flex items-center gap-1 truncate">
+<span class="material-symbols-outlined text-[14px]">pin_drop</span> 10:38:14 AM • GPS (11.3412° N, 77.7170° E)
+        </span>
+<div class="flex items-center gap-1 shrink-0">
+<button class="px-3 py-1.5 rounded-full bg-surface-container text-ink font-caption-meta text-caption-meta font-bold active:scale-95" type="button">
+            Slip
+          </button>
+<button class="px-3 py-1.5 rounded-full bg-role-driver-primary/10 text-role-driver-primary font-caption-meta text-caption-meta font-bold active:scale-95 flex items-center gap-0.5" onclick="singlePushItem('DKW-DEL-8941')" type="button">
+<span class="material-symbols-outlined text-[14px]">upload</span> Push
+          </button>
+</div>
+</div>
+</div>
+<!-- Outbox Item 2: Fuel Expense Voucher (OCR) -->
+<div class="rounded-lg bg-surface p-space-md flex flex-col space-y-2">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-start gap-3">
+<div class="w-11 h-11 rounded-DEFAULT bg-surface-container text-role-driver-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">local_gas_station</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-ink font-extrabold">Route Expense Voucher #EXP-041</span>
+<span class="font-caption-meta text-caption-meta text-ink leading-tight">5L Diesel IOCL Bunk • ₹350</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted mt-0.5">Deducted from Cash Pouch GL1015 • OCR 98%</span>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FDF5E8] text-pending-honey font-caption-meta text-[11px] font-bold shrink-0">
+<span class="material-symbols-outlined text-[13px]">pending</span> Pending
+        </span>
+</div>
+<div class="flex items-center justify-between pt-1 text-ink-muted font-caption-meta text-caption-meta">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 08:15:22 AM • Bill Photo Attached
+        </span>
+<button class="px-3 py-1.5 rounded-full bg-role-driver-primary/10 text-role-driver-primary font-caption-meta text-caption-meta font-bold active:scale-95 flex items-center gap-0.5" onclick="singlePushItem('EXP-041')" type="button">
+<span class="material-symbols-outlined text-[14px]">upload</span> Push
+        </button>
+</div>
+</div>
+<!-- Outbox Item 3: Morning Attendance Punch In (Biometric) -->
+<div class="rounded-lg bg-surface p-space-md flex flex-col space-y-2">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-start gap-3">
+<div class="w-11 h-11 rounded-DEFAULT bg-surface-container text-role-driver-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">face</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-ink font-extrabold">Morning Attendance Punch In</span>
+<span class="font-caption-meta text-caption-meta text-ink leading-tight">Depot Gate Geofence • Face ID Passed</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted mt-0.5">Liveness: 99.8% • Odometer: 42,118 km</span>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#EAF5FC] text-info-sky font-caption-meta text-[11px] font-bold shrink-0">
+<span class="material-symbols-outlined text-[13px]">hourglass_top</span> Queued
+        </span>
+</div>
+<div class="flex items-center justify-between pt-1 text-ink-muted font-caption-meta text-caption-meta">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">speed</span> 07:15:10 AM • Shift #1 Started
+        </span>
+<span class="font-caption-meta text-[11px] text-ink-muted">In Queue</span>
+</div>
+</div>
+</div>
+<!-- SECTION 4: Zero Data Loss Security Guarantee Notice -->
+<div class="rounded-lg bg-surface-container p-space-md flex items-start gap-3 mt-1">
+<div class="w-8 h-8 rounded-full bg-[#E6F7F0] text-money-mint flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta font-extrabold text-ink">Zero Data Loss Guarantee (தரவு பாதுகாப்பு உறுதி)</span>
+<p class="font-caption-meta text-[11px] text-ink-muted leading-relaxed mt-0.5">
+        All tickets, cash vouchers and odometer telemetry are cryptographically sealed in the device SQLite database. Once 4G connectivity restores, GL ledgers and stock manifests will reconcile automatically.
+      </p>
+</div>
+</div>
+</div>
+<!-- Client-side Micro-interactions Script -->
+<script>
+  let retryCountdown = 45;
+  const retryTimerEl = document.getElementById('retryTimer');
+  
+  setInterval(() => {
+    if (retryCountdown > 1) {
+      retryCountdown--;
+      if (retryTimerEl) retryTimerEl.textContent = `Retry in ${retryCountdown}s`;
+    } else {
+      retryCountdown = 45;
+      if (retryTimerEl) retryTimerEl.textContent = `Syncing...`;
+      setTimeout(() => {
+        if (retryTimerEl) retryTimerEl.textContent = `Retry in 45s`;
+      }, 1500);
+    }
+  }, 1000);
+
+  function switchDriverTab(target) {
+    const tabs = ['stops', 'outbox', 'retries'];
+    tabs.forEach(t => {
+      const btn = document.getElementById(`tabBtn-${t}`);
+      if (!btn) return;
+      if (t === target) {
+        btn.className = "flex-1 h-12 rounded-full flex flex-col items-center justify-center transition-all duration-200 bg-surface text-ink shadow-[0_2px_8px_rgba(19,32,27,0.06)] active:scale-95";
+      } else {
+        btn.className = "flex-1 h-12 rounded-full flex flex-col items-center justify-center transition-all duration-200 text-ink-muted hover:text-ink active:scale-95";
+      }
+    });
+
+    const stopsSec = document.getElementById('stopsSection');
+    const outboxSec = document.getElementById('outboxSection');
+
+    if (target === 'stops') {
+      if (stopsSec) stopsSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (target === 'outbox') {
+      if (outboxSec) outboxSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  function triggerManualSync() {
+    const btn = document.getElementById('syncActionBtn');
+    const icon = document.getElementById('syncBtnIcon');
+    const text = document.getElementById('syncBtnText');
+
+    if (!btn || !icon || !text) return;
+    
+    icon.classList.add('animate-spin');
+    text.textContent = 'Synchronizing 3 Records...';
+    btn.disabled = true;
+
+    setTimeout(() => {
+      icon.classList.remove('animate-spin');
+      icon.textContent = 'done_all';
+      text.textContent = 'Outbox Synchronized! (வெற்றி)';
+      btn.classList.remove('bg-role-driver-action');
+      btn.classList.add('bg-money-mint', 'text-surface');
+
+      setTimeout(() => {
+        icon.textContent = 'cloud_upload';
+        text.textContent = 'Sync Outbox Now (உடனே ஒத்திசை)';
+        btn.classList.remove('bg-money-mint', 'text-surface');
+        btn.classList.add('bg-role-driver-action', 'text-ink');
+        btn.disabled = false;
+      }, 2500);
+    }, 1800);
+  }
+
+  function singlePushItem(ref) {
+    const el = event?.currentTarget;
+    if (el) {
+      el.innerHTML = '<span class="material-symbols-outlined text-[14px] animate-spin">sync</span>';
+      setTimeout(() => {
+        el.innerHTML = '<span class="material-symbols-outlined text-[14px] text-money-mint">done</span>';
+      }, 1200);
+    }
+  }
+</script></main><div class="fixed bottom-4 inset-x-0 z-50 px-margin pointer-events-none pb-safe"><nav class="pointer-events-auto mx-auto max-w-sm h-16 bg-surface rounded-full shadow-[0_8px_24px_-4px_rgba(19,32,27,0.08)] flex items-center justify-between px-space-sm" data-active-classes="bg-surface-tonal text-primary font-bold"><a class="flex-1 h-12 rounded-full flex flex-col items-center justify-center gap-0.5 text-ink-muted transition-all duration-200" data-path="today" href="#"><span class="material-symbols-outlined text-[20px]">calendar_today</span><span class="font-caption-meta text-[11px] leading-3 font-semibold">Today</span></a><a class="flex-1 h-12 rounded-full flex flex-col items-center justify-center gap-0.5 text-ink-muted transition-all duration-200" data-path="work" href="#"><span class="material-symbols-outlined text-[20px]">local_shipping</span><span class="font-caption-meta text-[11px] leading-3 font-semibold">Work</span></a><a class="flex-1 h-12 rounded-full flex flex-col items-center justify-center gap-0.5 text-ink-muted transition-all duration-200" data-path="cash" href="#"><span class="material-symbols-outlined text-[20px]">payments</span><span class="font-caption-meta text-[11px] leading-3 font-semibold">Cash</span></a><a class="flex-1 h-12 rounded-full flex flex-col items-center justify-center gap-0.5 text-ink-muted transition-all duration-200" data-path="me" href="#"><span class="material-symbols-outlined text-[20px]">account_circle</span><span class="font-caption-meta text-[11px] leading-3 font-semibold">Me</span></a></nav></div></body></html>

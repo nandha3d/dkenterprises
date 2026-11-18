@@ -19,14 +19,14 @@ class _SpotAuditScreenState extends State<SpotAuditScreen> {
   final ApiService _apiService = ApiService();
   String _auditTarget = 'packaged'; // 'packaged', 'tanker', 'cafe'
 
-  final _vehicleController = TextEditingController(text: 'Tata Ace TN-58-WA-101');
-  final _driverController = TextEditingController(text: 'Kumar (Driver)');
-  final _unitsObservedController = TextEditingController(text: '25');
-  final _cashObservedController = TextEditingController(text: '1810');
+  final _vehicleController = TextEditingController();
+  final _driverController = TextEditingController();
+  final _unitsObservedController = TextEditingController();
+  final _cashObservedController = TextEditingController();
   final _notesController = TextEditingController();
 
-  final int _expectedUnits = 25;
-  final double _expectedCash = 1810.0;
+  final int _expectedUnits = 0;
+  final double _expectedCash = 0.0;
 
   bool _isSubmitting = false;
 
@@ -45,16 +45,10 @@ class _SpotAuditScreenState extends State<SpotAuditScreen> {
     super.initState();
     if (widget.activeRole == UserRole.deliveryDriver || widget.activeRole == UserRole.fieldAgent) {
       _auditTarget = 'packaged';
-      _vehicleController.text = 'Tata Ace TN-58-WA-101';
-      _driverController.text = 'Kumar (Driver)';
     } else if (widget.activeRole == UserRole.tankerDriver) {
       _auditTarget = 'tanker';
-      _vehicleController.text = 'Tanker TN-58-BW-2001';
-      _driverController.text = 'Murugan S. (Driver)';
     } else if (widget.activeRole == UserRole.cashier) {
       _auditTarget = 'cafe';
-      _vehicleController.text = 'POS Register #01';
-      _driverController.text = 'Cashier Desk';
     }
   }
 

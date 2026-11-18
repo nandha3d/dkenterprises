@@ -11,6 +11,7 @@ class Expense extends Model
     protected $fillable =[
         "company_id", "reference_no", "expense_category_id", "warehouse_id", "account_id",
         "user_id", "cash_register_id", "employee_id", "type",
+        "entry_type", "company_tag", "payment_account", "vehicle_or_staff_tag", "bill_no", "entry_date",
         "amount", "note","document", "created_at"
     ];
 

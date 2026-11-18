@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-tertiary-fixed-variant": "#005233", "critical-ruby": "#D92D20", "pending-honey": "#E9A23B", "on-tertiary": "#ffffff", "role-cafe-primary": "#C2542D", "role-field-primary": "#3F7D58", "secondary": "#4c6700", "surface-dim": "#dcdad5", "surface-container-high": "#eae8e3", "role-driver-action": "#FFC933", "money-mint": "#1FA971", "on-error": "#ffffff", "role-driver-canvas": "#F3F8FA", "role-field-action": "#C9F36A", "outline": "#6f7976", "surface-container-low": "#f5f3ee", "ink": "#13201B", "dark-surface-tonal": "#1F2E27", "primary": "#00443b", "surface-tonal": "#ECEFEA", "surface": "#FFFFFF", "secondary-fixed-dim": "#acd44f", "surface-container-highest": "#e4e2dd", "on-secondary-fixed": "#151f00", "ink-muted": "#66736C", "role-driver-primary": "#0E8FB3", "on-secondary": "#ffffff", "primary-fixed": "#a9f0e1", "secondary-fixed": "#c7f169", "error": "#ba1a1a", "on-tertiary-container": "#61dda0", "surface-container": "#f0eee9", "tertiary": "#00452a", "primary-container": "#0b5d52", "tertiary-fixed-dim": "#61dda0", "background": "#fbf9f4", "on-tertiary-fixed": "#002112", "info-sky": "#2E90FA", "dark-canvas": "#0E1512", "role-cafe-action": "#F4A62A", "on-surface-variant": "#3f4946", "secondary-container": "#c5ee66", "surface-container-lowest": "#ffffff", "outline-variant": "#bec9c5", "inverse-on-surface": "#f2f1ec", "money-coral": "#E8505B", "on-primary-container": "#8dd3c5", "surface-variant": "#e4e2dd", "dark-surface": "#17221D", "inverse-primary": "#8ed4c5", "on-secondary-fixed-variant": "#394e00", "dark-ink": "#EDF3EF", "on-secondary-container": "#506c00", "surface-bright": "#fbf9f4", "inverse-surface": "#30312e", "hairline": "#E3E1DA", "role-cafe-ink": "#2B1B14", "on-error-container": "#93000a", "surface-tint": "#1f695e", "role-cafe-canvas": "#FBF4EA", "error-container": "#ffdad6", "on-surface": "#1b1c19", "tertiary-fixed": "#7ffaba", "primary-fixed-dim": "#8ed4c5", "dark-ink-muted": "#93A39B", "on-primary-fixed": "#00201b", "on-background": "#1b1c19", "tertiary-container": "#005f3c", "on-primary-fixed-variant": "#005046", "on-primary": "#ffffff" }, borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }, spacing: { "space-sm": "0.5rem", "gutter": "0.75rem", "space-xs": "0.25rem", "space-md": "0.75rem", "space-lg": "1rem", "space-xl": "1.5rem", "margin": "1rem" }, fontFamily: { "display-numeral-mobile": ["Manrope"], "label-action": ["Manrope"], "body-md": ["Manrope"], "caption-meta": ["Manrope"], "body-lg": ["Manrope"], "headline-md": ["Manrope"], "sublabel-regional": ["Noto Sans Tamil"], "display-numeral": ["Manrope"], "headline-lg": ["Manrope"] }, fontSize: { "display-numeral-mobile": ["40px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800" }], "label-action": ["16px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "700" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "500" }], "caption-meta": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "600" }], "headline-md": ["20px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "700" }], "sublabel-regional": ["11px", { lineHeight: "14px", fontWeight: "600" }], "display-numeral": ["48px", { lineHeight: "52px", letterSpacing: "-0.03em", fontWeight: "800" }], "headline-lg": ["28px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "800" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    .fluid-pill-spring {
+      transition: transform 380ms cubic-bezier(0.34, 1.56, 0.64, 1), width 340ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 200ms ease;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface-container-low text-ink font-body-md flex flex-col min-h-screen selection:bg-role-field-action"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin flex items-center justify-between gap-gutter"><div class="flex items-center gap-space-sm"><img alt="DK Enterprises Monogram" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrDWZ6BLDwpb_SDLS1VcIPwS_u68J_qSJJCiNpDuaLAW9Yovx9xym8ES6_OFDtD4N49PrhJhL4aod7Gp40vN0O2ok0ubp8akF_aUEtfow5zKkw05-t_h8ZQMiq0svlhlfvBpl0M_2a_X5Yi6A3E7m9u3hrxvqGOwwfEuQqw1FFN_CZ7BqF6xvFw-w79ioaE3hG9vP870jqxjYnc4Xorwfko003e7Lb9zuSbQv2bLPqb1"/><button class="flex items-center gap-space-xs px-space-sm py-1.5 rounded-full bg-surface-tonal hover:bg-surface-container-high transition-colors min-h-[44px]" type="button"><span class="material-symbols-outlined text-role-field-primary text-[18px]">store</span><span class="font-caption-meta text-caption-meta text-ink tracking-tight max-w-[124px] truncate">Aran Cafe</span><span class="material-symbols-outlined text-ink-muted text-[16px]">expand_more</span></button></div><div class="flex items-center gap-space-sm"><div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-money-mint/10 text-money-mint"><span class="material-symbols-outlined text-[14px]">check_circle</span><span class="font-caption-meta text-[11px] font-bold tracking-wide">Synced</span></div><button class="relative w-11 h-11 flex items-center justify-center rounded-full text-ink hover:bg-surface-tonal transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-critical-ruby"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full px-margin pt-16 pb-32 bg-surface-container-low"><div class="flex flex-col w-full pb-6 space-y-4">
+<!-- Operational Sub-Header & Live Plant Context -->
+<div class="bg-surface rounded-lg p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between gap-gutter">
+<div class="flex items-center gap-space-xs">
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-role-driver-primary/10 text-role-driver-primary font-caption-meta text-caption-meta">
+<span class="material-symbols-outlined text-[15px]">inventory_2</span>
+          Load #2
+        </span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">இரண்டாம் சுற்று</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-tonal text-ink">
+<span class="material-symbols-outlined text-[14px] text-money-mint" style="font-variation-settings: 'FILL' 1;">cloud_upload</span>
+<span class="font-caption-meta text-caption-meta font-bold tabular-nums">72 + 84 = 156 cans</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1 text-ink-muted font-caption-meta text-caption-meta">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-role-driver-primary text-[18px]">water_drop</span>
+<span class="font-semibold text-ink">RO Main Plant · Bay 3</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">schedule</span>
+<span class="tabular-nums">10:15 AM</span>
+</div>
+</div>
+</div>
+<!-- Card 1: Route Van Selection -->
+<div class="bg-surface rounded-lg p-space-md shadow-sm space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-action text-label-action text-ink">Assigned Route Van</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">வாகனம் &amp; தற்போதைய இருப்பு</span>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-role-driver-canvas text-role-driver-primary font-caption-meta text-[11px] font-bold">Primary</span>
+</div>
+<!-- Dropdown / Vehicle Sizing Container -->
+<div class="bg-surface-tonal rounded-DEFAULT p-3 flex items-center justify-between min-h-[56px]">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-10 h-10 rounded-full bg-surface flex items-center justify-center shrink-0 text-role-driver-primary">
+<span class="material-symbols-outlined text-[22px]">local_shipping</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-lg text-body-lg text-ink truncate leading-tight">TN-58-WA-101</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted truncate">Tata Ace Gold · 84 Cans Max</span>
+</div>
+</div>
+<button aria-label="Switch Vehicle" class="w-9 h-9 rounded-full bg-surface flex items-center justify-center text-ink shrink-0 active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px]">swap_horiz</span>
+</button>
+</div>
+<!-- Van Capacity Live Strip -->
+<div class="flex items-center justify-between px-1 text-caption-meta font-caption-meta">
+<span class="text-ink-muted">Capacity: <strong class="text-ink">84 Cans</strong></span>
+<div class="flex items-center gap-1 text-money-mint font-bold">
+<span class="w-2 h-2 rounded-full bg-money-mint"></span>
+<span>Current Stock: 12 Cans</span>
+</div>
+</div>
+</div>
+<!-- Card 2: Intake Steppers Card -->
+<div class="bg-surface rounded-lg p-space-md shadow-sm space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-action text-label-action text-ink">Intake Tally (20L Cans)</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">ஏற்றுதல் மற்றும் காலி கேன் விபரம்</span>
+</div>
+<span class="material-symbols-outlined text-role-driver-primary text-[20px]">tune</span>
+</div>
+<!-- Stepper 1: Empties Handed Over -->
+<div class="bg-surface-container-low rounded-DEFAULT p-3 space-y-2">
+<div class="flex items-center justify-between">
+<div>
+<span class="font-body-md text-body-md text-ink block font-bold">Empty Cans Handed Over</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">காலி கேன் ஒப்படைப்பு</span>
+</div>
+<span class="material-symbols-outlined text-ink-muted text-[18px]">recycling</span>
+</div>
+<div class="flex items-center justify-between gap-3">
+<button aria-label="Decrease Empties" class="w-14 h-14 rounded-full bg-surface text-ink flex items-center justify-center shadow-sm active:scale-90 transition-transform select-none" id="btn-dec-empties" type="button">
+<span class="material-symbols-outlined text-[24px]">remove</span>
+</button>
+<div class="flex-1 flex justify-center items-center py-1">
+<span class="font-display-numeral-mobile text-display-numeral-mobile text-ink tabular-nums" id="val-empties">42</span>
+</div>
+<button aria-label="Increase Empties" class="w-14 h-14 rounded-full bg-surface text-ink flex items-center justify-center shadow-sm active:scale-90 transition-transform select-none" id="btn-inc-empties" type="button">
+<span class="material-symbols-outlined text-[24px]">add</span>
+</button>
+</div>
+</div>
+<!-- Stepper 2: Full Sealed Cans Loaded -->
+<div class="bg-role-driver-canvas rounded-DEFAULT p-3 space-y-2">
+<div class="flex items-center justify-between">
+<div>
+<span class="font-body-md text-body-md text-role-driver-primary block font-bold">Full Sealed Cans Loaded</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">நிரப்பிய கேன் ஏற்றுதல்</span>
+</div>
+<span class="material-symbols-outlined text-role-driver-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div class="flex items-center justify-between gap-3">
+<button aria-label="Decrease Full Cans" class="w-14 h-14 rounded-full bg-surface text-ink flex items-center justify-center shadow-sm active:scale-90 transition-transform select-none" id="btn-dec-full" type="button">
+<span class="material-symbols-outlined text-[24px]">remove</span>
+</button>
+<div class="flex-1 flex justify-center items-center py-1">
+<span class="font-display-numeral-mobile text-display-numeral-mobile text-role-driver-primary tabular-nums" id="val-full">60</span>
+</div>
+<button aria-label="Increase Full Cans" class="w-14 h-14 rounded-full bg-role-driver-primary text-on-primary flex items-center justify-center shadow-sm active:scale-90 transition-transform select-none" id="btn-inc-full" type="button">
+<span class="material-symbols-outlined text-[24px]">add</span>
+</button>
+</div>
+</div>
+<!-- Stepper 3: Damaged / Leakage Jars -->
+<div class="bg-money-coral/10 rounded-DEFAULT p-3 space-y-2 transition-colors" id="damage-box">
+<div class="flex items-center justify-between">
+<div>
+<span class="font-body-md text-body-md text-money-coral block font-bold">Damaged / Leakage Jars</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">சேதமடைந்த கேன்கள்</span>
+</div>
+<span class="material-symbols-outlined text-money-coral text-[20px]">warning</span>
+</div>
+<div class="flex items-center justify-between gap-3">
+<button aria-label="Decrease Damaged" class="w-14 h-14 rounded-full bg-surface text-money-coral flex items-center justify-center shadow-sm active:scale-90 transition-transform select-none" id="btn-dec-damaged" type="button">
+<span class="material-symbols-outlined text-[24px]">remove</span>
+</button>
+<div class="flex-1 flex justify-center items-center py-1">
+<span class="font-display-numeral-mobile text-display-numeral-mobile text-money-coral tabular-nums" id="val-damaged">2</span>
+</div>
+<button aria-label="Increase Damaged" class="w-14 h-14 rounded-full bg-surface text-money-coral flex items-center justify-center shadow-sm active:scale-90 transition-transform select-none" id="btn-inc-damaged" type="button">
+<span class="material-symbols-outlined text-[24px]">add</span>
+</button>
+</div>
+</div>
+<!-- Net Usable Readout Capsule -->
+<div class="p-3 rounded-DEFAULT bg-money-mint/10 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-money-mint text-[20px]" style="font-variation-settings: 'FILL' 1;">add_shopping_cart</span>
+<span class="font-body-md text-body-md font-bold text-ink">Net Usable Van Reload</span>
+</div>
+<span class="font-headline-md text-headline-md text-money-mint font-extrabold tabular-nums" id="net-usable-pill">+58 Active Cans</span>
+</div>
+</div>
+<!-- Card 3: Reconciliation & Variance Callout -->
+<div class="bg-pending-honey/15 rounded-lg p-space-md flex gap-3 items-start">
+<span class="material-symbols-outlined text-pending-honey text-[22px] shrink-0 mt-0.5" style="font-variation-settings: 'FILL' 1;">info</span>
+<div class="flex flex-col gap-0.5">
+<span class="font-caption-meta text-caption-meta font-bold text-ink">Variance Stock Adjustment</span>
+<p class="font-caption-meta text-caption-meta text-on-surface-variant leading-snug" id="variance-message">
+        Notice: Full loaded (60) exceeds empties handed over (42) by <strong class="text-ink">+18 cans</strong> (Buffer stock adjustment).
+      </p>
+</div>
+</div>
+<!-- Card 4: Plant Slip Verification & Photo Capture -->
+<div class="bg-surface rounded-lg p-space-md shadow-sm space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-action text-label-action text-ink">Plant Slip &amp; Inward DC</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">ரசீது எண் மற்றும் கேமரா பதிவு</span>
+</div>
+<span class="material-symbols-outlined text-ink-muted text-[20px]">receipt_long</span>
+</div>
+<!-- Input Field -->
+<div class="flex flex-col gap-1.5">
+<label class="font-caption-meta text-caption-meta font-semibold text-ink-muted" for="dc-number">Slip Number / DC Code</label>
+<div class="relative flex items-center">
+<span class="absolute left-3 text-ink-muted material-symbols-outlined text-[20px]">tag</span>
+<input class="w-full h-[52px] bg-surface-tonal rounded-[14px] pl-10 pr-3 text-ink font-body-lg text-body-lg focus:outline-none focus:ring-2 focus:ring-role-driver-primary transition-all font-semibold" id="dc-number" placeholder="e.g. RO-PLANT-2026-0891" type="text" value="RO-PLANT-2026-0891"/>
+</div>
+</div>
+<!-- Photo Verification Slab -->
+<div class="flex flex-col gap-1.5">
+<span class="font-caption-meta text-caption-meta font-semibold text-ink-muted">Snap Plant Slip (கேமரா மூலம் ரசீது)</span>
+<div class="bg-surface-tonal rounded-DEFAULT p-3 flex items-center justify-between gap-3">
+<!-- Thumbnail Preview -->
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-14 h-14 rounded-DEFAULT overflow-hidden relative shrink-0 shadow-sm bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Close up photograph of a printed warehouse delivery dispatch slip for 20L water cans on an industrial clipboard, natural factory ambient daylight, sharp paper texture, clear timestamp stamped in ink" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASnnW5tyos4hRzd1APX8w7enlUbmM3XrlcyutCjhl02IgudfLpkXTV7oI9jr4rU_N53nwS_BrmhFcjckRhzp-61KHowCdSn9K5nZQsojknNA7hiOC-mj7DpDJUECHP0u8DKubO8TfVQo6IkH1Ps-ino5dAn8vtblG2nMjumwoFOvDnOLTOF8DUgj4RJUiMtQMnzEScTEyvmpD4vDZbyy1tHQrqXY-djBTVKEEp2WE"/>
+<div class="absolute bottom-0 inset-x-0 bg-ink/60 text-surface text-[8px] font-caption-meta text-center py-0.5 leading-none">
+              GPS ON
+            </div>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-caption-meta text-caption-meta font-bold text-ink truncate">slip_ro_0891.jpg</span>
+<span class="font-caption-meta text-[11px] text-ink-muted truncate">GPS: 11.3410, 77.7172 • 10:14 AM</span>
+<span class="text-money-mint font-caption-meta text-[11px] font-bold flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[13px]">check_circle</span> Verified Stamp
+            </span>
+</div>
+</div>
+<!-- Retake Slab -->
+<button class="px-3 py-2 bg-surface text-role-driver-primary rounded-full font-caption-meta text-caption-meta font-bold flex items-center gap-1 shadow-sm active:scale-95 transition-transform shrink-0 min-h-[44px]" type="button">
+<span class="material-symbols-outlined text-[16px]">photo_camera</span>
+<span>Retake</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Bottom Sticky Action Slab & Offline Notice -->
+<div class="pt-2 flex flex-col items-center gap-2">
+<button class="w-full min-h-[56px] rounded-full bg-role-driver-action text-ink font-label-action text-label-action shadow-md flex items-center justify-center gap-2 px-space-lg active:scale-95 transition-transform" id="confirm-intake-btn" type="button">
+<span>Confirm Plant Intake (ஏற்றுதல் உறுதிசெய்)</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+<div class="flex items-center gap-1.5 text-center text-ink-muted font-caption-meta text-[11px] px-2">
+<span class="material-symbols-outlined text-[14px] text-money-mint">cloud_done</span>
+<span>Saved offline automatically to Outbox if disconnected • Auto-updates van stock</span>
+</div>
+</div>
+</div>
+<script>
+  (function initManifestEngine() {
+    let empties = 42;
+    let full = 60;
+    let damaged = 2;
+
+    const valEmpties = document.getElementById('val-empties');
+    const valFull = document.getElementById('val-full');
+    const valDamaged = document.getElementById('val-damaged');
+    const netPill = document.getElementById('net-usable-pill');
+    const varianceMsg = document.getElementById('variance-message');
+    const damageBox = document.getElementById('damage-box');
+    const confirmBtn = document.getElementById('confirm-intake-btn');
+
+    function updateCalculations() {
+      if (valEmpties) valEmpties.textContent = empties;
+      if (valFull) valFull.textContent = full;
+      if (valDamaged) valDamaged.textContent = damaged;
+
+      const netUsable = Math.max(0, full - damaged);
+      if (netPill) {
+        netPill.textContent = `+${netUsable} Active Cans`;
+      }
+
+      const diff = full - empties;
+      if (varianceMsg) {
+        if (diff > 0) {
+          varianceMsg.innerHTML = `Notice: Full loaded (${full}) exceeds empties handed over (${empties}) by <strong class="text-ink">+${diff} cans</strong> (Buffer stock adjustment).`;
+        } else if (diff < 0) {
+          varianceMsg.innerHTML = `Notice: Empties handed over (${empties}) exceeds full loaded (${full}) by <strong class="text-ink">${Math.abs(diff)} cans</strong> (Plant credit).`;
+        } else {
+          varianceMsg.innerHTML = `Clean 1:1 replacement: Handed over ${empties} empty cans and received ${full} filled sealed cans.`;
+        }
+      }
+
+      if (damageBox) {
+        if (damaged > 0) {
+          damageBox.className = "bg-money-coral/10 rounded-DEFAULT p-3 space-y-2 transition-colors";
+        } else {
+          damageBox.className = "bg-surface-tonal rounded-DEFAULT p-3 space-y-2 transition-colors";
+        }
+      }
+    }
+
+    document.getElementById('btn-dec-empties')?.addEventListener('click', () => {
+      if (empties > 0) { empties -= 1; updateCalculations(); }
+    });
+    document.getElementById('btn-inc-empties')?.addEventListener('click', () => {
+      empties += 1; updateCalculations();
+    });
+
+    document.getElementById('btn-dec-full')?.addEventListener('click', () => {
+      if (full > 0) { full -= 1; updateCalculations(); }
+    });
+    document.getElementById('btn-inc-full')?.addEventListener('click', () => {
+      full += 1; updateCalculations();
+    });
+
+    document.getElementById('btn-dec-damaged')?.addEventListener('click', () => {
+      if (damaged > 0) { damaged -= 1; updateCalculations(); }
+    });
+    document.getElementById('btn-inc-damaged')?.addEventListener('click', () => {
+      damaged += 1; updateCalculations();
+    });
+
+    confirmBtn?.addEventListener('click', () => {
+      confirmBtn.innerHTML = `
+        <span class="material-symbols-outlined text-[20px] animate-spin">refresh</span>
+        <span>Writing to Inward Log...</span>
+      `;
+      setTimeout(() => {
+        confirmBtn.innerHTML = `
+          <span class="material-symbols-outlined text-[20px]">check</span>
+          <span>Manifest Confirmed (ஏற்றப்பட்டது!)</span>
+        `;
+        confirmBtn.classList.remove('bg-role-driver-action');
+        confirmBtn.classList.add('bg-money-mint', 'text-surface');
+      }, 600);
+    });
+
+    // Ensure 'Work' tab is styled actively in the outer shell
+    const workTab = document.querySelector('.nav-tab[data-tab="work"]');
+    if (workTab) {
+      document.querySelectorAll('.nav-tab').forEach(t => {
+        t.removeAttribute('aria-current');
+        t.classList.remove('text-role-driver-primary', 'font-bold');
+        t.classList.add('text-ink-muted', 'font-semibold');
+      });
+      workTab.setAttribute('aria-current', 'page');
+      workTab.classList.remove('text-ink-muted', 'font-semibold');
+      workTab.classList.add('text-role-driver-primary', 'font-bold');
+
+      const container = document.getElementById('nav-container');
+      const indicator = document.getElementById('fluid-indicator');
+      if (container && indicator) {
+        setTimeout(() => {
+          const cRect = container.getBoundingClientRect();
+          const tRect = workTab.getBoundingClientRect();
+          indicator.style.width = tRect.width + 'px';
+          indicator.style.transform = `translateX(${tRect.left - cRect.left}px)`;
+          indicator.style.opacity = '1';
+        }, 120);
+      }
+    }
+  })();
+</script></main>
+<!-- Floating Fluid Pill Bottom Navigation Bar (Driver 4-Tab Aqua Day Skin) -->
+<nav class="fixed bottom-0 w-full z-50 pb-safe pointer-events-none px-margin">
+<div class="max-w-[390px] mx-auto mb-4 relative pointer-events-auto">
+<div class="relative h-[66px] rounded-full bg-surface/95 backdrop-blur-xl border border-hairline/60 shadow-[0_12px_32px_-6px_rgba(14,143,179,0.14)] px-2 flex items-center justify-between" id="nav-container">
+<!-- Sliding Animated Fluid Bubble Pill Indicator -->
+<div class="absolute top-[9px] bottom-[9px] left-0 rounded-full bg-role-driver-primary/15 border border-role-driver-primary/20 shadow-sm pointer-events-none fluid-pill-spring opacity-0" id="fluid-indicator" style="width: 0px; transform: translateX(0px);"></div>
+<!-- Tab 1: Today -->
+<a class="nav-tab relative z-10 flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full transition-all duration-300 min-h-[44px] text-ink-muted hover:text-ink font-semibold group select-none active:scale-95" data-path="driver-today" data-tab="today" href="#">
+<span class="material-symbols-outlined text-[20px] transition-transform duration-300 group-hover:scale-110">today</span>
+<span class="font-caption-meta text-caption-meta">Today</span>
+</a>
+<!-- Tab 2: Work -->
+<a class="nav-tab relative z-10 flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full transition-all duration-300 min-h-[44px] text-ink-muted hover:text-ink font-semibold group select-none active:scale-95" data-path="driver-work" data-tab="work" href="#">
+<span class="material-symbols-outlined text-[20px] transition-transform duration-300 group-hover:scale-110">local_shipping</span>
+<span class="font-caption-meta text-caption-meta">Work</span>
+</a>
+<!-- Tab 3: Cash -->
+<a class="nav-tab relative z-10 flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full transition-all duration-300 min-h-[44px] text-ink-muted hover:text-ink font-semibold group select-none active:scale-95" data-path="driver-cash" data-tab="cash" href="#">
+<span class="material-symbols-outlined text-[20px] transition-transform duration-300 group-hover:scale-110">payments</span>
+<span class="font-caption-meta text-caption-meta">Cash</span>
+</a>
+<!-- Tab 4: Me -->
+<a class="nav-tab relative z-10 flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full transition-all duration-300 min-h-[44px] text-ink-muted hover:text-ink font-semibold group select-none active:scale-95" data-path="driver-me" data-tab="me" href="#">
+<span class="material-symbols-outlined text-[20px] transition-transform duration-300 group-hover:scale-110">person</span>
+<span class="font-caption-meta text-caption-meta">Me</span>
+</a>
+</div>
+</div>
+</nav>
+<script>
+  (function initFluidNav() {
+    const container = document.getElementById('nav-container');
+    const indicator = document.getElementById('fluid-indicator');
+    const tabs = document.querySelectorAll('.nav-tab');
+
+    function updatePillPosition(activeTab, animate = true) {
+      if (!activeTab || !container || !indicator) return;
+      const cRect = container.getBoundingClientRect();
+      const tRect = activeTab.getBoundingClientRect();
+
+      const leftOffset = tRect.left - cRect.left;
+      const width = tRect.width;
+
+      if (!animate) {
+        indicator.style.transition = 'none';
+      } else {
+        indicator.style.transition = 'transform 380ms cubic-bezier(0.34, 1.56, 0.64, 1), width 340ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 200ms ease';
+      }
+
+      indicator.style.width = width + 'px';
+      indicator.style.transform = `translateX(${leftOffset}px)`;
+      indicator.style.opacity = '1';
+
+      if (!animate) {
+        requestAnimationFrame(() => {
+          indicator.style.transition = '';
+        });
+      }
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        // Update active tab styles
+        tabs.forEach(t => {
+          t.removeAttribute('aria-current');
+          t.classList.remove('text-role-driver-primary', 'font-bold');
+          t.classList.add('text-ink-muted', 'font-semibold');
+        });
+
+        tab.setAttribute('aria-current', 'page');
+        tab.classList.remove('text-ink-muted', 'font-semibold');
+        tab.classList.add('text-role-driver-primary', 'font-bold');
+
+        // Fluid morph slide
+        updatePillPosition(tab, true);
+
+        // Gentle bubble pulse effect
+        tab.classList.add('scale-105');
+        setTimeout(() => tab.classList.remove('scale-105'), 220);
+      });
+    });
+
+    // Set initial position
+    window.addEventListener('load', () => {
+      const activeTab = document.querySelector('.nav-tab[aria-current="page"]') || tabs[0];
+      updatePillPosition(activeTab, false);
+    });
+
+    window.addEventListener('resize', () => {
+      const activeTab = document.querySelector('.nav-tab[aria-current="page"]');
+      if (activeTab) updatePillPosition(activeTab, false);
+    });
+
+    // Immediate initial sync
+    const currentActive = document.querySelector('.nav-tab[aria-current="page"]');
+    if (currentActive) {
+      setTimeout(() => updatePillPosition(currentActive, false), 50);
+    }
+  })();
+</script>
+</body></html>

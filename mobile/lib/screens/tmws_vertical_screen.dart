@@ -260,7 +260,7 @@ class _TmwsVerticalScreenState extends State<TmwsVerticalScreen> {
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
-                                  '3 ONLINE',
+                                  'LIVE GPS RADAR',
                                   style: GoogleFonts.inter(color: AppColors.brandEmerald, fontSize: 9, fontWeight: FontWeight.w900),
                                 ),
                               ),
@@ -269,8 +269,8 @@ class _TmwsVerticalScreenState extends State<TmwsVerticalScreen> {
                           const SizedBox(height: 10),
                           Text(
                             t
-                                ? 'TN-58-BW-2001 (டெக்ச்வேலி மாலில் இறக்குகிறது)\nTN-58-BW-4001 (NH-544 சாலையில் 48 km/h வேகத்தில்)\nTN-58-BW-1001 (போர்வெல் ஆலைக்கு திரும்புகிறது)'
-                                : '• TN-58-BW-2001: Decanting at Texvalley Mall (0 km/h · 420 L/min)\n• TN-58-BW-4001: En Route NH-544 to Chennai Silks (48 km/h)\n• TN-58-BW-1001: Returning empty to Borewell Hub (39 km/h)',
+                                ? 'டேங்கர் வாகனங்களின் நேரலை GPS இருப்பிடம், வேகம் மற்றும் இறக்கும் நிலை ஆகியவற்றை ரேடார் வரைபடத்தில் காண்க.'
+                                : 'Open the live GPS radar below to view real-time tanker coordinates, speed, and unloading telemetry from server pings.',
                             style: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted(context), height: 1.45),
                           ),
                           const SizedBox(height: 12),
@@ -361,7 +361,7 @@ class _TmwsVerticalScreenState extends State<TmwsVerticalScreen> {
                       final number = tanker['vehicle_number'] ?? tanker['number'] ?? 'Tanker';
                       final kl = (tanker['capacity_kl'] ?? 20.0).toDouble();
                       final driver = tanker['driver_name'] ?? tanker['driver'] ?? 'Operator';
-                      final phone = tanker['driver_phone'] ?? '9842100000';
+                      final phone = (tanker['driver_phone'] ?? '').toString();
 
                       return GlassCard(
                         margin: const EdgeInsets.only(bottom: 10),

@@ -11,14 +11,15 @@ import '../../../core/ui/company_switcher_sheet.dart';
 import '../../../core/ui/status_chip.dart';
 
 class ProfileScreen extends ConsumerWidget {
-  const ProfileScreen({super.key});
+  final bool embedded;
+
+  const ProfileScreen({super.key, this.embedded = true});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authNotifierProvider);
     final syncWorker = ref.watch(syncWorkerProvider);
     final syncState = syncWorker.state;
-    final locale = ref.watch(localeProvider);
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textCol = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
@@ -41,9 +42,7 @@ class ProfileScreen extends ConsumerWidget {
     final canSwitchCompany = !isStaffOrDriver && authState.companies.length > 1;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Profile & Settings'),
-      ),
+      appBar: embedded ? null : AppBar(title: const Text('My Profile & Settings')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -257,24 +256,11 @@ class ProfileScreen extends ConsumerWidget {
                   const Divider(height: 16),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.language_rounded),
-                    title: const Text('App Language', style: TextStyle(fontSize: 14)),
-                    subtitle: Text(
-                      locale.languageCode == 'ta' ? 'தமிழ் (Tamil)' : 'English',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                    trailing: SegmentedButton<String>(
-                      segments: const [
-                        ButtonSegment(value: 'en', label: Text('EN')),
-                        ButtonSegment(value: 'ta', label: Text('தமிழ்')),
-                      ],
-                      selected: {locale.languageCode},
-                      onSelectionChanged: (selected) {
-                        final lang = selected.first;
-                        ref.read(secureStorageProvider).setLanguage(lang);
-                        ref.read(localeProvider.notifier).state = Locale(lang);
-                      },
-                    ),
+                    leading: const Icon(Icons.notifications_none_rounded),
+                    title: const Text('Notifications & Sync Center', style: TextStyle(fontSize: 14)),
+                    subtitle: const Text('Outbox queue status & low-stock alerts', style: TextStyle(fontSize: 12)),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => context.push('/notifications'),
                   ),
                 ],
               ),

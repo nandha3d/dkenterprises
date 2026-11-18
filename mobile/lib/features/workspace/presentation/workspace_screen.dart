@@ -36,6 +36,58 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
     super.dispose();
   }
 
+  List<CompanyInfo> _parseWorkspaceCompanies(dynamic rawCompanies) {
+    if (rawCompanies is! List) return const [];
+    return rawCompanies
+        .whereType<Map>()
+        .map((c) => CompanyInfo.fromJson(Map<String, dynamic>.from(c)))
+        .toList();
+  }
+
+  List<CompanyInfo> _resolveEffectiveCompanies(AuthState authState) {
+    final wsCompanies = _parseWorkspaceCompanies(_workspaceData?['companies']);
+    if (wsCompanies.isEmpty) return authState.companies;
+    final byId = <int, CompanyInfo>{};
+    for (final c in authState.companies) {
+      byId[c.id] = c;
+    }
+    for (final wc in wsCompanies) {
+      final existing = byId[wc.id];
+      if (existing == null) {
+        byId[wc.id] = wc;
+      } else {
+        byId[wc.id] = CompanyInfo(
+          id: existing.id,
+          name: (existing.name.trim().isNotEmpty && existing.name != 'DK Enterprises')
+              ? existing.name
+              : wc.name,
+          code: (existing.code ?? '').trim().isNotEmpty ? existing.code : wc.code,
+          industry: (existing.industry != null &&
+                  existing.industry!.isNotEmpty &&
+                  existing.industry != 'general')
+              ? existing.industry
+              : wc.industry,
+          gstin: (existing.gstin ?? '').trim().isNotEmpty ? existing.gstin : wc.gstin,
+          upiVpa: (existing.upiVpa ?? '').trim().isNotEmpty ? existing.upiVpa : wc.upiVpa,
+          branches: existing.branches.isNotEmpty ? existing.branches : wc.branches,
+          financialYears:
+              existing.financialYears.isNotEmpty ? existing.financialYears : wc.financialYears,
+        );
+      }
+    }
+    return byId.values.toList();
+  }
+
+  Future<void> _syncAuthCompanies(Map<String, dynamic> data) async {
+    final wsCompanies = _parseWorkspaceCompanies(data['companies']);
+    if (wsCompanies.isEmpty) return;
+    try {
+      await ref
+          .read(authNotifierProvider.notifier)
+          .syncCompaniesFromWorkspace(wsCompanies);
+    } catch (_) {}
+  }
+
   Future<void> _loadWorkspaceData() async {
     setState(() {
       _isLoading = true;
@@ -54,6 +106,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
           _workspaceData = cached;
           _isLoading = false;
         });
+        await _syncAuthCompanies(cached);
       }
     } catch (_) {}
 
@@ -72,6 +125,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
             ? rawData['data'] as Map<String, dynamic>
             : (rawData['data'] is Map ? Map<String, dynamic>.from(rawData['data'] as Map) : rawData);
         await db.saveCache(cacheKey, liveData);
+        await _syncAuthCompanies(liveData);
         if (mounted) {
           setState(() {
             _workspaceData = liveData;
@@ -130,7 +184,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
     final groupCashBank = summary?['total_cash_and_bank'] as num? ?? 0;
     final groupReceivables = summary?['total_receivables'] as num? ?? 0;
 
-    final companies = authState.companies;
+    final companies = _resolveEffectiveCompanies(authState);
 
     return Scaffold(
       appBar: AppBar(
@@ -491,7 +545,10 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                         SizedBox(
                           height: 24,
                           child: SparklineChart(
-                            data: const [12000, 18500, 24000, 31000, 36500, 41430],
+                            data: (summary?['turnover_trend'] is List &&
+                                    (summary!['turnover_trend'] as List).whereType<num>().isNotEmpty)
+                                ? (summary['turnover_trend'] as List).whereType<num>().toList()
+                                : (groupTurnover > 0 ? <num>[0, groupTurnover] : const <num>[]),
                             lineColor: isDark ? const Color(0xFF818CF8) : const Color(0xFF4F46E5),
                             showEndDot: true,
                             fillGradient: true,
@@ -558,13 +615,14 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                     ),
                   )
                 else
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final isTabletOrDesktop = constraints.maxWidth >= 680;
+                  Builder(
+                    builder: (context) {
+                      final availableWidth = MediaQuery.sizeOf(context).width;
+                      final isTabletOrDesktop = availableWidth >= 680;
 
                       if (isTabletOrDesktop) {
                         // Tablet/Desktop: 3-column square cards grid
-                        final crossAxisCount = constraints.maxWidth >= 950 ? 3 : 2;
+                        final crossAxisCount = availableWidth >= 950 ? 3 : 2;
                         return GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -695,6 +753,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                   mutedCol: mutedCol,
                   cardBg: cardBg,
                   borderCol: borderCol,
+                  companies: companies,
                 ),
 
                 const SizedBox(height: 20),
@@ -731,26 +790,59 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
     required List<CompanyInfo> companies,
   }) {
     final compDataList = (_workspaceData?['companies'] as List<dynamic>?) ?? [];
-    num aranTurnover = 19705.0;
-    num tmwsTurnover = 15600.0;
-    num dkWatersTurnover = 6125.0;
+    final palette = [
+      const Color(0xFFD97706),
+      const Color(0xFF2563EB),
+      const Color(0xFF0284C7),
+      const Color(0xFF059669),
+    ];
 
-    for (final item in compDataList) {
-      if (item is Map) {
-        final id = item['id']?.toString();
-        final metrics = item['metrics'] as Map?;
-        final t = metrics?['sales_turnover'] as num? ?? 0;
-        if (id == '1') aranTurnover = t;
-        if (id == '2') tmwsTurnover = t;
-        if (id == '3') dkWatersTurnover = t;
+    final entityRows = <({
+      CompanyInfo company,
+      num turnover,
+      Color color,
+      IconData icon,
+      String subtitle,
+      List<num> sparkline,
+    })>[];
+
+    for (var i = 0; i < companies.length; i++) {
+      final c = companies[i];
+      Map<String, dynamic> metrics = const {};
+      for (final item in compDataList) {
+        if (item is Map && (item['id'] == c.id || item['id']?.toString() == c.id.toString())) {
+          final rawM = item['metrics'];
+          if (rawM is Map) {
+            metrics = Map<String, dynamic>.from(rawM);
+          }
+          break;
+        }
       }
+      final t = metrics['sales_turnover'] as num? ?? 0;
+      final apiSpark = (metrics['sparkline'] is List)
+          ? (metrics['sparkline'] as List).whereType<num>().toList()
+          : <num>[];
+      final spark = apiSpark.isNotEmpty
+          ? apiSpark
+          : (t > 0 ? <num>[0, t] : const <num>[]);
+      final style = switch (c.industry) {
+        'cafe_bakery' => (color: const Color(0xFFD97706), icon: Icons.restaurant_rounded, sub: 'Bakery Counter & Dining POS'),
+        'bulk_water' => (color: const Color(0xFF2563EB), icon: Icons.fire_truck_rounded, sub: 'Heavy Bulk Tanker Freight'),
+        'packaged_water' => (color: const Color(0xFF0284C7), icon: Icons.water_drop_rounded, sub: 'Packaged Water Can Beat Delivery'),
+        _ => (color: palette[i % palette.length], icon: Icons.business_rounded, sub: 'Enterprise Operations'),
+      };
+      entityRows.add((
+        company: c,
+        turnover: t,
+        color: style.color,
+        icon: style.icon,
+        subtitle: style.sub,
+        sparkline: spark,
+      ));
     }
 
-    final total = (aranTurnover + tmwsTurnover + dkWatersTurnover);
-    final safeTotal = total > 0 ? total : 1.0;
-    final aranPct = ((aranTurnover / safeTotal) * 100).toStringAsFixed(1);
-    final tmwsPct = ((tmwsTurnover / safeTotal) * 100).toStringAsFixed(1);
-    final dkPct = ((dkWatersTurnover / safeTotal) * 100).toStringAsFixed(1);
+    final totalTurnoverSum = entityRows.fold<num>(0, (acc, r) => acc + r.turnover);
+    final denominator = totalTurnoverSum > 0 ? totalTurnoverSum : groupTurnover;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -835,75 +927,48 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
           const SizedBox(height: 16),
 
           // Multi-Segment Horizontal Progress Chart Bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: SizedBox(
-              height: 12,
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: (aranTurnover * 10).toInt().clamp(1, 10000),
-                    child: Container(color: const Color(0xFFD97706)),
-                  ),
-                  const SizedBox(width: 2),
-                  Expanded(
-                    flex: (tmwsTurnover * 10).toInt().clamp(1, 10000),
-                    child: Container(color: const Color(0xFF2563EB)),
-                  ),
-                  const SizedBox(width: 2),
-                  Expanded(
-                    flex: (dkWatersTurnover * 10).toInt().clamp(1, 10000),
-                    child: Container(color: const Color(0xFF0284C7)),
-                  ),
-                ],
+          if (entityRows.isNotEmpty) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: SizedBox(
+                height: 12,
+                child: Row(
+                  children: [
+                    for (var i = 0; i < entityRows.length; i++) ...[
+                      if (i > 0) const SizedBox(width: 2),
+                      Expanded(
+                        flex: (entityRows[i].turnover * 10).toInt().clamp(1, 10000),
+                        child: Container(color: entityRows[i].color),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // 3 Entity Breakdown Rows with Sparkline Mini-Charts
-          _buildRevenueEntityRow(
-            context: context,
-            name: 'Aran Cafe',
-            subtitle: 'Bakery Counter & Dining POS',
-            amount: aranTurnover,
-            pct: '$aranPct%',
-            color: const Color(0xFFD97706),
-            icon: Icons.restaurant_rounded,
-            sparkline: const [6500, 9200, 13400, 16100, 18200, 19705],
-            textCol: textCol,
-            mutedCol: mutedCol,
-            isDark: isDark,
-          ),
-          const Divider(height: 16),
-          _buildRevenueEntityRow(
-            context: context,
-            name: 'Tiruchendur Murugan Water',
-            subtitle: 'Heavy Bulk Tanker Freight',
-            amount: tmwsTurnover,
-            pct: '$tmwsPct%',
-            color: const Color(0xFF2563EB),
-            icon: Icons.fire_truck_rounded,
-            sparkline: const [5000, 8000, 11000, 13200, 14800, 15600],
-            textCol: textCol,
-            mutedCol: mutedCol,
-            isDark: isDark,
-          ),
-          const Divider(height: 16),
-          _buildRevenueEntityRow(
-            context: context,
-            name: 'DK Waters',
-            subtitle: '20L Packaged Can Beat Delivery',
-            amount: dkWatersTurnover,
-            pct: '$dkPct%',
-            color: const Color(0xFF0284C7),
-            icon: Icons.water_drop_rounded,
-            sparkline: const [2100, 3400, 4500, 5200, 5800, 6125],
-            textCol: textCol,
-            mutedCol: mutedCol,
-            isDark: isDark,
-          ),
+            const SizedBox(height: 16),
+            for (var i = 0; i < entityRows.length; i++) ...[
+              if (i > 0) const Divider(height: 16),
+              _buildRevenueEntityRow(
+                context: context,
+                name: entityRows[i].company.name,
+                subtitle: entityRows[i].subtitle,
+                amount: entityRows[i].turnover,
+                pct: denominator > 0
+                    ? '${((entityRows[i].turnover / denominator) * 100).toStringAsFixed(1)}%'
+                    : '0.0%',
+                color: entityRows[i].color,
+                icon: entityRows[i].icon,
+                sparkline: entityRows[i].sparkline,
+                textCol: textCol,
+                mutedCol: mutedCol,
+                isDark: isDark,
+              ),
+            ],
+          ] else
+            Text(
+              'No company turnover data synced yet.',
+              style: GoogleFonts.inter(fontSize: 12, color: mutedCol),
+            ),
         ],
       ),
     );
@@ -994,7 +1059,91 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
     required Color mutedCol,
     required Color cardBg,
     required Color borderCol,
+    required List<CompanyInfo> companies,
   }) {
+    final compDataList = (_workspaceData?['companies'] as List<dynamic>?) ?? [];
+    final palette = [
+      const Color(0xFFD97706),
+      const Color(0xFF2563EB),
+      const Color(0xFF0284C7),
+      const Color(0xFF059669),
+    ];
+
+    final cards = <Widget>[];
+    for (var i = 0; i < companies.length; i++) {
+      final c = companies[i];
+      Map<String, dynamic> metrics = const {};
+      for (final item in compDataList) {
+        if (item is Map && (item['id'] == c.id || item['id']?.toString() == c.id.toString())) {
+          final rawM = item['metrics'];
+          if (rawM is Map) {
+            metrics = Map<String, dynamic>.from(rawM);
+          }
+          break;
+        }
+      }
+      final turnover = metrics['sales_turnover'] as num? ?? 0;
+      final receivables = metrics['receivables'] as num? ?? 0;
+      final cashBank = metrics['cash_and_bank'] as num? ?? 0;
+
+      final spec = switch (c.industry) {
+        'cafe_bakery' => (
+            title: '${c.name} POS Desk',
+            badge: '${metrics['today_orders'] ?? metrics['orders_count'] ?? 0} Orders',
+            m1: 'Order Volume: ₹$turnover',
+            m2: 'Kitchen KOT & Counter Billing',
+            status: 'POS Terminal Ready',
+            color: const Color(0xFFD97706),
+            icon: Icons.restaurant_menu_rounded,
+          ),
+        'bulk_water' => (
+            title: '${c.name} Tanker Logistics',
+            badge: '${metrics['kl_dispatched'] ?? 0} KL Dispatched',
+            m1: 'Tanker Trips: ${metrics['trips_count'] ?? 0} · Sales: ₹$turnover',
+            m2: 'Receivables: ₹$receivables',
+            status: 'GPS & Odometer Audit',
+            color: const Color(0xFF2563EB),
+            icon: Icons.fire_truck_rounded,
+          ),
+        'packaged_water' => (
+            title: '${c.name} Can Delivery',
+            badge: '${metrics['cans_delivered'] ?? 0} Cans / ${metrics['stops_count'] ?? 0} Stops',
+            m1: 'Empties Returned: ${metrics['empties_returned'] ?? 0}',
+            m2: 'Turnover: ₹$turnover',
+            status: '7-Layer Route Shield',
+            color: const Color(0xFF0284C7),
+            icon: Icons.water_drop_rounded,
+          ),
+        _ => (
+            title: '${c.name} Operations',
+            badge: '₹$turnover Sales',
+            m1: 'Cash & Bank: ₹$cashBank',
+            m2: 'Receivables: ₹$receivables',
+            status: 'ERP Ledger Synced',
+            color: palette[i % palette.length],
+            icon: Icons.business_center_rounded,
+          ),
+      };
+
+      cards.add(
+        _buildCartInsightItem(
+          context: context,
+          title: spec.title,
+          badge: spec.badge,
+          metric1: spec.m1,
+          metric2: spec.m2,
+          status: spec.status,
+          color: spec.color,
+          icon: spec.icon,
+          isDark: isDark,
+          textCol: textCol,
+          mutedCol: mutedCol,
+          borderCol: borderCol,
+          cardBg: cardBg,
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1049,7 +1198,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                '3 VERTICALS',
+                '${companies.length} ${companies.length == 1 ? 'VERTICAL' : 'VERTICALS'}',
                 style: GoogleFonts.inter(
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
@@ -1062,123 +1211,37 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
 
         const SizedBox(height: 12),
 
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final isTablet = constraints.maxWidth >= 720;
-            if (isTablet) {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: _buildCartInsightItem(
-                      context: context,
-                      title: 'Aran Cafe POS Carts',
-                      badge: '9 Active Carts',
-                      metric1: 'Order Volume: ₹2,450',
-                      metric2: 'Kitchen KOT & Express Dining',
-                      status: 'Live Counter Billing',
-                      color: const Color(0xFFD97706),
-                      icon: Icons.restaurant_menu_rounded,
-                      isDark: isDark,
-                      textCol: textCol,
-                      mutedCol: mutedCol,
-                      borderCol: borderCol,
-                      cardBg: cardBg,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildCartInsightItem(
-                      context: context,
-                      title: 'TMWS Tanker Logistics',
-                      badge: '48 KL Dispatched',
-                      metric1: 'Heavy Tanker Trips: 4 Done',
-                      metric2: 'Borewell Hub to Texvalley',
-                      status: 'Anti-Siphon Secured',
-                      color: const Color(0xFF2563EB),
-                      icon: Icons.fire_truck_rounded,
-                      isDark: isDark,
-                      textCol: textCol,
-                      mutedCol: mutedCol,
-                      borderCol: borderCol,
-                      cardBg: cardBg,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildCartInsightItem(
-                      context: context,
-                      title: 'DK Waters Can Delivery',
-                      badge: '120 Cans / 60 Stops',
-                      metric1: 'Daily Route Beat: Active',
-                      metric2: '100% Empty Can Custody',
-                      status: 'Tata Ace Van En Route',
-                      color: const Color(0xFF0284C7),
-                      icon: Icons.water_drop_rounded,
-                      isDark: isDark,
-                      textCol: textCol,
-                      mutedCol: mutedCol,
-                      borderCol: borderCol,
-                      cardBg: cardBg,
-                    ),
-                  ),
-                ],
-              );
-            } else {
-              return Column(
-                children: [
-                  _buildCartInsightItem(
-                    context: context,
-                    title: 'Aran Cafe POS Carts',
-                    badge: '9 Active Carts',
-                    metric1: 'Order Volume: ₹2,450',
-                    metric2: 'Kitchen KOT & Express Dining',
-                    status: 'Live Counter Billing',
-                    color: const Color(0xFFD97706),
-                    icon: Icons.restaurant_menu_rounded,
-                    isDark: isDark,
-                    textCol: textCol,
-                    mutedCol: mutedCol,
-                    borderCol: borderCol,
-                    cardBg: cardBg,
-                  ),
-                  const SizedBox(height: 10),
-                  _buildCartInsightItem(
-                    context: context,
-                    title: 'TMWS Tanker Logistics',
-                    badge: '48 KL Dispatched',
-                    metric1: 'Heavy Tanker Trips: 4 Done',
-                    metric2: 'Borewell Hub to Texvalley',
-                    status: 'Anti-Siphon Secured',
-                    color: const Color(0xFF2563EB),
-                    icon: Icons.fire_truck_rounded,
-                    isDark: isDark,
-                    textCol: textCol,
-                    mutedCol: mutedCol,
-                    borderCol: borderCol,
-                    cardBg: cardBg,
-                  ),
-                  const SizedBox(height: 10),
-                  _buildCartInsightItem(
-                    context: context,
-                    title: 'DK Waters Can Delivery',
-                    badge: '120 Cans / 60 Stops',
-                    metric1: 'Daily Route Beat: Active',
-                    metric2: '100% Empty Can Custody',
-                    status: 'Tata Ace Van En Route',
-                    color: const Color(0xFF0284C7),
-                    icon: Icons.water_drop_rounded,
-                    isDark: isDark,
-                    textCol: textCol,
-                    mutedCol: mutedCol,
-                    borderCol: borderCol,
-                    cardBg: cardBg,
-                  ),
-                ],
-              );
-            }
-          },
-        ),
+        if (cards.isEmpty)
+          Text(
+            'No operational metrics synced yet.',
+            style: GoogleFonts.inter(fontSize: 12, color: mutedCol),
+          )
+        else
+          Builder(
+            builder: (context) {
+              final isTablet = MediaQuery.sizeOf(context).width >= 720;
+              if (isTablet) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (var i = 0; i < cards.length; i++) ...[
+                      if (i > 0) const SizedBox(width: 12),
+                      Expanded(child: cards[i]),
+                    ],
+                  ],
+                );
+              } else {
+                return Column(
+                  children: [
+                    for (var i = 0; i < cards.length; i++) ...[
+                      if (i > 0) const SizedBox(height: 10),
+                      cards[i],
+                    ],
+                  ],
+                );
+              }
+            },
+          ),
       ],
     );
   }
@@ -1485,7 +1548,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
           'Live Decanting Flow Telemetry',
         ),
       'packaged_water' => (
-          'Packaged Water (20L Cans)',
+          'Packaged Water (Cans & Bottles)',
           Icons.water_drop_rounded,
           const Color(0xFF0284C7),
           isDark
@@ -1772,30 +1835,71 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
 
                 const Spacer(),
 
-                // 4. Action Button: "Open Workspace"
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => _selectCompany(context, company),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      elevation: 0,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Open Workspace',
-                          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w800),
+                // 4. Action Buttons: Optional "GPS Map" (for water verticals) + "Open Workspace"
+                Row(
+                  children: [
+                    if (industry == 'bulk_water' || industry == 'packaged_water') ...[
+                      OutlinedButton.icon(
+                        onPressed: () => _selectCompanyAndOpen(
+                          context,
+                          company,
+                          '/fleet/gps?mode=$industry',
                         ),
-                        const SizedBox(width: 6),
-                        const Icon(Icons.arrow_forward_rounded, size: 16),
-                      ],
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: primaryColor,
+                          side: BorderSide(color: primaryColor.withOpacity(0.55)),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 11,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        icon: const Icon(Icons.radar_rounded, size: 16),
+                        label: Text(
+                          'GPS Map',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => _selectCompany(context, company),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                'Open Workspace',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Icon(Icons.arrow_forward_rounded, size: 16),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),

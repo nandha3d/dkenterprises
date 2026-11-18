@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-tertiary-fixed-variant": "#005233", "critical-ruby": "#D92D20", "pending-honey": "#E9A23B", "on-tertiary": "#ffffff", "role-cafe-primary": "#C2542D", "role-field-primary": "#3F7D58", "secondary": "#4c6700", "surface-dim": "#dcdad5", "surface-container-high": "#eae8e3", "role-driver-action": "#FFC933", "money-mint": "#1FA971", "on-error": "#ffffff", "role-driver-canvas": "#F3F8FA", "role-field-action": "#C9F36A", "outline": "#6f7976", "surface-container-low": "#f5f3ee", "ink": "#13201B", "dark-surface-tonal": "#1F2E27", "primary": "#00443b", "surface-tonal": "#ECEFEA", "surface": "#FFFFFF", "secondary-fixed-dim": "#acd44f", "surface-container-highest": "#e4e2dd", "on-secondary-fixed": "#151f00", "ink-muted": "#66736C", "role-driver-primary": "#0E8FB3", "on-secondary": "#ffffff", "primary-fixed": "#a9f0e1", "secondary-fixed": "#c7f169", "error": "#ba1a1a", "on-tertiary-container": "#61dda0", "surface-container": "#f0eee9", "tertiary": "#00452a", "primary-container": "#0b5d52", "tertiary-fixed-dim": "#61dda0", "background": "#fbf9f4", "on-tertiary-fixed": "#002112", "info-sky": "#2E90FA", "dark-canvas": "#0E1512", "role-cafe-action": "#F4A62A", "on-surface-variant": "#3f4946", "secondary-container": "#c5ee66", "surface-container-lowest": "#ffffff", "outline-variant": "#bec9c5", "inverse-on-surface": "#f2f1ec", "money-coral": "#E8505B", "on-primary-container": "#8dd3c5", "surface-variant": "#e4e2dd", "dark-surface": "#17221D", "inverse-primary": "#8ed4c5", "on-secondary-fixed-variant": "#394e00", "dark-ink": "#EDF3EF", "on-secondary-container": "#506c00", "surface-bright": "#fbf9f4", "inverse-surface": "#30312e", "hairline": "#E3E1DA", "role-cafe-ink": "#2B1B14", "on-error-container": "#93000a", "surface-tint": "#1f695e", "role-cafe-canvas": "#FBF4EA", "error-container": "#ffdad6", "on-surface": "#1b1c19", "tertiary-fixed": "#7ffaba", "primary-fixed-dim": "#8ed4c5", "dark-ink-muted": "#93A39B", "on-primary-fixed": "#00201b", "on-background": "#1b1c19", "tertiary-container": "#005f3c", "on-primary-fixed-variant": "#005046", "on-primary": "#ffffff" }, borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }, spacing: { "space-sm": "0.5rem", "gutter": "0.75rem", "space-xs": "0.25rem", "space-md": "0.75rem", "space-lg": "1rem", "space-xl": "1.5rem", "margin": "1rem" }, fontFamily: { "display-numeral-mobile": ["Manrope"], "label-action": ["Manrope"], "body-md": ["Manrope"], "caption-meta": ["Manrope"], "body-lg": ["Manrope"], "headline-md": ["Manrope"], "sublabel-regional": ["Noto Sans Tamil"], "display-numeral": ["Manrope"], "headline-lg": ["Manrope"] }, fontSize: { "display-numeral-mobile": ["40px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800" }], "label-action": ["16px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "700" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "500" }], "caption-meta": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "600" }], "headline-md": ["20px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "700" }], "sublabel-regional": ["11px", { lineHeight: "14px", fontWeight: "600" }], "display-numeral": ["48px", { lineHeight: "52px", letterSpacing: "-0.03em", fontWeight: "800" }], "headline-lg": ["28px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "800" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    .fluid-pill-spring {
+      transition: transform 380ms cubic-bezier(0.34, 1.56, 0.64, 1), width 340ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 200ms ease;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface-container-low text-ink font-body-md flex flex-col min-h-screen selection:bg-role-field-action"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin flex items-center justify-between gap-gutter"><div class="flex items-center gap-space-sm"><img alt="DK Enterprises Monogram" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrDWZ6BLDwpb_SDLS1VcIPwS_u68J_qSJJCiNpDuaLAW9Yovx9xym8ES6_OFDtD4N49PrhJhL4aod7Gp40vN0O2ok0ubp8akF_aUEtfow5zKkw05-t_h8ZQMiq0svlhlfvBpl0M_2a_X5Yi6A3E7m9u3hrxvqGOwwfEuQqw1FFN_CZ7BqF6xvFw-w79ioaE3hG9vP870jqxjYnc4Xorwfko003e7Lb9zuSbQv2bLPqb1"/><button class="flex items-center gap-space-xs px-space-sm py-1.5 rounded-full bg-surface-tonal hover:bg-surface-container-high transition-colors min-h-[44px]" type="button"><span class="material-symbols-outlined text-role-field-primary text-[18px]">store</span><span class="font-caption-meta text-caption-meta text-ink tracking-tight max-w-[124px] truncate">Aran Cafe</span><span class="material-symbols-outlined text-ink-muted text-[16px]">expand_more</span></button></div><div class="flex items-center gap-space-sm"><div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-money-mint/10 text-money-mint"><span class="material-symbols-outlined text-[14px]">check_circle</span><span class="font-caption-meta text-[11px] font-bold tracking-wide">Synced</span></div><button class="relative w-11 h-11 flex items-center justify-center rounded-full text-ink hover:bg-surface-tonal transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-critical-ruby"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full px-margin pt-16 pb-32 bg-surface-container-low"><div class="flex flex-col w-full pb-10">
+<!-- Top Navigation & Meta Header -->
+<div class="flex flex-col gap-2 mb-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<button aria-label="Go Back" class="w-11 h-11 flex items-center justify-center rounded-full bg-surface hover:bg-surface-tonal active:scale-95 transition-transform shadow-sm" type="button">
+<span class="material-symbols-outlined text-ink text-[22px]">arrow_back</span>
+</button>
+<div>
+<h1 class="font-headline-md text-headline-md text-ink leading-tight">Driver Cash Surrender</h1>
+<p class="font-sublabel-regional text-sublabel-regional text-ink-muted">தினசரி வசூல் ஒப்படைப்பு</p>
+</div>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-role-driver-primary/10 text-role-driver-primary font-caption-meta text-caption-meta">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">lock_clock</span>
+<span>Shift Closing · EOD</span>
+</div>
+</div>
+<!-- Driver & Route Badge Card -->
+<div class="bg-surface rounded-2xl p-3 shadow-sm flex items-center justify-between gap-3">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-10 h-10 rounded-full bg-role-driver-canvas flex items-center justify-center shrink-0 text-role-driver-primary">
+<span class="material-symbols-outlined text-[22px]">badge</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-body-lg text-body-lg text-ink font-bold truncate">R. Muthu</span>
+<span class="font-caption-meta text-[11px] px-1.5 py-0.5 rounded bg-surface-tonal text-ink-muted">ID: DRV-042</span>
+</div>
+<p class="font-caption-meta text-caption-meta text-ink-muted truncate">TN-58-WA-101 (Tata Ace) • Beat #1</p>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="inline-flex items-center gap-1 font-caption-meta text-[11px] px-2 py-1 rounded-full bg-money-mint/10 text-money-mint">
+<span class="w-1.5 h-1.5 rounded-full bg-money-mint animate-pulse"></span>
+          Gate Ready
+        </span>
+</div>
+</div>
+</div>
+<!-- Hero Module: Gross Cash Collected -->
+<div class="bg-role-driver-primary text-on-primary rounded-[28px] p-5 shadow-sm mb-4 relative overflow-hidden">
+<div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/5 rounded-full pointer-events-none"></div>
+<div class="flex flex-col gap-1 relative z-10">
+<div class="flex items-center justify-between">
+<span class="font-caption-meta text-caption-meta tracking-wider uppercase opacity-90">Gross Cash Collected Today</span>
+<span class="font-sublabel-regional text-sublabel-regional opacity-75">இன்றைய மொத்த வசூல்</span>
+</div>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-display-numeral-mobile text-display-numeral-mobile tracking-tight">₹4,100</span>
+<span class="font-caption-meta text-caption-meta px-2 py-0.5 rounded-full bg-white/20 text-white font-bold">14 Spot Tickets</span>
+</div>
+<!-- Breakdown Pills Bento Row -->
+<div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-white/15">
+<div class="bg-black/15 backdrop-blur-sm rounded-xl p-2.5 flex flex-col justify-between">
+<span class="font-caption-meta text-[11px] opacity-80 leading-tight">Cash in Hand</span>
+<span class="font-body-lg text-[15px] font-bold mt-1 text-white">₹4,100</span>
+<span class="font-sublabel-regional text-[10px] opacity-70">நேரடி ரொக்கம்</span>
+</div>
+<div class="bg-black/15 backdrop-blur-sm rounded-xl p-2.5 flex flex-col justify-between">
+<span class="font-caption-meta text-[11px] opacity-80 leading-tight">UPI Direct</span>
+<span class="font-body-lg text-[15px] font-bold mt-1 text-primary-fixed">₹1,850</span>
+<span class="font-sublabel-regional text-[10px] opacity-70">வங்கி வரவு</span>
+</div>
+<div class="bg-black/15 backdrop-blur-sm rounded-xl p-2.5 flex flex-col justify-between">
+<span class="font-caption-meta text-[11px] opacity-80 leading-tight">Credit Ledger</span>
+<span class="font-body-lg text-[15px] font-bold mt-1 text-secondary-fixed">₹560</span>
+<span class="font-sublabel-regional text-[10px] opacity-70">கடன் ஏடு</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 mt-3 text-white/80 font-caption-meta text-caption-meta">
+<span class="material-symbols-outlined text-[16px]">local_shipping</span>
+<span>Total Route Sales Volume: ₹6,510 (38 Cans Billed)</span>
+</div>
+</div>
+</div>
+<!-- Route Operational Deductions Section -->
+<div class="bg-surface rounded-[20px] p-4 shadow-sm mb-4">
+<div class="flex items-center justify-between mb-3">
+<div>
+<h2 class="font-body-lg text-body-lg text-ink font-bold">Route Operational Deductions</h2>
+<p class="font-sublabel-regional text-sublabel-regional text-ink-muted">வழிச் செலவுகள் கழிவு</p>
+</div>
+<span class="font-caption-meta text-caption-meta px-2.5 py-1 rounded-full bg-surface-tonal text-ink-muted font-bold">− ₹400</span>
+</div>
+<!-- Expense Row 1: Diesel & Tolls -->
+<div class="bg-surface-container-low rounded-2xl p-3 mb-2.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-xl bg-pending-honey/15 text-pending-honey flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">local_gas_station</span>
+</div>
+<div>
+<div class="font-body-md text-body-md text-ink font-bold">Less: Fuel &amp; Route Expenses</div>
+<div class="font-sublabel-regional text-sublabel-regional text-ink-muted">எரிபொருள் &amp; சுங்கச்சாவடி செலவு</div>
+</div>
+</div>
+<div class="text-right">
+<span class="font-body-lg text-body-lg text-critical-ruby font-bold">− ₹400</span>
+</div>
+</div>
+<!-- Voucher Summary Chip & Receipt Photo -->
+<div class="mt-3 pt-2.5 border-t border-hairline/60 flex items-center justify-between gap-2">
+<div class="flex items-center gap-2 min-w-0">
+<img class="w-8 h-8 rounded-lg object-cover bg-surface-tonal shrink-0" data-alt="Close-up photograph of a printed Tamil Nadu Indian Oil fuel pump cash receipt resting on a dark vehicle dashboard with handwritten vehicle number TN 58 WA 101" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKTypeDY2WSHGmyUFYWSa7_kIBsuDgROshs-1LIR8jDjWiAq1pfhDMDmQ5RdEHZ6ji3V-NUstIjGdE0PlDUHt59jsWY2LmTK55riv93ukLRK86yVS7qkmrzU2xGcGzIdr9rOdQ9eBqADtFtOBOnprsWLemxG_hBmeNR96w00RLfmfXupNjRjW3usbA3eySQ-3b_4z3mNd95wLkbxPDJaIg-Cw47JR4yoVhtsG_qIk"/>
+<span class="font-caption-meta text-caption-meta text-ink-muted truncate">2 Slips: 5L Diesel ₹350 + Toll ₹50</span>
+</div>
+<button class="shrink-0 flex items-center gap-0.5 text-role-driver-primary font-caption-meta text-caption-meta font-bold hover:underline active:scale-95" type="button">
+<span>View Slips</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Expense Row 2: Driver Allowance -->
+<div class="bg-surface-container-low rounded-2xl p-3 flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-xl bg-surface-tonal text-ink-muted flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">lunch_dining</span>
+</div>
+<div>
+<div class="font-body-md text-body-md text-ink font-bold">Driver Batta / Allowance</div>
+<div class="font-sublabel-regional text-sublabel-regional text-ink-muted">பயணப்படி (அலுவலகத்தில் பட்டுவாடா)</div>
+</div>
+</div>
+<div class="text-right">
+<span class="font-body-md text-body-md text-ink-muted font-bold">₹0</span>
+<span class="block font-caption-meta text-[11px] text-ink-muted/80">Paid at HO</span>
+</div>
+</div>
+</div>
+<!-- Net Cash Surrender Calculation Card -->
+<div class="bg-money-mint/10 rounded-[24px] p-4 shadow-sm mb-4 relative overflow-hidden">
+<div class="flex items-center justify-between">
+<div>
+<span class="font-caption-meta text-caption-meta text-money-mint uppercase tracking-wider font-bold">Net Cash Surrendered to Cashier</span>
+<p class="font-sublabel-regional text-sublabel-regional text-ink-muted">காசாளரிடம் ஒப்படைக்கும் நிகர தொகை</p>
+</div>
+<span class="w-8 h-8 rounded-full bg-money-mint/20 text-money-mint flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+</span>
+</div>
+<!-- Big Display Numeral -->
+<div class="my-2">
+<span class="font-display-numeral-mobile text-display-numeral-mobile text-ink font-extrabold tracking-tight">₹3,700</span>
+<p class="font-sublabel-regional text-sublabel-regional text-ink-muted mt-0.5">மூன்றாயிரத்து எழுநூறு ரூபாய் மட்டும்</p>
+</div>
+<!-- Equation Capsule Banner -->
+<div class="bg-surface rounded-xl p-2.5 flex items-center justify-between text-ink text-caption-meta font-caption-meta shadow-sm">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="font-bold text-money-mint">₹4,100</span>
+<span class="text-ink-muted text-[11px]">(Gross)</span>
+<span class="text-critical-ruby font-bold">− ₹400</span>
+<span class="text-ink-muted text-[11px]">(Diesel)</span>
+<span class="font-bold text-ink">= ₹3,700</span>
+</div>
+<span class="inline-flex items-center gap-1 text-[11px] text-money-mint font-bold shrink-0">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+        GL 1010
+      </span>
+</div>
+</div>
+<!-- Empty Cans Custody Handover Section -->
+<div class="bg-surface rounded-[20px] p-4 shadow-sm mb-4">
+<div class="flex items-center justify-between mb-3">
+<div>
+<h2 class="font-body-lg text-body-lg text-ink font-bold">Empty Cans Custody Handover</h2>
+<p class="font-sublabel-regional text-sublabel-regional text-ink-muted">காலி கேன்கள் தொழிற்சாலை ஒப்படைப்பு</p>
+</div>
+<span class="w-8 h-8 rounded-full bg-role-driver-primary/10 text-role-driver-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">recycling</span>
+</span>
+</div>
+<!-- Primary Jar Stepper Control (64px target) -->
+<div class="bg-surface-container-low rounded-2xl p-3 mb-3">
+<div class="flex items-center justify-between mb-2">
+<span class="font-body-md text-body-md text-ink font-bold">Empty Jars Returned to Plant</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">காலி கேன் எண்ணிக்கை</span>
+</div>
+<div class="flex items-center justify-between bg-surface rounded-full p-1.5 h-16 shadow-sm">
+<button aria-label="Decrease cans" class="w-14 h-full rounded-full bg-surface-tonal hover:bg-surface-container-high text-ink flex items-center justify-center active:scale-95 transition-transform" id="btn-jar-minus" type="button">
+<span class="material-symbols-outlined text-[22px]">remove</span>
+</button>
+<div class="flex flex-col items-center">
+<span class="font-display-numeral-mobile text-[32px] font-extrabold text-ink leading-none" id="jar-count-display">38</span>
+<span class="font-caption-meta text-[11px] text-ink-muted uppercase">20L Standard Jars</span>
+</div>
+<button aria-label="Increase cans" class="w-14 h-full rounded-full bg-surface-tonal hover:bg-surface-container-high text-ink flex items-center justify-center active:scale-95 transition-transform" id="btn-jar-plus" type="button">
+<span class="material-symbols-outlined text-[22px]">add</span>
+</button>
+</div>
+<!-- Reconciliation Badges Row -->
+<div class="grid grid-cols-4 gap-1.5 mt-2.5 text-center">
+<div class="bg-surface rounded-lg py-1.5 px-1">
+<span class="block font-caption-meta text-[10px] text-ink-muted">Loaded</span>
+<span class="font-body-md text-body-md font-bold text-ink">60</span>
+</div>
+<div class="bg-surface rounded-lg py-1.5 px-1">
+<span class="block font-caption-meta text-[10px] text-ink-muted">Delivered</span>
+<span class="font-body-md text-body-md font-bold text-ink">38</span>
+</div>
+<div class="bg-surface rounded-lg py-1.5 px-1">
+<span class="block font-caption-meta text-[10px] text-ink-muted">Collected</span>
+<span class="font-body-md text-body-md font-bold text-money-mint">38</span>
+</div>
+<div class="bg-surface rounded-lg py-1.5 px-1">
+<span class="block font-caption-meta text-[10px] text-ink-muted">In Van</span>
+<span class="font-body-md text-body-md font-bold text-ink">0</span>
+</div>
+</div>
+</div>
+<!-- Damaged / Leakage Jar Row -->
+<div class="bg-surface-container-low rounded-2xl p-3 flex items-center justify-between">
+<div>
+<span class="font-body-md text-body-md text-ink font-bold">Damaged / Broken Jars</span>
+<span class="block font-sublabel-regional text-sublabel-regional text-ink-muted">சேதமடைந்த கேன்கள் (Plant dock log)</span>
+</div>
+<div class="flex items-center gap-2 bg-surface rounded-full p-1 h-12 shadow-sm">
+<button aria-label="Minus damaged cans" class="w-10 h-10 rounded-full bg-surface-tonal text-ink flex items-center justify-center active:scale-95" id="btn-dmg-minus" type="button">
+<span class="material-symbols-outlined text-[18px]">remove</span>
+</button>
+<span class="font-body-lg text-body-lg font-bold text-ink w-7 text-center" id="dmg-count-display">0</span>
+<button aria-label="Plus damaged cans" class="w-10 h-10 rounded-full bg-surface-tonal text-ink flex items-center justify-center active:scale-95" id="btn-dmg-plus" type="button">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Cashier Handover Notes & Verification Card -->
+<div class="bg-surface rounded-[20px] p-4 shadow-sm mb-4">
+<div class="flex items-center justify-between mb-3">
+<div>
+<h2 class="font-body-lg text-body-lg text-ink font-bold">Cashier Handover &amp; Verification</h2>
+<p class="font-sublabel-regional text-sublabel-regional text-ink-muted">காசாளர் குறிப்பு &amp; சரிபார்ப்பு</p>
+</div>
+<span class="material-symbols-outlined text-role-driver-primary text-[20px]">person_check</span>
+</div>
+<!-- Cashier Selector -->
+<div class="bg-surface-container-low rounded-2xl p-3 mb-3">
+<span class="font-caption-meta text-[11px] text-ink-muted uppercase block mb-1">Receiving Cashier</span>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<img class="w-9 h-9 rounded-full object-cover shrink-0" data-alt="Portrait photograph of an Indian warehouse accountant in light blue collared shirt smiling with an office clipboard in natural warehouse day lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvTp_bw5ry9suHfOe9XGYL2NAwww0_U_6pUSMi49LV8MrfFj3zaRRPs8aIdmJIM4_JZf20gK-D_MxI5ewTgQ-Junn7XPGClT8FEuOEBxDH-FHuvMNP16A5uA0UXbg_2dSuAhWDcZhEbNxx0tU4grsq9pTuSzODXfSGun5LRheK2Ffs7veiHiJWB5ksROU6ixvM-Dj8wpEo4QseP5YntHBG0vexGoIfcPVB7OXIKRM"/>
+<div>
+<span class="font-body-md text-body-md text-ink font-bold">S. Vimal</span>
+<span class="block font-caption-meta text-caption-meta text-ink-muted">Head Cashier · Main Office (GL 1010)</span>
+</div>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface text-ink-muted hover:text-ink flex items-center justify-center" type="button">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+</button>
+</div>
+</div>
+<!-- Denominations Accordion / Preview -->
+<div class="bg-surface-container-low rounded-2xl p-3 mb-3">
+<div class="flex items-center justify-between">
+<span class="font-caption-meta text-[11px] text-ink-muted uppercase">Physical Cash Denominations</span>
+<button class="font-caption-meta text-[12px] text-role-driver-primary font-bold hover:underline flex items-center gap-0.5" id="toggle-denom" type="button">
+<span>Details</span>
+<span class="material-symbols-outlined text-[14px]">expand_more</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-ink font-bold mt-1">₹500 × 6 · ₹200 × 3 · ₹100 × 1</p>
+<div class="hidden mt-2 pt-2 border-t border-hairline/60 flex flex-col gap-1.5 font-caption-meta text-caption-meta text-ink-muted" id="denom-drawer">
+<div class="flex justify-between"><span>₹500 Notes (6)</span><span class="font-bold text-ink">₹3,000</span></div>
+<div class="flex justify-between"><span>₹200 Notes (3)</span><span class="font-bold text-ink">₹600</span></div>
+<div class="flex justify-between"><span>₹100 Notes (1)</span><span class="font-bold text-ink">₹100</span></div>
+</div>
+</div>
+<!-- Prefilled Handover Notes -->
+<div class="bg-surface-container-low rounded-2xl p-3">
+<label class="font-caption-meta text-[11px] text-ink-muted uppercase block mb-1" for="handover-notes">Handover Notes &amp; Remarks</label>
+<textarea class="w-full bg-transparent border-0 p-0 font-body-md text-body-md text-ink placeholder:text-ink-muted/50 focus:outline-none focus:ring-0 resize-none" id="handover-notes" readonly="" rows="2">Handed over ₹3,700 physical cash + 38 empty jars to Head Cashier S. Vimal. All 14 spot delivery tickets synced.</textarea>
+</div>
+</div>
+<!-- Confirmation Sticky Action Slabs (Above bottom nav clearance) -->
+<div class="mt-2 flex flex-col gap-2">
+<!-- Primary 56px Action Slab (Sun-Yellow role-driver-action) -->
+<button class="w-full h-14 min-h-[56px] rounded-full bg-role-driver-action hover:brightness-105 active:scale-[0.98] text-ink font-label-action text-label-action font-extrabold flex items-center justify-center gap-2 shadow-sm transition-all" id="btn-submit-surrender" type="button">
+<span class="material-symbols-outlined text-[22px]">lock_reset</span>
+<span>Confirm Cash Surrender (வசூல் ஒப்படை)</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+<!-- Secondary Clear Audit Note -->
+<div class="flex items-center justify-center gap-1.5 text-center px-2">
+<span class="material-symbols-outlined text-[14px] text-money-mint">format_image_left</span>
+<span class="font-caption-meta text-[11px] text-ink-muted leading-tight">Instant journal entry posted to Cash GL 1010 • Requires Cashier OTP / Biometric sign-off</span>
+</div>
+</div>
+</div>
+<script>
+  (function initSurrenderScreen() {
+    // Steppers interaction logic
+    let jars = 38;
+    let damaged = 0;
+
+    const jarDisplay = document.getElementById('jar-count-display');
+    const dmgDisplay = document.getElementById('dmg-count-display');
+    const btnJarMinus = document.getElementById('btn-jar-minus');
+    const btnJarPlus = document.getElementById('btn-jar-plus');
+    const btnDmgMinus = document.getElementById('btn-dmg-minus');
+    const btnDmgPlus = document.getElementById('btn-dmg-plus');
+
+    if (btnJarMinus && btnJarPlus && jarDisplay) {
+      btnJarMinus.addEventListener('click', () => {
+        if (jars > 0) {
+          jars--;
+          jarDisplay.textContent = jars;
+        }
+      });
+      btnJarPlus.addEventListener('click', () => {
+        jars++;
+        jarDisplay.textContent = jars;
+      });
+    }
+
+    if (btnDmgMinus && btnDmgPlus && dmgDisplay) {
+      btnDmgMinus.addEventListener('click', () => {
+        if (damaged > 0) {
+          damaged--;
+          dmgDisplay.textContent = damaged;
+        }
+      });
+      btnDmgPlus.addEventListener('click', () => {
+        damaged++;
+        dmgDisplay.textContent = damaged;
+      });
+    }
+
+    // Toggle Denominations Drawer
+    const toggleDenom = document.getElementById('toggle-denom');
+    const denomDrawer = document.getElementById('denom-drawer');
+    if (toggleDenom && denomDrawer) {
+      toggleDenom.addEventListener('click', () => {
+        denomDrawer.classList.toggle('hidden');
+      });
+    }
+
+    // Activate Cash Tab in the Bottom App Shell Navigation Bar
+    const cashTab = document.querySelector('.nav-tab[data-tab="cash"]');
+    if (cashTab) {
+      const allTabs = document.querySelectorAll('.nav-tab');
+      allTabs.forEach(t => {
+        t.removeAttribute('aria-current');
+        t.classList.remove('text-role-driver-primary', 'font-bold');
+        t.classList.add('text-ink-muted', 'font-semibold');
+      });
+      cashTab.setAttribute('aria-current', 'page');
+      cashTab.classList.remove('text-ink-muted', 'font-semibold');
+      cashTab.classList.add('text-role-driver-primary', 'font-bold');
+
+      // Trigger pill morph alignment
+      const container = document.getElementById('nav-container');
+      const indicator = document.getElementById('fluid-indicator');
+      if (container && indicator) {
+        const cRect = container.getBoundingClientRect();
+        const tRect = cashTab.getBoundingClientRect();
+        indicator.style.width = tRect.width + 'px';
+        indicator.style.transform = `translateX(${tRect.left - cRect.left}px)`;
+        indicator.style.opacity = '1';
+      }
+    }
+
+    // Interactive button feedback
+    const submitBtn = document.getElementById('btn-submit-surrender');
+    if (submitBtn) {
+      submitBtn.addEventListener('click', () => {
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+          <span class="material-symbols-outlined animate-spin text-[20px]">sync</span>
+          <span>Awaiting Cashier S. Vimal Sign-Off...</span>
+        `;
+        setTimeout(() => {
+          submitBtn.innerHTML = `
+            <span class="material-symbols-outlined text-money-mint text-[22px]">check_circle</span>
+            <span>Surrender Verified & Handed Over!</span>
+          `;
+          submitBtn.classList.remove('bg-role-driver-action');
+          submitBtn.classList.add('bg-money-mint/20', 'text-money-mint');
+        }, 1200);
+      });
+    }
+  })();
+</script></main>
+<!-- Floating Fluid Pill Bottom Navigation Bar (Driver 4-Tab Aqua Day Skin) -->
+<nav class="fixed bottom-0 w-full z-50 pb-safe pointer-events-none px-margin">
+<div class="max-w-[390px] mx-auto mb-4 relative pointer-events-auto">
+<div class="relative h-[66px] rounded-full bg-surface/95 backdrop-blur-xl border border-hairline/60 shadow-[0_12px_32px_-6px_rgba(14,143,179,0.14)] px-2 flex items-center justify-between" id="nav-container">
+<!-- Sliding Animated Fluid Bubble Pill Indicator -->
+<div class="absolute top-[9px] bottom-[9px] left-0 rounded-full bg-role-driver-primary/15 border border-role-driver-primary/20 shadow-sm pointer-events-none fluid-pill-spring opacity-0" id="fluid-indicator" style="width: 0px; transform: translateX(0px);"></div>
+<!-- Tab 1: Today -->
+<a class="nav-tab relative z-10 flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full transition-all duration-300 min-h-[44px] text-ink-muted hover:text-ink font-semibold group select-none active:scale-95" data-path="driver-today" data-tab="today" href="#">
+<span class="material-symbols-outlined text-[20px] transition-transform duration-300 group-hover:scale-110">today</span>
+<span class="font-caption-meta text-caption-meta">Today</span>
+</a>
+<!-- Tab 2: Work -->
+<a class="nav-tab relative z-10 flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full transition-all duration-300 min-h-[44px] text-ink-muted hover:text-ink font-semibold group select-none active:scale-95" data-path="driver-work" data-tab="work" href="#">
+<span class="material-symbols-outlined text-[20px] transition-transform duration-300 group-hover:scale-110">local_shipping</span>
+<span class="font-caption-meta text-caption-meta">Work</span>
+</a>
+<!-- Tab 3: Cash -->
+<a class="nav-tab relative z-10 flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full transition-all duration-300 min-h-[44px] text-ink-muted hover:text-ink font-semibold group select-none active:scale-95" data-path="driver-cash" data-tab="cash" href="#">
+<span class="material-symbols-outlined text-[20px] transition-transform duration-300 group-hover:scale-110">payments</span>
+<span class="font-caption-meta text-caption-meta">Cash</span>
+</a>
+<!-- Tab 4: Me -->
+<a class="nav-tab relative z-10 flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full transition-all duration-300 min-h-[44px] text-ink-muted hover:text-ink font-semibold group select-none active:scale-95" data-path="driver-me" data-tab="me" href="#">
+<span class="material-symbols-outlined text-[20px] transition-transform duration-300 group-hover:scale-110">person</span>
+<span class="font-caption-meta text-caption-meta">Me</span>
+</a>
+</div>
+</div>
+</nav>
+<script>
+  (function initFluidNav() {
+    const container = document.getElementById('nav-container');
+    const indicator = document.getElementById('fluid-indicator');
+    const tabs = document.querySelectorAll('.nav-tab');
+
+    function updatePillPosition(activeTab, animate = true) {
+      if (!activeTab || !container || !indicator) return;
+      const cRect = container.getBoundingClientRect();
+      const tRect = activeTab.getBoundingClientRect();
+
+      const leftOffset = tRect.left - cRect.left;
+      const width = tRect.width;
+
+      if (!animate) {
+        indicator.style.transition = 'none';
+      } else {
+        indicator.style.transition = 'transform 380ms cubic-bezier(0.34, 1.56, 0.64, 1), width 340ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 200ms ease';
+      }
+
+      indicator.style.width = width + 'px';
+      indicator.style.transform = `translateX(${leftOffset}px)`;
+      indicator.style.opacity = '1';
+
+      if (!animate) {
+        requestAnimationFrame(() => {
+          indicator.style.transition = '';
+        });
+      }
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        // Update active tab styles
+        tabs.forEach(t => {
+          t.removeAttribute('aria-current');
+          t.classList.remove('text-role-driver-primary', 'font-bold');
+          t.classList.add('text-ink-muted', 'font-semibold');
+        });
+
+        tab.setAttribute('aria-current', 'page');
+        tab.classList.remove('text-ink-muted', 'font-semibold');
+        tab.classList.add('text-role-driver-primary', 'font-bold');
+
+        // Fluid morph slide
+        updatePillPosition(tab, true);
+
+        // Gentle bubble pulse effect
+        tab.classList.add('scale-105');
+        setTimeout(() => tab.classList.remove('scale-105'), 220);
+      });
+    });
+
+    // Set initial position
+    window.addEventListener('load', () => {
+      const activeTab = document.querySelector('.nav-tab[aria-current="page"]') || tabs[0];
+      updatePillPosition(activeTab, false);
+    });
+
+    window.addEventListener('resize', () => {
+      const activeTab = document.querySelector('.nav-tab[aria-current="page"]');
+      if (activeTab) updatePillPosition(activeTab, false);
+    });
+
+    // Immediate initial sync
+    const currentActive = document.querySelector('.nav-tab[aria-current="page"]');
+    if (currentActive) {
+      setTimeout(() => updatePillPosition(currentActive, false), 50);
+    }
+  })();
+</script>
+</body></html>

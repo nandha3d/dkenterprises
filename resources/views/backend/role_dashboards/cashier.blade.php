@@ -18,15 +18,15 @@
                         <div class="col-md-8">
                             <div class="d-flex align-items-center gap-3 mb-2">
                                 <span class="badge badge-warning p-2 px-3 text-uppercase font-weight-bold" style="font-size: 13px; letter-spacing: 0.5px; background-color: #D97706; color: white;">
-                                    <i class="fa fa-shopping-bag mr-1"></i> Aran Cafe Cashier Desk
+                                    <i class="fa fa-shopping-bag mr-1"></i> {{ $metrics['company_name'] ?? 'POS Terminal Desk' }}
                                 </span>
                                 <span class="badge badge-success p-2 px-3 text-uppercase font-weight-bold" style="font-size: 12px;">
-                                    <i class="fa fa-check-circle mr-1"></i> Cash Drawer {{ $metrics['drawer_status'] ?? 'OPEN' }}
+                                    <i class="fa fa-check-circle mr-1"></i> Cash Drawer {{ $metrics['drawer_status'] ?? 'CLOSED' }}
                                 </span>
                             </div>
-                            <h3 class="font-weight-bold text-dark m-0">{{ $metrics['counter_name'] ?? 'Main Cafe & Kitchen POS Terminal' }}</h3>
+                            <h3 class="font-weight-bold text-dark m-0">{{ $metrics['counter_name'] ?? 'POS Counter Terminal' }}</h3>
                             <p class="text-muted small m-0 mt-1">
-                                Cashier: <strong>{{ Auth::user()->name }}</strong> &bull; Shift Opened: <strong>{{ $metrics['drawer_opened_at'] ?? '07:30 AM' }}</strong> &bull; Kitchen KOT: <strong>{{ $metrics['summary']['pending_kitchen_orders'] ?? 2 }} Active</strong>
+                                Cashier: <strong>{{ Auth::user()->name }}</strong> &bull; Shift Opened: <strong>{{ $metrics['drawer_opened_at'] ?? 'Not Opened' }}</strong> &bull; Kitchen KOT: <strong>{{ $metrics['summary']['pending_kitchen_orders'] ?? 0 }} Active</strong>
                             </p>
                         </div>
                         <div class="col-md-4 text-right">
@@ -40,22 +40,22 @@
                     <div class="row mt-4 pt-3 border-top">
                         <div class="col-md-3 border-right text-center">
                             <span class="text-muted small font-weight-600 text-uppercase">Today's Counter Sales</span>
-                            <h3 class="font-weight-bold text-primary m-0 mt-1">₹ {{ number_format($metrics['summary']['today_sales'] ?? 18450, 2) }}</h3>
+                            <h3 class="font-weight-bold text-primary m-0 mt-1">₹ {{ number_format($metrics['summary']['today_sales'] ?? 0, 2) }}</h3>
                             <small class="text-muted">Gross counter receipts</small>
                         </div>
                         <div class="col-md-3 border-right text-center">
                             <span class="text-muted small font-weight-600 text-uppercase">Orders Billed</span>
-                            <h3 class="font-weight-bold text-dark m-0 mt-1">{{ $metrics['summary']['today_orders'] ?? 14 }} Bills</h3>
+                            <h3 class="font-weight-bold text-dark m-0 mt-1">{{ $metrics['summary']['today_orders'] ?? 0 }} Bills</h3>
                             <small class="text-muted">Completed counter tickets</small>
                         </div>
                         <div class="col-md-3 border-right text-center">
                             <span class="text-muted small font-weight-600 text-uppercase">Physical Cash in Drawer</span>
-                            <h3 class="font-weight-bold text-success m-0 mt-1">₹ {{ number_format($metrics['summary']['cash_in_drawer'] ?? 14200, 2) }}</h3>
+                            <h3 class="font-weight-bold text-success m-0 mt-1">₹ {{ number_format($metrics['summary']['cash_in_drawer'] ?? 0, 2) }}</h3>
                             <small class="text-muted">Drawer currency float &amp; cash</small>
                         </div>
                         <div class="col-md-3 text-center">
                             <span class="text-muted small font-weight-600 text-uppercase">Average Order Value (AOV)</span>
-                            <h3 class="font-weight-bold text-info m-0 mt-1">₹ {{ number_format($metrics['summary']['average_order_value'] ?? 1317.86, 2) }}</h3>
+                            <h3 class="font-weight-bold text-info m-0 mt-1">₹ {{ number_format($metrics['summary']['average_order_value'] ?? 0, 2) }}</h3>
                             <small class="text-muted">Per customer ticket</small>
                         </div>
                     </div>
@@ -94,11 +94,11 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <span class="small text-muted font-weight-600 text-uppercase">Digital / UPI Payments</span>
-                                <h4 class="font-weight-bold text-dark m-0 mt-1">₹ {{ number_format($metrics['summary']['digital_collections'] ?? 4250, 2) }}</h4>
+                                <h4 class="font-weight-bold text-dark m-0 mt-1">₹ {{ number_format($metrics['summary']['digital_collections'] ?? 0, 2) }}</h4>
                             </div>
                             <div>
                                 <span class="small text-muted font-weight-600 text-uppercase">Cash Receipts</span>
-                                <h4 class="font-weight-bold text-success m-0 mt-1">₹ {{ number_format($metrics['summary']['cash_in_drawer'] ?? 14200, 2) }}</h4>
+                                <h4 class="font-weight-bold text-success m-0 mt-1">₹ {{ number_format($metrics['summary']['cash_in_drawer'] ?? 0, 2) }}</h4>
                             </div>
                         </div>
                     </div>
@@ -140,12 +140,12 @@
                                 @forelse($metrics['recent_orders'] ?? [] as $idx => $order)
                                     <tr>
                                         <td>{{ $idx + 1 }}</td>
-                                        <td class="font-weight-bold text-primary">{{ $order->reference_no ?? ('#SALE-' . $order->id) }}</td>
-                                        <td class="text-muted small">{{ date('d M Y, h:i A', strtotime($order->created_at)) }}</td>
-                                        <td class="text-right font-weight-bold text-dark">₹ {{ number_format($order->grand_total, 2) }}</td>
-                                        <td class="text-right font-weight-bold text-success">₹ {{ number_format($order->paid_amount, 2) }}</td>
+                                        <td class="font-weight-bold text-primary">{{ data_get($order, 'reference_no') ?? ('#SALE-' . data_get($order, 'id')) }}</td>
+                                        <td class="text-muted small">{{ date('d M Y, h:i A', strtotime((string) data_get($order, 'created_at', 'now'))) }}</td>
+                                        <td class="text-right font-weight-bold text-dark">₹ {{ number_format((float) data_get($order, 'grand_total', 0), 2) }}</td>
+                                        <td class="text-right font-weight-bold text-success">₹ {{ number_format((float) data_get($order, 'paid_amount', 0), 2) }}</td>
                                         <td class="text-center">
-                                            @if($order->payment_status == 4 || $order->payment_status == 1)
+                                            @if((int) data_get($order, 'payment_status') === 4 || (int) data_get($order, 'payment_status') === 1)
                                                 <span class="badge badge-success px-2 py-1">PAID</span>
                                             @else
                                                 <span class="badge badge-warning px-2 py-1">PARTIAL</span>

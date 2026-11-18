@@ -118,18 +118,82 @@ class CafeOperationsController extends Controller
         return redirect()->back()->with('message', "Evening counter cash drawer reconciled: Status is {$status} (Discrepancy: ₹ " . number_format($discrepancy, 2) . ").");
     }
 
-    public function quickPos()
+    public function quickPos(Request $request)
     {
-        $categories = Category::where('is_active', true)->get();
-        $products = Product::where('is_active', true)->select('id', 'name', 'code', 'price', 'image', 'category_id')->get();
-        $warehouses = Warehouse::where('is_active', true)->get();
+        $posController = app(\App\Http\Controllers\Api\V1\PosApiController::class);
+        $bootstrapResponse = $posController->bootstrap($request)->getData(true);
+        $bootstrap = $bootstrapResponse['data'] ?? [];
 
-        return view('backend.cafe.quick_pos', compact('categories', 'products', 'warehouses'));
+        $companyId = (int) ($bootstrap['company_id'] ?? 1);
+        $companyModel = \App\Models\Company::find($companyId);
+        $companySettings = is_array($companyModel?->settings_json) ? $companyModel->settings_json : [];
+        $companyName = $bootstrap['company_name']
+            ?? $companyModel?->trade_name
+            ?? $companyModel?->legal_name
+            ?? 'ERP POS Terminal';
+        $upiVpa = $bootstrap['upi_vpa']
+            ?? ($companySettings['upi_vpa'] ?? ($companySettings['invoice_print']['upi_vpa'] ?? null));
+        $companyGstin = $bootstrap['gstin'] ?? $companyModel?->gstin;
+
+        $categories = Category::where('is_active', true)
+            ->where('company_id', $companyId)
+            ->orderBy('name')
+            ->get();
+        $products = Product::where('is_active', true)
+            ->where('company_id', $companyId)
+            ->orderByDesc('featured')
+            ->orderBy('name')
+            ->select('id', 'name', 'code', 'price', 'image', 'category_id', 'qty', 'type', 'featured')
+            ->get();
+        $warehouses = Warehouse::where('is_active', true)
+            ->where('company_id', $companyId)
+            ->get();
+
+        return view('backend.cafe.quick_pos', compact(
+            'categories',
+            'products',
+            'warehouses',
+            'bootstrap',
+            'companyName',
+            'companyId',
+            'upiVpa',
+            'companyGstin'
+        ));
     }
 
-    public function pos()
+    public function pos(Request $request)
     {
-        return $this->quickPos();
+        return $this->quickPos($request);
+    }
+
+    public function posBootstrap(Request $request)
+    {
+        return app(\App\Http\Controllers\Api\V1\PosApiController::class)->bootstrap($request);
+    }
+
+    public function posOrders(Request $request)
+    {
+        return app(\App\Http\Controllers\Api\V1\PosApiController::class)->orders($request);
+    }
+
+    public function openShift(Request $request)
+    {
+        return app(\App\Http\Controllers\Api\V1\PosApiController::class)->openShift($request);
+    }
+
+    public function closeShift(Request $request)
+    {
+        return app(\App\Http\Controllers\Api\V1\PosApiController::class)->closeShift($request);
+    }
+
+    public function toggleProductAvailability(Request $request, int $id)
+    {
+        return app(\App\Http\Controllers\Api\V1\PosApiController::class)->toggleProductAvailability($request, $id);
+    }
+
+    public function printOrderJob(Request $request, int $id)
+    {
+        return app(\App\Http\Controllers\Api\V1\PosApiController::class)->printOrderJob($request, $id);
     }
 
     public function reconcileDrawer(Request $request)
@@ -139,6 +203,13 @@ class CafeOperationsController extends Controller
 
     public function storeOrder(Request $request)
     {
-        return redirect()->back()->with('message', 'POS Order processed successfully.');
+        $response = app(\App\Http\Controllers\Api\V1\PosApiController::class)->storeOrder($request);
+        if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+            return $response;
+        }
+
+        $payload = $response->getData(true);
+        $ref = $payload['data']['reference_no'] ?? 'POS-ORDER';
+        return redirect()->back()->with('message', "POS Order {$ref} processed and posted to ERP ledger successfully.");
     }
 }

@@ -79,55 +79,81 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
 
     await _storage.saveToken(token);
-    state = state.copyWith(token: token, isAuthenticated: true);
 
-    // Fetch user profile and accessible entities
+    // Seed user & accessible companies directly from /mobile/login so the company list
+    // is available immediately even before /me completes or on older servers.
+    final loginUserMap = data['user'] is Map
+        ? Map<String, dynamic>.from(data['user'] as Map)
+        : <String, dynamic>{};
+    final loginUser = loginUserMap.isNotEmpty ? UserProfile.fromJson(loginUserMap) : state.user;
+    final loginRoles = (data['roles'] as List<dynamic>? ?? [])
+        .map((r) => r.toString())
+        .toList();
+    if (loginRoles.isEmpty && data['role'] != null) {
+      loginRoles.add(data['role'].toString());
+    }
+    final loginPermissions = (data['permissions'] as List<dynamic>? ?? [])
+        .map((p) => p.toString())
+        .toList();
+    final loginCompaniesJson = data['companies'] as List<dynamic>? ?? [];
+    final loginCompanies = loginCompaniesJson
+        .whereType<Map>()
+        .map((c) => CompanyInfo.fromJson(Map<String, dynamic>.from(c)))
+        .toList();
+    final mergedLoginCompanies = _mergeCompanyLists(loginCompanies, state.companies);
+    final initialContext = await _resolveAndPersistContext(mergedLoginCompanies);
+
+    state = state.copyWith(
+      token: token,
+      isAuthenticated: true,
+      user: loginUser,
+      roles: loginRoles.isNotEmpty ? loginRoles : state.roles,
+      permissions: loginPermissions.isNotEmpty ? loginPermissions : state.permissions,
+      companies: mergedLoginCompanies,
+      activeCompany: initialContext.company,
+      activeBranch: initialContext.branch,
+      activeFinancialYear: initialContext.fy,
+    );
+
+    // Fetch full user profile, branches, fiscal years, and capabilities from /me
     await refreshMe();
     return true;
   }
 
-  Future<void> refreshMe() async {
-    final result = await _apiClient.get(
-      ApiEndpoints.me,
-      fromJson: (data) => data as Map<String, dynamic>,
-    );
-
-    if (result.isFailure) {
-      final failure = result.failureOrNull;
-      if (failure?.isUnauthorized == true) {
-        await logout();
-      } else {
-        state = state.copyWith(isLoading: false, errorMessage: failure?.message ?? 'Failed to retrieve profile');
-      }
-      return;
+  List<CompanyInfo> _mergeCompanyLists(
+    List<CompanyInfo> primary,
+    List<CompanyInfo> fallback,
+  ) {
+    final byId = <int, CompanyInfo>{};
+    for (final c in fallback) {
+      byId[c.id] = c;
     }
+    for (final c in primary) {
+      final prev = byId[c.id];
+      if (prev == null) {
+        byId[c.id] = c;
+      } else {
+        byId[c.id] = CompanyInfo(
+          id: c.id,
+          name: (c.name.trim().isNotEmpty && c.name != 'DK Enterprises')
+              ? c.name
+              : (prev.name.trim().isNotEmpty ? prev.name : c.name),
+          code: (c.code ?? '').trim().isNotEmpty ? c.code : prev.code,
+          industry: (c.industry != null && c.industry!.isNotEmpty && c.industry != 'general')
+              ? c.industry
+              : prev.industry,
+          gstin: (c.gstin ?? '').trim().isNotEmpty ? c.gstin : prev.gstin,
+          upiVpa: (c.upiVpa ?? '').trim().isNotEmpty ? c.upiVpa : prev.upiVpa,
+          branches: c.branches.isNotEmpty ? c.branches : prev.branches,
+          financialYears: c.financialYears.isNotEmpty ? c.financialYears : prev.financialYears,
+        );
+      }
+    }
+    return byId.values.toList();
+  }
 
-    final rawData = result.dataOrNull ?? <String, dynamic>{};
-    final data = rawData['data'] is Map<String, dynamic>
-        ? rawData['data'] as Map<String, dynamic>
-        : (rawData['data'] is Map ? Map<String, dynamic>.from(rawData['data'] as Map) : rawData);
-    final userJson = data['user'] as Map<String, dynamic>? ?? {};
-    final user = UserProfile.fromJson(userJson);
-
-    final roles = (data['roles'] as List<dynamic>? ?? [])
-        .map((r) => r.toString())
-        .toList();
-    final permissions = (data['permissions'] as List<dynamic>? ?? [])
-        .map((p) => p.toString())
-        .toList();
-
-    final companiesJson = data['companies'] as List<dynamic>? ?? [];
-    final companies = companiesJson
-        .map((c) => CompanyInfo.fromJson(c as Map<String, dynamic>))
-        .toList();
-
-    final activeModules = (data['active_modules'] as List<dynamic>? ?? [])
-        .map((m) => m.toString())
-        .toList();
-
-    final capabilities = data['capabilities'] as Map<String, dynamic>? ?? {};
-
-    // Restore or pick active company context
+  Future<({CompanyInfo? company, BranchInfo? branch, FinancialYearInfo? fy})>
+      _resolveAndPersistContext(List<CompanyInfo> companies) async {
     final savedCompanyId = _storage.getActiveCompanyId();
     CompanyInfo? activeComp;
     if (savedCompanyId != null) {
@@ -170,16 +196,83 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
     }
 
+    return (company: activeComp, branch: activeBranch, fy: activeFY);
+  }
+
+  Future<void> syncCompaniesFromWorkspace(List<CompanyInfo> workspaceCompanies) async {
+    if (workspaceCompanies.isEmpty) return;
+    final merged = _mergeCompanyLists(state.companies, workspaceCompanies);
+    final ctx = await _resolveAndPersistContext(merged);
+    state = state.copyWith(
+      companies: merged,
+      activeCompany: ctx.company ?? state.activeCompany,
+      activeBranch: ctx.branch ?? state.activeBranch,
+      activeFinancialYear: ctx.fy ?? state.activeFinancialYear,
+    );
+  }
+
+  Future<void> refreshMe() async {
+    final result = await _apiClient.get(
+      ApiEndpoints.me,
+      fromJson: (data) => data as Map<String, dynamic>,
+    );
+
+    if (result.isFailure) {
+      final failure = result.failureOrNull;
+      if (failure?.isUnauthorized == true) {
+        await logout();
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: failure?.message ?? 'Failed to retrieve profile',
+        );
+      }
+      return;
+    }
+
+    final rawData = result.dataOrNull ?? <String, dynamic>{};
+    final data = rawData['data'] is Map<String, dynamic>
+        ? rawData['data'] as Map<String, dynamic>
+        : (rawData['data'] is Map ? Map<String, dynamic>.from(rawData['data'] as Map) : rawData);
+    final userJson = data['user'] is Map
+        ? Map<String, dynamic>.from(data['user'] as Map)
+        : <String, dynamic>{};
+    final user = userJson.isNotEmpty ? UserProfile.fromJson(userJson) : state.user;
+
+    final roles = (data['roles'] as List<dynamic>? ?? [])
+        .map((r) => r.toString())
+        .toList();
+    final permissions = (data['permissions'] as List<dynamic>? ?? [])
+        .map((p) => p.toString())
+        .toList();
+
+    final companiesJson = data['companies'] as List<dynamic>? ?? [];
+    final parsedCompanies = companiesJson
+        .whereType<Map>()
+        .map((c) => CompanyInfo.fromJson(Map<String, dynamic>.from(c)))
+        .toList();
+    final companies = _mergeCompanyLists(parsedCompanies, state.companies);
+
+    final activeModules = (data['active_modules'] as List<dynamic>? ?? [])
+        .map((m) => m.toString())
+        .toList();
+
+    final capabilities = data['capabilities'] is Map
+        ? Map<String, dynamic>.from(data['capabilities'] as Map)
+        : state.capabilities;
+
+    final ctx = await _resolveAndPersistContext(companies);
+
     state = state.copyWith(
       isAuthenticated: true,
       isLoading: false,
       user: user,
-      roles: roles,
-      permissions: permissions,
+      roles: roles.isNotEmpty ? roles : state.roles,
+      permissions: permissions.isNotEmpty ? permissions : state.permissions,
       companies: companies,
-      activeCompany: activeComp,
-      activeBranch: activeBranch,
-      activeFinancialYear: activeFY,
+      activeCompany: ctx.company,
+      activeBranch: ctx.branch,
+      activeFinancialYear: ctx.fy,
       activeModules: activeModules,
       capabilities: capabilities,
       errorMessage: null,

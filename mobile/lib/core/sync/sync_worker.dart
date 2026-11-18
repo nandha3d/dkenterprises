@@ -125,8 +125,20 @@ class SyncWorker extends ChangeNotifier {
           await _db.deleteMutation(id);
         } else {
           final failure = result.failureOrNull!;
-          final errDetail = failure.statusCode != null
-              ? 'HTTP ${failure.statusCode}: ${failure.message}'
+          final attempts = (item['attempts'] as int?) ?? 0;
+          final code = failure.statusCode;
+          final isPermanentValidationError =
+              code == 400 || code == 403 || code == 404 || code == 422;
+
+          // After multiple repeated permanent validation rejections, purge the invalid
+          // outbox item automatically so the offline queue never stays permanently wedged.
+          if (attempts >= 2 && isPermanentValidationError) {
+            await _db.deleteMutation(id);
+            continue;
+          }
+
+          final errDetail = code != null
+              ? 'HTTP $code: ${failure.message}'
               : failure.message;
           await _db.updateMutationStatus(
             id,
@@ -151,6 +163,32 @@ class SyncWorker extends ChangeNotifier {
       _state = _state.copyWith(
         status: SyncStatus.error,
         lastError: e.toString(),
+      );
+      notifyListeners();
+    } finally {
+      _isProcessing = false;
+    }
+  }
+
+  /// Discard permanently failing outbox entries (e.g. HTTP 422 validation blocks).
+  Future<void> discardFailedMutations() async {
+    if (_isProcessing) return;
+    _isProcessing = true;
+    try {
+      final pending = await _db.getPendingMutations();
+      for (final item in pending) {
+        if (item['status'] == 'failed') {
+          final id = item['id']?.toString();
+          if (id != null && id.isNotEmpty) {
+            await _db.deleteMutation(id);
+          }
+        }
+      }
+      final remaining = await _db.getPendingMutationsCount();
+      _state = _state.copyWith(
+        status: remaining == 0 ? SyncStatus.synced : SyncStatus.offline,
+        pendingCount: remaining,
+        clearError: true,
       );
       notifyListeners();
     } finally {

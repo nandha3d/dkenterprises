@@ -1,10 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:dio/dio.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
+import '../../../core/theme/app_theme.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -57,9 +57,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 controller: urlController,
                 decoration: const InputDecoration(
                   labelText: 'API Base URL',
-                  hintText: 'https://dkenterprises.animazon.in/api/v1',
+                  hintText: 'http://dk-track.test/api/v1',
                   prefixIcon: Icon(Icons.link_rounded),
                 ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  ActionChip(
+                    label: const Text('Local Laragon (dk-track.test)', style: TextStyle(fontSize: 11)),
+                    onPressed: () => setModalState(() {
+                      urlController.text = 'http://dk-track.test/api/v1';
+                    }),
+                  ),
+                  ActionChip(
+                    label: const Text('Local Artisan (127.0.0.1:8000)', style: TextStyle(fontSize: 11)),
+                    onPressed: () => setModalState(() {
+                      urlController.text = 'http://127.0.0.1:8000/api/v1';
+                    }),
+                  ),
+                  ActionChip(
+                    label: const Text('Cloud Production', style: TextStyle(fontSize: 11)),
+                    onPressed: () => setModalState(() {
+                      urlController.text = 'https://dkenterprises.animazon.in/api/v1';
+                    }),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               if (testResult != null)
@@ -67,15 +92,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: testResult!.contains('Success')
-                        ? Colors.green.withOpacity(0.12)
-                        : Colors.red.withOpacity(0.12),
+                        ? Colors.green.withValues(alpha: 0.12)
+                        : Colors.red.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     testResult!,
                     style: TextStyle(
                       fontSize: 12,
-                      color: testResult!.contains('Success') ? Colors.green : Colors.red,
+                      color: testResult!.contains('Success')
+                          ? Colors.green
+                          : Colors.red,
                     ),
                   ),
                 ),
@@ -94,12 +121,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             connectTimeout: const Duration(seconds: 8),
                             receiveTimeout: const Duration(seconds: 8),
                           ));
-                          final cleanUrl = targetUrl.endsWith('/') ? targetUrl.substring(0, targetUrl.length - 1) : targetUrl;
-                          final endpoint = cleanUrl.endsWith('/api/v1') ? '$cleanUrl/health' : (cleanUrl.endsWith('/') ? '${cleanUrl}api/v1/health' : '$cleanUrl/api/v1/health');
+                          final cleanUrl = targetUrl.endsWith('/')
+                              ? targetUrl.substring(0, targetUrl.length - 1)
+                              : targetUrl;
+                          final endpoint = cleanUrl.endsWith('/api/v1')
+                              ? '$cleanUrl/health'
+                              : (cleanUrl.endsWith('/')
+                                  ? '${cleanUrl}api/v1/health'
+                                  : '$cleanUrl/api/v1/health');
                           final res = await dio.get(endpoint);
                           setModalState(() {
                             isTesting = false;
-                            testResult = 'Success: ERP Server Online (${res.statusCode} OK)';
+                            testResult =
+                                'Success: ERP Server Online (${res.statusCode} OK)';
                           });
                         } catch (e) {
                           setModalState(() {
@@ -109,7 +143,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         }
                       },
                 icon: isTesting
-                    ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
                     : const Icon(Icons.wifi_tethering_rounded, size: 16),
                 label: const Text('Test Server Connection'),
               ),
@@ -158,28 +196,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     _handleLogin();
   }
 
-  Widget _buildDemoChip(String roleName, String username, String password, IconData icon, bool isDark) {
-    return ActionChip(
-      avatar: Icon(icon, size: 14, color: isDark ? AppColors.primaryDark : AppColors.primary),
-      label: Text(
-        roleName,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-        ),
-      ),
-      backgroundColor: isDark ? AppColors.darkCanvas : AppColors.lightCanvas,
-      side: BorderSide(
-        color: (isDark ? AppColors.primaryDark : AppColors.primary).withOpacity(0.3),
-        width: 1,
-      ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-      onPressed: () => _populateDemoRole(roleName, username, password),
-    );
-  }
-
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -201,310 +217,651 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
+    final skin = RippleSkin.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkCanvas : AppColors.lightCanvas,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+      backgroundColor: skin.canvas,
+      body: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 1. Top Lagoon Brand Hero (Stitch G-02 - Full-bleed banner with centered 460px inner frame)
+              Container(
+                width: double.infinity,
+                clipBehavior: Clip.antiAlias,
+                padding: EdgeInsets.only(
+                  top: MediaQuery.paddingOf(context).top + 16,
+                  bottom: 48,
+                ),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.lagoonPrimary, Color(0xFF063C35)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(32),
+                  ),
+                ),
+                child: Stack(
+                  alignment: Alignment.topCenter,
                   children: [
-                    // Brand Logo & Title
-                    Center(
-                      child: Container(
-                        width: 72,
-                        height: 72,
-                        decoration: BoxDecoration(
-                          color: isDark ? AppColors.darkCard : Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                            width: 1.5,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
-                              blurRadius: 16,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        alignment: Alignment.center,
-                        child: Icon(
-                          Icons.business_center_rounded,
-                          size: 38,
-                          color: isDark ? AppColors.primaryDark : AppColors.brandNavy,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'ZOLO ERP',
-                      style: AppTypography.display.copyWith(
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.brandNavy,
-                        fontSize: 28,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'DK Enterprises — Enterprise Field Mobile',
-                      style: AppTypography.caption.copyWith(
-                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                        fontSize: 13,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 10),
-                    Center(
-                      child: InkWell(
-                        onTap: _showServerSettings,
-                        borderRadius: BorderRadius.circular(16),
+                    Positioned(
+                      right: -40,
+                      top: -30,
+                      child: IgnorePointer(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          width: 150,
+                          height: 150,
                           decoration: BoxDecoration(
-                            color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                            borderRadius: BorderRadius.circular(16),
+                            shape: BoxShape.circle,
                             border: Border.all(
-                              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                              color: Colors.white.withValues(alpha: 0.07),
+                              width: 22,
                             ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 6,
-                                height: 6,
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: AppColors.success,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                ref.watch(secureStorageProvider).getServerUrl().replaceAll('https://', '').replaceAll('/api/v1', ''),
-                                style: AppTypography.caption.copyWith(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Icon(
-                                Icons.settings_rounded,
-                                size: 12,
-                                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                              ),
-                            ],
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
-
-                    // Error Message Banner (if any)
-                    if (authState.errorMessage != null) ...[
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: (isDark ? AppColors.dangerDark : AppColors.danger).withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: isDark ? AppColors.dangerDark : AppColors.danger,
-                            width: 1,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.error_outline_rounded,
-                              size: 18,
-                              color: isDark ? AppColors.dangerDark : AppColors.danger,
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                authState.errorMessage!,
-                                style: TextStyle(
-                                  color: isDark ? AppColors.dangerDark : AppColors.danger,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 460),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Column(
+                            children: [
+                              // Utility Row
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 5),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black
+                                              .withValues(alpha: 0.22),
+                                          borderRadius:
+                                              BorderRadius.circular(999),
+                                        ),
+                                        child: const Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.domain_rounded,
+                                                size: 13,
+                                                color: AppColors.lagoonAction),
+                                            SizedBox(width: 5),
+                                            Text(
+                                              'DK Group',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 9, vertical: 5),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.rippleMint
+                                              .withValues(alpha: 0.22),
+                                          borderRadius:
+                                              BorderRadius.circular(999),
+                                        ),
+                                        child: const Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.circle,
+                                                size: 7,
+                                                color: AppColors.lagoonAction),
+                                            SizedBox(width: 5),
+                                            Text(
+                                              'Live',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w800,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  IconButton(
+                                    onPressed: _showServerSettings,
+                                    style: IconButton.styleFrom(
+                                      backgroundColor:
+                                          Colors.white.withValues(alpha: 0.12),
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    icon: const Icon(Icons.settings_outlined,
+                                        size: 18),
+                                    tooltip: 'ERP Server Settings',
+                                  ),
+                                ],
                               ),
-                            ),
-                            if (authState.errorMessage!.contains('Network') ||
-                                authState.errorMessage!.contains('offline'))
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  minimumSize: Size.zero,
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                ),
-                                onPressed: _showServerSettings,
-                                child: Text(
-                                  'Server Settings',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark ? AppColors.dangerDark : AppColors.danger,
-                                    decoration: TextDecoration.underline,
+                              const SizedBox(height: 18),
+                              // Centered Crest Badge
+                              Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.14),
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(
+                                    color: AppColors.lagoonAction
+                                        .withValues(alpha: 0.45),
+                                    width: 1.5,
                                   ),
                                 ),
+                                child: const Icon(
+                                  Icons.water_drop_rounded,
+                                  size: 30,
+                                  color: AppColors.lagoonAction,
+                                ),
                               ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-
-                    // Username Input
-                    Text(
-                      'Username / Phone',
-                      style: AppTypography.label.copyWith(
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _usernameController,
-                      keyboardType: TextInputType.text,
-                      textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        hintText: 'e.g. driver, agent, admin',
-                        prefixIcon: Icon(Icons.person_outline_rounded, size: 20),
-                      ),
-                      validator: (val) {
-                        if (val == null || val.trim().isEmpty) {
-                          return 'Username is required';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 18),
-
-                    // Password Input
-                    Text(
-                      'Password',
-                      style: AppTypography.label.copyWith(
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _handleLogin(),
-                      decoration: InputDecoration(
-                        hintText: 'Enter your corporate password',
-                        prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                            size: 20,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                      ),
-                      validator: (val) {
-                        if (val == null || val.isEmpty) {
-                          return 'Password is required';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 28),
-
-                    // Submit Button
-                    ElevatedButton(
-                      onPressed: authState.isLoading ? null : _handleLogin,
-                      child: authState.isLoading
-                          ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                                color: Colors.white,
+                              const SizedBox(height: 12),
+                              const Text(
+                                'DK Enterprises',
+                                style: TextStyle(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                  letterSpacing: -0.5,
+                                ),
                               ),
-                            )
-                          : const Text('Sign In to Account'),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Demo Roles Quick-Fill Bar
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.badge_outlined,
-                                size: 14,
-                                color: isDark ? AppColors.primaryDark : AppColors.primary,
-                              ),
-                              const SizedBox(width: 6),
+                              const SizedBox(height: 4),
                               Text(
-                                'Demo Role Fast-Login Options',
-                                style: AppTypography.caption.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                'Enterprise Field Mobile · powered by ZOLO ERP',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white.withValues(alpha: 0.8),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 10),
-                          Wrap(
-                            spacing: 6,
-                            runSpacing: 6,
-                            children: [
-                              _buildDemoChip('Admin', 'admin', 'admin', Icons.admin_panel_settings_rounded, isDark),
-                              _buildDemoChip('Can Driver', 'driver', 'driver123', Icons.local_drink_rounded, isDark),
-                              _buildDemoChip('Tanker Driver', 'tanker_driver', 'driver123', Icons.local_shipping_rounded, isDark),
-                              _buildDemoChip('Cafe Cashier', 'cashier', 'cashier123', Icons.point_of_sale_rounded, isDark),
-                              _buildDemoChip('Field Agent', 'agent', 'agent123', Icons.support_agent_rounded, isDark),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Center(
-                      child: Text(
-                        'Secure Multi-Tenant Sanctum v1 Engine',
-                        style: AppTypography.caption.copyWith(
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                          fontSize: 11,
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
+
+              // 2. Overlapping Login Card + Fast-Login Grid (Exact matching 460px frame + 16px horizontal padding)
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 460),
+                  child: Transform.translate(
+                    offset: const Offset(0, -24),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: skin.surface,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(color: skin.hairline),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black
+                                      .withValues(alpha: isDark ? 0.3 : 0.06),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Account Login',
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w800,
+                                              color: skin.ink,
+                                              letterSpacing: -0.3,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            'Enter your assigned operational credentials',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                              color: skin.muted,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      width: 38,
+                                      height: 38,
+                                      decoration: BoxDecoration(
+                                        color: skin.surface2,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Icon(
+                                        Icons.lock_person_rounded,
+                                        size: 20,
+                                        color: skin.primary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+
+                                if (authState.errorMessage != null) ...[
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.rippleRuby
+                                          .withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: AppColors.rippleRuby
+                                            .withValues(alpha: 0.3),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.error_outline_rounded,
+                                          size: 18,
+                                          color: AppColors.rippleRuby,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            authState.errorMessage!,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.rippleRuby,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 14),
+                                ],
+
+                                Text(
+                                  'Username / Phone',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: skin.ink,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                TextFormField(
+                                  controller: _usernameController,
+                                  textInputAction: TextInputAction.next,
+                                  decoration: InputDecoration(
+                                    hintText: 'e.g. admin or +91 98421...',
+                                    prefixIcon: Icon(
+                                      Icons.person_outline_rounded,
+                                      color: skin.muted,
+                                    ),
+                                    filled: true,
+                                    fillColor: skin.surface2,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                  ),
+                                  validator: (val) =>
+                                      (val == null || val.trim().isEmpty)
+                                          ? 'Please enter username or phone'
+                                          : null,
+                                ),
+                                const SizedBox(height: 14),
+
+                                Text(
+                                  'Password',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: skin.ink,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                TextFormField(
+                                  controller: _passwordController,
+                                  obscureText: _obscurePassword,
+                                  textInputAction: TextInputAction.done,
+                                  onFieldSubmitted: (_) => _handleLogin(),
+                                  decoration: InputDecoration(
+                                    hintText: 'Enter your password',
+                                    prefixIcon: Icon(
+                                      Icons.key_rounded,
+                                      color: skin.muted,
+                                    ),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _obscurePassword
+                                            ? Icons.visibility_outlined
+                                            : Icons.visibility_off_outlined,
+                                        color: skin.muted,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _obscurePassword = !_obscurePassword;
+                                        });
+                                      },
+                                    ),
+                                    filled: true,
+                                    fillColor: skin.surface2,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                  ),
+                                  validator: (val) =>
+                                      (val == null || val.isEmpty)
+                                          ? 'Please enter your password'
+                                          : null,
+                                ),
+                                const SizedBox(height: 18),
+
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 54,
+                                  child: FilledButton(
+                                    onPressed: authState.isLoading
+                                        ? null
+                                        : _handleLogin,
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: AppColors.lagoonPrimary,
+                                      foregroundColor: Colors.white,
+                                      shape: const StadiumBorder(),
+                                      elevation: 0,
+                                    ),
+                                    child: authState.isLoading
+                                        ? const SizedBox(
+                                            width: 22,
+                                            height: 22,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2.5,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : const Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                'Sign In to Account',
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w800,
+                                                ),
+                                              ),
+                                              SizedBox(width: 8),
+                                              Icon(Icons.arrow_forward_rounded,
+                                                  size: 18),
+                                            ],
+                                          ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+
+                          // 3. Demo Role Fast-Login Options Grid (Stitch G-02)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Demo Role Fast-Login Options',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.4,
+                                    color: skin.muted,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '1-Tap Fill',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: skin.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Admin Console Full-Width Tile
+                          _buildRoleTile(
+                            skin: skin,
+                            title: 'Admin',
+                            subtitle: 'Multi-Company · Lagoon Executive Desk',
+                            icon: Icons.shield_outlined,
+                            accent: AppColors.lagoonPrimary,
+                            onTap: () =>
+                                _populateDemoRole('Admin', 'admin', 'admin'),
+                            fullWidth: true,
+                          ),
+                          const SizedBox(height: 8),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildRoleTile(
+                                  skin: skin,
+                                  title: 'Can Driver',
+                                  subtitle: 'Water Can Route Beat',
+                                  icon: Icons.water_drop_outlined,
+                                  accent: AppColors.aquaPrimary,
+                                  onTap: () => _populateDemoRole(
+                                      'Can Driver', 'driver', 'driver123'),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _buildRoleTile(
+                                  skin: skin,
+                                  title: 'Tanker Driver',
+                                  subtitle: 'Bulk KL Trips',
+                                  icon: Icons.local_shipping_outlined,
+                                  accent: AppColors.aquaPrimary,
+                                  onTap: () => _populateDemoRole('Tanker Driver',
+                                      'tanker_driver', 'driver123'),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildRoleTile(
+                                  skin: skin,
+                                  title: 'Cafe Cashier',
+                                  subtitle: 'Touch POS & KOT',
+                                  icon: Icons.local_cafe_outlined,
+                                  accent: AppColors.chaiPrimary,
+                                  onTap: () => _populateDemoRole(
+                                      'Cafe Cashier', 'cashier', 'cashier123'),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _buildRoleTile(
+                                  skin: skin,
+                                  title: 'Field Agent',
+                                  subtitle: 'Collection & GPS',
+                                  icon: Icons.pin_drop_outlined,
+                                  accent: AppColors.sagePrimary,
+                                  onTap: () => _populateDemoRole(
+                                      'Field Agent', 'agent', 'agent123'),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 18),
+
+                          // 4. Footer Status Capsule
+                          Center(
+                            child: InkWell(
+                              onTap: _showServerSettings,
+                              borderRadius: BorderRadius.circular(999),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: skin.surface,
+                                  borderRadius: BorderRadius.circular(999),
+                                  border: Border.all(color: skin.hairline),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.circle,
+                                        size: 8, color: AppColors.rippleMint),
+                                    const SizedBox(width: 6),
+                                    Flexible(
+                                      child: Text(
+                                        'Server Status: Online · API v1.0 Connected',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                          color: skin.ink,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Center(
+                            child: Text(
+                              'Secure Multi-Tenant Sanctum v1 Engine',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: skin.muted,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRoleTile({
+    required RippleSkin skin,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color accent,
+    required VoidCallback onTap,
+    bool fullWidth = false,
+  }) {
+    return Material(
+      color: skin.surface,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: skin.hairline),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 18, color: accent),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: skin.ink,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: skin.muted,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              if (fullWidth)
+                Icon(Icons.chevron_right_rounded, size: 18, color: skin.muted),
+            ],
           ),
         ),
       ),
     );
   }
 }
-

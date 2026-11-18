@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-primary-fixed-variant":"#005046","primary-fixed-dim":"#8ed4c5","on-secondary-fixed-variant":"#394e00","inverse-on-surface":"#f2f1ec","hairline":"#E3E1DA","dark-surface":"#17221D","ink-muted":"#66736C","primary-container":"#0b5d52","surface-container-highest":"#e4e2dd","primary-fixed":"#a9f0e1","surface-container-low":"#f5f3ee","role-driver-primary":"#0E8FB3","secondary-container":"#c5ee66","role-cafe-ink":"#2B1B14","surface-container-lowest":"#ffffff","role-cafe-canvas":"#FBF4EA","secondary-fixed":"#c7f169","surface":"#FFFFFF","on-background":"#1b1c19","surface-bright":"#fbf9f4","tertiary-fixed-dim":"#61dda0","ink":"#13201B","inverse-surface":"#30312e","role-driver-canvas":"#F3F8FA","on-primary":"#ffffff","role-field-primary":"#3F7D58","error":"#ba1a1a","surface-tint":"#1f695e","on-primary-container":"#8dd3c5","error-container":"#ffdad6","role-cafe-action":"#F4A62A","dark-surface-tonal":"#1F2E27","tertiary":"#00452a","on-secondary-container":"#506c00","role-driver-action":"#FFC933","on-primary-fixed":"#00201b","outline":"#6f7976","surface-container-high":"#eae8e3","secondary-fixed-dim":"#acd44f","background":"#fbf9f4","info-sky":"#2E90FA","money-mint":"#1FA971","secondary":"#4c6700","pending-honey":"#E9A23B","critical-ruby":"#D92D20","on-tertiary-container":"#61dda0","primary":"#00443b","inverse-primary":"#8ed4c5","on-tertiary":"#ffffff","on-tertiary-fixed":"#002112","surface-dim":"#dcdad5","surface-variant":"#e4e2dd","role-cafe-primary":"#C2542D","on-tertiary-fixed-variant":"#005233","on-error":"#ffffff","money-coral":"#E8505B","tertiary-container":"#005f3c","on-surface-variant":"#3f4946","surface-tonal":"#ECEFEA","dark-ink-muted":"#93A39B","on-error-container":"#93000a","dark-canvas":"#0E1512","on-secondary":"#ffffff","outline-variant":"#bec9c5","role-field-action":"#C9F36A","on-surface":"#1b1c19","dark-ink":"#EDF3EF","surface-container":"#f0eee9","tertiary-fixed":"#7ffaba","on-secondary-fixed":"#151f00"},"borderRadius":{"DEFAULT":"1rem","lg":"2rem","xl":"3rem","full":"9999px"},"spacing":{"space-lg":"1rem","space-xl":"1.5rem","space-xs":"0.25rem","space-md":"0.75rem","margin":"1rem","gutter":"0.75rem","space-sm":"0.5rem"},"fontFamily":{"body-md":["Manrope"],"sublabel-regional":["Noto Sans Tamil"],"display-numeral-mobile":["Manrope"],"headline-lg":["Manrope"],"caption-meta":["Manrope"],"display-numeral":["Manrope"],"label-action":["Manrope"],"body-lg":["Manrope"],"headline-md":["Manrope"]},"fontSize":{"body-md":["14px",{"lineHeight":"20px","fontWeight":"500"}],"sublabel-regional":["11px",{"lineHeight":"14px","fontWeight":"600"}],"display-numeral-mobile":["40px",{"lineHeight":"44px","letterSpacing":"-0.02em","fontWeight":"800"}],"headline-lg":["28px",{"lineHeight":"34px","letterSpacing":"-0.02em","fontWeight":"800"}],"caption-meta":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"display-numeral":["48px",{"lineHeight":"52px","letterSpacing":"-0.03em","fontWeight":"800"}],"label-action":["16px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"700"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"600"}],"headline-md":["20px",{"lineHeight":"26px","letterSpacing":"-0.01em","fontWeight":"700"}]}}}};</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#f5f3ee;}body{overscroll-behavior:none;color:#13201B;font-family:Manrope,sans-serif;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface-container-low font-body-md text-ink flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-surface-container-low/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><button class="h-10 px-space-md rounded-full bg-surface-tonal hover:bg-surface-container-high flex items-center gap-space-xs text-ink transition-colors flex-shrink-0"><span class="material-symbols-outlined text-role-field-primary text-[18px]">nature_people</span><span class="font-caption-meta text-caption-meta font-bold tracking-tight truncate max-w-[140px]">DK Field Ops • Erode Hub</span><span class="material-symbols-outlined text-ink-muted text-[16px]">expand_more</span></button><div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E6F7F0] text-money-mint flex-shrink-0"><span class="material-symbols-outlined text-[14px]">check_circle</span><span class="font-caption-meta text-caption-meta font-bold">Synced</span></div></div><div class="flex items-center gap-space-xs"><button aria-label="Notifications" class="relative w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-surface-tonal transition-colors"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-critical-ruby"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full px-margin pt-16 pb-28 bg-surface-container-low"><div class="flex flex-col w-full pb-8">
+<!-- Sub-header & Beat Context Bar -->
+<section class="flex flex-col gap-space-xs mb-space-md">
+<div class="flex items-center justify-between gap-space-sm flex-wrap">
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high text-role-field-primary">
+<span class="material-symbols-outlined text-[16px] animate-pulse">near_me</span>
+<span class="font-caption-meta text-caption-meta font-extrabold tracking-tight uppercase">Active Beat • Erode West Route</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E6F7F0] text-money-mint">
+<span class="material-symbols-outlined text-[14px]">satellite_alt</span>
+<span class="font-caption-meta text-caption-meta font-bold">GPS Locked (±3m)</span>
+</div>
+</div>
+<div class="mt-1">
+<h1 class="font-headline-md text-headline-md font-extrabold text-ink tracking-tight flex items-center justify-between">
+        Field Collection &amp; KYC Desk
+        <span class="font-caption-meta text-caption-meta font-semibold text-ink-muted">Beat #EW-04</span>
+</h1>
+<p class="font-sublabel-regional text-sublabel-regional text-ink-muted mt-0.5">
+        கள வசூல் மற்றும் வாடிக்கையாளர் இருப்பிட சரிபார்ப்பு மேடை • Assigned Customer Receivables &amp; GPS Onboarding
+      </p>
+</div>
+</section>
+<!-- Hero Card (Tactile Tonalism: Field Sage Canvas #3F7D58) -->
+<section class="relative rounded-[28px] bg-role-field-primary text-on-primary p-space-md flex flex-col gap-space-md shadow-sm overflow-hidden mb-space-md">
+<!-- Subtle tactile mesh pattern -->
+<div class="absolute -right-8 -top-8 w-44 h-44 rounded-full bg-role-field-action/10 blur-2xl pointer-events-none"></div>
+<div class="flex items-start justify-between gap-space-sm relative z-10">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-caption-meta text-caption-meta tracking-wider uppercase font-bold text-on-primary-container">Total Receivables</span>
+<span class="font-sublabel-regional text-sublabel-regional text-on-primary/80">நிலுவைத் தொகை</span>
+</div>
+<div class="flex items-baseline gap-space-sm mt-1">
+<span class="font-display-numeral-mobile text-display-numeral-mobile font-extrabold tracking-tight text-white tabular-nums">₹ 1,42,850</span>
+</div>
+</div>
+<div class="px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md text-role-field-action text-right flex-shrink-0">
+<span class="font-caption-meta text-caption-meta font-bold block">TODAY TARGET</span>
+<span class="font-body-md text-body-md font-extrabold tabular-nums">₹1,85,000</span>
+</div>
+</div>
+<!-- Delta & Settled progress strip -->
+<div class="flex items-center justify-between px-space-md py-2 rounded-xl bg-black/15 text-white/95 text-caption-meta font-caption-meta relative z-10">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-role-field-action text-[18px]">south_west</span>
+<span class="font-bold text-role-field-action tabular-nums">-₹32,400</span>
+<span class="text-white/80">Collected Today</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-white/70">நேரடி வசூல்</span>
+</div>
+<!-- Bento Micro-KPI Grid (3 Columns) -->
+<div class="grid grid-cols-3 gap-2 relative z-10">
+<!-- Bento 1 -->
+<div class="rounded-2xl bg-black/20 p-2.5 flex flex-col justify-between">
+<span class="font-caption-meta text-caption-meta text-white/75 truncate">Assigned</span>
+<div class="my-1">
+<span class="font-headline-md text-headline-md font-extrabold text-white tabular-nums">28</span>
+<span class="text-[11px] text-white/80 font-bold block">18 Pending</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-white/60 truncate">வாடிக்கையாளர்</span>
+</div>
+<!-- Bento 2 -->
+<div class="rounded-2xl bg-black/20 p-2.5 flex flex-col justify-between">
+<span class="font-caption-meta text-caption-meta text-white/75 truncate">Field Recv.</span>
+<div class="my-1">
+<span class="font-headline-md text-headline-md font-extrabold text-role-field-action tabular-nums">₹32.4k</span>
+<span class="text-[11px] text-white/80 font-bold block">6 Vouchers</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-white/60 truncate">ரசீதுகள்</span>
+</div>
+<!-- Bento 3 with SVG Recovery Ring -->
+<div class="rounded-2xl bg-black/20 p-2 flex flex-col items-center justify-center text-center">
+<div class="relative w-12 h-12 flex items-center justify-center">
+<svg class="w-12 h-12 -rotate-90" viewbox="0 0 36 36">
+<path class="text-white/20" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
+<path class="text-role-field-action" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="76.5, 100" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+<span class="absolute font-caption-meta text-[11px] font-extrabold text-white tabular-nums">76%</span>
+</div>
+<span class="font-caption-meta text-[10px] text-white/80 font-bold mt-1">Target: 90%</span>
+</div>
+</div>
+<!-- Geofenced KYC & Ledger Banner -->
+<div class="flex items-center gap-2 p-2.5 rounded-xl bg-white/10 text-white relative z-10">
+<span class="material-symbols-outlined text-role-field-action text-[20px] flex-shrink-0">bolt</span>
+<p class="font-caption-meta text-[11px] leading-tight text-white/90">
+<strong class="text-role-field-action font-extrabold">Geofenced KYC &amp; Instant Ledger Settlement Active</strong> • Vouchers auto-post real-time to GL 1030 (Accounts Receivable).
+      </p>
+</div>
+</section>
+<!-- Primary Action Slabs (56px Touch Targets for On-Road Ergonomics) -->
+<section class="grid grid-cols-2 gap-space-sm mb-space-md">
+<!-- Lime Action Slab Button -->
+<button class="h-14 px-space-md rounded-full bg-role-field-action hover:bg-[#b5e054] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm text-ink group" type="button">
+<span class="material-symbols-outlined text-[24px] text-ink group-hover:rotate-6 transition-transform">payments</span>
+<div class="text-left min-w-0">
+<span class="font-label-action text-label-action font-extrabold tracking-tight block leading-tight truncate">Collect Dues →</span>
+<span class="font-sublabel-regional text-[10px] font-bold text-ink/75 block leading-tight truncate">கடன் வசூல்</span>
+</div>
+</button>
+<!-- Outlined White/Sage Action Button -->
+<button class="h-14 px-space-md rounded-full bg-surface hover:bg-surface-tonal active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm text-ink group" type="button">
+<span class="material-symbols-outlined text-[24px] text-role-field-primary group-hover:scale-110 transition-transform">person_add</span>
+<div class="text-left min-w-0">
+<span class="font-label-action text-label-action font-extrabold tracking-tight block leading-tight truncate">+ Onboard Client</span>
+<span class="font-sublabel-regional text-[10px] font-bold text-ink-muted block leading-tight truncate">புதிய வாடிக்கையாளர்</span>
+</div>
+</button>
+</section>
+<!-- Search & Filter Controls -->
+<section class="flex flex-col gap-space-sm mb-space-md">
+<!-- Search Bar with Mic -->
+<div class="relative flex items-center h-[52px] bg-surface rounded-[14px] px-3.5 shadow-sm">
+<span class="material-symbols-outlined text-ink-muted text-[22px] mr-2">search</span>
+<input class="w-full bg-transparent font-body-md text-body-md text-ink placeholder:text-ink-muted outline-none min-w-0" placeholder="Search customer, shop or phone (எ.கா. சரவணா)..." type="text"/>
+<button aria-label="Voice Search" class="w-9 h-9 rounded-full bg-surface-tonal flex items-center justify-center text-ink hover:text-role-field-primary transition-colors flex-shrink-0" type="button">
+<span class="material-symbols-outlined text-[20px]">mic</span>
+</button>
+</div>
+<!-- Filter Pills Horizontal Carousel -->
+<div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+<button class="px-3.5 py-2 rounded-full bg-ink text-surface font-caption-meta text-caption-meta font-bold whitespace-nowrap shadow-sm">
+        All Assigned (28)
+      </button>
+<button class="px-3.5 py-2 rounded-full bg-surface hover:bg-surface-tonal text-critical-ruby font-caption-meta text-caption-meta font-bold whitespace-nowrap shadow-sm flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-critical-ruby"></span>
+        Critical Dues &gt;30d (8)
+      </button>
+<button class="px-3.5 py-2 rounded-full bg-surface hover:bg-surface-tonal text-ink-muted font-caption-meta text-caption-meta font-bold whitespace-nowrap shadow-sm">
+        Has Cans / Deposit (14)
+      </button>
+<button class="px-3.5 py-2 rounded-full bg-surface hover:bg-surface-tonal text-pending-honey font-caption-meta text-caption-meta font-bold whitespace-nowrap shadow-sm">
+        No GPS Tag (4)
+      </button>
+<button class="px-3.5 py-2 rounded-full bg-surface hover:bg-surface-tonal text-money-mint font-caption-meta text-caption-meta font-bold whitespace-nowrap shadow-sm">
+        Cleared Today (6)
+      </button>
+</div>
+</section>
+<!-- Priority Customer Receivables & Geotag Cards List -->
+<section class="flex flex-col gap-space-md mb-space-md">
+<div class="flex items-center justify-between px-1">
+<span class="font-caption-meta text-caption-meta uppercase tracking-wider font-extrabold text-ink-muted">Assigned Route Priority (வரிசை முறை)</span>
+<span class="font-caption-meta text-caption-meta font-bold text-role-field-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">swap_vert</span> By Overdue Amount
+      </span>
+</div>
+<!-- Card 1: Hotel Saravana Bhavan -->
+<article class="bg-surface rounded-[20px] p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="min-w-0">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-full bg-surface-tonal font-caption-meta text-[12px] font-extrabold flex items-center justify-center text-ink flex-shrink-0">#1</span>
+<h2 class="font-headline-md text-[18px] font-extrabold text-ink truncate leading-tight">Hotel Saravana Bhavan</h2>
+</div>
+<p class="font-caption-meta text-caption-meta font-semibold text-ink-muted mt-0.5 truncate">
+            Saravana Bhavan Hospitality Pvt Ltd • Main Road, Erode
+          </p>
+</div>
+<!-- Due Amount Pill (Coral Overdue) -->
+<div class="text-right flex-shrink-0">
+<span class="font-headline-md text-headline-md font-extrabold text-critical-ruby tabular-nums">₹ 28,450</span>
+<span class="font-caption-meta text-[11px] font-extrabold text-critical-ruby block uppercase">34 Days Overdue</span>
+</div>
+</div>
+<!-- Detail tags & Cans held -->
+<div class="flex items-center flex-wrap gap-1.5 py-1">
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E6F7F0] text-money-mint">
+<span class="material-symbols-outlined text-[14px]">pin_drop</span>
+<span class="font-caption-meta text-[11px] font-bold">Geotagged (11.3410° N, 77.7172° E)</span>
+</div>
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-tonal text-ink">
+<span class="material-symbols-outlined text-[14px] text-role-field-primary">water_drop</span>
+<span class="font-caption-meta text-[11px] font-bold">14 Cans Held (Deposit: ₹2,100)</span>
+</div>
+</div>
+<!-- Contact Person -->
+<div class="flex items-center justify-between text-caption-meta font-caption-meta text-ink-muted bg-surface-tonal rounded-xl px-3 py-2">
+<div class="flex items-center gap-1.5 min-w-0">
+<span class="material-symbols-outlined text-[18px] text-ink">contact_phone</span>
+<span class="text-ink font-bold truncate">Mr. S. Ramanathan</span>
+<span class="text-ink-muted truncate">• +91 98421 88402</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">பொறுப்பாளர்</span>
+</div>
+<!-- Action Row (56px targets on primary triggers) -->
+<div class="grid grid-cols-12 gap-2 pt-1">
+<a class="col-span-3 h-12 rounded-full bg-surface-tonal hover:bg-surface-container-high active:scale-95 transition-all flex items-center justify-center gap-1 text-ink font-bold text-caption-meta font-caption-meta" href="tel:+919842188402">
+<span class="material-symbols-outlined text-[18px]">call</span>
+<span>Call</span>
+</a>
+<button class="col-span-3 h-12 rounded-full bg-surface-tonal hover:bg-surface-container-high active:scale-95 transition-all flex items-center justify-center gap-1 text-ink font-bold text-caption-meta font-caption-meta" type="button">
+<span class="material-symbols-outlined text-[18px] text-info-sky">directions</span>
+<span>Maps</span>
+</button>
+<button class="col-span-6 h-12 rounded-full bg-role-field-action hover:bg-[#b5e054] active:scale-95 transition-all flex items-center justify-center gap-1.5 text-ink font-label-action text-[15px] font-extrabold shadow-sm" type="button">
+<span class="material-symbols-outlined text-[20px]">currency_rupee</span>
+<span>Collect (வசூல்)</span>
+</button>
+</div>
+</article>
+<!-- Card 2: Sri Krishna Sweets & Bakery -->
+<article class="bg-surface rounded-[20px] p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="min-w-0">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-full bg-surface-tonal font-caption-meta text-[12px] font-extrabold flex items-center justify-center text-ink flex-shrink-0">#2</span>
+<h2 class="font-headline-md text-[18px] font-extrabold text-ink truncate leading-tight">Sri Krishna Sweets &amp; Bakery</h2>
+</div>
+<p class="font-caption-meta text-caption-meta font-semibold text-ink-muted mt-0.5 truncate">
+            Brough Road Commercial Junction, Erode
+          </p>
+</div>
+<!-- Due Amount Pill (Honey Highlight) -->
+<div class="text-right flex-shrink-0">
+<span class="font-headline-md text-headline-md font-extrabold text-pending-honey tabular-nums">₹ 14,200</span>
+<span class="font-caption-meta text-[11px] font-extrabold text-pending-honey block uppercase">12 Days Overdue</span>
+</div>
+</div>
+<!-- Detail tags & Cans held -->
+<div class="flex items-center flex-wrap gap-1.5 py-1">
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E6F7F0] text-money-mint">
+<span class="material-symbols-outlined text-[14px]">pin_drop</span>
+<span class="font-caption-meta text-[11px] font-bold">Geotagged (11.3445° N, 77.7210° E)</span>
+</div>
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-tonal text-ink">
+<span class="material-symbols-outlined text-[14px] text-role-field-primary">water_drop</span>
+<span class="font-caption-meta text-[11px] font-bold">8 Cans Held (Deposit: ₹1,200)</span>
+</div>
+</div>
+<!-- Contact Person -->
+<div class="flex items-center justify-between text-caption-meta font-caption-meta text-ink-muted bg-surface-tonal rounded-xl px-3 py-2">
+<div class="flex items-center gap-1.5 min-w-0">
+<span class="material-symbols-outlined text-[18px] text-ink">contact_phone</span>
+<span class="text-ink font-bold truncate">K. Radhakrishnan</span>
+<span class="text-ink-muted truncate">• +91 94432 10492</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">உரிமையாளர்</span>
+</div>
+<!-- Action Row -->
+<div class="grid grid-cols-12 gap-2 pt-1">
+<a class="col-span-3 h-12 rounded-full bg-surface-tonal hover:bg-surface-container-high active:scale-95 transition-all flex items-center justify-center gap-1 text-ink font-bold text-caption-meta font-caption-meta" href="tel:+919443210492">
+<span class="material-symbols-outlined text-[18px]">call</span>
+<span>Call</span>
+</a>
+<button class="col-span-3 h-12 rounded-full bg-surface-tonal hover:bg-surface-container-high active:scale-95 transition-all flex items-center justify-center gap-1 text-ink font-bold text-caption-meta font-caption-meta" type="button">
+<span class="material-symbols-outlined text-[18px] text-info-sky">directions</span>
+<span>Maps</span>
+</button>
+<button class="col-span-6 h-12 rounded-full bg-role-field-action hover:bg-[#b5e054] active:scale-95 transition-all flex items-center justify-center gap-1.5 text-ink font-label-action text-[15px] font-extrabold shadow-sm" type="button">
+<span class="material-symbols-outlined text-[20px]">currency_rupee</span>
+<span>Collect (வசூல்)</span>
+</button>
+</div>
+</article>
+<!-- Card 3: Texvalley Textiles & Handlooms (Missing GPS Alert) -->
+<article class="bg-surface rounded-[20px] p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="min-w-0">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-full bg-surface-tonal font-caption-meta text-[12px] font-extrabold flex items-center justify-center text-ink flex-shrink-0">#3</span>
+<h2 class="font-headline-md text-[18px] font-extrabold text-ink truncate leading-tight">Texvalley Textiles &amp; Handlooms</h2>
+</div>
+<p class="font-caption-meta text-caption-meta font-semibold text-ink-muted mt-0.5 truncate">
+            NH-544 Bypass, Gangapuram Outlet, Erode
+          </p>
+</div>
+<!-- Due Amount Pill (Coral Critical) -->
+<div class="text-right flex-shrink-0">
+<span class="font-headline-md text-headline-md font-extrabold text-critical-ruby tabular-nums">₹ 46,000</span>
+<span class="font-caption-meta text-[11px] font-extrabold text-critical-ruby block uppercase">45 Days Overdue</span>
+</div>
+</div>
+<!-- GPS Missing Warning Capsule -->
+<div class="flex items-center gap-2 p-2.5 rounded-xl bg-[#FDF5E8] text-pending-honey">
+<span class="material-symbols-outlined text-[18px] flex-shrink-0">warning</span>
+<div class="min-w-0">
+<span class="font-caption-meta text-[11px] font-extrabold block uppercase tracking-wide">⚠ No GPS Tagged</span>
+<span class="font-caption-meta text-[11px] text-ink-muted block leading-tight">Please record live geotag at premise to enable auto-routing.</span>
+</div>
+</div>
+<!-- Contact Person -->
+<div class="flex items-center justify-between text-caption-meta font-caption-meta text-ink-muted bg-surface-tonal rounded-xl px-3 py-2">
+<div class="flex items-center gap-1.5 min-w-0">
+<span class="material-symbols-outlined text-[18px] text-ink">contact_phone</span>
+<span class="text-ink font-bold truncate">V. Balasubramaniam</span>
+<span class="text-ink-muted truncate">• +91 98940 77120</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">நிர்வாகம்</span>
+</div>
+<!-- Action Row with Prominent GPS Tagging Slab -->
+<div class="grid grid-cols-12 gap-2 pt-1">
+<button class="col-span-4 h-12 rounded-full bg-role-field-primary text-white hover:bg-[#346748] active:scale-95 transition-all flex items-center justify-center gap-1 font-label-action text-[13px] font-extrabold" type="button">
+<span class="material-symbols-outlined text-[18px]">add_location_alt</span>
+<span>Tag GPS</span>
+</button>
+<a class="col-span-3 h-12 rounded-full bg-surface-tonal hover:bg-surface-container-high active:scale-95 transition-all flex items-center justify-center gap-1 text-ink font-bold text-caption-meta font-caption-meta" href="tel:+919894077120">
+<span class="material-symbols-outlined text-[18px]">call</span>
+<span>Call</span>
+</a>
+<button class="col-span-5 h-12 rounded-full bg-role-field-action hover:bg-[#b5e054] active:scale-95 transition-all flex items-center justify-center gap-1 text-ink font-label-action text-[14px] font-extrabold shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">currency_rupee</span>
+<span>Collect (வசூல்)</span>
+</button>
+</div>
+</article>
+<!-- Card 4: Sri Murugan Tea & Tiffin (Cleared State) -->
+<article class="bg-surface rounded-[20px] p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="min-w-0">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-full bg-[#E6F7F0] font-caption-meta text-[12px] font-extrabold flex items-center justify-center text-money-mint flex-shrink-0">
+<span class="material-symbols-outlined text-[14px]">done</span>
+</span>
+<h2 class="font-headline-md text-[18px] font-extrabold text-ink truncate leading-tight">Sri Murugan Tea &amp; Tiffin</h2>
+</div>
+<p class="font-caption-meta text-caption-meta font-semibold text-ink-muted mt-0.5 truncate">
+            Surampatti Valasu Ring Road, Erode
+          </p>
+</div>
+<!-- Status Pill: Cleared Today -->
+<div class="px-2.5 py-1 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-[11px] font-extrabold uppercase flex-shrink-0">
+          Cleared Today ✓
+        </div>
+</div>
+<!-- Payment Confirmation Strip -->
+<div class="flex items-center justify-between p-2.5 rounded-xl bg-surface-tonal text-ink">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-money-mint text-[20px]">verified</span>
+<div>
+<span class="font-caption-meta text-caption-meta font-extrabold text-ink block">Received: ₹4,800 via UPI QR</span>
+<span class="font-caption-meta text-[10px] text-ink-muted block">Settled to GL 1020 • Auth: #TXN-984210</span>
+</div>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-money-mint font-bold">முழுத் தீர்வு</span>
+</div>
+<!-- Action Row (View Receipt & 360) -->
+<div class="grid grid-cols-2 gap-2 pt-1">
+<button class="h-12 rounded-full bg-surface-tonal hover:bg-surface-container-high active:scale-95 transition-all flex items-center justify-center gap-1.5 text-ink font-caption-meta text-caption-meta font-bold" type="button">
+<span class="material-symbols-outlined text-[18px] text-role-field-primary">receipt_long</span>
+<span>View Receipt (ரசீது)</span>
+</button>
+<button class="h-12 rounded-full bg-surface-tonal hover:bg-surface-container-high active:scale-95 transition-all flex items-center justify-center gap-1.5 text-ink font-caption-meta text-caption-meta font-bold" type="button">
+<span class="material-symbols-outlined text-[18px]">account_box</span>
+<span>Customer 360</span>
+</button>
+</div>
+</article>
+</section>
+<!-- Daily Route Beat Progress & Sync Strip -->
+<section class="bg-surface rounded-[20px] p-space-md shadow-sm mb-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-role-field-primary text-[20px]">route</span>
+<span class="font-caption-meta text-caption-meta font-extrabold uppercase tracking-wide text-ink">Beat Progress Tracker</span>
+</div>
+<span class="font-caption-meta text-caption-meta font-extrabold text-ink tabular-nums">10 / 28 Visited</span>
+</div>
+<!-- Linear Progress Bar -->
+<div class="w-full h-2 rounded-full bg-surface-tonal overflow-hidden">
+<div class="h-full rounded-full bg-role-field-primary transition-all duration-500" style="width: 35.7%"></div>
+</div>
+<div class="flex items-center justify-between text-caption-meta font-caption-meta pt-1 flex-wrap gap-2">
+<div class="flex items-center gap-1 text-ink-muted">
+<span class="material-symbols-outlined text-[16px]">inventory_2</span>
+<span>3 cash memos in outbox queue</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#E6F7F0] text-money-mint font-bold">
+<span class="material-symbols-outlined text-[14px]">cloud_done</span>
+<span>0 Drift • Ledger Verified</span>
+</div>
+</div>
+</section>
+<!-- Frontline Compliance & Cryptographic Security Footer -->
+<footer class="flex flex-col items-center justify-center text-center px-space-md text-ink-muted py-2 gap-1">
+<div class="flex items-center gap-1 text-[11px] font-caption-meta font-semibold">
+<span class="material-symbols-outlined text-[14px] text-role-field-primary">verified_user</span>
+<span>Cryptographic Field Seal: <strong class="text-ink">#FLD-20261112-91</strong></span>
+</div>
+<p class="font-caption-meta text-[10px] text-ink-muted/80 leading-normal">
+      ZOLO ERP Field Agent v1.0 • Erode Beat Unit • Double-Entry Compliant with Tamil Nadu Commercial Taxes Dept.
+    </p>
+</footer>
+</div>
+<script>
+  // Simple micro-interaction for filter chips
+  document.querySelectorAll('section:nth-of-type(4) button').forEach(button => {
+    button.addEventListener('click', function() {
+      // Toggle active states for filter demo
+      const parent = this.parentElement;
+      parent.querySelectorAll('button').forEach(btn => {
+        btn.classList.remove('bg-ink', 'text-surface');
+        if (!btn.classList.contains('bg-surface')) {
+          btn.classList.add('bg-surface');
+        }
+      });
+      this.classList.remove('bg-surface');
+      this.classList.add('bg-ink', 'text-surface');
+    });
+  });
+</script></main><div class="fixed bottom-0 inset-x-0 z-50 pointer-events-none pb-safe px-margin mb-3"><nav class="pointer-events-auto mx-auto max-w-[358px] h-16 rounded-full bg-surface shadow-[0_8px_24px_-4px_rgba(19,32,27,0.12)] p-1.5 flex items-center justify-between" data-active-classes="bg-role-field-action text-ink font-bold shadow-sm"><a aria-current="page" class="flex-1 h-full rounded-full flex flex-col items-center justify-center transition-all bg-role-field-action text-ink font-bold shadow-sm" data-path="collect" href="#"><span class="material-symbols-outlined text-[20px]">account_balance_wallet</span><span class="font-caption-meta text-caption-meta tracking-tight leading-none mt-0.5">Collect</span></a><a class="flex-1 h-full rounded-full flex flex-col items-center justify-center text-ink-muted hover:text-ink transition-all" data-path="customers" href="#"><span class="material-symbols-outlined text-[20px]">groups</span><span class="font-caption-meta text-caption-meta tracking-tight leading-none mt-0.5">Customers</span></a><a class="flex-1 h-full rounded-full flex flex-col items-center justify-center text-ink-muted hover:text-ink transition-all" data-path="spend" href="#"><span class="material-symbols-outlined text-[20px]">receipt_long</span><span class="font-caption-meta text-caption-meta tracking-tight leading-none mt-0.5">Spend</span></a><a class="flex-1 h-full rounded-full flex flex-col items-center justify-center text-ink-muted hover:text-ink transition-all" data-path="me" href="#"><span class="material-symbols-outlined text-[20px]">badge</span><span class="font-caption-meta text-caption-meta tracking-tight leading-none mt-0.5">Me</span></a></nav></div></body></html>

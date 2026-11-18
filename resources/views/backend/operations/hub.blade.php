@@ -252,7 +252,7 @@
                     <span class="font-weight-bold text-dark font-13"><i class="fa fa-pencil-square-o text-primary mr-1"></i> Quick Action</span>
                     <ul class="nav nav-pills ops-quick-pills" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#act-order">New Order</a>
+                            <a class="nav-link active" data-toggle="pill" href="#act-order">Create Order</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#act-process">Process Policy</a>

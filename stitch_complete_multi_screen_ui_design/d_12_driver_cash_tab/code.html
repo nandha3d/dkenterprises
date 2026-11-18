@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;min-height:100vh;}body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "inverse-primary": "#8ed4c5", "role-driver-primary": "#0E8FB3", "on-secondary-fixed-variant": "#394e00", "pending-honey": "#E9A23B", "info-sky": "#2E90FA", "tertiary-container": "#005f3c", "dark-surface-tonal": "#1F2E27", "surface-container-highest": "#e4e2dd", "on-surface": "#1b1c19", "surface-container-lowest": "#ffffff", "outline": "#6f7976", "role-field-primary": "#3F7D58", "surface-container": "#f0eee9", "surface-dim": "#dcdad5", "outline-variant": "#bec9c5", "on-primary-container": "#8dd3c5", "on-tertiary-container": "#61dda0", "secondary-container": "#c5ee66", "background": "#fbf9f4", "on-secondary-fixed": "#151f00", "role-cafe-canvas": "#FBF4EA", "secondary": "#4c6700", "critical-ruby": "#D92D20", "dark-ink": "#EDF3EF", "on-background": "#1b1c19", "ink": "#13201B", "primary-container": "#0b5d52", "hairline": "#E3E1DA", "inverse-on-surface": "#f2f1ec", "on-secondary-container": "#506c00", "primary-fixed": "#a9f0e1", "inverse-surface": "#30312e", "role-field-action": "#C9F36A", "surface-container-low": "#f5f3ee", "on-error-container": "#93000a", "secondary-fixed-dim": "#acd44f", "on-error": "#ffffff", "role-driver-action": "#FFC933", "tertiary-fixed-dim": "#61dda0", "money-mint": "#1FA971", "surface-tint": "#1f695e", "surface-tonal": "#ECEFEA", "on-tertiary-fixed-variant": "#005233", "error": "#ba1a1a", "on-primary-fixed": "#00201b", "role-driver-canvas": "#F3F8FA", "on-tertiary": "#ffffff", "tertiary-fixed": "#7ffaba", "dark-canvas": "#0E1512", "on-primary": "#ffffff", "on-secondary": "#ffffff", "surface-container-high": "#eae8e3", "on-tertiary-fixed": "#002112", "role-cafe-primary": "#C2542D", "primary": "#00443b", "error-container": "#ffdad6", "on-primary-fixed-variant": "#005046", "surface-variant": "#e4e2dd", "dark-ink-muted": "#93A39B", "tertiary": "#00452a", "dark-surface": "#17221D", "role-cafe-action": "#F4A62A", "money-coral": "#E8505B", "ink-muted": "#66736C", "on-surface-variant": "#3f4946", "surface": "#FFFFFF", "primary-fixed-dim": "#8ed4c5", "role-cafe-ink": "#2B1B14", "surface-bright": "#fbf9f4", "secondary-fixed": "#c7f169" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "space-md": "0.75rem", "space-lg": "1rem", "space-sm": "0.5rem", "space-xs": "0.25rem", "space-xl": "1.5rem", "gutter": "0.75rem", "margin": "1rem" }, fontFamily: { "sublabel-regional": ["Noto Sans Tamil"], "display-numeral": ["Manrope"], "label-action": ["Manrope"], "body-lg": ["Manrope"], "display-numeral-mobile": ["Manrope"], "headline-lg": ["Manrope"], "headline-md": ["Manrope"], "caption-meta": ["Manrope"], "body-md": ["Manrope"] }, fontSize: { "sublabel-regional": ["11px", { lineHeight: "14px", fontWeight: "600" }], "display-numeral": ["48px", { lineHeight: "52px", letterSpacing: "-0.03em", fontWeight: "800" }], "label-action": ["16px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "700" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "600" }], "display-numeral-mobile": ["40px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800" }], "headline-lg": ["28px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "800" }], "headline-md": ["20px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "700" }], "caption-meta": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "500" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-role-driver-canvas text-ink font-body-md text-body-md flex flex-col min-h-screen antialiased select-none"><header class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(19,32,27,0.04)]"><div class="h-20 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-role-driver-primary text-surface shadow-sm shrink-0"><span class="material-symbols-outlined text-[18px]">water_drop</span><span class="font-headline-md text-caption-meta font-extrabold tracking-tight">DK WATERS</span></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-1.5"><span class="font-label-action text-body-md text-ink truncate">Beat #01</span><span class="px-2 py-0.5 rounded-full bg-money-mint/15 text-money-mint font-caption-meta text-[11px] font-bold flex items-center gap-0.5 shrink-0"><span class="material-symbols-outlined text-[13px]">check_circle</span>Synced</span></div><div class="flex items-center gap-1"><span class="font-caption-meta text-caption-meta text-ink-muted truncate">Anna Nagar Route</span><span class="font-sublabel-regional text-sublabel-regional text-ink-muted/80 truncate">அண்ணா நகர்</span></div></div></div><div class="flex items-center gap-space-sm shrink-0"><button aria-label="Notifications" class="w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-surface-tonal transition-colors relative"><span class="material-symbols-outlined text-[24px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-role-driver-action ring-2 ring-surface"></span></button><div class="flex items-center gap-1.5 pl-1"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden xs:flex flex-col text-left"><span class="font-label-action text-[12px] leading-tight text-ink">R. Muthu</span><span class="font-sublabel-regional text-[10px] leading-none text-ink-muted">முத்து</span></div></div></div></div></header><main class="flex flex-col relative w-full pt-20 pb-28 px-margin bg-role-driver-canvas min-h-screen"><div class="flex flex-col w-full gap-space-md">
+<!-- 1. Top Shift & Custody Status Pill -->
+<div class="flex flex-col gap-1 px-space-md py-space-sm bg-surface rounded-DEFAULT shadow-sm">
+<div class="flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-2 min-w-0">
+<span class="w-2.5 h-2.5 rounded-full bg-pending-honey shrink-0 animate-pulse"></span>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="font-label-action text-[13px] text-ink uppercase tracking-wider">Cash Custody in Transit</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-tonal text-ink-muted font-caption-meta text-[10px] font-bold">GL 1015</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">கள ரொக்கப் பொறுப்பு · நேரடி மேலாண்மை</span>
+</div>
+</div>
+<div class="flex items-center gap-1 px-2 py-1 rounded-full bg-surface-tonal shrink-0">
+<span class="material-symbols-outlined text-[15px] text-role-driver-primary">local_shipping</span>
+<span class="font-caption-meta text-[11px] font-bold text-ink">TN-58-WA-101</span>
+</div>
+</div>
+</div>
+<!-- 2. Hero Card: Lagoon / Aqua skin (#0E8FB3) with ₹3,700 Pouch Total -->
+<div class="relative overflow-hidden bg-role-driver-primary text-surface rounded-lg p-space-lg shadow-sm">
+<!-- Ambient subtle wave graphic -->
+<div class="absolute -right-8 -bottom-10 opacity-15 pointer-events-none">
+<svg fill="none" height="180" viewbox="0 0 220 180" width="220">
+<path d="M10 90C45 60 75 120 120 90C165 60 195 120 230 90V180H10V90Z" fill="currentColor"></path>
+<circle cx="160" cy="40" fill="currentColor" r="32"></circle>
+</svg>
+</div>
+<div class="relative z-10 flex flex-col gap-space-md">
+<!-- Title & Bilingual label -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px] text-role-driver-action">account_balance_wallet</span>
+<span class="font-label-action text-body-lg text-surface">Cash in Pouch</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-surface/85">கையில் உள்ள ரொக்கம் (நேரடி பாதுகாப்பு)</span>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-surface/20 backdrop-blur-md text-surface font-caption-meta text-[11px] font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">lock</span>
+          Driver Handover
+        </span>
+</div>
+<!-- Giant Tabular Numeral -->
+<div class="flex flex-col">
+<div class="flex items-baseline gap-1">
+<span class="font-display-numeral-mobile text-display-numeral-mobile font-extrabold text-surface tracking-tight">₹3,700</span>
+<span class="font-caption-meta text-caption-meta text-surface/80">.00</span>
+</div>
+<p class="font-caption-meta text-[12px] text-surface/90 leading-tight mt-0.5">
+          Net physical cash to be surrendered to cashier
+        </p>
+<span class="font-sublabel-regional text-[10px] text-surface/75 mt-0.5">
+          பணி முடிவில் காசாளரிடம் ஒப்படைக்க வேண்டிய மீத தொகை
+        </span>
+</div>
+<!-- Formula Breakdown Strip -->
+<div class="pt-2">
+<div class="grid grid-cols-3 gap-1.5 p-2 rounded-DEFAULT bg-dark-canvas/25 backdrop-blur-sm text-surface">
+<div class="flex flex-col px-1.5 py-1 border-r-0">
+<span class="font-caption-meta text-[10px] uppercase text-surface/70">Gross Sales</span>
+<span class="font-label-action text-[13px] text-surface font-extrabold mt-0.5">₹4,100</span>
+<span class="font-caption-meta text-[9px] text-surface/80 truncate">14 tickets</span>
+</div>
+<div class="flex flex-col px-1.5 py-1 border-r-0">
+<span class="font-caption-meta text-[10px] uppercase text-money-coral">Expenses</span>
+<span class="font-label-action text-[13px] text-money-coral font-extrabold mt-0.5">-₹400</span>
+<span class="font-caption-meta text-[9px] text-surface/80 truncate">Fuel &amp; Toll</span>
+</div>
+<div class="flex flex-col px-1.5 py-1 bg-surface/15 rounded-md">
+<span class="font-caption-meta text-[10px] uppercase text-role-driver-action font-bold">Net Pouch</span>
+<span class="font-label-action text-[13px] text-surface font-extrabold mt-0.5">₹3,700</span>
+<span class="font-caption-meta text-[9px] text-role-driver-action font-semibold truncate">Surrender</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 3. Primary Action Buttons Row (Thumb Zone Slabs) -->
+<div class="flex flex-col gap-2">
+<!-- Primary 56px Sun-Yellow Slab -->
+<button class="w-full h-14 px-margin rounded-full bg-role-driver-action text-ink font-label-action text-label-action font-extrabold flex items-center justify-between shadow-sm active:scale-[0.98] transition-transform">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[24px]">verified</span>
+<div class="flex flex-col text-left">
+<span class="leading-none text-[15px]">Surrender Cash to Cashier</span>
+<span class="font-sublabel-regional text-[10px] text-ink/75 leading-none mt-1">ரொக்கம் ஒப்படைக்க படிவம் · D-08</span>
+</div>
+</div>
+<div class="flex items-center gap-1 bg-ink/10 px-2.5 py-1 rounded-full">
+<span class="font-caption-meta text-[12px] font-bold">₹3,700</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</div>
+</button>
+<!-- Secondary Outlined/Tonal 56px Slab -->
+<button class="w-full h-14 px-margin rounded-full bg-surface text-ink font-label-action text-label-action flex items-center justify-between shadow-sm active:scale-[0.98] transition-transform">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-full bg-money-coral/15 text-money-coral flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">add_a_photo</span>
+</div>
+<div class="flex flex-col text-left">
+<span class="leading-none text-[14px] text-ink font-bold">+ Add Expense Slip</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted leading-none mt-1">புதிய செலவு சீட்டு பதியவும் · D-13</span>
+</div>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-tonal text-role-driver-primary font-caption-meta text-[11px] font-bold">Camera Scan</span>
+</button>
+</div>
+<!-- 4. Bento Summary Row (3 compact operational blocks) -->
+<div class="grid grid-cols-3 gap-gutter">
+<!-- Card 1: Gross Cash Collected -->
+<div class="flex flex-col justify-between p-space-sm bg-surface rounded-DEFAULT shadow-sm">
+<div class="flex items-center justify-between">
+<span class="w-7 h-7 rounded-full bg-money-mint/15 text-money-mint flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+</span>
+<span class="font-caption-meta text-[10px] font-bold text-money-mint">+14</span>
+</div>
+<div class="flex flex-col mt-2">
+<span class="font-label-action text-body-lg font-extrabold text-ink leading-tight">₹4,100</span>
+<span class="font-caption-meta text-[11px] text-ink-muted font-bold truncate">Gross Cash</span>
+<span class="font-sublabel-regional text-[9px] text-ink-muted/80 truncate">மொத்த வசூல்</span>
+</div>
+</div>
+<!-- Card 2: Route Expenses -->
+<div class="flex flex-col justify-between p-space-sm bg-surface rounded-DEFAULT shadow-sm">
+<div class="flex items-center justify-between">
+<span class="w-7 h-7 rounded-full bg-money-coral/15 text-money-coral flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">receipt_long</span>
+</span>
+<span class="font-caption-meta text-[10px] font-bold text-money-coral">2 Slips</span>
+</div>
+<div class="flex flex-col mt-2">
+<span class="font-label-action text-body-lg font-extrabold text-money-coral leading-tight">-₹400</span>
+<span class="font-caption-meta text-[11px] text-ink-muted font-bold truncate">Expenses</span>
+<span class="font-sublabel-regional text-[9px] text-ink-muted/80 truncate">செலவுகள்</span>
+</div>
+</div>
+<!-- Card 3: Digital & UPI Collected -->
+<div class="flex flex-col justify-between p-space-sm bg-surface rounded-DEFAULT shadow-sm">
+<div class="flex items-center justify-between">
+<span class="w-7 h-7 rounded-full bg-info-sky/15 text-info-sky flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">qr_code_2</span>
+</span>
+<span class="font-caption-meta text-[10px] font-bold text-info-sky">Direct</span>
+</div>
+<div class="flex flex-col mt-2">
+<span class="font-label-action text-body-lg font-extrabold text-ink leading-tight">₹2,410</span>
+<span class="font-caption-meta text-[11px] text-ink-muted font-bold truncate">UPI / Bank</span>
+<span class="font-sublabel-regional text-[9px] text-ink-muted/80 truncate">டிஜிட்டல்</span>
+</div>
+</div>
+</div>
+<!-- 5. Digital vs Physical Collection Split Bar -->
+<div class="p-space-md bg-surface rounded-DEFAULT shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-action text-[13px] text-ink">Turnover Channel Split</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">பணப் பரிமாற்ற விகிதம் · மொத்தம்: ₹6,510</span>
+</div>
+<div class="text-right">
+<span class="font-label-action text-body-md font-extrabold text-ink">₹6,510</span>
+<span class="font-caption-meta text-[10px] text-ink-muted block">Day Turnover</span>
+</div>
+</div>
+<!-- Progress split bar -->
+<div class="w-full h-3 rounded-full bg-surface-tonal overflow-hidden flex">
+<div class="h-full bg-role-driver-primary" style="width: 61%" title="61% Physical Cash"></div>
+<div class="h-full bg-info-sky" style="width: 39%" title="39% UPI Digital"></div>
+</div>
+<div class="flex items-center justify-between pt-0.5">
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-role-driver-primary"></span>
+<span class="font-caption-meta text-[11px] text-ink font-bold">Physical Cash: ₹3,700</span>
+<span class="font-caption-meta text-[10px] text-ink-muted">(61%)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-info-sky"></span>
+<span class="font-caption-meta text-[11px] text-ink font-bold">UPI / QR: ₹2,410</span>
+<span class="font-caption-meta text-[10px] text-ink-muted">(39%)</span>
+</div>
+</div>
+</div>
+<!-- 6. Cash Denominations Quick Tally Helper Card -->
+<div class="p-space-md bg-surface rounded-DEFAULT shadow-sm flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-role-driver-primary">payments</span>
+<span class="font-label-action text-[13px] text-ink">Physical Denomination Tally</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-money-mint/15 text-money-mint font-caption-meta text-[10px] font-bold">Exact Match ✓</span>
+</div>
+<!-- Denominations chips -->
+<div class="grid grid-cols-3 gap-1.5 pt-1">
+<div class="p-2 rounded-DEFAULT bg-surface-tonal flex flex-col">
+<div class="flex items-center justify-between">
+<span class="font-caption-meta text-[11px] text-ink font-extrabold">₹500</span>
+<span class="font-caption-meta text-[10px] text-ink-muted">× 6</span>
+</div>
+<span class="font-label-action text-[13px] text-ink font-bold mt-1">₹3,000</span>
+<span class="font-sublabel-regional text-[9px] text-ink-muted mt-0.5">6 தாள்கள்</span>
+</div>
+<div class="p-2 rounded-DEFAULT bg-surface-tonal flex flex-col">
+<div class="flex items-center justify-between">
+<span class="font-caption-meta text-[11px] text-ink font-extrabold">₹200</span>
+<span class="font-caption-meta text-[10px] text-ink-muted">× 3</span>
+</div>
+<span class="font-label-action text-[13px] text-ink font-bold mt-1">₹600</span>
+<span class="font-sublabel-regional text-[9px] text-ink-muted mt-0.5">3 தாள்கள்</span>
+</div>
+<div class="p-2 rounded-DEFAULT bg-surface-tonal flex flex-col">
+<div class="flex items-center justify-between">
+<span class="font-caption-meta text-[11px] text-ink font-extrabold">₹100</span>
+<span class="font-caption-meta text-[10px] text-ink-muted">× 1</span>
+</div>
+<span class="font-label-action text-[13px] text-ink font-bold mt-1">₹100</span>
+<span class="font-sublabel-regional text-[9px] text-ink-muted mt-0.5">1 தாள்</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1 text-ink-muted">
+<span class="font-caption-meta text-[11px]">Total Notes: 10 physical pieces</span>
+<span class="font-caption-meta text-[11px] font-bold text-ink">Sum: ₹3,700</span>
+</div>
+</div>
+<!-- 7. Section: Route Expense Slips Log -->
+<div class="flex flex-col gap-space-sm pt-1">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-md text-headline-md text-ink">Route Expense Slips</span>
+<span class="px-2 py-0.5 rounded-full bg-money-coral/15 text-money-coral font-caption-meta text-[11px] font-bold">2 Slips</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">இன்றைய செலவு சீட்டுகள் (ரொக்கப் பையிலிருந்து கழிக்கப்பட்டது)</span>
+</div>
+<span class="font-label-action text-body-md font-extrabold text-money-coral">-₹400</span>
+</div>
+<!-- Filter chips horizontal list -->
+<div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+<button class="px-3 py-1.5 rounded-full bg-role-driver-primary text-surface font-caption-meta text-[11px] font-bold whitespace-nowrap shadow-xs">
+        All (2)
+      </button>
+<button class="px-3 py-1.5 rounded-full bg-surface text-ink font-caption-meta text-[11px] font-medium whitespace-nowrap shadow-xs hover:bg-surface-tonal">
+        Fuel / Diesel (1)
+      </button>
+<button class="px-3 py-1.5 rounded-full bg-surface text-ink font-caption-meta text-[11px] font-medium whitespace-nowrap shadow-xs hover:bg-surface-tonal">
+        Toll / Parking (1)
+      </button>
+<button class="px-3 py-1.5 rounded-full bg-surface text-ink-muted font-caption-meta text-[11px] font-medium whitespace-nowrap shadow-xs hover:bg-surface-tonal">
+        Food &amp; Tea (0)
+      </button>
+</div>
+<!-- Expense Card 1: 5L Diesel -->
+<div class="p-space-md bg-surface rounded-DEFAULT shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="w-11 h-11 rounded-full bg-money-coral/15 text-money-coral flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[22px]">local_gas_station</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-action text-[14px] text-ink font-bold truncate">5L Diesel for Tata Ace Van</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">டீசல் செலவு · பில் #IOC-8821</span>
+<span class="font-caption-meta text-[11px] text-ink-muted mt-0.5">08:15 AM · IOCL Bunk, Perundurai Rd</span>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-headline-md text-[17px] font-extrabold text-money-coral leading-none">-₹350</span>
+<span class="font-caption-meta text-[10px] text-ink-muted block mt-1">₹70.00 / L</span>
+</div>
+</div>
+<!-- Photo slip thumbnail + GPS Tag -->
+<div class="flex items-center justify-between gap-2 pt-2 border-t-0 bg-surface-tonal p-2 rounded-DEFAULT">
+<div class="flex items-center gap-2 min-w-0">
+<img class="w-12 h-12 rounded-md object-cover shrink-0" data-alt="Physical printed petrol pump diesel receipt paper slip held by driver hand showing 5.00 liters and three hundred fifty rupees total at Indian Oil Corporation bunk with clear printed ink and stamp" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9c_0-QtBie1zdoBtF_hhqNCu4UEm7l3JUcgid5hB0lR5w6he0JEpoeyq4AehqpqLlO1qYVhPFIYkRoqrOk9hi5N7sa6QbhWTdmqmClyJcCBpipIAZisqoipn2m2EaDLZjvVzxmYqPY7OqcVNcNZuIDvFCiftgg88d2pdi9RFS7dhfMMPQs6cZaF-AMRtQNaVpNlgPjHEuXAvy2EE5cXDt7lANLPqANcosrAhI4_4"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1 text-money-mint font-caption-meta text-[10px] font-bold">
+<span class="material-symbols-outlined text-[13px]">location_on</span>
+<span class="truncate">✓ GPS 11.3410, 77.7172</span>
+</div>
+<span class="font-caption-meta text-[10px] text-ink-muted truncate">Odometer: 42,118 km</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface text-ink font-caption-meta text-[10px] font-bold shrink-0">
+          Pouch Deducted
+        </span>
+</div>
+</div>
+<!-- Expense Card 2: NH Toll Gate -->
+<div class="p-space-md bg-surface rounded-DEFAULT shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="w-11 h-11 rounded-full bg-money-coral/15 text-money-coral flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[22px]">toll</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-action text-[14px] text-ink font-bold truncate">NH Toll Gate (Erode Bypass)</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">சுங்கச்சாவடி கட்டணம் · Slip #4910</span>
+<span class="font-caption-meta text-[11px] text-ink-muted mt-0.5">09:05 AM · FASTag / Cash Plaza Ln 3</span>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-headline-md text-[17px] font-extrabold text-money-coral leading-none">-₹50</span>
+<span class="font-caption-meta text-[10px] text-ink-muted block mt-1">One-Way</span>
+</div>
+</div>
+<!-- Photo slip thumbnail + GPS Tag -->
+<div class="flex items-center justify-between gap-2 pt-2 border-t-0 bg-surface-tonal p-2 rounded-DEFAULT">
+<div class="flex items-center gap-2 min-w-0">
+<img class="w-12 h-12 rounded-md object-cover shrink-0" data-alt="National Highway authority toll plaza thermal paper slip showing 50 rupees fee for commercial light vehicle Tata Ace at Erode bypass highway booth with barcode" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDt6zME4UIS4l9rpTn6qA4qrYMj9tMsdFLw2px9qMePB5DLJLKiGjDeG_gbKdHw9dSs266uW7zDY-nB8qicBJYe_5ZIbM8guv2RQ_9RXWb8XTiNAZKUAejw3x_4UO-aisOvstRntJUvgZfu6IovdWhhTD6EZnayVJp-wVnSaz94BBH-2Hmre3kh9DkSdcJUPxxs2fH51CczmUv4obIoS7RH4nTVkMThQSWTFWKMZyY"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1 text-money-mint font-caption-meta text-[10px] font-bold">
+<span class="material-symbols-outlined text-[13px]">location_on</span>
+<span class="truncate">✓ GPS 11.3621, 77.6894</span>
+</div>
+<span class="font-caption-meta text-[10px] text-ink-muted truncate">Ticket verified via OCR</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface text-ink font-caption-meta text-[10px] font-bold shrink-0">
+          Pouch Deducted
+        </span>
+</div>
+</div>
+</div>
+<!-- 8. Security & ERP Audit Note at Bottom -->
+<div class="p-space-md rounded-DEFAULT bg-surface-tonal flex items-start gap-2.5 text-ink-muted">
+<span class="material-symbols-outlined text-[18px] text-role-driver-primary shrink-0 mt-0.5">shield</span>
+<div class="flex flex-col text-[11px] leading-relaxed">
+<span class="font-caption-meta text-[11px] text-ink font-bold">Cash Custody GL 1015 ERP Lock</span>
+<p class="font-caption-meta text-[11px] text-ink-muted mt-0.5">
+        Encrypted cash custody tracked under Cash in Transit GL 1015. Reconciles at end-of-shift with Cashier <strong>S. Vimal</strong> at Perundurai Depot.
+      </p>
+<span class="font-sublabel-regional text-[10px] text-ink-muted/80 mt-1">
+        ஷிப்ட் முடிவில் காசாளர் எஸ். விமலிடம் சரிபார்க்கப்பட்டு இறுதி ரசீது வழங்கப்படும்.
+      </span>
+</div>
+</div>
+</div>
+<!-- Inline active tab state setter to highlight 'Cash' tab with fluid background -->
+<script>
+  (function() {
+    const navLinks = document.querySelectorAll('nav a[data-path]');
+    navLinks.forEach(link => {
+      const path = link.getAttribute('data-path');
+      if (path === 'cash') {
+        link.classList.remove('text-ink-muted');
+        link.classList.add('bg-role-driver-action', 'text-ink', 'font-bold', 'shadow-sm');
+        const icon = link.querySelector('.material-symbols-outlined');
+        if (icon) {
+          icon.style.fontVariationSettings = "'FILL' 1";
+        }
+      } else {
+        link.classList.remove('bg-role-driver-action', 'text-ink', 'font-bold', 'shadow-sm');
+        link.classList.add('text-ink-muted');
+        const icon = link.querySelector('.material-symbols-outlined');
+        if (icon) {
+          icon.style.fontVariationSettings = "'FILL' 0";
+        }
+      }
+    });
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe pointer-events-none" data-active-classes="bg-role-driver-action text-ink font-bold shadow-sm"><div class="max-w-[390px] mx-auto px-margin pb-3 pt-1"><div class="h-16 px-space-xs rounded-full bg-surface shadow-[0_8px_24px_-4px_rgba(19,32,27,0.12)] flex items-center justify-around pointer-events-auto"><a class="flex flex-col items-center justify-center min-w-[68px] h-12 rounded-full px-space-sm text-ink-muted hover:text-ink transition-all active:scale-95" data-path="today" href="#"><span class="material-symbols-outlined text-[22px]">calendar_today</span><span class="font-caption-meta text-[11px] leading-tight">Today</span><span class="font-sublabel-regional text-[9px] leading-none opacity-75">இன்று</span></a><a class="flex flex-col items-center justify-center min-w-[68px] h-12 rounded-full px-space-sm text-ink-muted hover:text-ink transition-all active:scale-95" data-path="work" href="#"><span class="material-symbols-outlined text-[22px]">local_shipping</span><span class="font-caption-meta text-[11px] leading-tight">Work</span><span class="font-sublabel-regional text-[9px] leading-none opacity-75">பணி</span></a><a class="flex flex-col items-center justify-center min-w-[68px] h-12 rounded-full px-space-sm text-ink-muted hover:text-ink transition-all active:scale-95" data-path="cash" href="#"><span class="material-symbols-outlined text-[22px]">payments</span><span class="font-caption-meta text-[11px] leading-tight">Cash</span><span class="font-sublabel-regional text-[9px] leading-none opacity-75">பணம்</span></a><a class="flex flex-col items-center justify-center min-w-[68px] h-12 rounded-full px-space-sm text-ink-muted hover:text-ink transition-all active:scale-95" data-path="me" href="#"><span class="material-symbols-outlined text-[22px]">badge</span><span class="font-caption-meta text-[11px] leading-tight">Me</span><span class="font-sublabel-regional text-[9px] leading-none opacity-75">சுயவிவரம்</span></a></div></div></nav></body></html>

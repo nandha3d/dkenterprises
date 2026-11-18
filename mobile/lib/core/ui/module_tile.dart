@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_theme.dart';
 import '../theme/app_typography.dart';
+import 'ripple_components.dart';
 
 class ModuleTile extends StatelessWidget {
   final String title;
@@ -22,33 +24,41 @@ class ModuleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final skin = RippleSkin.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
-    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
-    final titleColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
-    final subtitleColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
-    final accent = color ?? (isDark ? AppColors.primaryDark : AppColors.primary);
+    final accent = color ?? skin.primary;
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(skin.cardRadius),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderColor, width: 1),
+          gradient: LinearGradient(
+            begin: AlignmentDirectional.topStart,
+            end: AlignmentDirectional.bottomEnd,
+            colors: [
+              Color.alphaBlend(
+                accent.withValues(alpha: isDark ? 0.10 : 0.045),
+                skin.surface,
+              ),
+              skin.surface,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(skin.cardRadius),
+          border: Border.all(
+            color: accent.withValues(alpha: isDark ? 0.24 : 0.16),
+            width: 1,
+          ),
         ),
         child: Row(
           children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: accent.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, size: 24, color: accent),
+            RippleIconBadge(
+              icon: icon,
+              accentColor: accent,
+              size: 46,
+              iconSize: 24,
+              radius: 14,
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -57,14 +67,17 @@ class ModuleTile extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: AppTypography.label.copyWith(color: titleColor),
+                    style: AppTypography.label.copyWith(
+                      color: skin.ink,
+                      fontWeight: FontWeight.w800,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
                   Text(
                     description,
-                    style: AppTypography.caption.copyWith(color: subtitleColor),
+                    style: AppTypography.caption.copyWith(color: skin.muted),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -88,10 +101,20 @@ class ModuleTile extends StatelessWidget {
                 ),
               )
             else
-              Icon(
-                Icons.chevron_right_rounded,
-                size: 20,
-                color: subtitleColor,
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: accent.withValues(alpha: isDark ? 0.18 : 0.08),
+                ),
+                child: Icon(
+                  Icons.chevron_right_rounded,
+                  size: 18,
+                  color: isDark
+                      ? Color.lerp(accent, Colors.white, 0.24)
+                      : accent,
+                ),
               ),
           ],
         ),

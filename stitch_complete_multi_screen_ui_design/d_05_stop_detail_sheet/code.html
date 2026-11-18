@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container-lowest": "#ffffff", "surface-dim": "#dcdad5", "surface-bright": "#fbf9f4", "role-cafe-canvas": "#FBF4EA", "inverse-primary": "#8ed4c5", "primary-fixed": "#a9f0e1", "on-tertiary-fixed-variant": "#005233", "on-error": "#ffffff", "tertiary-fixed-dim": "#61dda0", "money-coral": "#E8505B", "pending-honey": "#E9A23B", "surface-container-low": "#f5f3ee", "dark-ink-muted": "#93A39B", "on-surface": "#1b1c19", "outline-variant": "#bec9c5", "critical-ruby": "#D92D20", "surface": "#FFFFFF", "background": "#fbf9f4", "role-driver-primary": "#0E8FB3", "role-driver-action": "#FFC933", "role-driver-canvas": "#F3F8FA", "surface-variant": "#e4e2dd", "inverse-surface": "#30312e", "secondary-container": "#c5ee66", "role-cafe-primary": "#C2542D", "ink-muted": "#66736C", "primary-container": "#0b5d52", "secondary-fixed-dim": "#acd44f", "on-surface-variant": "#3f4946", "primary": "#00443b", "on-error-container": "#93000a", "on-primary-fixed": "#00201b", "surface-container-high": "#eae8e3", "role-field-primary": "#3F7D58", "dark-surface": "#17221D", "dark-ink": "#EDF3EF", "dark-canvas": "#0E1512", "dark-surface-tonal": "#1F2E27", "info-sky": "#2E90FA", "tertiary-container": "#005f3c", "error": "#ba1a1a", "outline": "#6f7976", "surface-tonal": "#ECEFEA", "on-secondary": "#ffffff", "role-cafe-ink": "#2B1B14", "tertiary-fixed": "#7ffaba", "ink": "#13201B", "on-tertiary": "#ffffff", "secondary": "#4c6700", "role-cafe-action": "#F4A62A", "primary-fixed-dim": "#8ed4c5", "on-secondary-container": "#506c00", "money-mint": "#1FA971", "on-secondary-fixed-variant": "#394e00", "on-tertiary-container": "#61dda0", "on-primary-fixed-variant": "#005046", "surface-container-highest": "#e4e2dd", "tertiary": "#00452a", "on-secondary-fixed": "#151f00", "inverse-on-surface": "#f2f1ec", "secondary-fixed": "#c7f169", "error-container": "#ffdad6", "on-primary-container": "#8dd3c5", "hairline": "#E3E1DA", "surface-container": "#f0eee9", "on-tertiary-fixed": "#002112", "surface-tint": "#1f695e", "on-primary": "#ffffff", "on-background": "#1b1c19", "role-field-action": "#C9F36A" }, "borderRadius": { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, "spacing": { "margin": "1rem", "space-md": "0.75rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "gutter": "0.75rem", "space-lg": "1rem", "space-xl": "1.5rem" }, "fontFamily": { "body-md": ["Manrope"], "caption-meta": ["Manrope"], "label-action": ["Manrope"], "display-numeral": ["Manrope"], "headline-md": ["Manrope"], "display-numeral-mobile": ["Manrope"], "sublabel-regional": ["Noto Sans Tamil"], "headline-lg": ["Manrope"], "body-lg": ["Manrope"] }, "fontSize": { "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }], "caption-meta": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "label-action": ["16px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "700" }], "display-numeral": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "headline-md": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "display-numeral-mobile": ["40px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "sublabel-regional": ["11px", { "lineHeight": "14px", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "600" }] } } } }</script><style>@layer base{html,body{width:100vw;min-height:100vh;margin:0;padding:0;}body{overscroll-behavior-y:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-role-driver-canvas font-body-md text-ink flex flex-col min-h-screen relative overflow-x-hidden"><header class="fixed top-0 w-full z-30 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm"><button aria-label="Go back" class="w-11 h-11 rounded-full flex items-center justify-center text-ink bg-surface-tonal active:scale-95 transition-transform" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[22px]">arrow_back</span></button><div class="flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-role-driver-canvas text-role-driver-primary"><span class="material-symbols-outlined text-[16px]">water_drop</span><span class="font-caption-meta text-caption-meta uppercase tracking-wider">DK Waters</span></div></div><div class="flex items-center gap-space-sm"><div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E6F7F0] text-money-mint"><span class="material-symbols-outlined text-[15px]">check_circle</span><span class="font-caption-meta text-caption-meta">Live</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><div class="fixed inset-0 z-40 bg-ink/40 backdrop-blur-[2px] transition-opacity duration-300"></div><main class="flex-1 flex flex-col relative w-full pt-16 pb-safe bg-transparent z-50 justify-end"><section class="w-full bg-surface rounded-t-lg shadow-[0_-12px_32px_-6px_rgba(19,32,27,0.12)] flex flex-col max-h-[777px] overflow-y-auto"><div class="w-full flex flex-col items-center pt-3 pb-2 sticky top-0 bg-surface z-10"><div class="w-10 h-1.5 rounded-full bg-surface-variant"></div><div class="w-full px-margin pt-2 flex items-center justify-between"><span class="font-headline-md text-headline-md text-ink">Stop Detail Sheet</span><button aria-label="Close sheet" class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-ink-muted active:scale-95" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[20px]">close</span></button></div></div><div class="flex-1 px-margin pb-6"><div class="flex flex-col w-full gap-space-lg select-none">
+<!-- Sequence & Schedule Bar -->
+<div class="flex items-center justify-between gap-space-sm flex-wrap">
+<div class="flex items-center gap-space-xs">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-role-driver-canvas text-role-driver-primary font-caption-meta text-caption-meta">
+<span class="material-symbols-outlined text-[14px]">pin_drop</span>
+        Stop #5 of 18
+      </span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Beat: Anna Nagar &amp; Teppakulam</span>
+</div>
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-ink font-caption-meta text-caption-meta">
+<span class="material-symbols-outlined text-[14px] text-role-driver-primary">schedule</span>
+<span>09:30 AM</span>
+</div>
+</div>
+<!-- Customer & Shop Profile Hero -->
+<div class="w-full bg-surface-container-low rounded-lg p-space-md flex flex-col gap-space-md">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-headline-md text-headline-md text-ink truncate">Hotel Saravana Bhavan</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-ink-muted font-caption-meta text-caption-meta shrink-0">#CK-9842</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">ஹோட்டல் சரவண பவன்</span>
+<p class="font-body-md text-body-md text-ink-muted mt-1 leading-snug">Main Road, Sector 4, Erode - 638001 (Near Perundurai Junction)</p>
+</div>
+<!-- GPS Radar Pill -->
+<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-caption-meta shrink-0">
+<span class="w-2 h-2 rounded-full bg-money-mint animate-pulse"></span>
+<span>14m away</span>
+</div>
+</div>
+<!-- Contact Row -->
+<div class="flex items-center justify-between pt-space-xs text-ink-muted">
+<div class="flex items-center gap-2 min-w-0">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px] text-ink">person</span>
+</div>
+<div class="flex flex-col min-w-0 truncate">
+<span class="font-body-md text-body-md text-ink truncate">Mr. Senthil Nathan</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted truncate">Store Manager • +91 98421 78920</span>
+</div>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-caption-meta shrink-0">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Verified</span>
+</div>
+</div>
+<!-- Mini-Map / Geofence Radar Preview -->
+<div class="relative w-full h-32 rounded-DEFAULT overflow-hidden bg-role-driver-canvas" data-location="Erode, Tamil Nadu, India" style="">
+<div class="w-full h-full bg-cover bg-center" data-alt="Overhead aerial satellite street map view showing an industrial commercial intersection in Erode Tamil Nadu with gentle teal navigation trails, a crisp geofence perimeter ring in mint green, delivery truck icon and store pin marker. Minimalistic modern logistics interface style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBhG4iCec8zwXShev-Kq6UDQSDm-QD__Qsv5JeSA6F_nDf8Xqd-pAZtUlWT1VYJcLWjpDJWDUj3Zpk3UKxXS9VPzzr3Qn7gclGhw9kyiR7O3DzIo2N0ZfRc1gTvfuaaTliUYQGI6btnoC4aM9JXjyj6nLv51f28LrXR5-jphNkqESKncnZNctCDSDPCPzZEGFXl21chXrMVjfUO0-5QxeQb0bY8F5-vBH6TrxJf5OA')"></div>
+<!-- Geofence Active Indicator Ribbon -->
+<div class="absolute bottom-2 left-2 right-2 flex items-center justify-between px-3 py-1.5 rounded-full bg-surface/95 backdrop-blur-md shadow-sm">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-role-driver-primary">fmd_good</span>
+<span class="font-caption-meta text-caption-meta text-ink font-bold">Inside Geofence Zone</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-money-mint font-bold">Radar Active • 98% Acc</span>
+</div>
+</div>
+</div>
+<!-- Quick Interaction Action Row (56px touch friendly) -->
+<div class="grid grid-cols-3 gap-gutter">
+<a class="h-14 rounded-full bg-surface-container-low active:bg-surface-container text-ink flex items-center justify-center gap-2 active:scale-[0.98] transition-transform" href="https://maps.google.com" rel="noopener noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[20px] text-role-driver-primary">directions</span>
+<span class="font-label-action text-label-action">Navigate</span>
+</a>
+<a class="h-14 rounded-full bg-surface-container-low active:bg-surface-container text-ink flex items-center justify-center gap-2 active:scale-[0.98] transition-transform" href="tel:9842178920">
+<span class="material-symbols-outlined text-[20px] text-money-mint">call</span>
+<span class="font-label-action text-label-action">Call</span>
+</a>
+<a class="h-14 rounded-full bg-surface-container-low active:bg-surface-container text-ink flex items-center justify-center gap-2 active:scale-[0.98] transition-transform" href="https://wa.me/919842178920?text=DK%20Waters%20delivery%20van%20arrived%20at%20Hotel%20Saravana%20Bhavan">
+<span class="material-symbols-outlined text-[20px] text-[#25D366]">chat</span>
+<span class="font-label-action text-label-action">WhatsApp</span>
+</a>
+</div>
+<!-- Financial & Can Custody Bento (3-column) -->
+<div class="grid grid-cols-3 gap-gutter">
+<!-- Cans Held -->
+<div class="p-space-md rounded-lg bg-surface-container-low flex flex-col justify-between">
+<div>
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">Cans Held</span>
+<div class="font-sublabel-regional text-sublabel-regional text-ink-muted">இருப்பு கேன்கள்</div>
+</div>
+<div class="mt-2">
+<span class="font-display-numeral-mobile text-display-numeral-mobile text-ink tracking-tight font-extrabold">14</span>
+<span class="font-caption-meta text-caption-meta text-ink block">20L Jars</span>
+</div>
+</div>
+<!-- Outstanding Due -->
+<div class="p-space-md rounded-lg bg-surface-container-low flex flex-col justify-between">
+<div>
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">Due Amount</span>
+<div class="font-sublabel-regional text-sublabel-regional text-ink-muted">நிலுவைத் தொகை</div>
+</div>
+<div class="mt-2">
+<span class="font-display-numeral-mobile text-display-numeral-mobile text-money-mint tracking-tight font-extrabold">₹0</span>
+<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-caption-meta">
+<span class="material-symbols-outlined text-[13px]">done</span>
+          Clear
+        </span>
+</div>
+</div>
+<!-- Deposit -->
+<div class="p-space-md rounded-lg bg-surface-container-low flex flex-col justify-between">
+<div>
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">Deposit</span>
+<div class="font-sublabel-regional text-sublabel-regional text-ink-muted">வைப்புத் தொகை</div>
+</div>
+<div class="mt-2">
+<span class="font-display-numeral-mobile text-display-numeral-mobile text-ink tracking-tight font-extrabold">₹2.1k</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted block">@ ₹150/can</span>
+</div>
+</div>
+</div>
+<!-- Scheduled Demand for Today -->
+<div class="w-full bg-role-driver-canvas rounded-lg p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-role-driver-primary"></span>
+<span class="font-body-lg text-body-lg text-ink font-bold">Today's Expected Demand</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">இன்றைய ஆர்டர்</span>
+</div>
+<div class="grid grid-cols-3 gap-gutter pt-1">
+<div class="p-3 bg-surface rounded-DEFAULT flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Deliver Full</span>
+<span class="font-headline-md text-headline-md text-role-driver-primary">14 Cans</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">20L Aqua</span>
+</div>
+<div class="p-3 bg-surface rounded-DEFAULT flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Collect Empty</span>
+<span class="font-headline-md text-headline-md text-ink">14 Jars</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">DK Empties</span>
+</div>
+<div class="p-3 bg-surface rounded-DEFAULT flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Expected Cash</span>
+<span class="font-headline-md text-headline-md text-money-mint font-extrabold">₹280</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">₹20 / can</span>
+</div>
+</div>
+</div>
+<!-- Last Delivery & Custody History -->
+<div class="w-full bg-surface-container-low rounded-lg p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-ink-muted">history</span>
+<span class="font-body-lg text-body-lg text-ink">Last Delivery Log</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink-muted">3 days ago</span>
+</div>
+<div class="bg-surface rounded-DEFAULT p-space-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between text-ink-muted font-caption-meta text-caption-meta">
+<span>09 Nov 2026 • 10:15 AM</span>
+<span class="text-ink font-bold">#DKW-DEL-0388</span>
+</div>
+<div class="flex items-center justify-between font-body-md text-body-md text-ink">
+<span>Delivered: 14 Cans</span>
+<span>Returned: 12 Empties</span>
+<span class="text-money-mint font-bold">Paid ₹280</span>
+</div>
+<div class="pt-1 flex items-center gap-1.5 text-ink-muted font-caption-meta text-caption-meta">
+<span class="material-symbols-outlined text-[15px]">verified_user</span>
+<span>Driver R. Muthu • Racks inspected, all seals verified sound.</span>
+</div>
+</div>
+</div>
+<!-- Primary Thumb Zone Actions -->
+<div class="flex flex-col gap-space-sm pt-space-xs">
+<!-- Huge Sun-Yellow 56px Primary Action Slab -->
+<button class="w-full h-14 rounded-full bg-role-driver-action active:brightness-95 text-ink flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-transform" type="button">
+<span class="font-label-action text-label-action font-extrabold tracking-wide">Deliver to Customer</span>
+<span class="font-sublabel-regional text-sublabel-regional font-bold text-ink/80">(விற்பனை தொடங்கு)</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+<!-- Secondary Action Row -->
+<div class="grid grid-cols-2 gap-gutter">
+<button class="h-14 rounded-full bg-surface-container active:bg-surface-container-high text-role-driver-primary flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px]">rule</span>
+<span class="font-label-action text-label-action">Spot Audit</span>
+<span class="font-sublabel-regional text-sublabel-regional">(தணிக்கை)</span>
+</button>
+<button class="h-14 rounded-full bg-surface-container active:bg-surface-container-high text-critical-ruby flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform" id="skipTriggerBtn" type="button">
+<span class="material-symbols-outlined text-[20px]">block</span>
+<span class="font-label-action text-label-action">Mark Skipped</span>
+<span class="font-sublabel-regional text-sublabel-regional">(தவிர்)</span>
+</button>
+</div>
+</div>
+<!-- Skip Reasons Interactive Section -->
+<div class="w-full bg-surface-container-low rounded-lg p-space-md flex flex-col gap-space-sm transition-all duration-300" id="skipReasonsTray">
+<div class="flex items-center justify-between">
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">Record Non-Delivery Reason:</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">காரணம் குறிப்பிடவும்</span>
+</div>
+<div class="grid grid-cols-1 gap-space-xs">
+<button class="skip-chip w-full p-3 rounded-DEFAULT bg-surface text-left flex items-center justify-between active:scale-[0.99] transition-transform" type="button">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-ink font-bold">Shop Closed</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">கடை மூடப்பட்டுள்ளது</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-ink-muted check-icon hidden">check_circle</span>
+</button>
+<button class="skip-chip w-full p-3 rounded-DEFAULT bg-surface text-left flex items-center justify-between active:scale-[0.99] transition-transform" type="button">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-ink font-bold">Customer Away / Unreachable</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">உரிமையாளர் தொடர்பு எல்லைக்கு அப்பால்</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-ink-muted check-icon hidden">check_circle</span>
+</button>
+<button class="skip-chip w-full p-3 rounded-DEFAULT bg-surface text-left flex items-center justify-between active:scale-[0.99] transition-transform" type="button">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-ink font-bold">Stock Sufficient / Not Needed</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">போதுமான இருப்பு உள்ளது / தேவை இல்லை</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-ink-muted check-icon hidden">check_circle</span>
+</button>
+<button class="skip-chip w-full p-3 rounded-DEFAULT bg-surface text-left flex items-center justify-between active:scale-[0.99] transition-transform" type="button">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-critical-ruby font-bold">Payment Dispute Pending</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">பணப்பட்டுவாடா பிரச்சனை</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-critical-ruby check-icon hidden">check_circle</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    const chips = document.querySelectorAll('.skip-chip');
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const isSelected = chip.classList.contains('bg-surface-variant');
+        chips.forEach(c => {
+          c.classList.remove('bg-surface-variant');
+          c.classList.add('bg-surface');
+          const check = c.querySelector('.check-icon');
+          if (check) check.classList.add('hidden');
+        });
+        if (!isSelected) {
+          chip.classList.remove('bg-surface');
+          chip.classList.add('bg-surface-variant');
+          const check = chip.querySelector('.check-icon');
+          if (check) check.classList.remove('hidden');
+        }
+      });
+    });
+
+    const skipBtn = document.getElementById('skipTriggerBtn');
+    const tray = document.getElementById('skipReasonsTray');
+    if (skipBtn && tray) {
+      skipBtn.addEventListener('click', () => {
+        tray.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    }
+  })();
+</script></div></section></main></body></html>

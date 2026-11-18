@@ -384,7 +384,10 @@ class ApiService {
   }
 
   /// Tanker Driver: Submit Bulk Tanker Trip Sheet (TMWS)
-  Future<Map<String, dynamic>> submitTankerTrip(TankerTripRecord trip) async {
+  Future<Map<String, dynamic>> submitTankerTrip(
+    TankerTripRecord trip, {
+    Map<String, dynamic>? extraFields,
+  }) async {
     final payload = {
       'tanker_id': trip.tankerId,
       'trip_date': trip.tripDate.toIso8601String().substring(0, 10),
@@ -398,6 +401,7 @@ class ApiService {
       'billed_amount': trip.billedAmount,
       'site_receiver_name': trip.siteReceiverName,
       'status': 'Delivered',
+      if (extraFields != null) ...extraFields,
     };
 
     try {
@@ -511,59 +515,7 @@ class ApiService {
       } catch (_) {}
     }
 
-    // High-fidelity ERP operational customers
-    return [
-      {
-        'id': 2,
-        'name': 'Titan Corporate Campus',
-        'phone': '9842100001',
-        'address': 'Ring Road Tech Park',
-        'city': 'Madurai',
-        'company_id': 2,
-        'cans_held': 120,
-        'deposit_held': 18000.0,
-      },
-      {
-        'id': 3,
-        'name': 'Texvalley Commercial Complex',
-        'phone': '9842100002',
-        'address': 'NH-544 Industrial Zone',
-        'city': 'Erode',
-        'company_id': 2,
-        'cans_held': 85,
-        'deposit_held': 12750.0,
-      },
-      {
-        'id': 4,
-        'name': 'The Chennai Silks (Dyeing Unit)',
-        'phone': '9842100003',
-        'address': 'Textile Nagar Hub',
-        'city': 'Madurai',
-        'company_id': 2,
-        'cans_held': 60,
-        'deposit_held': 9000.0,
-      },
-      {
-        'id': 5,
-        'name': 'Aran Cafe - Central Kitchen',
-        'phone': '9842100004',
-        'address': 'Town Hall Road',
-        'city': 'Madurai',
-        'company_id': 3,
-        'cans_held': 35,
-        'deposit_held': 5250.0,
-      },
-      {
-        'id': 6,
-        'name': 'Madurai Meenakshi Hospital',
-        'phone': '9842100005',
-        'address': 'KK Nagar Main Road',
-        'city': 'Madurai',
-        'company_id': 3,
-        'cans_held': 142,
-        'deposit_held': 21300.0,
-      },
-    ];
+    return [];
   }
 
   /// ERP: Fetch Products Catalog & Price Matrix (API with failover)
@@ -582,16 +534,7 @@ class ApiService {
       } catch (_) {}
     }
 
-    return [
-      {'id': 1, 'name': '20L Standard Drinking Jar', 'code': 'CAN-20L', 'price': 35.0, 'category': 'Packaged Water'},
-      {'id': 2, 'name': '25L Commercial Heavy Jar', 'code': 'CAN-25L', 'price': 45.0, 'category': 'Packaged Water'},
-      {'id': 3, 'name': '10L Compact Dispenser Jar', 'code': 'CAN-10L', 'price': 25.0, 'category': 'Packaged Water'},
-      {'id': 4, 'name': '1L Bottled Pack (12 Pcs)', 'code': 'BTL-1L', 'price': 180.0, 'category': 'Bottles'},
-      {'id': 5, 'name': 'Aran Special Filter Coffee', 'code': 'BEV-COF', 'price': 30.0, 'category': 'Beverages'},
-      {'id': 6, 'name': 'Madurai Masala Chai', 'code': 'BEV-TEA', 'price': 25.0, 'category': 'Beverages'},
-      {'id': 7, 'name': 'Butter Croissant & Bun', 'code': 'BAK-CRN', 'price': 45.0, 'category': 'Bakery'},
-      {'id': 8, 'name': 'Crispy Veg Puff / Roll', 'code': 'SNK-PUF', 'price': 30.0, 'category': 'Snacks'},
-    ];
+    return [];
   }
 
   /// ERP: Fetch Recent Invoices & Delivery Slips (API with failover)
@@ -610,48 +553,7 @@ class ApiService {
       } catch (_) {}
     }
 
-    return [
-      {
-        'id': 101,
-        'delivery_no': 'DKW-DEL-2026-001',
-        'delivery_date': DateTime.now().toIso8601String().substring(0, 10),
-        'cans_delivered': 25,
-        'empty_cans_collected': 20,
-        'total_amount': 875.0,
-        'payment_mode': 'Cash',
-        'customer_name': 'Aran Cafe - Central Kitchen',
-      },
-      {
-        'id': 102,
-        'delivery_no': 'DKW-DEL-2026-002',
-        'delivery_date': DateTime.now().toIso8601String().substring(0, 10),
-        'cans_delivered': 50,
-        'empty_cans_collected': 45,
-        'total_amount': 1750.0,
-        'payment_mode': 'UPI',
-        'customer_name': 'Titan Corporate Campus',
-      },
-      {
-        'id': 103,
-        'delivery_no': 'DKW-DEL-2026-003',
-        'delivery_date': DateTime.now().toIso8601String().substring(0, 10),
-        'cans_delivered': 40,
-        'empty_cans_collected': 38,
-        'total_amount': 1400.0,
-        'payment_mode': 'Corporate Credit',
-        'customer_name': 'Texvalley Commercial Complex',
-      },
-      {
-        'id': 104,
-        'delivery_no': 'DKW-DEL-2026-004',
-        'delivery_date': DateTime.now().toIso8601String().substring(0, 10),
-        'cans_delivered': 30,
-        'empty_cans_collected': 30,
-        'total_amount': 1050.0,
-        'payment_mode': 'UPI',
-        'customer_name': 'The Chennai Silks (Dyeing Unit)',
-      },
-    ];
+    return [];
   }
 
   /// ERP: Fetch Financial Balances (GL 1010, 1020, 1030) (API with failover)
@@ -670,13 +572,7 @@ class ApiService {
       } catch (_) {}
     }
 
-    return {
-      'cash_in_transit_drivers': 4250.0,
-      'gl_1010_main_cash': 42500.0,
-      'gl_1020_bank': 185000.0,
-      'gl_1030_accounts_receivable': 28400.0,
-      'gl_2050_container_deposits': 66300.0,
-    };
+    return {};
   }
 
   /// ERP: Fetch Role Dashboard KPIs (API with failover)
@@ -695,27 +591,7 @@ class ApiService {
       } catch (_) {}
     }
 
-    return {
-      'role': role,
-      'tmws': {
-        'tankers_count': 3,
-        'trips_today': 4,
-        'total_kl': 90.0,
-        'revenue': 15600.0,
-      },
-      'dk_waters': {
-        'active_routes': 2,
-        'deliveries_today': 4,
-        'cans_delivered': 145,
-        'cans_in_market': 442,
-        'deposits_held': 66300.0,
-        'revenue': 5075.0,
-      },
-      'aran_cafe': {
-        'open_drawers': 1,
-        'pos_sales': 18450.0,
-      },
-    };
+    return {'role': role};
   }
 
   /// ERP: Fetch Water Routes & Tankers (API with failover)
@@ -735,98 +611,27 @@ class ApiService {
     }
 
     return {
-      'routes': [
-        {
-          'id': 1,
-          'route_name': 'Anna Nagar & Teppakulam Route',
-          'vehicle_no': 'TN-58-WA-101 (Tata Ace)',
-          'driver_name': 'R. Muthu',
-          'daily_avg_cans': 96,
-        },
-        {
-          'id': 2,
-          'route_name': 'KK Nagar & Mattuthavani Route',
-          'vehicle_no': 'TN-58-WA-102 (Tata Ace)',
-          'driver_name': 'P. Selvam',
-          'daily_avg_cans': 110,
-        },
-      ],
-      'tankers': [
-        {
-          'id': 1,
-          'vehicle_number': 'TN-58-BW-2001',
-          'model_type': 'Heavy Commercial Tanker',
-          'capacity_kl': 20.0,
-          'driver_name': 'K. Murugan',
-          'driver_phone': '9842100030',
-        },
-        {
-          'id': 2,
-          'vehicle_number': 'TN-58-BW-4001',
-          'model_type': 'Heavy Commercial Multi-Axle',
-          'capacity_kl': 40.0,
-          'driver_name': 'S. Karuppasamy',
-          'driver_phone': '9842100031',
-        },
-        {
-          'id': 3,
-          'vehicle_number': 'TN-58-BW-1001',
-          'model_type': 'Express Lorry Tanker',
-          'capacity_kl': 10.0,
-          'driver_name': 'M. Velu',
-          'driver_phone': '9842100032',
-        },
-      ],
+      'routes': <Map<String, dynamic>>[],
+      'tankers': <Map<String, dynamic>>[],
     };
   }
 
   /// ERP: Fetch Recent Bulk Tanker Trips (TMWS)
   Future<List<Map<String, dynamic>>> fetchTankerTrips() async {
-    return [
-      {
-        'trip_number': 'TMWS-TRIP-2026-001',
-        'vehicle_number': 'TN-58-BW-2001',
-        'customer_name': 'Texvalley Commercial Complex',
-        'capacity_kl': 20.0,
-        'rate': 3500.0,
-        'diesel': 850.0,
-        'toll': 120.0,
-        'status': 'Completed & Delivered',
-        'time': '08:30 AM',
-      },
-      {
-        'trip_number': 'TMWS-TRIP-2026-002',
-        'vehicle_number': 'TN-58-BW-4001',
-        'customer_name': 'The Chennai Silks (Dyeing Unit)',
-        'capacity_kl': 40.0,
-        'rate': 6800.0,
-        'diesel': 1400.0,
-        'toll': 180.0,
-        'status': 'Completed & Delivered',
-        'time': '10:15 AM',
-      },
-      {
-        'trip_number': 'TMWS-TRIP-2026-003',
-        'vehicle_number': 'TN-58-BW-2001',
-        'customer_name': 'Titan Corporate Campus',
-        'capacity_kl': 20.0,
-        'rate': 3500.0,
-        'diesel': 850.0,
-        'toll': 120.0,
-        'status': 'Completed & Delivered',
-        'time': '01:45 PM',
-      },
-      {
-        'trip_number': 'TMWS-TRIP-2026-004',
-        'vehicle_number': 'TN-58-BW-1001',
-        'customer_name': 'Aran Cafe - Central Kitchen',
-        'capacity_kl': 10.0,
-        'rate': 1800.0,
-        'diesel': 400.0,
-        'toll': 0.0,
-        'status': 'Completed & Delivered',
-        'time': '03:30 PM',
-      },
-    ];
+    for (final url in [activeBaseUrl, localWebUrl, localEmulatorUrl]) {
+      try {
+        final response = await http
+            .get(Uri.parse('$url/water/trips'), headers: _headers)
+            .timeout(const Duration(seconds: 3));
+        if (response.statusCode == 200) {
+          final decoded = jsonDecode(response.body);
+          if (decoded['data'] is List) {
+            return List<Map<String, dynamic>>.from(decoded['data']);
+          }
+        }
+      } catch (_) {}
+    }
+
+    return [];
   }
 }

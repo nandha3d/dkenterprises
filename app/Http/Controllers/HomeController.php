@@ -399,6 +399,25 @@ class HomeController extends Controller
         $low_stock_count = DB::query()->fromSub(clone $lowStock, 'low_stock')->count();
         $low_stock_products = $lowStock->orderBy('qty')->orderBy('products.id')->limit(5)->get();
 
+        $dailyAnchor = $today->copy()->subDays(13);
+        $dailyRows = $this->dashboardSales($warehouseId)
+            ->whereDate('sales.created_at', '>=', $dailyAnchor->toDateString())
+            ->whereDate('sales.created_at', '<=', $today->toDateString())
+            ->selectRaw('DATE(COALESCE(sales.posted_at, sales.created_at)) as day_key, COALESCE(SUM((sales.grand_total - COALESCE(sales.shipping_cost, 0)) / COALESCE(NULLIF(sales.exchange_rate, 0), 1)), 0) as total_amt, COALESCE(SUM(sales.paid_amount / COALESCE(NULLIF(sales.exchange_rate, 0), 1)), 0) as paid_amt')
+            ->groupBy(DB::raw('DATE(COALESCE(sales.posted_at, sales.created_at))'))
+            ->get()
+            ->keyBy('day_key');
+        $daily_labels = [];
+        $daily_sales_values = [];
+        $daily_collected_values = [];
+        for ($d = 0; $d < 14; $d++) {
+            $dayObj = $dailyAnchor->copy()->addDays($d);
+            $key = $dayObj->toDateString();
+            $daily_labels[] = $dayObj->format('d M');
+            $daily_sales_values[] = round((float) ($dailyRows[$key]->total_amt ?? 0), 2);
+            $daily_collected_values[] = round((float) ($dailyRows[$key]->paid_amt ?? 0), 2);
+        }
+
         $currency_model = \App\Models\Currency::find($company->base_currency_id ?: (cache()->get('general_setting')->currency ?? 1));
         $currency_symbol = $currency_model ? ($currency_model->symbol ?: ($currency_model->code == 'INR' ? '₹' : ($currency_model->code ?: '$'))) : '$';
         $versionUpgradeData = (!config('database.connections.zoloerp_landlord') && Auth::user()->role_id <= 2) ? ($this->versionUpgradeInfo ?? []) : [];
@@ -406,6 +425,7 @@ class HomeController extends Controller
         return view('backend.index', $metrics + compact(
             'period', 'warehouseId', 'warehouses', 'start', 'end', 'year', 'reportDate', 'ledger',
             'payment_recieved', 'payment_sent', 'month', 'yearly_sale_amount', 'yearly_purchase_amount',
+            'daily_labels', 'daily_sales_values', 'daily_collected_values',
             'versionUpgradeData', 'liquid_balance', 'stock_valuation', 'total_customers',
             'total_suppliers', 'low_stock_count', 'low_stock_products', 'currency_symbol'
         ));

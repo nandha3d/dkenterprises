@@ -943,6 +943,19 @@ Route::group(['middleware' => ['common', 'auth', 'active', 'legacy.company']], f
         Route::get('water-logistics', 'index')->name('water-logistics.index');
         Route::post('water-logistics/trip-sheets', 'storeTripSheet')->name('water-logistics.trip-sheets.store');
         Route::post('water-logistics/trip', 'storeTripSheet')->name('water-logistics.trip.store');
+        Route::post('water-logistics/trip/{id}/process', 'processTankerOrder')->name('water-logistics.trip.process');
+        Route::post('water-logistics/can-orders', 'storeCanOrder')->name('water-logistics.can-orders.store');
+        Route::post('water-logistics/can-orders/{id}/adjust', 'adjustCanOrder')->name('water-logistics.can-orders.adjust');
+        Route::post('water-logistics/can-orders/{id}/start', 'startCanOrder')->name('water-logistics.can-orders.start');
+        Route::post('water-logistics/can-orders/{id}/close', 'closeCanOrder')->name('water-logistics.can-orders.close');
+        Route::post('water-logistics/tanker-orders', 'storeTankerOrder')->name('water-logistics.tanker-orders.store');
+        Route::post('water-logistics/tanker-orders/{id}/adjust', 'adjustTankerOrder')->name('water-logistics.tanker-orders.adjust');
+        Route::get('water-logistics/schedules', 'schedules')->name('water-logistics.schedules.index');
+        Route::post('water-logistics/schedules', 'storeSchedule')->name('water-logistics.schedules.store');
+        Route::post('water-logistics/schedules/{id}/toggle', 'toggleSchedule')->name('water-logistics.schedules.toggle');
+        Route::post('water-logistics/schedules/{id}/skip', 'skipSchedule')->name('water-logistics.schedules.skip');
+        Route::post('water-logistics/schedules/{id}/generate-now', 'generateScheduleNow')->name('water-logistics.schedules.generate-now');
+        Route::post('water-logistics/schedules/generate-due', 'generateDueSchedules')->name('water-logistics.schedules.generate-due');
         Route::post('water-logistics/can-deliveries', 'storeCanDelivery')->name('water-logistics.can-deliveries.store');
         Route::post('water-logistics/can', 'storeCanDelivery')->name('water-logistics.can.store');
         Route::get('water-logistics/credit-aging', 'creditAging')->name('water-logistics.credit-aging');
@@ -956,7 +969,13 @@ Route::group(['middleware' => ['common', 'auth', 'active', 'legacy.company']], f
     Route::middleware(['company.context', 'common'])->controller(\App\Http\Controllers\CafeOperationsController::class)->group(function () {
         Route::get('cafe', 'index')->name('cafe.index');
         Route::get('cafe/pos', 'pos')->name('cafe.pos');
+        Route::get('cafe/pos/bootstrap', 'posBootstrap')->name('cafe.pos.bootstrap');
+        Route::get('cafe/pos/orders', 'posOrders')->name('cafe.pos.orders');
         Route::post('cafe/orders', 'storeOrder')->name('cafe.orders.store');
+        Route::post('cafe/pos/orders/{id}/print-job', 'printOrderJob')->name('cafe.pos.orders.print-job');
+        Route::post('cafe/pos/shifts/open', 'openShift')->name('cafe.pos.shifts.open');
+        Route::post('cafe/pos/shifts/close', 'closeShift')->name('cafe.pos.shifts.close');
+        Route::patch('cafe/pos/products/{id}/availability', 'toggleProductAvailability')->name('cafe.pos.products.availability');
         Route::post('cafe/reconcile-drawer', 'reconcileDrawer')->name('cafe.reconcile-drawer');
         Route::post('cafe/drawer', 'reconcileDrawer')->name('cafe.drawer.store');
         Route::post('cafe/raw-materials', 'storeRawMaterial')->name('cafe.raw-materials.store');

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;min-height:100vh;}body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "inverse-primary": "#8ed4c5", "role-driver-primary": "#0E8FB3", "on-secondary-fixed-variant": "#394e00", "pending-honey": "#E9A23B", "info-sky": "#2E90FA", "tertiary-container": "#005f3c", "dark-surface-tonal": "#1F2E27", "surface-container-highest": "#e4e2dd", "on-surface": "#1b1c19", "surface-container-lowest": "#ffffff", "outline": "#6f7976", "role-field-primary": "#3F7D58", "surface-container": "#f0eee9", "surface-dim": "#dcdad5", "outline-variant": "#bec9c5", "on-primary-container": "#8dd3c5", "on-tertiary-container": "#61dda0", "secondary-container": "#c5ee66", "background": "#fbf9f4", "on-secondary-fixed": "#151f00", "role-cafe-canvas": "#FBF4EA", "secondary": "#4c6700", "critical-ruby": "#D92D20", "dark-ink": "#EDF3EF", "on-background": "#1b1c19", "ink": "#13201B", "primary-container": "#0b5d52", "hairline": "#E3E1DA", "inverse-on-surface": "#f2f1ec", "on-secondary-container": "#506c00", "primary-fixed": "#a9f0e1", "inverse-surface": "#30312e", "role-field-action": "#C9F36A", "surface-container-low": "#f5f3ee", "on-error-container": "#93000a", "secondary-fixed-dim": "#acd44f", "on-error": "#ffffff", "role-driver-action": "#FFC933", "tertiary-fixed-dim": "#61dda0", "money-mint": "#1FA971", "surface-tint": "#1f695e", "surface-tonal": "#ECEFEA", "on-tertiary-fixed-variant": "#005233", "error": "#ba1a1a", "on-primary-fixed": "#00201b", "role-driver-canvas": "#F3F8FA", "on-tertiary": "#ffffff", "tertiary-fixed": "#7ffaba", "dark-canvas": "#0E1512", "on-primary": "#ffffff", "on-secondary": "#ffffff", "surface-container-high": "#eae8e3", "on-tertiary-fixed": "#002112", "role-cafe-primary": "#C2542D", "primary": "#00443b", "error-container": "#ffdad6", "on-primary-fixed-variant": "#005046", "surface-variant": "#e4e2dd", "dark-ink-muted": "#93A39B", "tertiary": "#00452a", "dark-surface": "#17221D", "role-cafe-action": "#F4A62A", "money-coral": "#E8505B", "ink-muted": "#66736C", "on-surface-variant": "#3f4946", "surface": "#FFFFFF", "primary-fixed-dim": "#8ed4c5", "role-cafe-ink": "#2B1B14", "surface-bright": "#fbf9f4", "secondary-fixed": "#c7f169" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "space-md": "0.75rem", "space-lg": "1rem", "space-sm": "0.5rem", "space-xs": "0.25rem", "space-xl": "1.5rem", "gutter": "0.75rem", "margin": "1rem" }, fontFamily: { "sublabel-regional": ["Noto Sans Tamil"], "display-numeral": ["Manrope"], "label-action": ["Manrope"], "body-lg": ["Manrope"], "display-numeral-mobile": ["Manrope"], "headline-lg": ["Manrope"], "headline-md": ["Manrope"], "caption-meta": ["Manrope"], "body-md": ["Manrope"] }, fontSize: { "sublabel-regional": ["11px", { lineHeight: "14px", fontWeight: "600" }], "display-numeral": ["48px", { lineHeight: "52px", letterSpacing: "-0.03em", fontWeight: "800" }], "label-action": ["16px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "700" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "600" }], "display-numeral-mobile": ["40px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800" }], "headline-lg": ["28px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "800" }], "headline-md": ["20px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "700" }], "caption-meta": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "500" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-role-driver-canvas text-ink font-body-md text-body-md flex flex-col min-h-screen antialiased select-none"><header class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(19,32,27,0.04)]"><div class="h-20 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-role-driver-primary text-surface shadow-sm shrink-0"><span class="material-symbols-outlined text-[18px]">water_drop</span><span class="font-headline-md text-caption-meta font-extrabold tracking-tight">DK WATERS</span></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-1.5"><span class="font-label-action text-body-md text-ink truncate">Beat #01</span><span class="px-2 py-0.5 rounded-full bg-money-mint/15 text-money-mint font-caption-meta text-[11px] font-bold flex items-center gap-0.5 shrink-0"><span class="material-symbols-outlined text-[13px]">check_circle</span>Synced</span></div><div class="flex items-center gap-1"><span class="font-caption-meta text-caption-meta text-ink-muted truncate">Anna Nagar Route</span><span class="font-sublabel-regional text-sublabel-regional text-ink-muted/80 truncate">அண்ணா நகர்</span></div></div></div><div class="flex items-center gap-space-sm shrink-0"><button aria-label="Notifications" class="w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-surface-tonal transition-colors relative"><span class="material-symbols-outlined text-[24px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-role-driver-action ring-2 ring-surface"></span></button><div class="flex items-center gap-1.5 pl-1"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden xs:flex flex-col text-left"><span class="font-label-action text-[12px] leading-tight text-ink">R. Muthu</span><span class="font-sublabel-regional text-[10px] leading-none text-ink-muted">முத்து</span></div></div></div></div></header><main class="flex flex-col relative w-full pt-20 pb-28 px-margin bg-role-driver-canvas min-h-screen"><div class="flex flex-col w-full space-y-4">
+<!-- Driver Shift & Telemetry Hero -->
+<div class="bg-surface rounded-xl p-space-lg shadow-sm flex flex-col gap-3.5">
+<div class="flex items-center justify-between gap-2 flex-wrap">
+<div class="flex items-center gap-2">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-money-mint opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-money-mint"></span>
+</span>
+<div class="flex flex-col">
+<span class="font-caption-meta text-[11px] font-extrabold uppercase tracking-wider text-money-mint">Shift Active · 07:15 AM</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">தொடங்கிய நேரம் 07:15 மு.ப</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-role-driver-canvas text-role-driver-primary">
+<span class="material-symbols-outlined text-[15px]">electric_meter</span>
+<span class="font-caption-meta text-[11px] font-bold">DRV-042</span>
+</div>
+</div>
+<!-- Telemetry Bento Slab -->
+<div class="bg-surface-tonal rounded-lg p-space-md flex flex-col gap-2.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 min-w-0">
+<div class="w-8 h-8 rounded-full bg-surface flex items-center justify-center shrink-0 text-role-driver-primary">
+<span class="material-symbols-outlined text-[18px]">local_shipping</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-action text-body-md text-ink truncate">Tata Ace Gold</span>
+<span class="font-caption-meta text-[11px] text-ink-muted tracking-wide truncate">TN-58-WA-101</span>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-caption-meta text-[11px] text-ink-muted">Driver</span>
+<div class="font-label-action text-[13px] text-ink">R. Muthu</div>
+</div>
+</div>
+<!-- Capacity Progress Slab -->
+<div class="bg-surface rounded-md p-2.5 flex flex-col gap-1.5">
+<div class="flex items-center justify-between text-caption-meta">
+<span class="text-ink-muted flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-role-driver-primary">water_drop</span>
+            Stock Payload
+          </span>
+<span class="font-bold text-ink">32 / 60 Cans</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 overflow-hidden flex">
+<div class="bg-role-driver-primary h-full rounded-full transition-all duration-500" style="width: 53.3%;"></div>
+</div>
+<div class="flex justify-between items-center font-sublabel-regional text-[10px] text-ink-muted">
+<span>மீதமுள்ளவை: 32 கேன்கள்</span>
+<span>மொத்த கொள்ளளவு: 60</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Primary Instant Action Launcher -->
+<button class="w-full h-14 bg-role-driver-action hover:brightness-105 active:scale-[0.99] transition-all rounded-full px-space-lg flex items-center justify-between shadow-sm group" id="quick-pos-btn">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-ink/10 flex items-center justify-center text-ink">
+<span class="material-symbols-outlined text-[20px]">bolt</span>
+</div>
+<div class="flex flex-col text-left">
+<span class="font-label-action text-label-action text-ink leading-tight">15s Can Sales POS</span>
+<span class="font-sublabel-regional text-[10px] text-ink/80 leading-none">விற்பனை சீட்டு தொடங்கு</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-ink font-label-action text-caption-meta bg-surface/40 px-2.5 py-1 rounded-full">
+<span>D-03</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</button>
+<!-- Section 1: 20L Can Distribution Operations -->
+<div class="flex flex-col gap-2 pt-1">
+<div class="flex items-baseline justify-between px-1">
+<div class="flex flex-col">
+<h2 class="font-headline-md text-[17px] text-ink leading-tight">20L Can Distribution Operations</h2>
+<span class="font-sublabel-regional text-[11px] text-ink-muted">20L கேன் விநியோக செயல்பாடுகள்</span>
+</div>
+<span class="font-caption-meta text-[11px] font-bold text-role-driver-primary uppercase tracking-wider">5 Modules</span>
+</div>
+<div class="flex flex-col gap-2.5">
+<!-- Card 1: Can Sales POS Ticket -->
+<div class="w-full bg-surface hover:bg-surface-container-low active:scale-[0.99] transition-all p-space-md rounded-lg flex items-center gap-3 cursor-pointer select-none" role="button" tabindex="0">
+<div class="w-12 h-12 rounded-full bg-role-driver-primary/15 text-role-driver-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">point_of_sale</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between gap-1">
+<span class="font-headline-md text-[15px] text-ink truncate">Can Sales POS Ticket</span>
+<span class="font-caption-meta text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-role-driver-canvas text-role-driver-primary shrink-0">D-03</span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-ink-muted -mt-0.5">15 நொடி கேன் விற்பனை</span>
+<p class="font-body-md text-[12px] text-ink-muted line-clamp-1 mt-0.5">Fast 15-second driver sales &amp; return tickets with thermal print.</p>
+<div class="flex items-center gap-1.5 mt-1.5">
+<span class="px-2 py-0.5 rounded-full bg-role-driver-primary/10 text-role-driver-primary font-caption-meta text-[10px] font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[11px]">star</span>Primary Tool · 14 Today
+            </span>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-muted/50 text-[20px] shrink-0">chevron_right</span>
+</div>
+<!-- Card 2: Spot Empty Can Audit -->
+<div class="w-full bg-surface hover:bg-surface-container-low active:scale-[0.99] transition-all p-space-md rounded-lg flex items-center gap-3 cursor-pointer select-none" role="button" tabindex="0">
+<div class="w-12 h-12 rounded-full bg-money-mint/15 text-money-mint flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">fact_check</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between gap-1">
+<span class="font-headline-md text-[15px] text-ink truncate">Spot Empty Can Audit</span>
+<span class="font-caption-meta text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-surface-tonal text-ink-muted shrink-0">D-07</span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-ink-muted -mt-0.5">கள பாட்டில் தணிக்கை</span>
+<p class="font-body-md text-[12px] text-ink-muted line-clamp-1 mt-0.5">Inspect Tata Ace vehicle cans vs route customer manifest.</p>
+<div class="flex items-center gap-1.5 mt-1.5">
+<span class="px-2 py-0.5 rounded-full bg-money-mint/10 text-money-mint font-caption-meta text-[10px] font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[11px]">verified</span>Verified 2 Stops
+            </span>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-muted/50 text-[20px] shrink-0">chevron_right</span>
+</div>
+<!-- Card 3: Driver Cash Surrender -->
+<div class="w-full bg-surface hover:bg-surface-container-low active:scale-[0.99] transition-all p-space-md rounded-lg flex items-center gap-3 cursor-pointer select-none" role="button" tabindex="0">
+<div class="w-12 h-12 rounded-full bg-pending-honey/15 text-pending-honey flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">savings</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between gap-1">
+<span class="font-headline-md text-[15px] text-ink truncate">Driver Cash Surrender</span>
+<span class="font-caption-meta text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-surface-tonal text-ink-muted shrink-0">D-08</span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-ink-muted -mt-0.5">வசூல் ரொக்கம் ஒப்படைப்பு</span>
+<p class="font-body-md text-[12px] text-ink-muted line-clamp-1 mt-0.5">End-of-day route cash &amp; empty jar settlement with cashier.</p>
+<div class="flex items-center gap-1.5 mt-1.5">
+<span class="px-2 py-0.5 rounded-full bg-pending-honey/15 text-ink font-caption-meta text-[10px] font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[11px] text-pending-honey">account_balance_wallet</span>₹4,100 In Pouch · EOD Ready
+            </span>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-muted/50 text-[20px] shrink-0">chevron_right</span>
+</div>
+<!-- Card 4: Route Fuel & Expenses -->
+<div class="w-full bg-surface hover:bg-surface-container-low active:scale-[0.99] transition-all p-space-md rounded-lg flex items-center gap-3 cursor-pointer select-none" role="button" tabindex="0">
+<div class="w-12 h-12 rounded-full bg-money-coral/15 text-money-coral flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">local_gas_station</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between gap-1">
+<span class="font-headline-md text-[15px] text-ink truncate">Route Fuel &amp; Expenses</span>
+<span class="font-caption-meta text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-surface-tonal text-ink-muted shrink-0">D-13</span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-ink-muted -mt-0.5">வண்டி எரிபொருள் &amp; செலவுகள்</span>
+<p class="font-body-md text-[12px] text-ink-muted line-clamp-1 mt-0.5">Daily diesel, tolls &amp; van maintenance slips with camera capture.</p>
+<div class="flex items-center gap-1.5 mt-1.5">
+<span class="px-2 py-0.5 rounded-full bg-money-coral/10 text-money-coral font-caption-meta text-[10px] font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[11px]">receipt_long</span>₹400 Logged (2 Slips)
+            </span>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-muted/50 text-[20px] shrink-0">chevron_right</span>
+</div>
+<!-- Card 5: Plant Refill Manifest -->
+<div class="w-full bg-surface hover:bg-surface-container-low active:scale-[0.99] transition-all p-space-md rounded-lg flex items-center gap-3 cursor-pointer select-none" role="button" tabindex="0">
+<div class="w-12 h-12 rounded-full bg-info-sky/15 text-info-sky flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">warehouse</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between gap-1">
+<span class="font-headline-md text-[15px] text-ink truncate">Plant Refill Manifest</span>
+<span class="font-caption-meta text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-surface-tonal text-ink-muted shrink-0">D-02</span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-ink-muted -mt-0.5">RO ஆலை கேன் ஏற்றுதல்</span>
+<p class="font-body-md text-[12px] text-ink-muted line-clamp-1 mt-0.5">Log dock bay reloads, full jars intake &amp; empty custody.</p>
+<div class="flex items-center gap-1.5 mt-1.5">
+<span class="px-2 py-0.5 rounded-full bg-info-sky/10 text-info-sky font-caption-meta text-[10px] font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[11px]">sync_alt</span>Load #2 Confirmed
+            </span>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-muted/50 text-[20px] shrink-0">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Section 2: Staff & Attendance -->
+<div class="flex flex-col gap-2 pt-1">
+<div class="flex items-baseline justify-between px-1">
+<div class="flex flex-col">
+<h2 class="font-headline-md text-[17px] text-ink leading-tight">Staff &amp; Attendance</h2>
+<span class="font-sublabel-regional text-[11px] text-ink-muted">பணியாளர் வருகை &amp; பணி</span>
+</div>
+<span class="font-caption-meta text-[11px] font-bold text-money-mint uppercase tracking-wider">Active</span>
+</div>
+<!-- Card 6: Geofenced Attendance -->
+<div class="w-full bg-surface hover:bg-surface-container-low active:scale-[0.99] transition-all p-space-md rounded-lg flex items-center gap-3 cursor-pointer select-none" role="button" tabindex="0">
+<div class="w-12 h-12 rounded-full bg-money-mint/15 text-money-mint flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">location_on</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between gap-1">
+<span class="font-headline-md text-[15px] text-ink truncate">Geofenced Attendance</span>
+<span class="font-caption-meta text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-surface-tonal text-ink-muted shrink-0">D-14</span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-ink-muted -mt-0.5">GPS வருகைப் பதிவு</span>
+<p class="font-body-md text-[12px] text-ink-muted line-clamp-1 mt-0.5">Facial selfie &amp; plant geofence punch-in / punch-out.</p>
+<div class="flex items-center gap-1.5 mt-1.5">
+<span class="px-2 py-0.5 rounded-full bg-money-mint/10 text-money-mint font-caption-meta text-[10px] font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[11px]">how_to_reg</span>Punched In · 07:15 AM
+          </span>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-muted/50 text-[20px] shrink-0">chevron_right</span>
+</div>
+</div>
+<!-- Section 3: Route & Offline Sync Hub -->
+<div class="flex flex-col gap-2 pt-1 pb-2">
+<div class="flex items-baseline justify-between px-1">
+<div class="flex flex-col">
+<h2 class="font-headline-md text-[17px] text-ink leading-tight">Route &amp; Offline Sync Hub</h2>
+<span class="font-sublabel-regional text-[11px] text-ink-muted">ஆஃப்லைன் ஒத்திசைவு</span>
+</div>
+<span class="font-caption-meta text-[11px] font-bold text-pending-honey uppercase tracking-wider">3 Pending</span>
+</div>
+<!-- Card 7: Offline Sync Outbox -->
+<div class="w-full bg-surface hover:bg-surface-container-low active:scale-[0.99] transition-all p-space-md rounded-lg flex items-center gap-3 cursor-pointer select-none" id="sync-card" role="button" tabindex="0">
+<div class="w-12 h-12 rounded-full bg-role-driver-primary/15 text-role-driver-primary flex items-center justify-center shrink-0" id="sync-icon">
+<span class="material-symbols-outlined text-[24px]">cloud_sync</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between gap-1">
+<span class="font-headline-md text-[15px] text-ink truncate">Offline Sync Outbox</span>
+<span class="w-2 h-2 rounded-full bg-pending-honey" id="sync-status-indicator"></span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-ink-muted -mt-0.5">ஆஃப்லைன் பதிவு பெட்டகம்</span>
+<p class="font-body-md text-[12px] text-ink-muted line-clamp-1 mt-0.5">3 records queued in device local database. Auto-syncs when online.</p>
+<div class="flex items-center gap-1.5 mt-1.5">
+<span class="px-2 py-0.5 rounded-full bg-pending-honey/15 text-pending-honey font-caption-meta text-[10px] font-bold flex items-center gap-1" id="sync-chip">
+<span class="material-symbols-outlined text-[11px]">sync</span>3 Pending Records · Tap to Sync
+          </span>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-muted/50 text-[20px] shrink-0">refresh</span>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    const syncCard = document.getElementById('sync-card');
+    const syncIcon = document.getElementById('sync-icon');
+    const syncChip = document.getElementById('sync-chip');
+    const syncStatus = document.getElementById('sync-status-indicator');
+
+    if (syncCard) {
+      syncCard.addEventListener('click', function() {
+        syncIcon.classList.add('animate-spin');
+        syncChip.innerHTML = '<span class="material-symbols-outlined text-[11px] animate-spin">refresh</span>Syncing with DK Plant...';
+        syncChip.className = 'px-2 py-0.5 rounded-full bg-role-driver-canvas text-role-driver-primary font-caption-meta text-[10px] font-bold flex items-center gap-1';
+
+        setTimeout(function() {
+          syncIcon.classList.remove('animate-spin');
+          syncIcon.className = 'w-12 h-12 rounded-full bg-money-mint/15 text-money-mint flex items-center justify-center shrink-0';
+          syncStatus.className = 'w-2 h-2 rounded-full bg-money-mint';
+          syncChip.innerHTML = '<span class="material-symbols-outlined text-[11px]">done_all</span>All Records Synced · Just Now';
+          syncChip.className = 'px-2 py-0.5 rounded-full bg-money-mint/15 text-money-mint font-caption-meta text-[10px] font-bold flex items-center gap-1';
+        }, 1200);
+      });
+    }
+
+    const posBtn = document.getElementById('quick-pos-btn');
+    if (posBtn) {
+      posBtn.addEventListener('click', function() {
+        posBtn.classList.add('brightness-90');
+        setTimeout(() => posBtn.classList.remove('brightness-90'), 150);
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe pointer-events-none" data-active-classes="bg-role-driver-action text-ink font-bold shadow-sm"><div class="max-w-[390px] mx-auto px-margin pb-3 pt-1"><div class="h-16 px-space-xs rounded-full bg-surface shadow-[0_8px_24px_-4px_rgba(19,32,27,0.12)] flex items-center justify-around pointer-events-auto"><a class="flex flex-col items-center justify-center min-w-[68px] h-12 rounded-full px-space-sm text-ink-muted hover:text-ink transition-all active:scale-95" data-path="today" href="#"><span class="material-symbols-outlined text-[22px]">calendar_today</span><span class="font-caption-meta text-[11px] leading-tight">Today</span><span class="font-sublabel-regional text-[9px] leading-none opacity-75">இன்று</span></a><a aria-current="page" class="flex flex-col items-center justify-center min-w-[68px] h-12 rounded-full px-space-sm transition-all active:scale-95 bg-role-driver-action text-ink font-bold shadow-sm" data-path="work" href="#"><span class="material-symbols-outlined text-[22px]">local_shipping</span><span class="font-caption-meta text-[11px] leading-tight">Work</span><span class="font-sublabel-regional text-[9px] leading-none opacity-75">பணி</span></a><a class="flex flex-col items-center justify-center min-w-[68px] h-12 rounded-full px-space-sm text-ink-muted hover:text-ink transition-all active:scale-95" data-path="cash" href="#"><span class="material-symbols-outlined text-[22px]">payments</span><span class="font-caption-meta text-[11px] leading-tight">Cash</span><span class="font-sublabel-regional text-[9px] leading-none opacity-75">பணம்</span></a><a class="flex flex-col items-center justify-center min-w-[68px] h-12 rounded-full px-space-sm text-ink-muted hover:text-ink transition-all active:scale-95" data-path="me" href="#"><span class="material-symbols-outlined text-[22px]">badge</span><span class="font-caption-meta text-[11px] leading-tight">Me</span><span class="font-sublabel-regional text-[9px] leading-none opacity-75">சுயவிவரம்</span></a></div></div></nav></body></html>

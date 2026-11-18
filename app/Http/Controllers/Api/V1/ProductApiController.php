@@ -121,7 +121,7 @@ class ProductApiController extends BaseApiController
     public function store(Request $request): JsonResponse
     {
         $context = $this->companyContext($request);
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:100',
             'type' => 'sometimes|string|in:standard,combo,digital,service',
@@ -130,14 +130,19 @@ class ProductApiController extends BaseApiController
             'category_id' => 'sometimes|nullable|integer',
             'brand_id' => 'sometimes|nullable|integer',
             'unit_id' => 'sometimes|nullable|integer',
+            'alert_quantity' => 'sometimes|nullable|numeric|min:0',
+            'hsn_code' => 'sometimes|nullable|string|max:50',
+            'product_details' => 'sometimes|nullable|string|max:2000',
+            'barcode_symbology' => 'sometimes|nullable|string|max:20',
+            'tax_id' => 'sometimes|nullable|integer',
+            'tax_method' => 'sometimes|nullable|integer|in:1,2',
+            'featured' => 'sometimes|nullable|boolean',
+            'product_usage' => 'sometimes|nullable|string|in:composite,sale,purchase',
         ]);
 
-        $data = $request->all();
+        $data = $validated;
         $data['company_id'] = $context->companyId;
-        $data['branch_id'] = $context->branchId;
         $data['is_active'] = $request->boolean('is_active', true);
-        $data['in_stock'] = $request->boolean('in_stock', true);
-        $data['track_inventory'] = $request->boolean('track_inventory', true);
 
         // Ensure unique code per company
         $existing = Product::forCompany($context)->where('code', $data['code'])->first();
@@ -147,13 +152,15 @@ class ProductApiController extends BaseApiController
 
         $product = Product::create($data);
 
-        // Initial warehouse stock if provided
+        // Initial warehouse stock if provided (must belong to active company)
         if ($request->filled('initial_stock') && $request->filled('warehouse_id')) {
             $qty = (float) $request->input('initial_stock', 0);
-            if ($qty > 0) {
+            $warehouseId = (int) $request->input('warehouse_id');
+            $ownsWarehouse = \App\Models\Warehouse::forCompany($context)->whereKey($warehouseId)->exists();
+            if ($qty > 0 && $ownsWarehouse) {
                 \App\Models\Product_Warehouse::create([
                     'product_id' => $product->id,
-                    'warehouse_id' => $request->input('warehouse_id'),
+                    'warehouse_id' => $warehouseId,
                     'qty' => $qty,
                     'price' => $product->price,
                     'company_id' => $context->companyId,
@@ -173,22 +180,27 @@ class ProductApiController extends BaseApiController
             return $this->sendError('Product not found in this company.', [], 404);
         }
 
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'code' => 'sometimes|required|string|max:100',
+            'type' => 'sometimes|string|in:standard,combo,digital,service',
             'price' => 'sometimes|required|numeric|min:0',
             'cost' => 'sometimes|required|numeric|min:0',
+            'category_id' => 'sometimes|nullable|integer',
+            'brand_id' => 'sometimes|nullable|integer',
+            'unit_id' => 'sometimes|nullable|integer',
+            'alert_quantity' => 'sometimes|nullable|numeric|min:0',
+            'hsn_code' => 'sometimes|nullable|string|max:50',
+            'product_details' => 'sometimes|nullable|string|max:2000',
+            'tax_id' => 'sometimes|nullable|integer',
+            'tax_method' => 'sometimes|nullable|integer|in:1,2',
+            'featured' => 'sometimes|nullable|boolean',
+            'product_usage' => 'sometimes|nullable|string|in:composite,sale,purchase',
         ]);
 
-        $data = $request->except(['id', 'company_id']);
+        $data = $validated;
         if ($request->has('is_active')) {
             $data['is_active'] = $request->boolean('is_active');
-        }
-        if ($request->has('in_stock')) {
-            $data['in_stock'] = $request->boolean('in_stock');
-        }
-        if ($request->has('track_inventory')) {
-            $data['track_inventory'] = $request->boolean('track_inventory');
         }
 
         $product->update($data);

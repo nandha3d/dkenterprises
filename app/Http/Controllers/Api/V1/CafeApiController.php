@@ -22,14 +22,29 @@ class CafeApiController extends BaseApiController
     /**
      * Get touch POS menu items and active categories
      */
-    public function menu(): JsonResponse
+    public function menu(Request $request): JsonResponse
     {
-        $products = Product::where('is_active', true)
-            ->select('id', 'name', 'code', 'price', 'category_id', 'image')
-            ->take(50)
-            ->get();
+        $context = $request->attributes->get(\App\Services\Platform\CompanyContext::class);
+        $companyId = $context?->companyId ?? ($request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : null);
 
-        $categories = DB::table('categories')->where('is_active', true)->select('id', 'name')->get();
+        $productsQuery = Product::where('is_active', true)
+            ->select('id', 'name', 'code', 'price', 'category_id', 'image');
+
+        if ($companyId) {
+            $productsQuery->where(function ($query) use ($companyId) {
+                $query->where('company_id', $companyId)->orWhereNull('company_id');
+            });
+        }
+
+        $products = $productsQuery->take(100)->get();
+
+        $categoriesQuery = DB::table('categories')->where('is_active', true)->select('id', 'name');
+        if ($companyId) {
+            $categoriesQuery->where(function ($query) use ($companyId) {
+                $query->where('company_id', $companyId)->orWhereNull('company_id');
+            });
+        }
+        $categories = $categoriesQuery->get();
 
         return $this->sendResponse([
             'products' => $products,
@@ -42,9 +57,17 @@ class CafeApiController extends BaseApiController
      */
     public function storeOrder(Request $request): JsonResponse
     {
-        $total = (float) ($request->total_amount ?? $request->grand_total ?? $request->amount ?? 0);
-        $paymentMethod = $request->payment_method ?? $request->payment_mode ?? 'Cash';
         $items = $request->items ?? $request->order_items ?? [];
+        $total = (float) ($request->total_amount ?? $request->grand_total ?? $request->total ?? $request->amount ?? 0);
+        if ($total <= 0 && is_array($items) && !empty($items)) {
+            foreach ($items as $it) {
+                $qty = (float) ($it['qty'] ?? 1);
+                $price = (float) ($it['price'] ?? $it['unit_price'] ?? 0);
+                $total += $qty * $price;
+            }
+            $total = round($total, 2);
+        }
+        $paymentMethod = $request->payment_method ?? $request->payment_mode ?? 'Cash';
 
         if ($total <= 0) {
             return $this->sendError('Validation error', ['total_amount' => ['A valid positive total amount is required.']], 422);
@@ -56,14 +79,18 @@ class CafeApiController extends BaseApiController
         }
 
         $context = $request->attributes->get(\App\Services\Platform\CompanyContext::class);
-        $companyId = $context?->companyId ?? ($request->header('X-Company-ID') ?: null);
+        $companyId = $context?->companyId
+            ?? ($request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : null)
+            ?? ($request->filled('company_id') ? (int) $request->input('company_id') : null);
         if (!$companyId && Auth::check()) {
             $companyId = DB::table('company_user')->where('user_id', Auth::id())->where('is_default', 1)->value('company_id')
                 ?? DB::table('company_user')->where('user_id', Auth::id())->value('company_id')
                 ?? 1;
         }
         $companyId = (int) ($companyId ?: 1);
-        $branchId = $context?->branchId ?? ($request->header('X-Branch-ID') ? (int) $request->header('X-Branch-ID') : null);
+        $branchId = $context?->branchId
+            ?? ($request->header('X-Branch-ID') ? (int) $request->header('X-Branch-ID') : null)
+            ?? ($request->filled('branch_id') ? (int) $request->input('branch_id') : null);
         if ($branchId === null && Auth::check()) {
             $branchId = DB::table('company_user_branches as cub')
                 ->join('company_branches as cb', 'cb.id', '=', 'cub.branch_id')
@@ -129,6 +156,34 @@ class CafeApiController extends BaseApiController
                 $totalQty += (float) ($it['qty'] ?? 1);
             }
 
+            $registration = DB::table('tax_registrations')
+                ->where('company_id', $companyId)
+                ->where('status', 'active')
+                ->orderBy('id')
+                ->first();
+            $sellerState = (string) ($registration->state_code ?? DB::table('companies')->where('id', $companyId)->value('state_code') ?? '33');
+            $sellerGstin = trim((string) ($registration->gstin ?? ''));
+            $customerTaxNo = strtoupper(trim((string) (DB::table('customers')->where('id', $customerId)->value('tax_no') ?? '')));
+            $buyerState = preg_match('/^([0-9]{2})[A-Z0-9]{13}$/', $customerTaxNo, $m) ? $m[1] : $sellerState;
+            $fyId = (int) ($context?->financialYearId
+                ?? DB::table('fiscal_years')->where('company_id', $companyId)->where('is_closed', 0)->orderByDesc('id')->value('id')
+                ?? $companyId);
+
+            $headerTaxSnapshot = [
+                'section' => $customerTaxNo !== '' ? 'b2b' : 'b2c',
+                'seller_gstin' => $sellerGstin,
+                'seller_state' => $sellerState,
+                'buyer_gstin' => $customerTaxNo,
+                'place_of_supply' => $buyerState,
+                'registration_type' => $registration->registration_type ?? 'unregistered',
+                'reverse_charge' => false,
+                'cgst' => 0.0,
+                'sgst' => 0.0,
+                'igst' => 0.0,
+                'cess' => 0.0,
+                'sign' => 1,
+            ];
+
             $saleData = [
                 'reference_no' => $orderRef,
                 'user_id' => Auth::id() ?? 1,
@@ -149,24 +204,47 @@ class CafeApiController extends BaseApiController
                 'payment_status' => 4, // Paid
                 'paid_amount' => $total,
                 'sale_note' => 'Cafe Quick POS Touch Order',
+                'sale_type' => 'pos',
                 'company_id' => $companyId,
                 'branch_id' => $branchId,
+                'financial_year_id' => $fyId,
+                'posted_at' => now(),
+                'tax_snapshot_json' => json_encode($headerTaxSnapshot, JSON_THROW_ON_ERROR),
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
-            if ($context?->financialYearId) {
-                $saleData['financial_year_id'] = $context->financialYearId;
-            }
             $saleId = DB::table('sales')->insertGetId($saleData);
 
             // 2. Insert line items into product_sales table
+            $lineSnapshots = [];
             foreach ($items as $it) {
                 $rawProdId = (int) ($it['item_id'] ?? $it['product_id'] ?? $it['id'] ?? 0);
-                $prodId = ($rawProdId > 0 && DB::table('products')->where('id', $rawProdId)->exists())
-                    ? $rawProdId
-                    : $defaultProdId;
+                $prodRow = $rawProdId > 0 ? DB::table('products')->where('id', $rawProdId)->first() : null;
+                $prodId = $prodRow ? (int) $prodRow->id : $defaultProdId;
                 $qty = (float) ($it['qty'] ?? 1);
-                $unitPrice = (float) ($it['price'] ?? ($total / max(1, count($items))));
+                $unitPrice = (float) ($it['price'] ?? $it['unit_price'] ?? ($total / max(1, count($items))));
+                $lineTotal = round($unitPrice * $qty, 2);
+                $hsnSac = trim((string) ($prodRow->hsn_code ?? '996331'));
+                $lineSnap = [
+                    'taxable_value' => $lineTotal,
+                    'discount' => 0.0,
+                    'rate' => 0.0,
+                    'product_rate' => 0.0,
+                    'cess_rate' => 0.0,
+                    'cgst' => 0.0,
+                    'sgst' => 0.0,
+                    'igst' => 0.0,
+                    'cess' => 0.0,
+                    'hsn_sac' => $hsnSac,
+                    'place_of_supply' => $buyerState,
+                    'reverse_charge' => false,
+                    'supply_type' => 'exempt',
+                    'input_credit_allowed' => false,
+                    'product_name' => (string) ($it['name'] ?? $prodRow->name ?? 'Cafe POS Item'),
+                    'qty' => $qty,
+                ];
+                $lineSnapshots[] = $lineSnap;
+
                 DB::table('product_sales')->insert([
                     'sale_id' => $saleId,
                     'product_id' => $prodId,
@@ -176,12 +254,27 @@ class CafeApiController extends BaseApiController
                     'discount' => 0.0,
                     'tax_rate' => 0.0,
                     'tax' => 0.0,
-                    'total' => $unitPrice * $qty,
+                    'total' => $lineTotal,
+                    'is_delivered' => 1,
                     'company_id' => $companyId,
+                    'tax_snapshot_json' => json_encode($lineSnap, JSON_THROW_ON_ERROR),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
             }
+
+            app(\App\Services\ERP\VerticalSaleSyncService::class)->recordGstProjection(
+                $saleId,
+                $companyId,
+                $branchId,
+                $fyId,
+                (int) (Auth::id() ?? 1),
+                $orderRef,
+                now()->toDateString(),
+                $sellerGstin,
+                $headerTaxSnapshot,
+                $lineSnapshots
+            );
 
             // 3. Insert real payment record
             $isBank = $upiPortion > 0 && $cashPortion == 0;
@@ -251,6 +344,8 @@ class CafeApiController extends BaseApiController
         return $this->sendResponse([
             'order_reference' => $orderRef,
             'sale_id' => $saleId,
+            'company_id' => $companyId,
+            'branch_id' => $branchId,
             'total_amount' => $total,
             'grand_total' => $total,
             'payment_method' => $paymentMethod,

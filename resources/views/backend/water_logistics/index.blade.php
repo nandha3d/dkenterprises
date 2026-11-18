@@ -29,12 +29,18 @@
                     </div>
                 </div>
                 <div class="col-md-5 text-right">
+                    <a href="{{ route('water-logistics.schedules.index', ['vertical' => 'can']) }}" class="btn btn-outline-info btn-sm mr-2">
+                        <i class="fa fa-calendar"></i> Schedules
+                    </a>
                     <a href="{{ route('fleet.tracking') }}" class="btn btn-outline-primary btn-sm mr-2">
                         <i class="fa fa-map-marker"></i> Live Route GPS
                     </a>
                     <a href="{{ route('water-logistics.credit-aging') }}" class="btn btn-outline-danger btn-sm mr-2">
                         <i class="dripicons-time-reverse"></i> Customer Credit Aging
                     </a>
+                    <button type="button" class="btn btn-primary btn-sm mr-2" data-toggle="modal" data-target="#canOrderModal">
+                        <i class="dripicons-plus"></i> Create Order
+                    </button>
                     <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#canDeliveryModal">
                         <i class="dripicons-plus"></i> Packaged Water Delivery
                     </button>
@@ -102,28 +108,29 @@
                                 <table class="table table-hover align-middle mb-0">
                                     <thead class="bg-light small uppercase">
                                         <tr>
-                                            <th>Delivery No</th>
+                                            <th>Order / Delivery No</th>
                                             <th>Date</th>
                                             <th>Beat Route</th>
                                             <th>Customer</th>
-                                            <th>Morning Loaded</th>
+                                            <th>Ordered</th>
                                             <th>Delivered</th>
                                             <th>Empty Returned</th>
                                             <th>Rate</th>
                                             <th>Total</th>
                                             <th>Paid / Mode</th>
                                             <th>Live Cans Held</th>
-                                            <th>Status</th>
+                                            <th>Status &amp; Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @forelse($deliveries as $del)
+                                            @php $delStatus = strtolower($del->status ?? 'completed'); @endphp
                                             <tr>
                                                 <td><span class="badge badge-secondary px-2 py-1 font-mono">{{ $del->delivery_no }}</span></td>
                                                 <td>{{ $del->delivery_date }}</td>
                                                 <td><strong>{{ $del->route->route_name ?? 'Route Beat' }}</strong></td>
                                                 <td>{{ $del->customer->name ?? 'Customer' }}</td>
-                                                <td>{{ $del->morning_loaded_cans ?? 70 }}</td>
+                                                <td class="font-weight-bold text-primary">{{ ($del->ordered_cans ?? 0) > 0 ? $del->ordered_cans : $del->cans_delivered }} Cans</td>
                                                 <td class="font-weight-bold text-success">+{{ $del->cans_delivered }}</td>
                                                 <td class="font-weight-bold text-info">-{{ $del->empty_cans_returned }}</td>
                                                 <td>₹ {{ number_format($del->can_rate, 2) }}</td>
@@ -133,11 +140,24 @@
                                                     <small class="badge badge-light border ml-1">{{ $del->payment_mode }}</small>
                                                 </td>
                                                 <td><span class="badge badge-dark px-2 py-1">{{ $del->balance_cans_held }} Cans</span></td>
-                                                <td><span class="badge badge-success px-2 py-1">{{ ucfirst($del->status) }}</span></td>
+                                                <td>
+                                                    @if(in_array($delStatus, ['ordered', 'pending', 'assigned', 'dispatched', 'in_transit'], true))
+                                                        <span class="badge {{ $delStatus === 'in_transit' ? 'badge-primary' : 'badge-warning' }} px-2 py-1 text-uppercase">{{ str_replace('_', ' ', $delStatus) }}</span>
+                                                        @if($delStatus !== 'in_transit')
+                                                            <form action="{{ route('water-logistics.can-orders.start', $del->id) }}" method="POST" class="d-inline ml-1">
+                                                                @csrf
+                                                                <button type="submit" class="btn btn-outline-primary btn-xs">Start Moving</button>
+                                                            </form>
+                                                        @endif
+                                                        <button type="button" class="btn btn-success btn-xs ml-1" data-toggle="modal" data-target="#closeCanOrderModal{{ $del->id }}">Close</button>
+                                                    @else
+                                                        <span class="badge badge-success px-2 py-1">{{ ucfirst($delStatus) }}</span>
+                                                    @endif
+                                                </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="12" class="text-center text-muted py-4">No packaged water deliveries recorded yet. Click "Packaged Water Delivery" to log a beat delivery.</td>
+                                                <td colspan="12" class="text-center text-muted py-4">No packaged water deliveries recorded yet. Click "Book Can Order" or "Packaged Water Delivery" to log a beat order.</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -269,22 +289,22 @@
                                 <div class="row">
                                     <div class="col-md-6 form-group mb-3">
                                         <label class="font-weight-600 small">Cans Delivered *</label>
-                                        <input type="number" min="1" name="cans_delivered" class="form-control" value="10" required>
+                                        <input type="number" min="1" name="cans_delivered" class="form-control" placeholder="Enter cans delivered" required>
                                     </div>
                                     <div class="col-md-6 form-group mb-3">
                                         <label class="font-weight-600 small">Empty Cans Returned *</label>
-                                        <input type="number" min="0" name="empty_cans_returned" class="form-control" value="8" required>
+                                        <input type="number" min="0" name="empty_cans_returned" class="form-control" placeholder="Enter empties returned" required>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-4 form-group mb-3">
                                         <label class="font-weight-600 small">Rate per Can (₹)</label>
-                                        <input type="number" step="any" name="can_rate" class="form-control" value="35.00" required>
+                                        <input type="number" step="any" min="0" name="can_rate" class="form-control" placeholder="Rate per can" required>
                                     </div>
                                     <div class="col-md-4 form-group mb-3">
                                         <label class="font-weight-600 small">Paid Amount (₹)</label>
-                                        <input type="number" step="any" name="paid_amount" class="form-control" value="350.00" required>
+                                        <input type="number" step="any" min="0" name="paid_amount" class="form-control" placeholder="Paid amount" required>
                                     </div>
                                     <div class="col-md-4 form-group mb-3">
                                         <label class="font-weight-600 small">Payment Mode</label>
@@ -305,6 +325,112 @@
                 </div>
             </div>
 
+            <!-- Modal: Book 20L Can Order -->
+            <div id="canOrderModal" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade text-left">
+                <div role="document" class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg">
+                        <form action="{{ route('water-logistics.can-orders.store') }}" method="POST">
+                            @csrf
+                            <div class="modal-header bg-primary text-white border-0 py-3">
+                                <h5 class="modal-title font-weight-bold">Book Customer 20L Can Order</h5>
+                                <button type="button" data-dismiss="modal" class="close text-white opacity-75"><span>&times;</span></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <div class="row">
+                                    <div class="col-md-6 form-group mb-3">
+                                        <label class="font-weight-600 small">Delivery Route *</label>
+                                        <select name="route_id" class="form-control" required>
+                                            @foreach($routes as $rt)
+                                                <option value="{{ $rt->id }}">{{ $rt->route_name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 form-group mb-3">
+                                        <label class="font-weight-600 small">Customer *</label>
+                                        <select name="customer_id" class="form-control selectpicker" data-live-search="true" required>
+                                            @foreach($customers as $c)
+                                                <option value="{{ $c->id }}">{{ $c->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 form-group mb-3">
+                                        <label class="font-weight-600 small">Cans Requested *</label>
+                                        <input type="number" min="1" max="1000" name="ordered_cans" class="form-control" value="7" required>
+                                    </div>
+                                    <div class="col-md-6 form-group mb-3">
+                                        <label class="font-weight-600 small">Expected Payment Mode</label>
+                                        <select name="payment_mode" class="form-control">
+                                            <option value="Cash">Cash</option>
+                                            <option value="UPI">UPI / QR</option>
+                                            <option value="Credit">Corporate Credit</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group mb-0">
+                                    <label class="font-weight-600 small">Order Notes</label>
+                                    <input type="text" name="order_notes" class="form-control" placeholder="Customer request notes">
+                                </div>
+                            </div>
+                            <div class="modal-footer border-0 p-3 bg-light">
+                                <button type="button" class="btn btn-secondary px-4" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary px-4 font-weight-bold">Create Order &amp; Notify Owner</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            @foreach($deliveries as $del)
+                @if(in_array(strtolower($del->status ?? 'completed'), ['ordered', 'pending', 'assigned', 'dispatched', 'in_transit'], true))
+                    <div id="closeCanOrderModal{{ $del->id }}" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade text-left">
+                        <div role="document" class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content border-0 shadow-lg">
+                                <form action="{{ route('water-logistics.can-orders.close', $del->id) }}" method="POST">
+                                    @csrf
+                                    <div class="modal-header bg-dark text-white border-0 py-3">
+                                        <h5 class="modal-title font-weight-bold">Close Order {{ $del->delivery_no }}</h5>
+                                        <button type="button" data-dismiss="modal" class="close text-white opacity-75"><span>&times;</span></button>
+                                    </div>
+                                    <div class="modal-body p-4">
+                                        <input type="hidden" name="route_id" value="{{ $del->route_id }}">
+                                        <div class="row">
+                                            <div class="col-md-6 form-group mb-3">
+                                                <label class="font-weight-600 small">Delivered Cans *</label>
+                                                <input type="number" min="1" name="cans_delivered" class="form-control" value="{{ ($del->ordered_cans ?? 0) > 0 ? $del->ordered_cans : 1 }}" required>
+                                            </div>
+                                            <div class="col-md-6 form-group mb-3">
+                                                <label class="font-weight-600 small">Empty Cans Returned *</label>
+                                                <input type="number" min="0" name="empty_cans_returned" class="form-control" value="{{ ($del->ordered_cans ?? 0) > 0 ? $del->ordered_cans : 0 }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 form-group mb-3">
+                                                <label class="font-weight-600 small">Rate per Can (₹)</label>
+                                                <input type="number" step="any" min="1" name="can_rate" class="form-control" value="{{ $del->can_rate > 0 ? $del->can_rate : 35 }}" required>
+                                            </div>
+                                            <div class="col-md-6 form-group mb-3">
+                                                <label class="font-weight-600 small">Payment Mode</label>
+                                                <select name="payment_mode" class="form-control">
+                                                    <option value="Cash" {{ strtolower($del->payment_mode ?? '') === 'cash' ? 'selected' : '' }}>Cash</option>
+                                                    <option value="UPI" {{ strtolower($del->payment_mode ?? '') === 'upi' ? 'selected' : '' }}>UPI / QR</option>
+                                                    <option value="Credit" {{ strtolower($del->payment_mode ?? '') === 'credit' ? 'selected' : '' }}>Corporate Credit</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer border-0 p-3 bg-light">
+                                        <button type="button" class="btn btn-secondary px-4" data-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-success px-4 font-weight-bold">Confirm Delivery &amp; Close Order</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @endforeach
+
         @elseif($industry === 'bulk_water')
             {{-- ========================================================================= --}}
             {{-- VERTICAL: COMMERCIAL BULK WATER & TANKER FLEET (TMWS)                      --}}
@@ -324,6 +450,9 @@
                     </div>
                 </div>
                 <div class="col-md-5 text-right">
+                    <a href="{{ route('water-logistics.schedules.index', ['vertical' => 'tanker']) }}" class="btn btn-outline-info btn-sm mr-2">
+                        <i class="fa fa-calendar"></i> Schedules
+                    </a>
                     <a href="{{ route('fleet.tracking') }}" class="btn btn-outline-primary btn-sm mr-2">
                         <i class="fa fa-map-marker"></i> Live Fleet GPS
                     </a>
@@ -331,7 +460,7 @@
                         <i class="dripicons-time-reverse"></i> Credit Aging Board
                     </a>
                     <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#tankerTripModal">
-                        <i class="dripicons-plus"></i> Log Tanker Trip
+                        <i class="dripicons-plus"></i> Create Order / Trip
                     </button>
                 </div>
             </div>
@@ -420,8 +549,17 @@
                                                 <td class="font-weight-bold">₹ {{ number_format($trip->trip_rate, 2) }}</td>
                                                 <td class="text-danger">₹ {{ number_format($trip->diesel_expense, 2) }}</td>
                                                 <td class="text-warning">₹ {{ number_format($trip->driver_batta, 2) }}</td>
-                                                <td>{{ $trip->site_receiver_name ?: 'Verified' }}</td>
-                                                <td><span class="badge badge-success px-2 py-1">{{ ucfirst($trip->status) }}</span></td>
+                                                <td>{{ $trip->site_receiver_name ?: 'Pending Sign-off' }}</td>
+                                                <td>
+                                                    <span class="badge badge-{{ in_array(strtolower((string) $trip->status), ['completed', 'delivered'], true) ? 'success' : 'warning' }} px-2 py-1">{{ ucfirst(str_replace('_', ' ', $trip->status)) }}</span>
+                                                    @if(!in_array(strtolower((string) $trip->status), ['completed', 'delivered'], true))
+                                                        <form method="POST" action="{{ route('water-logistics.trip.process', ['id' => $trip->id]) }}" class="d-inline ml-1">
+                                                            @csrf
+                                                            <input type="hidden" name="status" value="completed">
+                                                            <button type="submit" class="btn btn-outline-success btn-xs py-0 px-2">Complete</button>
+                                                        </form>
+                                                    @endif
+                                                </td>
                                             </tr>
                                         @empty
                                             <tr>
@@ -562,27 +700,37 @@
 
                                 <div class="row">
                                     <div class="col-md-6 form-group mb-3">
-                                        <label class="font-weight-600 small">Destination Site *</label>
-                                        <input type="text" name="destination_site" class="form-control" placeholder="Factory / Site location" required>
+                                        <label class="font-weight-600 small">Workflow Mode *</label>
+                                        <select name="status" class="form-control" required>
+                                            <option value="dispatched">Dispatch Order (Send to Driver Queue)</option>
+                                            <option value="completed">Log Already Completed Trip &amp; Post GL</option>
+                                        </select>
                                     </div>
                                     <div class="col-md-6 form-group mb-3">
-                                        <label class="font-weight-600 small">Delivered Qty (KL) *</label>
-                                        <input type="number" step="0.1" min="0.1" name="water_quantity_kl" id="tanker_delivered_qty_kl" class="form-control" placeholder="Delivered Quantity in KL" required>
+                                        <label class="font-weight-600 small">Destination Site *</label>
+                                        <input type="text" name="destination_site" class="form-control" placeholder="Factory / Site location" required>
                                     </div>
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-md-4 form-group mb-3">
+                                    <div class="col-md-6 form-group mb-3">
+                                        <label class="font-weight-600 small">Delivered / Ordered Qty (KL) *</label>
+                                        <input type="number" step="0.1" min="0.1" name="water_quantity_kl" id="tanker_delivered_qty_kl" class="form-control" placeholder="Quantity in KL" required>
+                                    </div>
+                                    <div class="col-md-6 form-group mb-3">
                                         <label class="font-weight-600 small">Trip Rate (₹) *</label>
-                                        <input type="number" step="any" name="trip_rate" class="form-control" value="2500" required>
+                                        <input type="number" step="any" min="0" name="trip_rate" class="form-control" placeholder="Trip rate (INR)" required>
                                     </div>
-                                    <div class="col-md-4 form-group mb-3">
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 form-group mb-3">
                                         <label class="font-weight-600 small">Diesel (₹)</label>
-                                        <input type="number" step="any" name="diesel_expense" class="form-control" value="650">
+                                        <input type="number" step="any" min="0" name="diesel_expense" class="form-control" placeholder="0.00">
                                     </div>
-                                    <div class="col-md-4 form-group mb-3">
+                                    <div class="col-md-6 form-group mb-3">
                                         <label class="font-weight-600 small">Driver Batta (₹)</label>
-                                        <input type="number" step="any" name="driver_batta" class="form-control" value="300">
+                                        <input type="number" step="any" min="0" name="driver_batta" class="form-control" placeholder="0.00">
                                     </div>
                                 </div>
 

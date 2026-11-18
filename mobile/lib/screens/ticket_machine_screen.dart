@@ -71,14 +71,10 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
 
     if (mounted) {
       setState(() {
-        _customers = customers.isNotEmpty
-            ? customers
-            : [CustomerItem(id: 1, name: 'Default Customer', phone: '9842100000', address: 'Town Route', emptyHeld: 10)];
-        _packages = packages.isNotEmpty
-            ? packages
-            : [const WaterPackageItem(code: 'CAN-20L', nameEn: '20L Drinking Jar', nameTa: '20L குடிநீர் ஜார்', unitPrice: 35.0, isJar: true)];
-        _selectedCustomer = _customers.first;
-        _selectedPackage = _packages.first;
+        _customers = customers;
+        _packages = packages;
+        _selectedCustomer = _customers.isNotEmpty ? _customers.first : null;
+        _selectedPackage = _packages.isNotEmpty ? _packages.first : null;
         _isLoading = false;
       });
     }
@@ -596,14 +592,14 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
                           const Icon(Icons.phone_android, size: 14, color: AppColors.brandSky),
                           const SizedBox(width: 6),
                           Text(
-                            _selectedCustomer!.phone.isNotEmpty ? _selectedCustomer!.phone : '9842100000',
+                            _selectedCustomer!.phone.isNotEmpty ? _selectedCustomer!.phone : 'No phone',
                             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
                           ),
                           const Spacer(),
                           Icon(Icons.home_work_outlined, size: 14, color: AppColors.textDim(context)),
                           const SizedBox(width: 4),
                           Text(
-                            _selectedCustomer!.address.isNotEmpty ? _selectedCustomer!.address : 'Town Route',
+                            _selectedCustomer!.address.isNotEmpty ? _selectedCustomer!.address : 'No address',
                             style: TextStyle(fontSize: 11, color: AppColors.textDim(context)),
                           ),
                         ],
@@ -631,7 +627,7 @@ class _TicketMachineScreenState extends State<TicketMachineScreen> {
                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.text(context)),
                       ),
                       Text(
-                        'Rate: ₹${_selectedPackage?.unitPrice.toStringAsFixed(0) ?? "35"}/can',
+                        'Rate: ₹${_selectedPackage?.unitPrice.toStringAsFixed(0) ?? "0"}/can',
                         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.roleDeliveryDriver),
                       ),
                     ],

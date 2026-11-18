@@ -560,7 +560,7 @@
                             <input type="checkbox" id="side-orders-all-toggle"> Include closed
                         </label>
                         <button type="button" class="btn btn-xs btn-outline-primary font-weight-bold" id="btn-side-new-order">
-                            <i class="dripicons-plus"></i> New Order
+                            <i class="dripicons-plus"></i> Create Order
                         </button>
                     </div>
                     <div id="side-orders-status" class="small text-muted mb-2 px-1" role="status"></div>

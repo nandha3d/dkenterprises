@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "role-cafe-canvas": "#FBF4EA", "ink-muted": "#66736C", "on-tertiary": "#ffffff", "dark-surface": "#17221D", "inverse-primary": "#8ed4c5", "tertiary-container": "#005f3c", "role-cafe-primary": "#C2542D", "primary-fixed-dim": "#8ed4c5", "surface-tint": "#1f695e", "surface-variant": "#e4e2dd", "on-primary-container": "#8dd3c5", "role-cafe-action": "#F4A62A", "on-secondary-container": "#506c00", "inverse-surface": "#30312e", "on-secondary-fixed-variant": "#394e00", "outline-variant": "#bec9c5", "critical-ruby": "#D92D20", "dark-ink-muted": "#93A39B", "on-secondary": "#ffffff", "tertiary": "#00452a", "primary": "#00443b", "on-primary-fixed-variant": "#005046", "primary-container": "#0b5d52", "pending-honey": "#E9A23B", "surface-container-highest": "#e4e2dd", "outline": "#6f7976", "surface-bright": "#fbf9f4", "on-tertiary-fixed": "#002112", "on-error-container": "#93000a", "dark-canvas": "#0E1512", "inverse-on-surface": "#f2f1ec", "role-driver-primary": "#0E8FB3", "on-tertiary-container": "#61dda0", "on-tertiary-fixed-variant": "#005233", "error-container": "#ffdad6", "tertiary-fixed-dim": "#61dda0", "secondary-fixed": "#c7f169", "role-driver-canvas": "#F3F8FA", "on-surface": "#1b1c19", "on-error": "#ffffff", "info-sky": "#2E90FA", "on-primary-fixed": "#00201b", "error": "#ba1a1a", "role-driver-action": "#FFC933", "surface-container": "#f0eee9", "primary-fixed": "#a9f0e1", "secondary": "#4c6700", "secondary-fixed-dim": "#acd44f", "money-coral": "#E8505B", "surface-container-high": "#eae8e3", "hairline": "#E3E1DA", "ink": "#13201B", "on-background": "#1b1c19", "surface-container-lowest": "#ffffff", "on-primary": "#ffffff", "secondary-container": "#c5ee66", "role-field-primary": "#3F7D58", "dark-surface-tonal": "#1F2E27", "surface-container-low": "#f5f3ee", "dark-ink": "#EDF3EF", "surface-tonal": "#ECEFEA", "on-secondary-fixed": "#151f00", "on-surface-variant": "#3f4946", "tertiary-fixed": "#7ffaba", "background": "#fbf9f4", "role-field-action": "#C9F36A", "surface-dim": "#dcdad5", "money-mint": "#1FA971", "role-cafe-ink": "#2B1B14", "surface": "#FFFFFF" }, borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }, spacing: { "space-xs": "0.25rem", "gutter": "0.75rem", "space-lg": "1rem", "space-md": "0.75rem", "space-xl": "1.5rem", "space-sm": "0.5rem", "margin": "1rem" }, fontFamily: { "headline-md": ["Manrope"], "display-numeral": ["Manrope"], "body-lg": ["Manrope"], "body-md": ["Manrope"], "label-action": ["Manrope"], "display-numeral-mobile": ["Manrope"], "headline-lg": ["Manrope"], "sublabel-regional": ["Noto Sans Tamil"], "caption-meta": ["Manrope"] }, fontSize: { "headline-md": ["20px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "700" }], "display-numeral": ["48px", { lineHeight: "52px", letterSpacing: "-0.03em", fontWeight: "800" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "600" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "500" }], "label-action": ["16px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "700" }], "display-numeral-mobile": ["40px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800" }], "headline-lg": ["28px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "800" }], "sublabel-regional": ["11px", { lineHeight: "14px", fontWeight: "600" }], "caption-meta": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }] } } } };</script><style>body{min-height:max(884px,100dvh);}.fluid-pill-spring{transition:transform 380ms cubic-bezier(0.34,1.56,0.64,1),width 340ms cubic-bezier(0.34,1.56,0.64,1),opacity 200ms ease;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface-container-low text-ink font-body-md flex flex-col min-h-screen selection:bg-role-cafe-action"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin flex items-center justify-between gap-gutter"><div class="flex items-center gap-space-sm"><div class="w-9 h-9 rounded-full bg-role-cafe-primary/10 flex items-center justify-center text-role-cafe-primary shrink-0"><span class="material-symbols-outlined text-[20px]">local_cafe</span></div><div class="flex flex-col"><div class="flex items-center gap-1.5"><span class="font-headline-md text-[16px] leading-tight text-role-cafe-ink tracking-tight font-extrabold">Aran Cafe (Main Branch)</span></div><span class="font-sublabel-regional text-sublabel-regional text-ink-muted leading-none">அரண் காபி • முன்னேற்றப் பிரிவு</span></div></div><div class="flex items-center gap-space-xs"><div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-money-mint/15 text-money-mint shrink-0"><span class="material-symbols-outlined text-[13px]">check_circle</span><span class="font-caption-meta text-[11px] font-bold tracking-wide">Synced ✓</span></div><button class="flex items-center gap-1 px-2 py-1.5 rounded-full bg-surface-tonal hover:bg-surface-container-high text-ink font-sublabel-regional text-sublabel-regional transition-colors min-h-[44px]" title="Switch Language / மொழி மாற்றுக" type="button"><span class="material-symbols-outlined text-ink-muted text-[15px]">translate</span><span class="font-bold">EN | தமிழ்</span></button><button class="relative w-11 h-11 flex items-center justify-center rounded-full text-ink hover:bg-surface-tonal transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-critical-ruby"></span></button></div></div></header><main class="flex-1 flex flex-col relative w-full px-margin pt-16 pb-32 bg-surface-container-low"><div class="flex flex-col w-full space-y-4">
+<!-- Search & Day Selector Section -->
+<section class="flex flex-col gap-2.5">
+<div class="relative w-full">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-role-cafe-ink/60">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="w-full h-[52px] pl-11 pr-11 bg-surface rounded-full text-role-cafe-ink font-body-md placeholder:text-ink-muted/70 shadow-sm focus:outline-none focus:ring-2 focus:ring-role-cafe-primary transition-all" id="billSearchInput" placeholder="Search by bill #, customer, table, items..." type="text"/>
+<button aria-label="Clear Search" class="absolute inset-y-0 right-0 pr-4 flex items-center text-ink-muted hover:text-role-cafe-ink transition-colors" id="clearSearchBtn" type="button">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+</button>
+</div>
+<!-- Date Strip Selector -->
+<div class="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 no-scrollbar">
+<button class="shrink-0 w-11 h-11 rounded-full bg-surface shadow-sm text-role-cafe-ink flex items-center justify-center hover:bg-surface-tonal active:scale-95 transition-transform" title="Pick Calendar Date" type="button">
+<span class="material-symbols-outlined text-[20px] text-role-cafe-primary">calendar_month</span>
+</button>
+<div class="flex items-center gap-1.5 shrink-0">
+<!-- Day 1 -->
+<button class="date-chip flex flex-col items-center justify-center px-3 py-1.5 rounded-full bg-surface shadow-sm text-ink-muted hover:text-role-cafe-ink active:scale-95 transition-all min-w-[62px]" type="button">
+<span class="font-caption-meta text-[11px] font-bold uppercase tracking-wider">08 Nov</span>
+<span class="font-caption-meta text-[10px] text-ink-muted/80">Fri</span>
+</button>
+<!-- Day 2 -->
+<button class="date-chip flex flex-col items-center justify-center px-3 py-1.5 rounded-full bg-surface shadow-sm text-ink-muted hover:text-role-cafe-ink active:scale-95 transition-all min-w-[62px]" type="button">
+<span class="font-caption-meta text-[11px] font-bold uppercase tracking-wider">09 Nov</span>
+<span class="font-caption-meta text-[10px] text-ink-muted/80">Sat</span>
+</button>
+<!-- Day 3 -->
+<button class="date-chip flex flex-col items-center justify-center px-3 py-1.5 rounded-full bg-surface shadow-sm text-ink-muted hover:text-role-cafe-ink active:scale-95 transition-all min-w-[62px]" type="button">
+<span class="font-caption-meta text-[11px] font-bold uppercase tracking-wider">10 Nov</span>
+<span class="font-caption-meta text-[10px] text-ink-muted/80">Sun</span>
+</button>
+<!-- Day 4 -->
+<button class="date-chip flex flex-col items-center justify-center px-3 py-1.5 rounded-full bg-surface shadow-sm text-ink-muted hover:text-role-cafe-ink active:scale-95 transition-all min-w-[62px]" type="button">
+<span class="font-caption-meta text-[11px] font-bold uppercase tracking-wider">11 Nov</span>
+<span class="font-caption-meta text-[10px] text-ink-muted/80">Mon</span>
+</button>
+<!-- Today (Active) -->
+<button class="date-chip flex flex-col items-center justify-center px-4 py-1.5 rounded-full bg-role-cafe-primary text-surface-container-lowest shadow-md active:scale-95 transition-all min-w-[76px]" type="button">
+<div class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-role-cafe-action animate-pulse"></span>
+<span class="font-caption-meta text-[11px] font-extrabold uppercase tracking-wider">Today</span>
+</div>
+<span class="font-caption-meta text-[10px] opacity-90">12 Nov Tue</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Daily Shift Orders Summary Hero Card -->
+<section class="rounded-lg bg-role-cafe-primary text-surface-container-lowest p-4 shadow-sm relative overflow-hidden">
+<div class="flex items-center justify-between gap-2 mb-2">
+<div class="flex flex-col">
+<span class="font-caption-meta text-[11px] tracking-wider uppercase text-surface-container-lowest/80 font-bold">Today's Counter Billing</span>
+<span class="font-sublabel-regional text-sublabel-regional text-surface-container-lowest/70 leading-none">இன்றைய விற்பனைப் பதிவேடு</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-lowest/15 backdrop-blur-sm text-surface-container-lowest shrink-0">
+<span class="material-symbols-outlined text-[12px] text-role-cafe-action">timelapse</span>
+<span class="font-caption-meta text-[11px] font-extrabold tracking-wide">SHIFT #02 LIVE</span>
+</div>
+</div>
+<!-- Huge Amount Display -->
+<div class="my-2">
+<div class="flex items-baseline gap-1.5">
+<span class="font-display-numeral-mobile text-display-numeral-mobile tracking-tight font-extrabold text-surface-container-lowest">₹24,890.00</span>
+</div>
+<span class="font-caption-meta text-[11px] text-surface-container-lowest/80 font-medium">Gross collections across all tenders (10:00 AM – Current)</span>
+</div>
+<!-- 3-Column Bento Metrics -->
+<div class="grid grid-cols-3 gap-2 pt-3 mt-2 bg-black/10 rounded-DEFAULT p-2.5">
+<div class="flex flex-col">
+<span class="font-caption-meta text-[11px] text-surface-container-lowest/75 font-semibold">Orders</span>
+<span class="font-headline-md text-[17px] font-extrabold text-surface-container-lowest leading-tight">142</span>
+<span class="font-sublabel-regional text-[10px] text-surface-container-lowest/70">142 ஆர்டர்கள்</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption-meta text-[11px] text-surface-container-lowest/75 font-semibold">Avg Ticket</span>
+<span class="font-headline-md text-[17px] font-extrabold text-surface-container-lowest leading-tight">₹175.28</span>
+<span class="font-sublabel-regional text-[10px] text-surface-container-lowest/70">சராசரி பில்</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption-meta text-[11px] text-surface-container-lowest/75 font-semibold">Refunded</span>
+<span class="font-headline-md text-[17px] font-extrabold text-role-cafe-action leading-tight">₹340.00</span>
+<span class="font-caption-meta text-[10px] text-surface-container-lowest/70">2 void bills</span>
+</div>
+</div>
+<!-- Tender Split Visual Bar -->
+<div class="mt-3 pt-2">
+<div class="flex items-center justify-between text-[11px] font-caption-meta font-bold mb-1.5 text-surface-container-lowest/90">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-role-cafe-action"></span>
+<span>Digital / UPI: ₹16,420 (66%)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-surface-container-lowest"></span>
+<span>Cash: ₹8,470 (34%)</span>
+</div>
+</div>
+<div class="h-2 w-full bg-black/20 rounded-full overflow-hidden flex">
+<div class="h-full bg-role-cafe-action rounded-l-full" style="width: 66%"></div>
+<div class="h-full bg-surface-container-lowest rounded-r-full" style="width: 34%"></div>
+</div>
+</div>
+</section>
+<!-- Tender & Status Filter Chips -->
+<section class="flex items-center gap-2 overflow-x-auto pb-0.5 no-scrollbar">
+<!-- Filter: All (Active) -->
+<button class="filter-chip flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-role-cafe-action text-role-cafe-ink font-bold shadow-sm active:scale-95 transition-all shrink-0" type="button">
+<span class="material-symbols-outlined text-[17px]">receipt</span>
+<span class="font-caption-meta text-caption-meta">All (142)</span>
+</button>
+<!-- Filter: Cash -->
+<button class="filter-chip flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface text-ink-muted hover:text-role-cafe-ink font-semibold shadow-sm active:scale-95 transition-all shrink-0" type="button">
+<span class="material-symbols-outlined text-[17px] text-money-mint">payments</span>
+<span class="font-caption-meta text-caption-meta">Cash (54)</span>
+</button>
+<!-- Filter: UPI / QR -->
+<button class="filter-chip flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface text-ink-muted hover:text-role-cafe-ink font-semibold shadow-sm active:scale-95 transition-all shrink-0" type="button">
+<span class="material-symbols-outlined text-[17px] text-info-sky">qr_code_2</span>
+<span class="font-caption-meta text-caption-meta">UPI / QR (82)</span>
+</button>
+<!-- Filter: Credit / Khata -->
+<button class="filter-chip flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface text-ink-muted hover:text-role-cafe-ink font-semibold shadow-sm active:scale-95 transition-all shrink-0" type="button">
+<span class="material-symbols-outlined text-[17px] text-pending-honey">menu_book</span>
+<span class="font-caption-meta text-caption-meta">Credit / Khata (4)</span>
+</button>
+<!-- Filter: Refunded -->
+<button class="filter-chip flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface text-ink-muted hover:text-role-cafe-ink font-semibold shadow-sm active:scale-95 transition-all shrink-0" type="button">
+<span class="material-symbols-outlined text-[17px] text-critical-ruby">remove_shopping_cart</span>
+<span class="font-caption-meta text-caption-meta">Refunded (2)</span>
+</button>
+</section>
+<!-- Transaction Bills Feed -->
+<section class="flex flex-col gap-3" id="billsFeed">
+<!-- Bill Card 1 -->
+<article class="bg-surface rounded-DEFAULT p-3.5 shadow-sm flex flex-col gap-2.5 transition-all hover:bg-surface-bright">
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="font-headline-md text-[17px] text-role-cafe-ink font-extrabold tracking-tight">#ORD-084</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-tonal text-role-cafe-ink font-caption-meta text-[11px] font-bold">Table 4</span>
+<span class="text-ink-muted font-caption-meta text-[11px]">• Priyan</span>
+</div>
+<span class="font-caption-meta text-[11px] text-ink-muted">12:42:55 PM (18 mins ago)</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-money-mint/15 text-money-mint shrink-0">
+<span class="material-symbols-outlined text-[14px]">payments</span>
+<span class="font-caption-meta text-[11px] font-bold">Paid • Cash</span>
+</div>
+</div>
+<!-- Items List -->
+<div class="p-2.5 rounded-DEFAULT bg-surface-container-low flex flex-col gap-1">
+<div class="flex items-center justify-between font-caption-meta text-[11px] text-ink-muted font-bold">
+<span>3 items (5 units)</span>
+<span class="text-role-cafe-primary">Dine-in</span>
+</div>
+<p class="font-body-md text-[13px] leading-snug text-role-cafe-ink font-medium">
+          Madras Filter Coffee x 2, Choco Hazelnut Bun x 2, Veg Samosa x 1
+        </p>
+</div>
+<!-- Net and Change info -->
+<div class="flex items-center justify-between pt-0.5">
+<div class="flex flex-col">
+<span class="font-caption-meta text-[11px] text-ink-muted">Tendered: ₹500.00 • Change: ₹255.00</span>
+</div>
+<div class="text-right">
+<span class="font-headline-md text-[18px] font-extrabold text-role-cafe-ink">₹245.00</span>
+</div>
+</div>
+<!-- Actions Slab -->
+<div class="grid grid-cols-2 gap-2 pt-1">
+<button class="h-[48px] rounded-full bg-surface-tonal text-role-cafe-ink hover:bg-surface-container-high font-label-action text-[13px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px] text-role-cafe-primary">print</span>
+<span>Reprint Slip (அச்சு)</span>
+</button>
+<button class="h-[48px] rounded-full bg-role-cafe-action/20 text-role-cafe-ink hover:bg-role-cafe-action/30 font-label-action text-[13px] font-extrabold flex items-center justify-center gap-1 active:scale-95 transition-all" type="button">
+<span>View Details</span>
+<span class="material-symbols-outlined text-[17px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Bill Card 2 -->
+<article class="bg-surface rounded-DEFAULT p-3.5 shadow-sm flex flex-col gap-2.5 transition-all hover:bg-surface-bright">
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="font-headline-md text-[17px] text-role-cafe-ink font-extrabold tracking-tight">#ORD-083</span>
+<span class="px-2 py-0.5 rounded-full bg-role-cafe-action/20 text-role-cafe-ink font-caption-meta text-[11px] font-bold">Parcel (#TAK-019)</span>
+<span class="text-ink-muted font-caption-meta text-[11px]">• Rajesh</span>
+</div>
+<span class="font-caption-meta text-[11px] text-ink-muted">12:35:10 PM (25 mins ago)</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-info-sky/15 text-info-sky shrink-0">
+<span class="material-symbols-outlined text-[14px]">account_balance_wallet</span>
+<span class="font-caption-meta text-[11px] font-bold">Paid • GPay</span>
+</div>
+</div>
+<!-- Items List -->
+<div class="p-2.5 rounded-DEFAULT bg-surface-container-low flex flex-col gap-1">
+<div class="flex items-center justify-between font-caption-meta text-[11px] text-ink-muted font-bold">
+<span>2 items (6 units)</span>
+<span class="text-role-cafe-action">Takeaway Box</span>
+</div>
+<p class="font-body-md text-[13px] leading-snug text-role-cafe-ink font-medium">
+          Ooty Bun Maska x 4, Paneer Puff x 2
+        </p>
+</div>
+<!-- Net and Transaction info -->
+<div class="flex items-center justify-between pt-0.5">
+<div class="flex flex-col">
+<span class="font-caption-meta text-[11px] text-ink-muted">TXN: UPI-984210492 • Instant Settlement</span>
+</div>
+<div class="text-right">
+<span class="font-headline-md text-[18px] font-extrabold text-role-cafe-ink">₹315.00</span>
+</div>
+</div>
+<!-- Actions Slab -->
+<div class="grid grid-cols-2 gap-2 pt-1">
+<button class="h-[48px] rounded-full bg-surface-tonal text-role-cafe-ink hover:bg-surface-container-high font-label-action text-[13px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px] text-role-cafe-primary">print</span>
+<span>Reprint Slip</span>
+</button>
+<button class="h-[48px] rounded-full bg-role-cafe-action/20 text-role-cafe-ink hover:bg-role-cafe-action/30 font-label-action text-[13px] font-extrabold flex items-center justify-center gap-1 active:scale-95 transition-all" type="button">
+<span>View Details</span>
+<span class="material-symbols-outlined text-[17px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Bill Card 3 -->
+<article class="bg-surface rounded-DEFAULT p-3.5 shadow-sm flex flex-col gap-2.5 transition-all hover:bg-surface-bright">
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="font-headline-md text-[17px] text-role-cafe-ink font-extrabold tracking-tight">#ORD-082</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-tonal text-role-cafe-ink font-caption-meta text-[11px] font-bold">Table 3</span>
+<span class="text-ink-muted font-caption-meta text-[11px]">• Karthi</span>
+</div>
+<span class="font-caption-meta text-[11px] text-ink-muted">12:18:40 PM (42 mins ago)</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-info-sky/15 text-info-sky shrink-0">
+<span class="material-symbols-outlined text-[14px]">qr_code_2</span>
+<span class="font-caption-meta text-[11px] font-bold">Paid • PhonePe</span>
+</div>
+</div>
+<!-- Items List -->
+<div class="p-2.5 rounded-DEFAULT bg-surface-container-low flex flex-col gap-1">
+<div class="flex items-center justify-between font-caption-meta text-[11px] text-ink-muted font-bold">
+<span>3 items (8 units)</span>
+<span class="text-role-cafe-primary">Family Combo</span>
+</div>
+<p class="font-body-md text-[13px] leading-snug text-role-cafe-ink font-medium">
+          Mini Tiffin x 3, Poori Masala x 2, Kesari Badam Milk x 3
+        </p>
+</div>
+<!-- Net info -->
+<div class="flex items-center justify-between pt-0.5">
+<div class="flex flex-col">
+<span class="font-caption-meta text-[11px] text-ink-muted">Ref: PP-409184 • Table Cleared</span>
+</div>
+<div class="text-right">
+<span class="font-headline-md text-[18px] font-extrabold text-role-cafe-ink">₹920.00</span>
+</div>
+</div>
+<!-- Actions Slab -->
+<div class="grid grid-cols-2 gap-2 pt-1">
+<button class="h-[48px] rounded-full bg-surface-tonal text-role-cafe-ink hover:bg-surface-container-high font-label-action text-[13px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px] text-role-cafe-primary">print</span>
+<span>Reprint Slip</span>
+</button>
+<button class="h-[48px] rounded-full bg-role-cafe-action/20 text-role-cafe-ink hover:bg-role-cafe-action/30 font-label-action text-[13px] font-extrabold flex items-center justify-center gap-1 active:scale-95 transition-all" type="button">
+<span>View Details</span>
+<span class="material-symbols-outlined text-[17px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Bill Card 4 (Refunded / Voided) -->
+<article class="bg-surface rounded-DEFAULT p-3.5 shadow-sm flex flex-col gap-2.5 transition-all hover:bg-surface-bright">
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="font-headline-md text-[17px] text-role-cafe-ink font-extrabold tracking-tight">#ORD-081</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-tonal text-role-cafe-ink font-caption-meta text-[11px] font-bold">Table 2</span>
+<span class="text-ink-muted font-caption-meta text-[11px]">• Suresh</span>
+</div>
+<span class="font-caption-meta text-[11px] text-ink-muted">11:50:12 AM</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-critical-ruby/15 text-critical-ruby shrink-0">
+<span class="material-symbols-outlined text-[14px]">cancel</span>
+<div class="flex flex-col items-start leading-tight">
+<span class="font-caption-meta text-[11px] font-bold">Refunded</span>
+<span class="font-sublabel-regional text-[9px] leading-none">திருப்பப்பட்டது</span>
+</div>
+</div>
+</div>
+<!-- Items List -->
+<div class="p-2.5 rounded-DEFAULT bg-critical-ruby/5 flex flex-col gap-1">
+<div class="flex items-center justify-between font-caption-meta text-[11px] text-critical-ruby font-bold">
+<span>Returned Item • Manager PIN: Verified</span>
+<span>Reason: Cold Coffee</span>
+</div>
+<p class="font-body-md text-[13px] leading-snug text-role-cafe-ink/80 font-medium">
+          Mushroom Puff x 2, Kumbakonam Coffee x 4 (Void reversal)
+        </p>
+</div>
+<!-- Net info -->
+<div class="flex items-center justify-between pt-0.5">
+<div class="flex flex-col">
+<span class="font-caption-meta text-[11px] text-critical-ruby font-semibold">Reversed to Cash Drawer #02</span>
+</div>
+<div class="text-right">
+<span class="font-headline-md text-[18px] font-extrabold text-critical-ruby">-₹340.00</span>
+</div>
+</div>
+<!-- Actions Slab -->
+<div class="grid grid-cols-2 gap-2 pt-1">
+<button class="h-[48px] rounded-full bg-surface-tonal text-role-cafe-ink hover:bg-surface-container-high font-label-action text-[13px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px] text-critical-ruby">receipt_long</span>
+<span>Refund Voucher</span>
+</button>
+<button class="h-[48px] rounded-full bg-surface-tonal text-ink-muted hover:text-role-cafe-ink font-label-action text-[13px] font-bold flex items-center justify-center gap-1 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[17px]">shield</span>
+<span>Audit Log</span>
+</button>
+</div>
+</article>
+<!-- Bill Card 5 (Credit / Khata) -->
+<article class="bg-surface rounded-DEFAULT p-3.5 shadow-sm flex flex-col gap-2.5 transition-all hover:bg-surface-bright">
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="font-headline-md text-[17px] text-role-cafe-ink font-extrabold tracking-tight">#ORD-080</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-tonal text-role-cafe-ink font-caption-meta text-[11px] font-bold">Table 7</span>
+<span class="text-pending-honey font-caption-meta text-[11px] font-extrabold">• Dr. Rajan</span>
+</div>
+<span class="font-caption-meta text-[11px] text-ink-muted">11:32:05 AM</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-pending-honey/15 text-pending-honey shrink-0">
+<span class="material-symbols-outlined text-[14px]">book_online</span>
+<div class="flex flex-col items-start leading-tight">
+<span class="font-caption-meta text-[11px] font-bold">Credit / Khata</span>
+<span class="font-sublabel-regional text-[9px] leading-none">கடன் பதிவேடு</span>
+</div>
+</div>
+</div>
+<!-- Items List -->
+<div class="p-2.5 rounded-DEFAULT bg-surface-container-low flex flex-col gap-1">
+<div class="flex items-center justify-between font-caption-meta text-[11px] text-ink-muted font-bold">
+<span>2 items (6 units)</span>
+<span class="text-pending-honey">Khata Ledger #K-104</span>
+</div>
+<p class="font-body-md text-[13px] leading-snug text-role-cafe-ink font-medium">
+          Mysore Pak Box 500g x 2, Ghee Murukku 250g x 4
+        </p>
+</div>
+<!-- Net and Balance info -->
+<div class="flex items-center justify-between pt-0.5">
+<div class="flex flex-col">
+<span class="font-caption-meta text-[11px] text-pending-honey font-bold">Total Khata Balance: ₹2,450 Due</span>
+</div>
+<div class="text-right">
+<span class="font-headline-md text-[18px] font-extrabold text-role-cafe-ink">₹650.00</span>
+</div>
+</div>
+<!-- Actions Slab -->
+<div class="grid grid-cols-2 gap-2 pt-1">
+<button class="h-[48px] rounded-full bg-surface-tonal text-role-cafe-ink hover:bg-surface-container-high font-label-action text-[13px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px] text-money-mint">chat</span>
+<span>WhatsApp Slip</span>
+</button>
+<button class="h-[48px] rounded-full bg-role-cafe-action/20 text-role-cafe-ink hover:bg-role-cafe-action/30 font-label-action text-[13px] font-extrabold flex items-center justify-center gap-1 active:scale-95 transition-all" type="button">
+<span>View Details</span>
+<span class="material-symbols-outlined text-[17px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Interactive Empty State Element (Hidden by default, triggered on empty search) -->
+<div class="hidden bg-surface rounded-DEFAULT p-6 text-center shadow-sm flex flex-col items-center justify-center gap-2.5 my-2" id="noBillsState">
+<div class="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-role-cafe-primary">
+<span class="material-symbols-outlined text-[32px]">receipt_long</span>
+</div>
+<div class="flex flex-col items-center">
+<h4 class="font-headline-md text-[17px] font-extrabold text-role-cafe-ink">No bills matched</h4>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">பொருத்தமான பில்கள் எதுவும் கிடைக்கவில்லை</span>
+</div>
+<p class="font-body-md text-[13px] text-ink-muted max-w-[240px]">
+        Try adjusting your filter chip or check the bill sequence number.
+      </p>
+<button class="mt-2 px-5 py-2.5 rounded-full bg-role-cafe-action text-role-cafe-ink font-label-action text-[13px] font-extrabold active:scale-95 transition-all" id="resetSearchBtn" type="button">
+        Reset Search Filters
+      </button>
+</div>
+</section>
+<!-- Fiscal Verification & Day Reconcile Strip -->
+<section class="bg-surface rounded-DEFAULT p-4 shadow-sm flex flex-col gap-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-money-mint/15 text-money-mint flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">verified_user</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-body-lg text-[14px] font-extrabold text-role-cafe-ink">Shift #02 Sales Ledger Verified</span>
+</div>
+<span class="font-caption-meta text-[11px] text-ink-muted">142 local transactions synced to Cloud ERP &amp; Cash Box</span>
+</div>
+</div>
+<!-- Dual Actions -->
+<div class="flex flex-col gap-2 pt-1">
+<button class="w-full h-[52px] rounded-full bg-surface-tonal text-role-cafe-ink hover:bg-surface-container-high font-label-action text-[14px] font-bold flex items-center justify-center gap-2 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[19px] text-role-cafe-primary">download</span>
+<span>Download Day Register (PDF / CSV)</span>
+</button>
+<button class="w-full h-[56px] rounded-full bg-role-cafe-action text-role-cafe-ink hover:brightness-105 font-label-action text-[15px] font-extrabold flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]">account_balance</span>
+<span>Reconcile Drawer (C-04)</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</section>
+</div>
+<script>
+  (function initOrdersScreen() {
+    const searchInput = document.getElementById('billSearchInput');
+    const clearBtn = document.getElementById('clearSearchBtn');
+    const resetBtn = document.getElementById('resetSearchBtn');
+    const cards = document.querySelectorAll('#billsFeed article');
+    const emptyState = document.getElementById('noBillsState');
+
+    function applyFilter() {
+      const term = (searchInput.value || '').trim().toLowerCase();
+      let visibleCount = 0;
+
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        if (!term || text.includes(term)) {
+          card.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+
+      if (visibleCount === 0) {
+        emptyState.classList.remove('hidden');
+      } else {
+        emptyState.classList.add('hidden');
+      }
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', applyFilter);
+    }
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        if (searchInput) {
+          searchInput.value = '';
+          applyFilter();
+          searchInput.focus();
+        }
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        if (searchInput) {
+          searchInput.value = '';
+          applyFilter();
+        }
+      });
+    }
+
+    // Filter Chips toggling feedback
+    const filterChips = document.querySelectorAll('.filter-chip');
+    filterChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        filterChips.forEach(c => {
+          c.classList.remove('bg-role-cafe-action', 'text-role-cafe-ink', 'font-bold');
+          c.classList.add('bg-surface', 'text-ink-muted', 'font-semibold');
+        });
+        chip.classList.remove('bg-surface', 'text-ink-muted', 'font-semibold');
+        chip.classList.add('bg-role-cafe-action', 'text-role-cafe-ink', 'font-bold');
+      });
+    });
+
+    // Date Chips toggling feedback
+    const dateChips = document.querySelectorAll('.date-chip');
+    dateChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        dateChips.forEach(d => {
+          d.classList.remove('bg-role-cafe-primary', 'text-surface-container-lowest', 'shadow-md');
+          d.classList.add('bg-surface', 'text-ink-muted', 'shadow-sm');
+        });
+        chip.classList.remove('bg-surface', 'text-ink-muted', 'shadow-sm');
+        chip.classList.add('bg-role-cafe-primary', 'text-surface-container-lowest', 'shadow-md');
+      });
+    });
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe pointer-events-none px-margin" data-active-classes="text-role-cafe-primary font-bold"><div class="max-w-[390px] mx-auto mb-4 relative pointer-events-auto"><div class="relative h-[66px] rounded-full bg-[#FFFFFF]/95 backdrop-blur-xl border border-hairline/70 shadow-[0_12px_32px_-6px_rgba(43,27,20,0.12)] px-2 flex items-center justify-between" id="nav-container"><div class="absolute top-[8px] bottom-[8px] left-0 rounded-full bg-role-cafe-canvas border border-role-cafe-primary/25 shadow-sm pointer-events-none fluid-pill-spring opacity-0" id="fluid-indicator" style="width: 0px; transform: translateX(0px);"></div><a class="nav-tab relative z-10 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full transition-all duration-300 min-h-[44px] text-ink-muted hover:text-role-cafe-ink font-semibold group select-none active:scale-95" data-path="c-01-cafe-home-fluid-nav" data-tab="counter" href="#"><span class="material-symbols-outlined text-[20px] transition-transform duration-300 group-hover:scale-110">storefront</span><span class="font-caption-meta text-caption-meta">Counter</span></a><a aria-current="page" class="nav-tab relative z-10 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full transition-all duration-300 min-h-[44px] text-role-cafe-primary font-bold group select-none active:scale-95" data-path="c-10-orders-all-bills-and-transaction-log" data-tab="orders" href="#"><span class="material-symbols-outlined text-[20px] transition-transform duration-300 group-hover:scale-110">receipt_long</span><span class="font-caption-meta text-caption-meta">Orders</span></a><a class="nav-tab relative z-10 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full transition-all duration-300 min-h-[44px] text-ink-muted hover:text-role-cafe-ink font-semibold group select-none active:scale-95" data-path="c-04-cash-drawer-shift-settlement" data-tab="drawer" href="#"><span class="material-symbols-outlined text-[20px] transition-transform duration-300 group-hover:scale-110">point_of_sale</span><span class="font-caption-meta text-caption-meta">Drawer</span></a><a class="nav-tab relative z-10 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full transition-all duration-300 min-h-[44px] text-ink-muted hover:text-role-cafe-ink font-semibold group select-none active:scale-95" data-path="c-05-kitchen-live-display-kds" data-tab="kitchen" href="#"><span class="material-symbols-outlined text-[20px] transition-transform duration-300 group-hover:scale-110">skillet</span><span class="font-caption-meta text-caption-meta">Kitchen</span></a><a class="nav-tab relative z-10 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full transition-all duration-300 min-h-[44px] text-ink-muted hover:text-role-cafe-ink font-semibold group select-none active:scale-95" data-path="c-06-incharge-profile-me" data-tab="me" href="#"><span class="material-symbols-outlined text-[20px] transition-transform duration-300 group-hover:scale-110">person</span><span class="font-caption-meta text-caption-meta">Me</span></a></div></div></nav><script>(function initFluidNav(){const container=document.getElementById('nav-container');const indicator=document.getElementById('fluid-indicator');const tabs=document.querySelectorAll('.nav-tab');function updatePillPosition(activeTab,animate=true){if(!activeTab||!container||!indicator)return;const cRect=container.getBoundingClientRect();const tRect=activeTab.getBoundingClientRect();const leftOffset=tRect.left-cRect.left;const width=tRect.width;if(!animate){indicator.style.transition='none';}else{indicator.style.transition='transform 380ms cubic-bezier(0.34, 1.56, 0.64, 1), width 340ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 200ms ease';}indicator.style.width=width+'px';indicator.style.transform=`translateX(${leftOffset}px)`;indicator.style.opacity='1';if(!animate){requestAnimationFrame(()=>{indicator.style.transition='';});}}tabs.forEach(tab=>{tab.addEventListener('click',(e)=>{e.preventDefault();tabs.forEach(t=>{t.removeAttribute('aria-current');t.classList.remove('text-role-cafe-primary','font-bold');t.classList.add('text-ink-muted','font-semibold');});tab.setAttribute('aria-current','page');tab.classList.remove('text-ink-muted','font-semibold');tab.classList.add('text-role-cafe-primary','font-bold');updatePillPosition(tab,true);tab.classList.add('scale-105');setTimeout(()=>tab.classList.remove('scale-105'),220);});});window.addEventListener('load',()=>{const activeTab=document.querySelector('.nav-tab[aria-current="page"]')||tabs[1];updatePillPosition(activeTab,false);});window.addEventListener('resize',()=>{const activeTab=document.querySelector('.nav-tab[aria-current="page"]');if(activeTab)updatePillPosition(activeTab,false);});const currentActive=document.querySelector('.nav-tab[aria-current="page"]');if(currentActive){setTimeout(()=>updatePillPosition(currentActive,false),50);}})();</script></body></html>

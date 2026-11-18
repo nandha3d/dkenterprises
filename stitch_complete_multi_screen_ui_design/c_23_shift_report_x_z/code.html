@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-primary-fixed-variant": "#005046", "dark-surface-tonal": "#1F2E27", "primary-fixed-dim": "#8ed4c5", "surface-container-lowest": "#ffffff", "surface-bright": "#fbf9f4", "role-cafe-action": "#F4A62A", "dark-canvas": "#0E1512", "outline-variant": "#bec9c5", "surface": "#FFFFFF", "error": "#ba1a1a", "on-error-container": "#93000a", "secondary-fixed-dim": "#acd44f", "on-primary": "#ffffff", "ink": "#13201B", "surface-container-low": "#f5f3ee", "tertiary": "#00452a", "inverse-primary": "#8ed4c5", "tertiary-fixed-dim": "#61dda0", "inverse-on-surface": "#f2f1ec", "tertiary-fixed": "#7ffaba", "role-field-action": "#C9F36A", "on-secondary-container": "#506c00", "primary-container": "#0b5d52", "on-secondary-fixed": "#151f00", "surface-tint": "#1f695e", "on-tertiary-container": "#61dda0", "dark-ink-muted": "#93A39B", "on-tertiary-fixed-variant": "#005233", "background": "#fbf9f4", "on-background": "#1b1c19", "surface-variant": "#e4e2dd", "on-primary-container": "#8dd3c5", "dark-ink": "#EDF3EF", "primary-fixed": "#a9f0e1", "info-sky": "#2E90FA", "critical-ruby": "#D92D20", "role-driver-action": "#FFC933", "secondary": "#4c6700", "secondary-container": "#c5ee66", "dark-surface": "#17221D", "on-error": "#ffffff", "error-container": "#ffdad6", "surface-container": "#f0eee9", "role-cafe-primary": "#C2542D", "inverse-surface": "#30312e", "on-secondary": "#ffffff", "hairline": "#E3E1DA", "role-driver-primary": "#0E8FB3", "role-field-primary": "#3F7D58", "role-cafe-canvas": "#FBF4EA", "role-driver-canvas": "#F3F8FA", "tertiary-container": "#005f3c", "surface-dim": "#dcdad5", "on-tertiary-fixed": "#002112", "on-primary-fixed": "#00201b", "money-mint": "#1FA971", "on-secondary-fixed-variant": "#394e00", "role-cafe-ink": "#2B1B14", "on-tertiary": "#ffffff", "surface-tonal": "#ECEFEA", "secondary-fixed": "#c7f169", "pending-honey": "#E9A23B", "on-surface": "#1b1c19", "outline": "#6f7976", "money-coral": "#E8505B", "ink-muted": "#66736C", "on-surface-variant": "#3f4946", "primary": "#00443b", "surface-container-highest": "#e4e2dd", "surface-container-high": "#eae8e3" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "space-xs": "0.25rem", "space-xl": "1.5rem", "margin": "1rem", "space-lg": "1rem", "gutter": "0.75rem", "space-md": "0.75rem", "space-sm": "0.5rem" }, fontFamily: { "headline-md": ["Manrope"], "display-numeral-mobile": ["Manrope"], "caption-meta": ["Manrope"], "body-lg": ["Manrope"], "headline-lg": ["Manrope"], "display-numeral": ["Manrope"], "sublabel-regional": ["Noto Sans Tamil"], "label-action": ["Manrope"], "body-md": ["Manrope"] }, fontSize: { "headline-md": ["20px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "700" }], "display-numeral-mobile": ["40px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800" }], "caption-meta": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "600" }], "headline-lg": ["28px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "800" }], "display-numeral": ["48px", { lineHeight: "52px", letterSpacing: "-0.03em", fontWeight: "800" }], "sublabel-regional": ["11px", { lineHeight: "14px", fontWeight: "600" }], "label-action": ["16px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "700" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "500" }] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-role-cafe-canvas font-body-md text-role-cafe-ink flex flex-col min-h-screen antialiased"><header class="fixed top-0 w-full z-50 bg-role-cafe-canvas/90 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(43,27,20,0.04)]"><div class="h-20 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0 flex-1"><button aria-label="Back" class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-role-cafe-primary hover:bg-surface transition-colors active:scale-95" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[24px]">arrow_back_ios_new</span></button><div class="flex flex-col min-w-0 pr-space-xs"><div class="flex items-center gap-space-xs"><h1 class="font-headline-md text-headline-md text-role-cafe-ink truncate">Shift Report (X / Z)</h1></div><div class="flex items-center gap-space-xs"><span class="font-caption-meta text-caption-meta text-ink-muted truncate">Aran Cafe • Shift #02 Closing Audit</span><span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary hidden sm:inline truncate">அரண் காபே</span></div></div></div><div class="flex items-center gap-space-sm shrink-0"><div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E6F7F0] text-money-mint"><span class="material-symbols-outlined text-[14px]">check_circle</span><span class="font-caption-meta text-caption-meta">Synced ✓</span></div><button class="h-9 px-2.5 rounded-full bg-surface text-role-cafe-ink font-caption-meta text-caption-meta shadow-[0_1px_4px_rgba(43,27,20,0.06)] flex items-center gap-1 active:scale-95 transition-transform" type="button"><span class="font-bold text-role-cafe-primary">EN</span><span class="text-outline-variant">|</span><span class="font-sublabel-regional text-sublabel-regional">தமிழ்</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-20 px-margin pb-safe bg-role-cafe-canvas flex-1"><div class="flex flex-col w-full pb-8 space-y-space-md">
+<!-- Segmented Control: Report Scope -->
+<div class="w-full bg-surface-tonal p-1 rounded-full flex items-center justify-between">
+<button class="flex-1 py-2.5 rounded-full bg-role-cafe-primary text-surface font-label-action text-body-md flex items-center justify-center gap-1.5 transition-all shadow-sm" id="tab-z" onclick="switchReport('Z')" type="button">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span>Z-Report (Final Close)</span>
+<span class="font-sublabel-regional text-sublabel-regional opacity-90 hidden sm:inline">முடிவு அறிக்கை</span>
+</button>
+<button class="flex-1 py-2.5 rounded-full text-role-cafe-ink font-body-md text-body-md flex items-center justify-center gap-1.5 hover:text-role-cafe-primary transition-all" id="tab-x" onclick="switchReport('X')" type="button">
+<span class="material-symbols-outlined text-[18px]">timelapse</span>
+<span>X-Report (Interim)</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted hidden sm:inline">இடைக்கால ஆய்வு</span>
+</button>
+</div>
+<!-- Shift Metadata Banner -->
+<div class="w-full bg-surface rounded-DEFAULT p-space-md flex flex-col space-y-space-sm shadow-sm">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-md text-headline-md text-role-cafe-ink">Shift #02</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-tonal font-caption-meta text-caption-meta text-ink">Counter C-02</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-role-cafe-primary mt-0.5">Aran Cafe Main Branch • அரண் காபே முதன்மைக் கிளை</span>
+</div>
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E6F7F0] text-money-mint shrink-0">
+<span class="material-symbols-outlined text-[14px]">verified_user</span>
+<span class="font-caption-meta text-caption-meta">Fiscal Z-Audited</span>
+</div>
+</div>
+<!-- Details Grid -->
+<div class="grid grid-cols-2 gap-x-space-md gap-y-2 pt-2 bg-surface-container-low rounded-DEFAULT p-3">
+<div class="flex flex-col min-w-0">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Period &amp; Duration</span>
+<span class="font-body-md text-body-md text-role-cafe-ink truncate">Today, 12 Nov 2026</span>
+<span class="font-caption-meta text-caption-meta text-ink">07:02 AM - 03:00 PM <span class="text-role-cafe-primary font-bold">(7h 58m)</span></span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Cashier &amp; Manager</span>
+<span class="font-body-md text-body-md text-role-cafe-ink truncate">Priyan S. (#104)</span>
+<span class="font-caption-meta text-caption-meta text-ink truncate">Supv: Revathi S. (Branch Mgr)</span>
+</div>
+<div class="flex flex-col min-w-0 col-span-2 pt-1 border-t-0 border-surface">
+<div class="flex items-center justify-between font-caption-meta text-caption-meta text-ink-muted">
+<span class="truncate">Audit Seq: <strong class="text-role-cafe-ink">Z-20261112-002</strong></span>
+<span class="truncate">Till: <strong class="text-role-cafe-ink">HW-POS-TILL-02</strong></span>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink-muted truncate mt-0.5">GSTIN: <span class="font-mono text-ink">33AAAAA0000A1Z5</span></span>
+</div>
+</div>
+</div>
+<!-- Hero Summary Card (Terracotta #C2542D) -->
+<div class="w-full bg-role-cafe-primary text-surface rounded-lg p-space-lg flex flex-col space-y-space-md shadow-md relative overflow-hidden">
+<div class="flex items-start justify-between relative z-10">
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-surface/80 tracking-wider">TOTAL NET SHIFT TURNOVER</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-action">மொத்த ஷிப்ட் நிகர விற்பனை</span>
+</div>
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface/20 text-surface backdrop-blur-sm">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span class="font-caption-meta text-caption-meta font-bold">+14.2% vs yest.</span>
+</div>
+</div>
+<!-- Big Display Numeral -->
+<div class="flex items-baseline gap-1 relative z-10">
+<span class="font-display-numeral-mobile text-display-numeral-mobile tracking-tight text-surface">₹24,890.00</span>
+<span class="font-caption-meta text-caption-meta text-surface/75">INR (Net)</span>
+</div>
+<!-- Bento micro-KPI row (3 tiles) -->
+<div class="grid grid-cols-3 gap-2 pt-2 relative z-10">
+<div class="bg-black/15 rounded-DEFAULT p-2.5 flex flex-col justify-between">
+<span class="font-caption-meta text-caption-meta text-surface/80 truncate">Total Orders</span>
+<span class="font-headline-md text-headline-md text-surface leading-tight mt-1">142</span>
+<span class="font-sublabel-regional text-sublabel-regional text-surface/75 truncate mt-0.5">Dine 88 • Take 54</span>
+</div>
+<div class="bg-black/15 rounded-DEFAULT p-2.5 flex flex-col justify-between">
+<span class="font-caption-meta text-caption-meta text-surface/80 truncate">Average (AOV)</span>
+<span class="font-headline-md text-headline-md text-surface leading-tight mt-1">₹175.28</span>
+<span class="font-sublabel-regional text-sublabel-regional text-surface/75 truncate mt-0.5">சராசரி பில்</span>
+</div>
+<div class="bg-surface rounded-DEFAULT p-2.5 flex flex-col justify-between text-ink">
+<span class="font-caption-meta text-caption-meta text-ink-muted truncate">Drawer Variance</span>
+<span class="font-headline-md text-headline-md text-money-mint leading-tight mt-1">₹0.00</span>
+<span class="font-caption-meta text-caption-meta text-money-mint font-bold truncate mt-0.5">Balanced ✓</span>
+</div>
+</div>
+</div>
+<!-- Tender Breakdown Card -->
+<div class="w-full bg-surface rounded-DEFAULT p-space-md flex flex-col space-y-space-sm shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px] text-role-cafe-primary">payments</span>
+<h2 class="font-headline-md text-headline-md text-role-cafe-ink">Payment Tender Audit</h2>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary">கட்டண முறை விற்பனை விவரம்</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink-muted">4 Methods</span>
+</div>
+<!-- Segmented Tender Proportion Bar -->
+<div class="w-full flex flex-col space-y-1.5 pt-1">
+<div class="h-3 w-full bg-surface-tonal rounded-full flex overflow-hidden">
+<div class="h-full bg-info-sky" style="width: 66%;" title="UPI: 66%"></div>
+<div class="h-full bg-money-mint" style="width: 31.4%;" title="Cash: 31.4%"></div>
+<div class="h-full bg-pending-honey" style="width: 2.6%;" title="Credit/Khata: 2.6%"></div>
+</div>
+<div class="flex items-center justify-between font-caption-meta text-caption-meta text-ink-muted px-0.5">
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-info-sky"></span>UPI 66%</span>
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-money-mint"></span>Cash 34%</span>
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-pending-honey"></span>Khata 2.6%</span>
+</div>
+</div>
+<!-- Tender Breakdown Items -->
+<div class="divide-y-0 space-y-2 pt-1">
+<!-- UPI -->
+<div class="flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-9 h-9 rounded-full bg-[#EBF5FB] text-info-sky flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">qr_code_scanner</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-role-cafe-ink truncate">Instant UPI / QR (Razorpay)</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">82 Bills (66.0% share) • Verified Online ✓</span>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-extrabold">₹16,420.00</span>
+<span class="font-caption-meta text-caption-meta text-money-mint">Direct Bank A/c</span>
+</div>
+</div>
+<!-- Cash -->
+<div class="flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-9 h-9 rounded-full bg-[#E6F7F0] text-money-mint flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">point_of_sale</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-role-cafe-ink truncate">Cash Tender (In Drawer)</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">54 Bills (34.0% share) • Auto-settled GL1010</span>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-extrabold">₹8,470.00</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Physical Count OK</span>
+</div>
+</div>
+<!-- Customer Khata -->
+<div class="flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-9 h-9 rounded-full bg-[#FDF5E8] text-pending-honey flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-role-cafe-ink truncate">Customer Khata / Tab</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">4 Bills (VIP Table Accounts) • Posted to AR</span>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-extrabold">₹650.00</span>
+<span class="font-caption-meta text-caption-meta text-pending-honey">AR Ledger Posted</span>
+</div>
+</div>
+<!-- Card Swipes -->
+<div class="flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low opacity-60">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-9 h-9 rounded-full bg-surface-tonal text-ink-muted flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">credit_card</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-role-cafe-ink truncate">Card Swipes (PineLabs)</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">0 Bills • Till Reader inactive</span>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-extrabold">₹0.00</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Nil Settlement</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Department / Category Sales Performance -->
+<div class="w-full bg-surface rounded-DEFAULT p-space-md flex flex-col space-y-space-sm shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px] text-role-cafe-primary">pie_chart</span>
+<h2 class="font-headline-md text-headline-md text-role-cafe-ink">Category Sales Performance</h2>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary">பிரிவு வாரியான விற்பனை விவரம்</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-role-cafe-primary font-bold">4 Categories</span>
+</div>
+<div class="space-y-2.5 pt-1">
+<!-- Bakery & Buns -->
+<div class="p-3 rounded-DEFAULT bg-surface-container-low flex flex-col space-y-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-role-cafe-primary"></span>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">Bakery &amp; Fresh Buns</span>
+</div>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-extrabold">₹9,850.00</span>
+</div>
+<div class="flex items-center justify-between font-caption-meta text-caption-meta text-ink-muted">
+<span class="truncate">78 Units (Choco Hazelnut Bun, Croissant, Milk Bun)</span>
+<span class="font-bold text-role-cafe-ink shrink-0 pl-1">39.6% Rev</span>
+</div>
+<div class="w-full bg-surface h-2 rounded-full overflow-hidden">
+<div class="bg-role-cafe-primary h-full" style="width: 39.6%;"></div>
+</div>
+</div>
+<!-- Beverages & Filter Coffee -->
+<div class="p-3 rounded-DEFAULT bg-surface-container-low flex flex-col space-y-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-role-cafe-action"></span>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">Beverages &amp; Madras Coffee</span>
+</div>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-extrabold">₹8,640.00</span>
+</div>
+<div class="flex items-center justify-between font-caption-meta text-caption-meta text-ink-muted">
+<span class="truncate">164 Cups (Madras Filter Coffee, Tea, Cold Brew)</span>
+<span class="font-bold text-role-cafe-ink shrink-0 pl-1">34.7% Rev</span>
+</div>
+<div class="w-full bg-surface h-2 rounded-full overflow-hidden">
+<div class="bg-role-cafe-action h-full" style="width: 34.7%;"></div>
+</div>
+</div>
+<!-- Hot Snacks & Savouries -->
+<div class="p-3 rounded-DEFAULT bg-surface-container-low flex flex-col space-y-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-money-mint"></span>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">Hot Snacks &amp; Savouries</span>
+</div>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-extrabold">₹4,180.00</span>
+</div>
+<div class="flex items-center justify-between font-caption-meta text-caption-meta text-ink-muted">
+<span class="truncate">86 Plates (Veg Samosa, Puff, Cutlet)</span>
+<span class="font-bold text-role-cafe-ink shrink-0 pl-1">16.8% Rev</span>
+</div>
+<div class="w-full bg-surface h-2 rounded-full overflow-hidden">
+<div class="bg-money-mint h-full" style="width: 16.8%;"></div>
+</div>
+</div>
+<!-- Packaged & Bottled -->
+<div class="p-3 rounded-DEFAULT bg-surface-container-low flex flex-col space-y-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-info-sky"></span>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">Packaged &amp; Bottled</span>
+</div>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-extrabold">₹2,220.00</span>
+</div>
+<div class="flex items-center justify-between font-caption-meta text-caption-meta text-ink-muted">
+<span class="truncate">74 Bottles (DK Waters 500ml, Fresh Juice)</span>
+<span class="font-bold text-role-cafe-ink shrink-0 pl-1">8.9% Rev</span>
+</div>
+<div class="w-full bg-surface h-2 rounded-full overflow-hidden">
+<div class="bg-info-sky h-full" style="width: 8.9%;"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Top 5 Counter Best-Sellers -->
+<div class="w-full bg-surface rounded-DEFAULT p-space-md flex flex-col space-y-space-sm shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px] text-role-cafe-action" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<h2 class="font-headline-md text-headline-md text-role-cafe-ink">Top 5 Best-Sellers</h2>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary">அதிகம் விற்பனையான பொருட்கள்</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Ranked by Vol.</span>
+</div>
+<!-- Ranked List -->
+<div class="space-y-2 pt-1">
+<!-- 1 -->
+<div class="flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low">
+<div class="flex items-center gap-3 min-w-0">
+<span class="w-7 h-7 rounded-full bg-role-cafe-primary text-surface font-headline-md text-caption-meta flex items-center justify-center shrink-0">1</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-role-cafe-ink font-bold truncate">Madras Filter Coffee</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">142 cups served</span>
+</div>
+</div>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-extrabold shrink-0 pl-2">₹4,970</span>
+</div>
+<!-- 2 -->
+<div class="flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low">
+<div class="flex items-center gap-3 min-w-0">
+<span class="w-7 h-7 rounded-full bg-role-cafe-action text-role-cafe-ink font-headline-md text-caption-meta flex items-center justify-center shrink-0 font-bold">2</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-role-cafe-ink font-bold truncate">Choco Hazelnut Bun</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">58 units sold</span>
+</div>
+</div>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-extrabold shrink-0 pl-2">₹4,060</span>
+</div>
+<!-- 3 -->
+<div class="flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low">
+<div class="flex items-center gap-3 min-w-0">
+<span class="w-7 h-7 rounded-full bg-surface-tonal text-ink font-headline-md text-caption-meta flex items-center justify-center shrink-0 font-bold">3</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-role-cafe-ink font-bold truncate">Veg Samosa (2 pcs)</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">44 plates sold</span>
+</div>
+</div>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-extrabold shrink-0 pl-2">₹2,200</span>
+</div>
+<!-- 4 -->
+<div class="flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low">
+<div class="flex items-center gap-3 min-w-0">
+<span class="w-7 h-7 rounded-full bg-surface-tonal text-ink font-headline-md text-caption-meta flex items-center justify-center shrink-0 font-bold">4</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-role-cafe-ink font-bold truncate">Paneer Tikka Puff</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">36 units sold</span>
+</div>
+</div>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-extrabold shrink-0 pl-2">₹1,800</span>
+</div>
+<!-- 5 -->
+<div class="flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low">
+<div class="flex items-center gap-3 min-w-0">
+<span class="w-7 h-7 rounded-full bg-surface-tonal text-ink font-headline-md text-caption-meta flex items-center justify-center shrink-0 font-bold">5</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-role-cafe-ink font-bold truncate">Classic Milk Bun</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">32 units sold</span>
+</div>
+</div>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-extrabold shrink-0 pl-2">₹960</span>
+</div>
+</div>
+</div>
+<!-- Deductions, Discounts & Wastage Fiscal Audit -->
+<div class="w-full bg-surface rounded-DEFAULT p-space-md flex flex-col space-y-space-sm shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px] text-role-cafe-primary">calculate</span>
+<h2 class="font-headline-md text-headline-md text-role-cafe-ink">Fiscal Net Breakdown</h2>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary">வரி &amp; கழிவுகள் கணக்கு விவரம்</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink-muted font-mono">GST COMPLIANT</span>
+</div>
+<div class="bg-surface-container-low rounded-DEFAULT p-3 space-y-2">
+<!-- Gross -->
+<div class="flex items-center justify-between">
+<span class="font-body-md text-body-md text-ink">Gross Menu Sales</span>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">₹26,140.00</span>
+</div>
+<!-- Courtesy Discounts -->
+<div class="flex items-center justify-between text-money-coral">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md">Staff &amp; VIP Courtesy (10%)</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">14 discounted bills</span>
+</div>
+<span class="font-body-md text-body-md font-bold">-₹980.00</span>
+</div>
+<!-- Coupons -->
+<div class="flex items-center justify-between text-money-coral">
+<span class="font-body-md text-body-md">Promotional Coupon Discounts</span>
+<span class="font-body-md text-body-md font-bold">-₹270.00</span>
+</div>
+<!-- Voids/Refunds -->
+<div class="flex items-center justify-between text-money-coral">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md">Refunds / Voids Processed</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Bill #ORD-084 • Auth: Revathi MGR</span>
+</div>
+<span class="font-body-md text-body-md font-bold">-₹245.00</span>
+</div>
+<!-- Petty Cash Expenses -->
+<div class="flex items-center justify-between text-money-coral">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md">Cafe Petty Cash from Till</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">2 vouchers: fresh emergency milk &amp; ice</span>
+</div>
+<span class="font-body-md text-body-md font-bold">-₹340.00</span>
+</div>
+<!-- Taxable subtotal -->
+<div class="pt-2 flex items-center justify-between bg-surface rounded px-2.5 py-1.5 text-role-cafe-ink font-bold">
+<span class="font-body-md text-body-md">Net Taxable Sales</span>
+<span class="font-body-lg text-body-lg">₹24,305.00</span>
+</div>
+<!-- GST details -->
+<div class="grid grid-cols-2 gap-2 pt-1 text-ink-muted font-caption-meta text-caption-meta">
+<div class="flex justify-between bg-surface/60 p-2 rounded">
+<span>Central GST (CGST 2.5%)</span>
+<span class="font-bold text-role-cafe-ink">₹292.50</span>
+</div>
+<div class="flex justify-between bg-surface/60 p-2 rounded">
+<span>State GST (SGST 2.5%)</span>
+<span class="font-bold text-role-cafe-ink">₹292.50</span>
+</div>
+</div>
+<!-- Net Rounded Shift Revenue -->
+<div class="mt-2 pt-2 border-t border-surface-variant flex items-center justify-between text-role-cafe-primary font-headline-md text-headline-md">
+<span>Net Shift Revenue</span>
+<span class="text-role-cafe-primary">₹24,890.00</span>
+</div>
+</div>
+</div>
+<!-- Cash Drawer Shift Reconciliation Snapshot -->
+<div class="w-full bg-surface rounded-DEFAULT p-space-md flex flex-col space-y-space-sm shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px] text-money-mint">inventory_2</span>
+<h2 class="font-headline-md text-headline-md text-role-cafe-ink">Drawer Reconciliation</h2>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary">பணப்பெட்டி சமரசம் &amp; ஒப்படைப்பு</span>
+</div>
+<div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-caption-meta font-bold">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span>Exact Match</span>
+</div>
+</div>
+<!-- Tonal Audit Table -->
+<div class="bg-surface-container-low rounded-DEFAULT p-3 space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-body-md text-body-md text-ink-muted">Opening Base Float (07:02 AM)</span>
+<span class="font-body-md text-body-md text-role-cafe-ink font-bold">₹5,000.00</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-body-md text-body-md text-ink-muted">Net Cash Added (Tender Sales - Petty Cash)</span>
+<span class="font-body-md text-body-md text-money-mint font-bold">+₹7,885.00</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-body-md text-body-md text-ink-muted">Expected System Till Balance</span>
+<span class="font-body-md text-body-md text-role-cafe-ink font-bold">₹12,885.00</span>
+</div>
+<div class="flex items-center justify-between bg-surface p-2 rounded">
+<span class="font-body-md text-body-md text-ink font-bold">Final Physical Till Count</span>
+<span class="font-headline-md text-headline-md text-role-cafe-ink font-extrabold">₹12,885.00</span>
+</div>
+<div class="flex items-center justify-between text-money-mint font-bold px-1">
+<span class="font-caption-meta text-caption-meta">Drawer Discrepancy Variance</span>
+<span class="font-body-md text-body-md">₹0.00 (Perfect Balanced ✓)</span>
+</div>
+</div>
+<!-- Handover & Safe Allocation -->
+<div class="grid grid-cols-2 gap-2 pt-1">
+<div class="bg-[#FBF4EA] p-2.5 rounded-DEFAULT flex flex-col justify-between">
+<span class="font-caption-meta text-caption-meta text-role-cafe-primary font-bold">Safe Deposit Handover</span>
+<span class="font-headline-md text-headline-md text-role-cafe-ink mt-1">₹7,885.00</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted truncate mt-0.5">Seal Bag #AK-8921 → Revathi</span>
+</div>
+<div class="bg-surface-tonal p-2.5 rounded-DEFAULT flex flex-col justify-between">
+<span class="font-caption-meta text-caption-meta text-ink-muted font-bold">Retained Base Float</span>
+<span class="font-headline-md text-headline-md text-role-cafe-ink mt-1">₹5,000.00</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted truncate mt-0.5">Locked in Till #02 for Shift #03</span>
+</div>
+</div>
+</div>
+<!-- Fiscal Digital Seal & Compliance Footnote -->
+<div class="w-full bg-surface-container-low rounded-DEFAULT p-3.5 flex flex-col space-y-2">
+<div class="flex items-start gap-3">
+<!-- QR Stamp Placeholder -->
+<div class="w-14 h-14 bg-surface rounded-DEFAULT flex flex-col items-center justify-center p-1 shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[32px] text-role-cafe-ink">qr_code_2</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1 text-money-mint font-bold font-caption-meta text-caption-meta">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+<span>Govt. Digital Fiscal Signature Verified</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink-muted font-mono truncate mt-0.5">
+          SHA256: e9b872c0a37fbc8499de61445102ab3c4182f
+        </span>
+<span class="font-caption-meta text-caption-meta text-ink truncate mt-0.5">
+          ERP Sync: GL1010 (Till) • GL1015 (Vault) • GL4000 (Sales)
+        </span>
+</div>
+</div>
+</div>
+<!-- Pinned Bottom Action Zone -->
+<div class="w-full pt-2 flex flex-col space-y-2.5">
+<!-- Primary Saffron Action Slab (56px) -->
+<button class="w-full h-14 min-h-[56px] rounded-full bg-role-cafe-action text-role-cafe-ink font-label-action text-label-action flex items-center justify-center gap-2 active:scale-98 transition-transform shadow-md" onclick="triggerThermalPrint()" type="button">
+<span class="material-symbols-outlined text-[22px]">print</span>
+<span>Print Full Shift Z-Slip (அறிக்கை அச்சிடு)</span>
+</button>
+<!-- Secondary Split Row (52px targets) -->
+<div class="grid grid-cols-2 gap-2">
+<button class="h-12 min-h-[48px] rounded-full bg-surface text-role-cafe-ink font-body-md text-body-md flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-transform" onclick="shareReportPdf()" type="button">
+<span class="material-symbols-outlined text-[18px] text-role-cafe-primary">picture_as_pdf</span>
+<span>Share PDF</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">பகிர்</span>
+</button>
+<button class="h-12 min-h-[48px] rounded-full bg-surface text-role-cafe-ink font-body-md text-body-md flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-transform" onclick="exportReportCsv()" type="button">
+<span class="material-symbols-outlined text-[18px] text-role-cafe-primary">table_view</span>
+<span>Export CSV (.xls)</span>
+</button>
+</div>
+<!-- Handover Forward Action -->
+<button class="w-full py-3 rounded-full bg-surface-tonal text-role-cafe-primary font-body-md text-body-md font-bold flex items-center justify-center gap-1.5 active:scale-98 transition-transform mt-1" onclick="window.location.href='#c24-handover'" type="button">
+<span>Proceed to Handover Receipt (C-24)</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Client-side Interactive Behavior -->
+<script>
+  function switchReport(type) {
+    const btnZ = document.getElementById('tab-z');
+    const btnX = document.getElementById('tab-x');
+    if (type === 'Z') {
+      btnZ.className = "flex-1 py-2.5 rounded-full bg-role-cafe-primary text-surface font-label-action text-body-md flex items-center justify-center gap-1.5 transition-all shadow-sm";
+      btnX.className = "flex-1 py-2.5 rounded-full text-role-cafe-ink font-body-md text-body-md flex items-center justify-center gap-1.5 hover:text-role-cafe-primary transition-all";
+    } else {
+      btnX.className = "flex-1 py-2.5 rounded-full bg-role-cafe-action text-role-cafe-ink font-label-action text-body-md flex items-center justify-center gap-1.5 transition-all shadow-sm";
+      btnZ.className = "flex-1 py-2.5 rounded-full text-role-cafe-ink font-body-md text-body-md flex items-center justify-center gap-1.5 hover:text-role-cafe-primary transition-all";
+    }
+  }
+
+  function triggerThermalPrint() {
+    const toast = document.createElement('div');
+    toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 bg-role-cafe-ink text-surface px-4 py-2.5 rounded-full font-body-md text-body-md shadow-xl flex items-center gap-2 z-50';
+    toast.innerHTML = '<span class="material-symbols-outlined text-money-mint text-[18px]">print</span> Sending 80mm Z-Slip to HW-POS-TILL-02...';
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.remove(); }, 2500);
+  }
+
+  function shareReportPdf() {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Aran Cafe - Shift 02 Z-Report',
+        text: 'Fiscal closing audit report for Shift #02 (12 Nov 2026)',
+        url: window.location.href,
+      }).catch(() => {});
+    } else {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 bg-role-cafe-ink text-surface px-4 py-2.5 rounded-full font-body-md text-body-md shadow-xl flex items-center gap-2 z-50';
+      toast.innerHTML = '<span class="material-symbols-outlined text-info-sky text-[18px]">download</span> PDF Audit Export Ready';
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.remove(); }, 2000);
+    }
+  }
+
+  function exportReportCsv() {
+    const toast = document.createElement('div');
+    toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 bg-role-cafe-ink text-surface px-4 py-2.5 rounded-full font-body-md text-body-md shadow-xl flex items-center gap-2 z-50';
+    toast.innerHTML = '<span class="material-symbols-outlined text-money-mint text-[18px]">check_circle</span> GL Export CSV Generated';
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.remove(); }, 2000);
+  }
+</script></main></body></html>

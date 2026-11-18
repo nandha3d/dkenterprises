@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "ink-muted": "#66736C", "on-primary-fixed": "#00201b", "inverse-surface": "#30312e", "critical-ruby": "#D92D20", "surface": "#FFFFFF", "surface-container-high": "#eae8e3", "on-secondary-fixed-variant": "#394e00", "secondary-container": "#c5ee66", "on-tertiary": "#ffffff", "primary-container": "#0b5d52", "role-driver-action": "#FFC933", "error": "#ba1a1a", "hairline": "#E3E1DA", "surface-bright": "#fbf9f4", "on-error": "#ffffff", "on-error-container": "#93000a", "surface-variant": "#e4e2dd", "role-cafe-action": "#F4A62A", "surface-container-low": "#f5f3ee", "pending-honey": "#E9A23B", "money-coral": "#E8505B", "role-field-action": "#C9F36A", "on-surface-variant": "#3f4946", "surface-tint": "#1f695e", "surface-container-highest": "#e4e2dd", "on-primary-container": "#8dd3c5", "role-driver-primary": "#0E8FB3", "secondary-fixed-dim": "#acd44f", "dark-canvas": "#0E1512", "money-mint": "#1FA971", "role-cafe-ink": "#2B1B14", "primary-fixed-dim": "#8ed4c5", "role-field-primary": "#3F7D58", "on-primary": "#ffffff", "on-tertiary-fixed": "#002112", "secondary": "#4c6700", "ink": "#13201B", "inverse-primary": "#8ed4c5", "surface-dim": "#dcdad5", "role-cafe-primary": "#C2542D", "on-tertiary-fixed-variant": "#005233", "surface-container": "#f0eee9", "role-driver-canvas": "#F3F8FA", "info-sky": "#2E90FA", "on-secondary-container": "#506c00", "role-cafe-canvas": "#FBF4EA", "tertiary-fixed": "#7ffaba", "on-background": "#1b1c19", "dark-ink": "#EDF3EF", "background": "#fbf9f4", "on-primary-fixed-variant": "#005046", "secondary-fixed": "#c7f169", "on-tertiary-container": "#61dda0", "outline": "#6f7976", "tertiary-fixed-dim": "#61dda0", "primary-fixed": "a9f0e1", "dark-ink-muted": "#93A39B", "primary": "#00443b", "surface-container-lowest": "#ffffff", "tertiary": "#00452a", "on-surface": "#1b1c19", "outline-variant": "#bec9c5", "dark-surface-tonal": "#1F2E27", "on-secondary": "#ffffff", "inverse-on-surface": "#f2f1ec", "on-secondary-fixed": "#151f00", "dark-surface": "#17221D", "tertiary-container": "#005f3c", "surface-tonal": "#ECEFEA", "error-container": "#ffdad6" }, "borderRadius": { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, "spacing": { "space-xs": "0.25rem", "margin": "1rem", "space-lg": "1rem", "space-sm": "0.5rem", "space-md": "0.75rem", "space-xl": "1.5rem", "gutter": "0.75rem" }, "fontFamily": { "sublabel-regional": ["Noto Sans Tamil"], "label-action": ["Manrope"], "body-lg": ["Manrope"], "display-numeral": ["Manrope"], "caption-meta": ["Manrope"], "headline-lg": ["Manrope"], "display-numeral-mobile": ["Manrope"], "body-md": ["Manrope"], "headline-md": ["Manrope"] }, "fontSize": { "sublabel-regional": ["11px", { "lineHeight": "14px", "fontWeight": "600" }], "label-action": ["16px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "display-numeral": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "caption-meta": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "display-numeral-mobile": ["40px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }], "headline-md": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "700" }] } } } };</script><style>@layer base { html, body { min-height: 100%; margin: 0; padding: 0; background-color: #F3F8FA; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } } .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 24; }</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-role-driver-canvas text-ink antialiased flex flex-col min-h-screen selection:bg-role-driver-action selection:text-ink"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(19,32,27,0.04)]"><div class="h-20 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><button aria-label="Go Back" class="w-12 h-12 rounded-full flex items-center justify-center text-ink active:scale-95 transition-transform shrink-0" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><div class="flex flex-col min-w-0"><div class="flex items-baseline gap-1.5 truncate"><h1 class="font-headline-md text-headline-md text-ink truncate">Tasks &amp; Outbox</h1></div><span class="font-sublabel-regional text-sublabel-regional text-ink-muted truncate tracking-normal">பணிகள் &amp; ஆஃப்லைன் பெட்டகம்</span></div></div><div class="flex items-center gap-space-sm shrink-0"><div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E6F7F0] text-money-mint"><span class="material-symbols-outlined text-[16px]">cloud_done</span><span class="font-caption-meta text-caption-meta font-bold tracking-wider uppercase">Synced</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full px-margin pt-20 pb-28 bg-role-driver-canvas"><div class="flex flex-col w-full gap-space-md">
+<!-- Floating Urgent Assistance / Support Bar -->
+<div class="flex items-center justify-between bg-surface rounded-DEFAULT p-space-sm shadow-[0_2px_8px_rgba(19,32,27,0.04)]">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-full bg-[#E6F7F0] flex items-center justify-center text-money-mint shrink-0">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">cloud_done</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-caption-meta font-bold text-ink flex items-center gap-1">
+          Vault Online • Synced
+        </span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">சேமிப்பு இணைக்கப்பட்டது</span>
+</div>
+</div>
+<a aria-label="Emergency SOS call" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FDECEE] text-critical-ruby active:scale-95 transition-transform" href="tel:108">
+<span class="material-symbols-outlined text-[18px]">emergency</span>
+<span class="font-caption-meta text-caption-meta font-extrabold uppercase tracking-wider">SOS Help</span>
+</a>
+</div>
+<!-- SECTION 1: Driver Profile Hero Card (Aqua #0E8FB3) -->
+<section class="bg-role-driver-primary text-on-primary rounded-lg p-space-lg flex flex-col gap-space-md relative overflow-hidden shadow-[0_8px_20px_-6px_rgba(14,143,179,0.35)]">
+<!-- Atmospheric Tone Ring -->
+<div class="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-surface/10 pointer-events-none blur-xl"></div>
+<!-- Top Row: Avatar & Badges -->
+<div class="flex items-start gap-space-md relative z-10">
+<div class="relative shrink-0">
+<img class="w-20 h-20 rounded-full object-cover shadow-[0_4px_12px_rgba(0,0,0,0.18)]" data-alt="A rugged Indian delivery driver in his late 30s wearing a blue clean cap and uniform shirt smiling confidently with sunny morning logistics depot warehouse in soft-focus background, highly detailed documentary photography, crisp lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAngE5E_rtfKcR9LDCPO7ksu9HHIUE-qk0K6NSUuvKnzJOzNQDfBbf6F0rI-qQIOo5wAsQTEprDBSNCvLuGvnOsSoEqOziyXllrDSU60XkdnvGRn1NB9YOjVhV0qzMMezx0VAph5TZTl1ebve52KDKIEnxSqnda13jUxOd3GlKWQVBfcDgQ_LoCuOxJVM4mg0OndEme7gFPfKlctCsXB7VDDdd1DL540SPnzaeRJus"/>
+<div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-role-driver-action text-ink flex items-center justify-center font-bold text-[14px] shadow-sm">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center gap-1.5">
+<h2 class="font-headline-md text-headline-md font-extrabold text-on-primary truncate">R. Muthu</h2>
+<span class="font-sublabel-regional text-sublabel-regional text-white/80 shrink-0">ஆர். முத்து</span>
+</div>
+<div class="inline-flex items-center gap-1 mt-0.5">
+<span class="font-caption-meta text-caption-meta font-bold bg-white/15 px-2 py-0.5 rounded text-white tracking-wide">
+            Senior Route Driver • DRV-042
+          </span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-white/70 mt-0.5">முதுநிலை ஓட்டுநர் • பெண்டக பகுதி</span>
+<div class="flex items-center gap-1.5 mt-2 text-white/95">
+<span class="material-symbols-outlined text-[16px] text-role-driver-action">phone</span>
+<span class="font-body-md text-body-md font-semibold tracking-wide">+91 98421 88410</span>
+<span class="inline-flex items-center text-[13px] text-[#A9F0E1]">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</span>
+</div>
+</div>
+</div>
+<!-- Sub-info: Depot & RO Plant -->
+<div class="flex items-center gap-2 bg-black/15 px-3 py-2 rounded-DEFAULT relative z-10 text-white/90">
+<span class="material-symbols-outlined text-[18px] text-role-driver-action shrink-0">warehouse</span>
+<div class="flex flex-col min-w-0">
+<span class="font-caption-meta text-caption-meta font-bold truncate">DK Waters • Perundurai Main Depot</span>
+<span class="font-sublabel-regional text-[10px] text-white/75 truncate">பெருந்துறை முதன்மை கிடங்கு (RO Plant #1)</span>
+</div>
+</div>
+<!-- Quick Stats Metric Strip (3 Pills) -->
+<div class="grid grid-cols-3 gap-2 relative z-10 pt-1">
+<!-- Duty Status -->
+<div class="bg-surface rounded-DEFAULT p-2 flex flex-col items-center justify-center text-center">
+<div class="flex items-center gap-1 mb-0.5">
+<span class="w-2 h-2 rounded-full bg-money-mint animate-pulse"></span>
+<span class="font-caption-meta text-[10px] font-extrabold uppercase text-money-mint tracking-wider">ON DUTY</span>
+</div>
+<span class="font-headline-md text-[15px] font-extrabold text-ink leading-tight">07:15 AM</span>
+<span class="font-sublabel-regional text-[9px] text-ink-muted">பணி தொடக்கம்</span>
+</div>
+<!-- Safe Deliveries -->
+<div class="bg-surface rounded-DEFAULT p-2 flex flex-col items-center justify-center text-center">
+<span class="font-caption-meta text-[10px] font-bold text-ink-muted uppercase tracking-wider">SAFE CANS</span>
+<span class="font-headline-md text-[15px] font-extrabold text-ink leading-tight">14,820</span>
+<span class="font-sublabel-regional text-[9px] text-ink-muted">மொத்த கேன்கள்</span>
+</div>
+<!-- Driver Rating -->
+<div class="bg-surface rounded-DEFAULT p-2 flex flex-col items-center justify-center text-center">
+<div class="flex items-center gap-0.5 text-role-driver-action mb-0.5">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-caption-meta text-[10px] font-bold text-ink uppercase tracking-wider">RATING</span>
+</div>
+<span class="font-headline-md text-[15px] font-extrabold text-ink leading-tight">4.9<span class="text-[11px] font-semibold text-ink-muted">/5</span></span>
+<span class="font-sublabel-regional text-[9px] text-ink-muted">ஓட்டுநர் மதிப்பீடு</span>
+</div>
+</div>
+</section>
+<!-- SECTION 2: Assigned Vehicle Card (வண்டி விவரங்கள்) -->
+<section class="bg-surface rounded-lg p-space-lg flex flex-col gap-space-md shadow-[0_2px_12px_rgba(19,32,27,0.03)]">
+<!-- Section Header -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-[#EBF5F8] text-role-driver-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">local_shipping</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md font-bold text-ink">Assigned Vehicle</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">ஒதுக்கப்பட்ட வண்டி விவரங்கள்</span>
+</div>
+</div>
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-[11px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-money-mint"></span> Active Fit
+      </div>
+</div>
+<!-- Vehicle Visual & Number Plate Identity Row -->
+<div class="flex items-center gap-space-md bg-surface-tonal p-space-md rounded-DEFAULT">
+<div class="w-24 h-16 rounded-DEFAULT bg-surface flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+<img class="w-full h-full object-cover" data-alt="Technical side view product photo of a white commercial mini truck Tata Ace with blue DK Waters mineral water cargo branding parked on clean depot concrete under daytime sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5KvO03zTNnEst-LDEhlVddZeQniTNu5rciefP67ZwRFBv6jyM5CQU2tR2HYFmTjuC00Ycy_3p781c4jokTP3sVUSkdTjmWRz9I4ZoFm9sfOpF_qLMj4Z_pi-OPhGXK4uiyu0pvOnf2jtxbZigWx7WOZ97CsBiRs-4NbQLgSrDebY_WfguRKKDUe9WvfeN2CqLwrtS_KV_Ck3FgI1AUiqWEVX_1T0hZbNfmBGpcWA"/>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-caption-meta text-caption-meta font-extrabold text-ink-muted uppercase tracking-wider">Tata Ace Gold (Diesel 700cc)</span>
+<!-- IND Yellow Number Plate -->
+<div class="inline-flex items-center gap-1.5 bg-[#FFC933] text-ink px-2.5 py-1 rounded mt-1 font-headline-md text-[15px] font-extrabold tracking-wider border-2 border-ink shadow-sm max-w-fit">
+<span class="text-[9px] font-bold tracking-tighter opacity-70">IND</span>
+<span>TN-58-WA-101</span>
+</div>
+</div>
+</div>
+<!-- 2x2 Bento Vehicle Diagnostics -->
+<div class="grid grid-cols-2 gap-space-sm">
+<!-- 1. Jar Capacity & Live Load -->
+<div class="bg-surface-tonal p-3 rounded-DEFAULT flex flex-col justify-between">
+<div class="flex items-center gap-1 text-ink-muted mb-1">
+<span class="material-symbols-outlined text-[16px]">water_bottle</span>
+<span class="font-caption-meta text-[11px] font-bold uppercase">Payload Cans</span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="font-display-numeral-mobile text-[22px] font-extrabold text-ink">32</span>
+<span class="text-[13px] font-bold text-ink-muted">/ 84 Max</span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-ink-muted mt-0.5">சுமை: 32 / 84 கேன்கள்</span>
+</div>
+<!-- 2. Odometer -->
+<div class="bg-surface-tonal p-3 rounded-DEFAULT flex flex-col justify-between">
+<div class="flex items-center gap-1 text-ink-muted mb-1">
+<span class="material-symbols-outlined text-[16px]">speed</span>
+<span class="font-caption-meta text-[11px] font-bold uppercase">Odometer</span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="font-display-numeral-mobile text-[22px] font-extrabold text-ink">42,118</span>
+<span class="text-[13px] font-bold text-ink-muted">KM</span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-ink-muted mt-0.5">இன்றைய தொலைவு</span>
+</div>
+<!-- 3. Fuel Tank Level -->
+<div class="bg-surface-tonal p-3 rounded-DEFAULT flex flex-col justify-between">
+<div class="flex items-center gap-1 text-ink-muted mb-1">
+<span class="material-symbols-outlined text-[16px]">local_gas_station</span>
+<span class="font-caption-meta text-[11px] font-bold uppercase">Diesel Tank</span>
+</div>
+<div class="flex items-baseline gap-1.5">
+<span class="font-display-numeral-mobile text-[22px] font-extrabold text-ink">68%</span>
+<span class="inline-block w-2.5 h-2.5 rounded-full bg-money-mint"></span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-ink-muted mt-0.5">IOCL பெருந்துறை பங்க்</span>
+</div>
+<!-- 4. Fitness & Insurance -->
+<div class="bg-surface-tonal p-3 rounded-DEFAULT flex flex-col justify-between">
+<div class="flex items-center gap-1 text-ink-muted mb-1">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<span class="font-caption-meta text-[11px] font-bold uppercase">Insurance &amp; FC</span>
+</div>
+<span class="font-headline-md text-[14px] font-bold text-money-mint leading-tight">18 Mar 2027</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted mt-0.5">செல்லுபடியாகும் காலம்</span>
+</div>
+</div>
+<!-- Vehicle Actions: Minimum 56px touch target -->
+<div class="grid grid-cols-2 gap-space-sm pt-1">
+<button class="min-h-[56px] px-3 rounded-full bg-surface-tonal text-ink font-label-action text-[13px] flex items-center justify-center gap-1.5 active:scale-95 transition-transform text-center leading-tight" type="button">
+<span class="material-symbols-outlined text-[18px] text-role-driver-primary">photo_camera</span>
+<span>Snap Odometer<br/><span class="font-sublabel-regional text-[10px] font-normal text-ink-muted">மீட்டர் படம்</span></span>
+</button>
+<button class="min-h-[56px] px-3 rounded-full bg-surface-tonal text-money-coral font-label-action text-[13px] flex items-center justify-center gap-1.5 active:scale-95 transition-transform text-center leading-tight" type="button">
+<span class="material-symbols-outlined text-[18px] text-money-coral">build_circle</span>
+<span>Report Van Issue<br/><span class="font-sublabel-regional text-[10px] font-normal text-money-coral">பழுது புகார்</span></span>
+</button>
+</div>
+</section>
+<!-- SECTION 3: Assigned Delivery Route Beat (வழங்கு பாதை) -->
+<section class="bg-surface rounded-lg p-space-lg flex flex-col gap-space-md shadow-[0_2px_12px_rgba(19,32,27,0.03)]">
+<!-- Header -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-[#FFF4DB] text-pending-honey flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">alt_route</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md font-bold text-ink">Delivery Route Beat</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">வழங்கு பாதை விவரங்கள்</span>
+</div>
+</div>
+<span class="font-caption-meta text-caption-meta font-bold bg-[#EBF5F8] text-role-driver-primary px-2.5 py-1 rounded-full">Beat #01</span>
+</div>
+<!-- Beat Summary Box -->
+<div class="bg-surface-tonal p-space-md rounded-DEFAULT flex flex-col gap-2">
+<div class="flex items-start justify-between gap-2">
+<div>
+<h4 class="font-body-lg text-body-lg font-bold text-ink leading-tight">Anna Nagar &amp; Teppakulam Beat</h4>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">அண்ணா நகர் &amp; தெப்பக்குளம் சுற்றுவட்டம்</span>
+</div>
+<span class="px-2 py-0.5 rounded bg-surface font-caption-meta text-[11px] font-bold text-ink shrink-0">Erode South</span>
+</div>
+<div class="flex items-center gap-4 pt-1">
+<div class="flex items-center gap-1.5 text-ink">
+<span class="material-symbols-outlined text-[16px] text-role-driver-primary">storefront</span>
+<span class="font-body-md text-body-md font-semibold">24 Shops</span>
+</div>
+<div class="flex items-center gap-1.5 text-money-mint">
+<span class="material-symbols-outlined text-[16px]">pin_drop</span>
+<span class="font-caption-meta text-caption-meta font-bold">22 GPS Geo-Tagged</span>
+</div>
+</div>
+</div>
+<!-- Depot Supervisor Call Slab (56px) -->
+<div class="flex items-center justify-between bg-surface-tonal p-3 rounded-DEFAULT gap-2">
+<div class="flex items-center gap-2 min-w-0">
+<div class="w-9 h-9 rounded-full bg-primary-container text-on-primary flex items-center justify-center shrink-0 font-bold text-[14px]">
+          SV
+        </div>
+<div class="flex flex-col min-w-0">
+<span class="font-caption-meta text-caption-meta font-extrabold text-ink-muted uppercase">Depot Master / In-Charge</span>
+<span class="font-body-md text-body-md font-bold text-ink truncate">S. Vimal (Yard Supervisor)</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">கிடங்கு மேற்பார்வையாளர்</span>
+</div>
+</div>
+<a aria-label="Call Depot Master" class="h-12 px-4 rounded-full bg-role-driver-action text-ink font-label-action text-[13px] flex items-center gap-1.5 active:scale-95 transition-transform shrink-0 shadow-sm" href="tel:+919443212345">
+<span class="material-symbols-outlined text-[18px]">call</span>
+<span>Call</span>
+</a>
+</div>
+</section>
+<!-- SECTION 4: Connected Field Hardware & Devices (இணைக்கப்பட்ட சாதனங்கள்) -->
+<section class="bg-surface rounded-lg p-space-lg flex flex-col gap-space-md shadow-[0_2px_12px_rgba(19,32,27,0.03)]">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-[#EBF5F8] text-role-driver-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">devices</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md font-bold text-ink">Field Hardware</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">இணைக்கப்பட்ட சாதனங்கள்</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-sm">
+<!-- 58mm Thermal Bluetooth Receipt Printer -->
+<div class="bg-surface-tonal p-3 rounded-DEFAULT flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[22px] text-role-driver-primary">print</span>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-bold text-ink">RP58 Thermal Printer</span>
+<span class="font-caption-meta text-[11px] text-money-mint font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-money-mint"></span> Connected via Bluetooth
+              </span>
+</div>
+</div>
+<div class="flex items-center gap-1 bg-surface px-2 py-1 rounded text-ink font-caption-meta text-[11px] font-bold">
+<span class="material-symbols-outlined text-[14px] text-money-mint">battery_5_bar</span>
+<span>82%</span>
+</div>
+</div>
+<button class="w-full min-h-[48px] rounded-full bg-surface text-ink font-label-action text-caption-meta flex items-center justify-center gap-1.5 active:scale-98 transition-transform shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px] text-role-driver-primary">receipt_long</span>
+<span>Print Test Slip (மாதிரி ரசீது அச்சிடு)</span>
+</button>
+</div>
+<!-- GPS Telemetry Tracker -->
+<div class="bg-surface-tonal p-3 rounded-DEFAULT flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[22px] text-role-driver-primary">satellite_alt</span>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-bold text-ink">Quectel LTE-GPS Beacon</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">நிகழ்நேர பாதை கண்காணிப்பான்</span>
+</div>
+</div>
+<div class="inline-flex items-center gap-1 bg-[#E6F7F0] text-money-mint px-2.5 py-1 rounded-full font-caption-meta text-[11px] font-bold">
+<span class="material-symbols-outlined text-[13px]">share_location</span>
+          12 Sats Fix
+        </div>
+</div>
+</div>
+</section>
+<!-- SECTION 5: Offline Sync Centre & Storage (ஆஃப்லைன் சேமிப்பு மையம்) -->
+<section class="bg-surface rounded-lg p-space-lg flex flex-col gap-space-md shadow-[0_2px_12px_rgba(19,32,27,0.03)]">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-[#E6F7F0] text-money-mint flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">database</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md font-bold text-ink">Offline Vault &amp; Sync</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">ஆஃப்லைன் சேமிப்பு மையம்</span>
+</div>
+</div>
+<span class="font-caption-meta text-[11px] font-bold text-ink-muted bg-surface-tonal px-2.5 py-1 rounded-full">v2.4 Encrypted</span>
+</div>
+<!-- Status Message -->
+<div class="bg-surface-tonal p-3 rounded-DEFAULT flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-[#E6F7F0] text-money-mint flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-bold text-ink">0 Records Pending in Outbox</span>
+<span class="font-sublabel-regional text-[11px] text-ink-muted">அனைத்து விலைப்பட்டியல்களும் சேமிக்கப்பட்டன</span>
+</div>
+</div>
+<!-- Force Check Sync Action Button (56px) -->
+<button class="w-full min-h-[56px] rounded-full bg-surface-tonal text-ink font-label-action text-label-action flex items-center justify-center gap-2 active:scale-98 transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px] text-role-driver-primary">sync</span>
+<span>Check Connection &amp; Verify Vault</span>
+</button>
+</section>
+<!-- SECTION 6: Driver App Preferences (பயன்பாட்டு அமைப்புகள்) -->
+<section class="bg-surface rounded-lg p-space-lg flex flex-col gap-space-md shadow-[0_2px_12px_rgba(19,32,27,0.03)]">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-surface-tonal text-ink flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">tune</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md font-bold text-ink">App Preferences</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">பயன்பாட்டு விருப்பத்தேர்வுகள்</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-sm divide-y-0">
+<!-- 1. Language Toggle Segment -->
+<div class="flex items-center justify-between p-3 rounded-DEFAULT bg-surface-tonal">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-bold text-ink">Interface Language</span>
+<span class="font-sublabel-regional text-[11px] text-ink-muted">பயன்பாட்டு மொழி தேர்வு</span>
+</div>
+<div class="flex items-center bg-surface p-1 rounded-full shadow-sm">
+<button class="px-3 py-1.5 rounded-full font-caption-meta text-caption-meta font-bold text-ink-muted active:scale-95 transition-all" type="button">English</button>
+<button class="px-3 py-1.5 rounded-full bg-role-driver-action text-ink font-sublabel-regional text-sublabel-regional font-bold shadow-sm active:scale-95 transition-all" type="button">தமிழ்</button>
+</div>
+</div>
+<!-- 2. Voice Prompts Toggle -->
+<div class="flex items-center justify-between p-3 rounded-DEFAULT bg-surface-tonal">
+<div class="flex flex-col pr-2">
+<span class="font-body-md text-body-md font-bold text-ink">Tamil Voice Guidance</span>
+<span class="font-sublabel-regional text-[11px] text-ink-muted">ஒவ்வொரு கடை வரும்போதும் குரல் அறிவிப்பு</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-7 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-money-mint"></div>
+</label>
+</div>
+<!-- 3. Navigation App Preference -->
+<div class="flex items-center justify-between p-3 rounded-DEFAULT bg-surface-tonal">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-bold text-ink">Route Navigation Tool</span>
+<span class="font-sublabel-regional text-[11px] text-ink-muted">பாதை வழிசெலுத்தல் கருவி</span>
+</div>
+<div class="flex items-center bg-surface p-1 rounded-full shadow-sm">
+<button class="px-3 py-1.5 rounded-full bg-role-driver-action text-ink font-caption-meta text-caption-meta font-bold shadow-sm" type="button">Google Maps</button>
+<button class="px-3 py-1.5 rounded-full font-caption-meta text-caption-meta font-bold text-ink-muted" type="button">Radar</button>
+</div>
+</div>
+<!-- 4. Security PIN / Reset Password Slab (56px) -->
+<button class="w-full min-h-[56px] px-4 rounded-DEFAULT bg-surface-tonal text-ink flex items-center justify-between active:scale-98 transition-transform" type="button">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[20px] text-ink-muted">lock_reset</span>
+<div class="flex flex-col text-left">
+<span class="font-body-md text-body-md font-bold text-ink">Change Account PIN</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">பாதுகாப்பு எண் / கடவுச்சொல் மாற்றம்</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[20px] text-ink-muted">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- SECTION 7: App Version Info & Danger Sign Out Slab -->
+<section class="flex flex-col items-center gap-space-md pt-2 pb-6">
+<!-- Version Telemetry Tag -->
+<div class="flex flex-col items-center text-center px-4">
+<span class="font-caption-meta text-[11px] font-bold text-ink-muted tracking-wider">
+        ZOLO ERP Field Mobile v1.0.0+1 (Build 2026.11)
+      </span>
+<span class="font-caption-meta text-[10px] font-medium text-ink-muted/80 mt-0.5">
+        DK Waters Packaged Water Edition • Erode South Cluster
+      </span>
+</div>
+<!-- Sign Out Action Slab (56px Enforced Height) -->
+<button class="w-full min-h-[56px] rounded-full bg-surface text-critical-ruby font-label-action text-label-action flex items-center justify-center gap-2 shadow-sm active:scale-98 transition-transform" onclick="confirm('Are you sure you want to end shift and sign out?')" type="button">
+<span class="material-symbols-outlined text-[22px]">logout</span>
+<div class="flex items-baseline gap-1.5">
+<span>Sign Out of Account</span>
+<span class="font-sublabel-regional text-sublabel-regional font-normal opacity-85">(வெளியேறு)</span>
+</div>
+</button>
+</section>
+</div>
+<script>
+  // Ensure the App Shell bottom navigation highlights 'Me' with fluid tactile feel
+  document.addEventListener('DOMContentLoaded', () => {
+    const navItems = document.querySelectorAll('nav[data-active-classes] a');
+    navItems.forEach(item => {
+      if (item.getAttribute('data-path') === 'me') {
+        item.classList.add('bg-surface-tonal', 'text-role-driver-primary', 'font-bold');
+        item.classList.remove('text-ink-muted');
+        const icon = item.querySelector('.material-symbols-outlined');
+        if (icon) {
+          icon.style.fontVariationSettings = "'FILL' 1, 'wght' 700";
+        }
+      } else {
+        item.classList.remove('bg-surface-tonal', 'text-role-driver-primary', 'font-bold');
+        item.classList.add('text-ink-muted');
+      }
+    });
+  });
+</script></main><div class="fixed bottom-4 inset-x-0 z-50 px-margin pointer-events-none pb-safe"><nav class="pointer-events-auto mx-auto max-w-sm h-16 bg-surface rounded-full shadow-[0_8px_24px_-4px_rgba(19,32,27,0.08)] flex items-center justify-between px-space-sm" data-active-classes="bg-surface-tonal text-primary font-bold"><a class="flex-1 h-12 rounded-full flex flex-col items-center justify-center gap-0.5 text-ink-muted transition-all duration-200" data-path="today" href="#"><span class="material-symbols-outlined text-[20px]">calendar_today</span><span class="font-caption-meta text-[11px] leading-3 font-semibold">Today</span></a><a class="flex-1 h-12 rounded-full flex flex-col items-center justify-center gap-0.5 text-ink-muted transition-all duration-200" data-path="work" href="#"><span class="material-symbols-outlined text-[20px]">local_shipping</span><span class="font-caption-meta text-[11px] leading-3 font-semibold">Work</span></a><a class="flex-1 h-12 rounded-full flex flex-col items-center justify-center gap-0.5 text-ink-muted transition-all duration-200" data-path="cash" href="#"><span class="material-symbols-outlined text-[20px]">payments</span><span class="font-caption-meta text-[11px] leading-3 font-semibold">Cash</span></a><a class="flex-1 h-12 rounded-full flex flex-col items-center justify-center gap-0.5 text-ink-muted transition-all duration-200" data-path="me" href="#"><span class="material-symbols-outlined text-[20px]">account_circle</span><span class="font-caption-meta text-[11px] leading-3 font-semibold">Me</span></a></nav></div></body></html>

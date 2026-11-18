@@ -318,6 +318,29 @@
         </section>
     </div>
 
+    @if (!empty($daily_labels))
+        <section class="dash-card" aria-labelledby="dash-daily-sales-title">
+            <div class="dash-panel-head">
+                <div class="dash-heading">
+                    <span class="dash-icon dash-tone-success"><i class="dripicons-graph-line" aria-hidden="true"></i></span>
+                    <div>
+                        <h2 id="dash-daily-sales-title">Daily sales &amp; collections</h2>
+                        <p>Last 14 days billed vs collected trend</p>
+                    </div>
+                </div>
+            </div>
+            <div class="dash-chart-body">
+                <div class="dash-chart">
+                    <canvas id="dailySalesChart" role="img" aria-label="Daily sales and collections over the last 14 days"
+                        data-labels="{{ json_encode($daily_labels) }}"
+                        data-sales="{{ json_encode($daily_sales_values ?? []) }}"
+                        data-collected="{{ json_encode($daily_collected_values ?? []) }}"
+                        data-label1="Billed Sales" data-label2="Collected"></canvas>
+                </div>
+            </div>
+        </section>
+    @endif
+
     @if ($showYearly)
         <section class="dash-card" aria-labelledby="dash-yearly-title">
             <div class="dash-panel-head">

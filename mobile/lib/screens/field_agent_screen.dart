@@ -82,8 +82,9 @@ class _FieldAgentScreenState extends State<FieldAgentScreen> with SingleTickerPr
     setState(() => _isSubmitting = true);
     final t = widget.isTamil;
 
-    final cans = int.tryParse(_cansHeldController.text) ?? 0;
-    final depPerCan = double.tryParse(_depositPerCanController.text) ?? 150.0;
+    final isBulkTanker = widget.vertical == CompanyVertical.tmws;
+    final cans = isBulkTanker ? 0 : (int.tryParse(_cansHeldController.text) ?? 0);
+    final depPerCan = isBulkTanker ? 0.0 : (double.tryParse(_depositPerCanController.text) ?? 150.0);
     final totalDep = cans * depPerCan;
 
     final record = CustomerOnboardRecord(
@@ -280,38 +281,39 @@ class _FieldAgentScreenState extends State<FieldAgentScreen> with SingleTickerPr
                             ),
                             validator: (v) => v!.isEmpty ? (t ? 'முகவரி தேவை' : 'Address required') : null,
                           ),
-                          const SizedBox(height: 12),
-
-                          // Initial Cans & Deposit
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _cansHeldController,
-                                  keyboardType: TextInputType.number,
-                                  style: TextStyle(color: AppColors.text(context), fontSize: 13),
-                                  decoration: InputDecoration(
-                                    labelText: t ? 'துவக்க கேன்கள்' : 'Initial Cans Held',
-                                    labelStyle: TextStyle(color: AppColors.textDim(context), fontSize: 11),
-                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          // Initial Cans & Deposit (hidden for TMWS bulk tanker vertical)
+                          if (widget.vertical != CompanyVertical.tmws) ...[
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _cansHeldController,
+                                    keyboardType: TextInputType.number,
+                                    style: TextStyle(color: AppColors.text(context), fontSize: 13),
+                                    decoration: InputDecoration(
+                                      labelText: t ? 'துவக்க கேன்கள்' : 'Initial Cans Held',
+                                      labelStyle: TextStyle(color: AppColors.textDim(context), fontSize: 11),
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _depositPerCanController,
-                                  keyboardType: TextInputType.number,
-                                  style: TextStyle(color: AppColors.text(context), fontSize: 13),
-                                  decoration: InputDecoration(
-                                    labelText: t ? 'முன்பணம்/கேன் (₹)' : 'Deposit/Can (₹)',
-                                    labelStyle: TextStyle(color: AppColors.textDim(context), fontSize: 11),
-                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _depositPerCanController,
+                                    keyboardType: TextInputType.number,
+                                    style: TextStyle(color: AppColors.text(context), fontSize: 13),
+                                    decoration: InputDecoration(
+                                      labelText: t ? 'முன்பணம்/கேன் (₹)' : 'Deposit/Can (₹)',
+                                      labelStyle: TextStyle(color: AppColors.textDim(context), fontSize: 11),
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
+                          ],
                           const SizedBox(height: 20),
 
                           // Submit Action Button

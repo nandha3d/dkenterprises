@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#00443b", "surface-container-lowest": "#ffffff", "surface-container-low": "#f5f3ee", "money-coral": "#E8505B", "on-tertiary-fixed": "#002112", "dark-canvas": "#0E1512", "surface-container-high": "#eae8e3", "ink-muted": "#66736C", "primary-container": "#0b5d52", "role-cafe-ink": "#2B1B14", "surface-bright": "#fbf9f4", "primary-fixed": "#a9f0e1", "role-field-primary": "#3F7D58", "on-error-container": "#93000a", "surface-dim": "#dcdad5", "surface-tonal": "#ECEFEA", "on-tertiary-fixed-variant": "#005233", "error-container": "#ffdad6", "dark-surface": "#17221D", "on-primary-fixed": "#00201b", "on-tertiary": "#ffffff", "secondary-fixed-dim": "#acd44f", "hairline": "#E3E1DA", "background": "#fbf9f4", "surface": "#FFFFFF", "outline-variant": "#bec9c5", "on-background": "#1b1c19", "role-field-action": "#C9F36A", "role-cafe-action": "#F4A62A", "on-surface": "#1b1c19", "role-cafe-canvas": "#FBF4EA", "on-secondary-fixed-variant": "#394e00", "pending-honey": "#E9A23B", "inverse-primary": "#8ed4c5", "tertiary-container": "#005f3c", "dark-ink-muted": "#93A39B", "tertiary-fixed-dim": "#61dda0", "role-driver-action": "#FFC933", "error": "#ba1a1a", "secondary-fixed": "#c7f169", "on-surface-variant": "#3f4946", "on-secondary-fixed": "#151f00", "surface-container-highest": "#e4e2dd", "money-mint": "#1FA971", "on-tertiary-container": "#61dda0", "tertiary-fixed": "#7ffaba", "on-primary-container": "#8dd3c5", "on-secondary-container": "#506c00", "role-driver-canvas": "#F3F8FA", "surface-variant": "#e4e2dd", "on-primary": "#ffffff", "role-driver-primary": "#0E8FB3", "info-sky": "#2E90FA", "on-secondary": "#ffffff", "inverse-surface": "#30312e", "surface-container": "#f0eee9", "on-error": "#ffffff", "secondary-container": "#c5ee66", "on-primary-fixed-variant": "#005046", "primary-fixed-dim": "#8ed4c5", "role-cafe-primary": "#C2542D", "dark-surface-tonal": "#1F2E27", "critical-ruby": "#D92D20", "secondary": "#4c6700", "surface-tint": "#1f695e", "ink": "#13201B", "inverse-on-surface": "#f2f1ec", "tertiary": "#00452a", "dark-ink": "#EDF3EF", "outline": "#6f7976" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "gutter": "0.75rem", "space-sm": "0.5rem", "margin": "1rem", "space-md": "0.75rem", "space-lg": "1rem", "space-xs": "0.25rem", "space-xl": "1.5rem" }, fontFamily: { "display-numeral": ["Manrope"], "display-numeral-mobile": ["Manrope"], "headline-md": ["Manrope"], "label-action": ["Manrope"], "caption-meta": ["Manrope"], "body-md": ["Manrope"], "headline-lg": ["Manrope"], "body-lg": ["Manrope"], "sublabel-regional": ["Noto Sans Tamil"] }, fontSize: { "display-numeral": ["48px", { lineHeight: "52px", letterSpacing: "-0.03em", fontWeight: "800" }], "display-numeral-mobile": ["40px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800" }], "headline-md": ["20px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "700" }], "label-action": ["16px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "700" }], "caption-meta": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "500" }], "headline-lg": ["28px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "800" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "600" }], "sublabel-regional": ["11px", { lineHeight: "14px", fontWeight: "600" }] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-ink/60 font-body-md text-role-cafe-ink flex flex-col min-h-screen justify-end"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><button aria-label="Dismiss overlay" class="w-11 h-11 rounded-full flex items-center justify-center text-role-cafe-ink bg-surface-container-low hover:bg-surface-container active:scale-95 transition-transform" onclick="history.back()"><span class="material-symbols-outlined text-[20px]">close</span></button><div class="flex flex-col"><span class="font-headline-md text-headline-md text-role-cafe-ink leading-tight">Quick Actions Overlay</span><span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary">அரன் விரைவு செயல்கள்</span></div></div><div class="flex items-center gap-space-xs"><div class="px-space-sm py-1 rounded-full bg-role-cafe-canvas flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-role-cafe-action animate-pulse"></span><span class="font-caption-meta text-caption-meta text-role-cafe-primary">Counter 01</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center ml-space-xs"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 bg-role-cafe-canvas rounded-t-xl shadow-[-12px_32px_rgba(19,32,27,0.12)] pb-safe min-h-[663px]"><div class="w-full flex justify-center pt-space-sm pb-space-xs"><div class="w-12 h-1.5 rounded-full bg-hairline"></div></div><div class="flex flex-col w-full pb-8">
+<!-- Search and Scope Header Module -->
+<div class="px-margin pt-space-xs pb-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex flex-col min-w-0 pr-2">
+<span class="font-body-md text-body-md text-role-cafe-ink font-bold truncate">Aran Cafe &amp; Bakery Express</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Main Branch • Desk #01 • Counter Till</span>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-role-cafe-canvas border-none">
+<span class="w-2 h-2 rounded-full bg-money-mint animate-ping"></span>
+<span class="font-caption-meta text-caption-meta text-role-cafe-primary font-bold">LIVE ONLINE</span>
+</div>
+</div>
+<!-- Express Action Search Input -->
+<div class="relative flex items-center w-full h-[52px] bg-surface rounded-full px-4 shadow-[0_2px_12px_rgba(43,27,20,0.06)]">
+<span class="material-symbols-outlined text-role-cafe-primary text-[22px] mr-2.5 shrink-0">search</span>
+<input class="w-full bg-transparent text-role-cafe-ink placeholder:text-ink-muted font-body-md text-body-md focus:outline-none" id="action-search-input" placeholder="Search action or bill (எ.கா. பில்லிங், செலவு)..." type="text"/>
+<button aria-label="Voice Search" class="w-8 h-8 rounded-full bg-role-cafe-canvas flex items-center justify-center text-role-cafe-primary ml-2 shrink-0 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[18px]">mic</span>
+</button>
+</div>
+</div>
+<!-- Hero Till Status Card (Terracotta / Deep Saffron Palette) -->
+<div class="px-margin mb-space-md">
+<div class="relative overflow-hidden rounded-[24px] bg-role-cafe-primary text-role-cafe-canvas p-space-lg shadow-sm">
+<!-- Ambient graphic accent -->
+<div class="absolute -right-8 -bottom-10 w-36 h-36 rounded-full bg-role-cafe-action/15 blur-2xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-role-cafe-canvas/15 backdrop-blur-md">
+<span class="material-symbols-outlined text-role-cafe-action text-[16px]" style="font-variation-settings: 'FILL' 1;">point_of_sale</span>
+<span class="font-caption-meta text-caption-meta tracking-wider text-role-cafe-canvas uppercase font-bold">ACTIVE COUNTER TILL • SHIFT #02</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-role-cafe-canvas/80">POS ID: CF-014</span>
+</div>
+<div class="flex flex-col pt-1">
+<div class="flex items-baseline gap-2">
+<span class="font-display-numeral-mobile text-display-numeral-mobile text-surface font-extrabold tracking-tight">₹24,850</span>
+<span class="font-label-action text-label-action text-role-cafe-action font-extrabold uppercase">GROSS</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-canvas/90">இன்றைய கவுண்டர் வசூல் • 142 Bills Settled</span>
+</div>
+<!-- Metric Bento Trio -->
+<div class="grid grid-cols-3 gap-2 pt-space-xs">
+<div class="flex flex-col p-2.5 rounded-xl bg-role-cafe-canvas/10 backdrop-blur-sm">
+<span class="font-caption-meta text-[11px] leading-3 text-role-cafe-canvas/70">Float Cash</span>
+<span class="font-body-md text-body-md text-surface font-bold mt-1">₹5,000</span>
+<span class="font-caption-meta text-[10px] text-role-cafe-action font-semibold">Intact</span>
+</div>
+<div class="flex flex-col p-2.5 rounded-xl bg-role-cafe-canvas/10 backdrop-blur-sm">
+<span class="font-caption-meta text-[11px] leading-3 text-role-cafe-canvas/70">Open KOT</span>
+<span class="font-body-md text-body-md text-surface font-bold mt-1">3 Active</span>
+<span class="font-caption-meta text-[10px] text-role-cafe-action font-semibold">In Kitchen</span>
+</div>
+<div class="flex flex-col p-2.5 rounded-xl bg-role-cafe-canvas/10 backdrop-blur-sm">
+<span class="font-caption-meta text-[11px] leading-3 text-role-cafe-canvas/70">Outbox Sync</span>
+<span class="font-body-md text-body-md text-surface font-bold mt-1">0 Drift</span>
+<span class="font-caption-meta text-[10px] text-role-cafe-canvas font-semibold">Zero Lag</span>
+</div>
+</div>
+<!-- Reassurance Micro-banner -->
+<div class="flex items-center gap-1.5 pt-1 text-role-cafe-canvas/85">
+<span class="material-symbols-outlined text-role-cafe-action text-[16px]">bolt</span>
+<span class="font-caption-meta text-[11px] leading-tight font-medium">Instant 1-tap launcher for rush-hour counter workflow &amp; frontline staff.</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Primary 2-Column Bento Grid of Tactile Slabs (56px+ tap zones) -->
+<div class="px-margin flex flex-col gap-space-sm mb-space-lg">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-4 rounded-full bg-role-cafe-primary"></span>
+<h2 class="font-headline-md text-headline-md text-role-cafe-ink font-bold">Fast Actions</h2>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-bold">முதன்மைப் பணிகள்</span>
+</div>
+<div class="grid grid-cols-2 gap-gutter" id="quick-action-grid">
+<!-- 1. Cafe POS Terminal -->
+<button class="group relative flex flex-col justify-between p-3.5 min-h-[148px] rounded-2xl bg-surface hover:bg-surface-bright active:scale-[0.98] transition-all text-left shadow-[0_2px_8px_rgba(43,27,20,0.04)]" data-action-key="pos billing kot counter takeaway" onclick="triggerActionHaptic('C-02', 'Cafe POS Terminal')" type="button">
+<div class="flex items-start justify-between w-full">
+<div class="w-12 h-12 rounded-xl bg-role-cafe-canvas flex items-center justify-center text-role-cafe-primary group-hover:bg-role-cafe-primary group-hover:text-surface transition-colors">
+<span class="material-symbols-outlined text-[26px]">point_of_sale</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-role-cafe-action/20 text-role-cafe-ink font-caption-meta text-[10px] font-bold">FAST (15s)</span>
+</div>
+<div class="flex flex-col mt-3">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold leading-tight">Cafe POS Terminal</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-bold mt-0.5">பில்லிங் &amp; கே.ஓ.டி</span>
+<span class="font-caption-meta text-[11px] text-ink-muted leading-snug line-clamp-2 mt-1">Express touch orders &amp; table counter</span>
+</div>
+</button>
+<!-- 2. New Customer / KYC -->
+<button class="group relative flex flex-col justify-between p-3.5 min-h-[148px] rounded-2xl bg-surface hover:bg-surface-bright active:scale-[0.98] transition-all text-left shadow-[0_2px_8px_rgba(43,27,20,0.04)]" data-action-key="customer kyc corporate b2b party onboarding dues" onclick="triggerActionHaptic('C-41', 'Customer Onboarding')" type="button">
+<div class="flex items-start justify-between w-full">
+<div class="w-12 h-12 rounded-xl bg-role-cafe-action/15 flex items-center justify-center text-role-cafe-primary group-hover:bg-role-cafe-action group-hover:text-role-cafe-ink transition-colors">
+<span class="material-symbols-outlined text-[26px]">person_add</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-tonal text-role-cafe-ink font-caption-meta text-[10px] font-bold">B2B &amp; Dues</span>
+</div>
+<div class="flex flex-col mt-3">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold leading-tight">Customer KYC</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-bold mt-0.5">புதிய வாடிக்கையாளர்</span>
+<span class="font-caption-meta text-[11px] text-ink-muted leading-snug line-clamp-2 mt-1">Corporate catering &amp; phone accounts</span>
+</div>
+</button>
+<!-- 3. Collect Payment -->
+<button class="group relative flex flex-col justify-between p-3.5 min-h-[148px] rounded-2xl bg-surface hover:bg-surface-bright active:scale-[0.98] transition-all text-left shadow-[0_2px_8px_rgba(43,27,20,0.04)]" data-action-key="collect payment cash upi dues invoice settle gl1030" onclick="triggerActionHaptic('C-40', 'Collect Payment')" type="button">
+<div class="flex items-start justify-between w-full">
+<div class="w-12 h-12 rounded-xl bg-money-mint/15 flex items-center justify-center text-money-mint group-hover:bg-money-mint group-hover:text-surface transition-colors">
+<span class="material-symbols-outlined text-[26px]">payments</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-money-mint/10 text-money-mint font-caption-meta text-[10px] font-bold">GL 1030</span>
+</div>
+<div class="flex flex-col mt-3">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold leading-tight">Collect Payment</span>
+<span class="font-sublabel-regional text-sublabel-regional text-money-mint font-bold mt-0.5">கடன் வசூல் &amp; QR</span>
+<span class="font-caption-meta text-[11px] text-ink-muted leading-snug line-clamp-2 mt-1">Customer invoices, UPI QR &amp; ledger cash</span>
+</div>
+</button>
+<!-- 4. Quick Expense -->
+<button class="group relative flex flex-col justify-between p-3.5 min-h-[148px] rounded-2xl bg-surface hover:bg-surface-bright active:scale-[0.98] transition-all text-left shadow-[0_2px_8px_rgba(43,27,20,0.04)]" data-action-key="expense milk lpg gas petty dairy voucher gl1010" onclick="triggerActionHaptic('C-35', 'Quick Expense')" type="button">
+<div class="flex items-start justify-between w-full">
+<div class="w-12 h-12 rounded-xl bg-money-coral/15 flex items-center justify-center text-money-coral group-hover:bg-money-coral group-hover:text-surface transition-colors">
+<span class="material-symbols-outlined text-[26px]">receipt_long</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-money-coral/10 text-money-coral font-caption-meta text-[10px] font-bold">GL 1010</span>
+</div>
+<div class="flex flex-col mt-3">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold leading-tight">Quick Expense</span>
+<span class="font-sublabel-regional text-sublabel-regional text-money-coral font-bold mt-0.5">செலவு பதிவு &amp; ரசீது</span>
+<span class="font-caption-meta text-[11px] text-ink-muted leading-snug line-clamp-2 mt-1">Kitchen dairy, LPG, veg &amp; petty cash</span>
+</div>
+</button>
+<!-- 5. Mark Attendance -->
+<button class="group relative flex flex-col justify-between p-3.5 min-h-[148px] rounded-2xl bg-surface hover:bg-surface-bright active:scale-[0.98] transition-all text-left shadow-[0_2px_8px_rgba(43,27,20,0.04)]" data-action-key="attendance punch geofence roster biometric staff presence" onclick="triggerActionHaptic('C-42', 'Mark Attendance')" type="button">
+<div class="flex items-start justify-between w-full">
+<div class="w-12 h-12 rounded-xl bg-role-field-primary/15 flex items-center justify-center text-role-field-primary group-hover:bg-role-field-primary group-hover:text-surface transition-colors">
+<span class="material-symbols-outlined text-[26px]">fingerprint</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-role-field-action/20 text-role-cafe-ink font-caption-meta text-[10px] font-bold">6/8 Present</span>
+</div>
+<div class="flex flex-col mt-3">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold leading-tight">Mark Attendance</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-field-primary font-bold mt-0.5">வருகை பதிவு</span>
+<span class="font-caption-meta text-[11px] text-ink-muted leading-snug line-clamp-2 mt-1">Shift punch, face biometric &amp; roster</span>
+</div>
+</button>
+<!-- 6. Kitchen Stock Audit -->
+<button class="group relative flex flex-col justify-between p-3.5 min-h-[148px] rounded-2xl bg-surface hover:bg-surface-bright active:scale-[0.98] transition-all text-left shadow-[0_2px_8px_rgba(43,27,20,0.04)]" data-action-key="kitchen stock audit milk butter sugar coffee inventory count" onclick="triggerActionHaptic('C-31', 'Stock Audit')" type="button">
+<div class="flex items-start justify-between w-full">
+<div class="w-12 h-12 rounded-xl bg-role-cafe-canvas flex items-center justify-center text-role-cafe-primary group-hover:bg-role-cafe-primary group-hover:text-surface transition-colors">
+<span class="material-symbols-outlined text-[26px]">inventory_2</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-caption-meta text-[10px] font-bold">4 Alerts</span>
+</div>
+<div class="flex flex-col mt-3">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold leading-tight">Kitchen Stock</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-bold mt-0.5">சரக்கு தணிக்கை</span>
+<span class="font-caption-meta text-[11px] text-ink-muted leading-snug line-clamp-2 mt-1">Milk, butter, beans &amp; sugar count</span>
+</div>
+</button>
+</div>
+</div>
+<!-- Secondary Fast Utility Row -->
+<div class="px-margin flex flex-col gap-2.5 mb-space-lg">
+<div class="flex items-center justify-between">
+<span class="font-caption-meta text-caption-meta uppercase text-ink-muted font-bold tracking-wider">Fast Shift Utilities</span>
+<span class="font-caption-meta text-caption-meta text-role-cafe-primary">விரைவு கருவிகள்</span>
+</div>
+<div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none -mx-margin px-margin">
+<!-- Hold Order -->
+<button class="shrink-0 h-[48px] px-4 rounded-full bg-surface flex items-center gap-2 hover:bg-surface-bright active:scale-95 transition-transform shadow-[0_1px_4px_rgba(43,27,20,0.04)]" onclick="triggerActionHaptic('C-09', 'Hold Order Retainer')">
+<span class="material-symbols-outlined text-role-cafe-primary text-[20px]">pause_circle</span>
+<div class="flex flex-col text-left">
+<span class="font-body-md text-[13px] leading-tight font-bold text-role-cafe-ink">Hold Order</span>
+<span class="font-caption-meta text-[10px] leading-none text-ink-muted">C-09</span>
+</div>
+</button>
+<!-- Reconcile Till -->
+<button class="shrink-0 h-[48px] px-4 rounded-full bg-surface flex items-center gap-2 hover:bg-surface-bright active:scale-95 transition-transform shadow-[0_1px_4px_rgba(43,27,20,0.04)]" onclick="triggerActionHaptic('C-22', 'Till Reconciliation')">
+<span class="material-symbols-outlined text-role-cafe-action text-[20px]">account_balance_wallet</span>
+<div class="flex flex-col text-left">
+<span class="font-body-md text-[13px] leading-tight font-bold text-role-cafe-ink">Reconcile Till</span>
+<span class="font-caption-meta text-[10px] leading-none text-ink-muted">C-22</span>
+</div>
+</button>
+<!-- Print Test Slip -->
+<button class="shrink-0 h-[48px] px-4 rounded-full bg-surface flex items-center gap-2 hover:bg-surface-bright active:scale-95 transition-transform shadow-[0_1px_4px_rgba(43,27,20,0.04)]" onclick="triggerActionHaptic('C-44', 'Thermal Printer Test')">
+<span class="material-symbols-outlined text-role-cafe-primary text-[20px]">print</span>
+<div class="flex flex-col text-left">
+<span class="font-body-md text-[13px] leading-tight font-bold text-role-cafe-ink">Print Test Slip</span>
+<span class="font-caption-meta text-[10px] leading-none text-ink-muted">C-44</span>
+</div>
+</button>
+<!-- Sync Outbox -->
+<button class="shrink-0 h-[48px] px-4 rounded-full bg-surface flex items-center gap-2 hover:bg-surface-bright active:scale-95 transition-transform shadow-[0_1px_4px_rgba(43,27,20,0.04)]" onclick="triggerActionHaptic('G-09', 'Outbox Sync Protocol')">
+<span class="material-symbols-outlined text-money-mint text-[20px]">sync</span>
+<div class="flex flex-col text-left">
+<span class="font-body-md text-[13px] leading-tight font-bold text-role-cafe-ink">Sync Outbox</span>
+<span class="font-caption-meta text-[10px] leading-none text-ink-muted">G-09</span>
+</div>
+</button>
+</div>
+</div>
+<!-- Interactive Feedback Banner (Hidden by default, shows on tap) -->
+<div class="hidden px-margin mb-space-sm transition-all duration-300" id="action-toast">
+<div class="flex items-center justify-between p-3 bg-role-cafe-ink text-surface rounded-xl">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-role-cafe-action text-[20px]">play_circle</span>
+<div class="flex flex-col">
+<span class="font-body-md text-[13px] font-bold" id="toast-title">Launching Module...</span>
+<span class="font-caption-meta text-[11px] text-role-cafe-canvas/70" id="toast-subtitle">Connecting route session</span>
+</div>
+</div>
+<span class="font-caption-meta text-caption-meta px-2 py-0.5 rounded bg-surface/10 text-role-cafe-action font-mono">OK</span>
+</div>
+</div>
+<!-- Bottom Sticky Dismiss & Safety Footnote -->
+<div class="px-margin flex flex-col gap-space-sm pt-space-xs">
+<button class="w-full h-[56px] rounded-full bg-role-cafe-action text-role-cafe-ink font-label-action text-label-action font-extrabold flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(244,166,42,0.28)] active:scale-[0.98] transition-transform" onclick="history.back()" type="button">
+<span class="material-symbols-outlined text-[22px]">expand_more</span>
+<span>Close Quick Menu</span>
+<span class="font-sublabel-regional text-sublabel-regional font-bold text-role-cafe-ink/80">(மூடு)</span>
+</button>
+<div class="flex items-center justify-center gap-1.5 pt-1 text-center">
+<span class="material-symbols-outlined text-ink-muted text-[14px]">lock</span>
+<span class="font-caption-meta text-[11px] text-ink-muted">Frontline Quick Launcher • Double-entry compliant • Aran OS v1.0</span>
+</div>
+</div>
+</div>
+<script>
+  // Simple, responsive live filter for quick action tiles
+  document.getElementById('action-search-input')?.addEventListener('input', function(e) {
+    const query = e.target.value.toLowerCase().trim();
+    const tiles = document.querySelectorAll('#quick-action-grid button');
+    
+    tiles.forEach(tile => {
+      const keys = tile.getAttribute('data-action-key') || '';
+      const text = tile.innerText.toLowerCase();
+      if (!query || keys.includes(query) || text.includes(query)) {
+        tile.classList.remove('hidden');
+      } else {
+        tile.classList.add('hidden');
+      }
+    });
+  });
+
+  // Haptic feedback simulation & visual state
+  function triggerActionHaptic(code, label) {
+    const toast = document.getElementById('action-toast');
+    const toastTitle = document.getElementById('toast-title');
+    const toastSub = document.getElementById('toast-subtitle');
+    
+    if (toast && toastTitle && toastSub) {
+      toastTitle.textContent = 'Launching ' + label + ' (' + code + ')';
+      toastSub.textContent = 'Verifying front-desk credentials & ledger state...';
+      toast.classList.remove('hidden');
+      
+      // Auto-dismiss indicator for snappy operational feel
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2200);
+    }
+  }
+</script></main></body></html>

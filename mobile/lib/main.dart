@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'core/notifications/push_notification_service.dart';
 import 'core/providers.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/domain/auth_models.dart';
 import 'l10n/app_localizations.dart';
 
 Future<void> main() async {
@@ -75,20 +77,56 @@ Future<void> main() async {
   );
 }
 
-class ZoloErpApp extends ConsumerWidget {
+class ZoloErpApp extends ConsumerStatefulWidget {
   const ZoloErpApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ZoloErpApp> createState() => _ZoloErpAppState();
+}
+
+class _ZoloErpAppState extends ConsumerState<ZoloErpApp> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final pushService = ref.read(pushNotificationServiceProvider);
+      pushService.onNavigate = (route) => ref.read(appRouterProvider).push(route);
+      ref.read(keepAliveManagerProvider).attach();
+      final authState = ref.read(authNotifierProvider);
+      if (authState.isAuthenticated) {
+        pushService.start();
+        ref.read(gpsPingerProvider).syncSession(authState);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen<AuthState>(
+      authNotifierProvider,
+      (prev, next) {
+        final pushService = ref.read(pushNotificationServiceProvider);
+        if (next.isAuthenticated) {
+          pushService.start();
+        } else {
+          pushService.stop();
+        }
+        ref.read(gpsPingerProvider).syncSession(next);
+      },
+    );
+
     final router = ref.watch(appRouterProvider);
     final locale = ref.watch(localeProvider);
     final themeMode = ref.watch(themeModeProvider);
+    final rippleRole = ref.watch(activeRippleRoleProvider);
 
     return MaterialApp.router(
-      title: 'ZOLO ERP',
+      title: 'DK Enterprises ERP',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
+      theme: AppTheme.themeForRole(rippleRole, Brightness.light),
+      darkTheme: AppTheme.themeForRole(rippleRole, Brightness.dark),
       themeMode: themeMode,
       locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,

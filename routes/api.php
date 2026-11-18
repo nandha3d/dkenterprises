@@ -56,7 +56,7 @@ Route::prefix('v1')->group(function () {
 
     // Public Mobile Authentication & Bootstrap
     Route::prefix('mobile')->group(function () {
-        Route::post('login', [WaterLogisticsApiController::class, 'mobileLogin'])->name('api.v1.mobile.login');
+        Route::post('login', [WaterLogisticsApiController::class, 'mobileLogin'])->middleware('throttle:api-login')->name('api.v1.mobile.login');
         Route::get('bootstrap', [WaterLogisticsApiController::class, 'mobileBootstrap'])->name('api.v1.mobile.bootstrap');
     });
 
@@ -93,7 +93,9 @@ Route::prefix('v1')->group(function () {
             Route::post('spot-audit', [WaterLogisticsApiController::class, 'spotAudit'])->name('api.v1.mobile.spot-audit');
             Route::post('driver-surrender', [WaterLogisticsApiController::class, 'driverCashSurrender'])->name('api.v1.mobile.driver-surrender');
             Route::get('fleet/live', [WaterLogisticsApiController::class, 'fleetLive'])->name('api.v1.mobile.fleet.live');
+            Route::get('fleet/driver-activity', [WaterLogisticsApiController::class, 'driverActivityTimeline'])->name('api.v1.mobile.fleet.driver-activity');
             Route::post('fleet/ping', [WaterLogisticsApiController::class, 'fleetPing'])->name('api.v1.mobile.fleet.ping');
+            Route::get('customers/{id}/history', [WaterLogisticsApiController::class, 'customerFullHistory'])->name('api.v1.mobile.customers.history');
             Route::post('customers/{id}/location', [WaterLogisticsApiController::class, 'updateCustomerLocation'])->name('api.v1.mobile.customers.location');
             Route::get('driver/manifest', [WaterLogisticsApiController::class, 'driverManifest'])->name('api.v1.mobile.driver.manifest');
         });
@@ -111,9 +113,13 @@ Route::prefix('v1')->group(function () {
         Route::get('routes', [WaterLogisticsApiController::class, 'routes'])->name('api.v1.routes.alias');
         Route::post('driver-surrender', [WaterLogisticsApiController::class, 'driverCashSurrender'])->name('api.v1.driver-surrender.alias');
         Route::post('spot-audit', [WaterLogisticsApiController::class, 'spotAudit'])->name('api.v1.spot-audit.alias');
+        Route::get('fleet/driver-activity', [WaterLogisticsApiController::class, 'driverActivityTimeline'])->name('api.v1.fleet.driver-activity.alias');
+        Route::get('customers/{id}/history', [WaterLogisticsApiController::class, 'customerFullHistory'])->name('api.v1.customers.history.alias');
         Route::post('operations/cafe-pos', [CafeApiController::class, 'storeOrder'])->name('api.v1.cafe-pos.alias');
         Route::post('mobile/operations/cafe-pos', [CafeApiController::class, 'storeOrder'])->name('api.v1.mobile.cafe-pos.alias');
+        Route::post('cafe-orders', [CafeApiController::class, 'storeOrder'])->name('api.v1.cafe-orders.alias');
         Route::post('stock-count', [InventoryApiController::class, 'stockCount'])->middleware('company.context')->name('api.v1.stock-count.alias');
+        Route::post('admin/reset-demo-data', [WaterLogisticsApiController::class, 'resetDemoDataForGolive'])->name('api.v1.admin.reset-demo-data');
 
         // Sales & Invoicing
         Route::prefix('sales')->group(function () {
@@ -123,8 +129,17 @@ Route::prefix('v1')->group(function () {
             Route::post('{id}/payments', [SaleApiController::class, 'addPayment'])->middleware('company.context')->name('api.v1.sales.add-payment');
         });
 
+        // Quotations & Proforma Estimates (A-14)
+        Route::prefix('quotations')->middleware('company.context')->group(function () {
+            Route::get('/', [SaleApiController::class, 'quotations'])->name('api.v1.quotations.index');
+            Route::post('/', [SaleApiController::class, 'storeQuotation'])->name('api.v1.quotations.store');
+            Route::post('{id}/convert', [SaleApiController::class, 'convertQuotation'])->name('api.v1.quotations.convert');
+        });
+
         // Purchases & Procurement
         Route::prefix('purchases')->group(function () {
+            Route::get('regular-vendors', [PurchaseApiController::class, 'regularVendors'])->middleware('company.context')->name('api.v1.purchases.regular-vendors');
+            Route::post('quick', [PurchaseApiController::class, 'quickStore'])->middleware('company.context')->name('api.v1.purchases.quick');
             Route::get('/', [PurchaseApiController::class, 'index'])->middleware('company.context')->name('api.v1.purchases.index');
             Route::post('/', [PurchaseApiController::class, 'store'])->middleware('company.context')->name('api.v1.purchases.store');
             Route::get('{id}', [PurchaseApiController::class, 'show'])->middleware('company.context')->name('api.v1.purchases.show');
@@ -178,12 +193,44 @@ Route::prefix('v1')->group(function () {
 
         // Partners (Customers & Suppliers)
         Route::get('customers', [PartnerApiController::class, 'customers'])->middleware('company.context')->name('api.v1.customers.index');
+        Route::post('customers/{id}/credit-limit', [PartnerApiController::class, 'updateCreditLimit'])->middleware('company.context')->name('api.v1.customers.credit-limit');
         Route::get('suppliers', [PartnerApiController::class, 'suppliers'])->middleware('company.context')->name('api.v1.suppliers.index');
+        Route::post('suppliers/{id}/pay', [PartnerApiController::class, 'paySupplier'])->middleware('company.context')->name('api.v1.suppliers.pay');
+
+        // Unified Notifications & Push Tokens (G-04)
+        Route::get('notifications', [WaterLogisticsApiController::class, 'notifications'])->name('api.v1.notifications.index');
+        Route::post('notifications/{id}/read', [WaterLogisticsApiController::class, 'markNotificationRead'])->name('api.v1.notifications.read');
+        Route::post('devices/push-token', [WaterLogisticsApiController::class, 'registerPushToken'])->name('api.v1.devices.push-token');
 
         // INDUSTRY ADDON: Water Logistics
         Route::prefix('water')->group(function () {
             Route::get('routes', [WaterLogisticsApiController::class, 'routes'])->name('api.v1.water.routes');
+            Route::get('pickup-points', [WaterLogisticsApiController::class, 'pickupPointsIndex'])->name('api.v1.water.pickup-points.index');
+            Route::post('pickup-points', [WaterLogisticsApiController::class, 'storePickupPoint'])->name('api.v1.water.pickup-points.store');
+            Route::post('payments/verify-proof', [WaterLogisticsApiController::class, 'verifyWaterPaymentProof'])->name('api.v1.water.payments.verify-proof');
+            Route::get('trips', [WaterLogisticsApiController::class, 'trips'])->name('api.v1.water.trips.index');
+            Route::get('trips/{id}/trail', [WaterLogisticsApiController::class, 'tripTrail'])->name('api.v1.water.trips.trail');
+            Route::post('trips/{id}/process', [WaterLogisticsApiController::class, 'processTripOrder'])->name('api.v1.water.trips.process');
             Route::post('trip-sheets', [WaterLogisticsApiController::class, 'storeTripSheet'])->name('api.v1.water.trip-sheets');
+            Route::get('can-orders', [WaterLogisticsApiController::class, 'canOrders'])->name('api.v1.water.can-orders.index');
+            Route::post('can-orders', [WaterLogisticsApiController::class, 'storeCanOrder'])->name('api.v1.water.can-orders.store');
+            Route::match(['put', 'patch'], 'can-orders/{id}', [WaterLogisticsApiController::class, 'updateCanOrder'])->name('api.v1.water.can-orders.update');
+            Route::post('can-orders/{id}/adjust', [WaterLogisticsApiController::class, 'updateCanOrder'])->name('api.v1.water.can-orders.adjust');
+            Route::post('can-orders/{id}/start', [WaterLogisticsApiController::class, 'startCanOrder'])->name('api.v1.water.can-orders.start');
+            Route::post('can-orders/{id}/close', [WaterLogisticsApiController::class, 'closeCanOrder'])->name('api.v1.water.can-orders.close');
+            Route::post('can-orders/{id}/cancel', [WaterLogisticsApiController::class, 'cancelCanOrder'])->name('api.v1.water.can-orders.cancel');
+            Route::get('tanker-orders', [WaterLogisticsApiController::class, 'tankerOrders'])->name('api.v1.water.tanker-orders.index');
+            Route::post('tanker-orders', [WaterLogisticsApiController::class, 'storeTankerOrder'])->name('api.v1.water.tanker-orders.store');
+            Route::match(['put', 'patch'], 'tanker-orders/{id}', [WaterLogisticsApiController::class, 'updateTankerOrder'])->name('api.v1.water.tanker-orders.update');
+            Route::post('tanker-orders/{id}/adjust', [WaterLogisticsApiController::class, 'updateTankerOrder'])->name('api.v1.water.tanker-orders.adjust');
+            Route::post('tanker-orders/{id}/cancel', [WaterLogisticsApiController::class, 'cancelTankerOrder'])->name('api.v1.water.tanker-orders.cancel');
+            Route::get('schedules', [WaterLogisticsApiController::class, 'schedulesIndex'])->name('api.v1.water.schedules.index');
+            Route::post('schedules', [WaterLogisticsApiController::class, 'storeSchedule'])->name('api.v1.water.schedules.store');
+            Route::match(['put', 'patch'], 'schedules/{id}', [WaterLogisticsApiController::class, 'updateSchedule'])->name('api.v1.water.schedules.update');
+            Route::post('schedules/{id}/toggle', [WaterLogisticsApiController::class, 'toggleSchedule'])->name('api.v1.water.schedules.toggle');
+            Route::post('schedules/{id}/skip', [WaterLogisticsApiController::class, 'skipSchedule'])->name('api.v1.water.schedules.skip');
+            Route::post('schedules/{id}/generate-now', [WaterLogisticsApiController::class, 'generateScheduleNow'])->name('api.v1.water.schedules.generate-now');
+            Route::post('schedules/generate-due', [WaterLogisticsApiController::class, 'generateDueSchedules'])->name('api.v1.water.schedules.generate-due');
             Route::post('can-deliveries', [WaterLogisticsApiController::class, 'storeCanDelivery'])->name('api.v1.water.can-deliveries');
             Route::post('plant-intakes', [WaterLogisticsApiController::class, 'storePlantIntake'])->name('api.v1.water.plant-intakes');
             Route::post('driver-surrender', [WaterLogisticsApiController::class, 'driverCashSurrender'])->name('api.v1.water.driver-surrender');
@@ -193,7 +240,31 @@ Route::prefix('v1')->group(function () {
         Route::prefix('cafe')->group(function () {
             Route::get('menu', [CafeApiController::class, 'menu'])->name('api.v1.cafe.menu');
             Route::post('orders', [CafeApiController::class, 'storeOrder'])->name('api.v1.cafe.orders');
+            Route::post('cafe-orders', [CafeApiController::class, 'storeOrder'])->name('api.v1.cafe.cafe-orders');
             Route::post('drawer-reconcile', [CafeApiController::class, 'reconcileDrawer'])->name('api.v1.cafe.drawer-reconcile');
+        });
+
+        // ERP POINT OF SALE (Shifts X/Z, Tables, Held Drafts, Split Payments, Returns, KDS, Kitchen Ops, Thermal Print)
+        Route::prefix('pos')->middleware('company.context')->group(function () {
+            Route::get('bootstrap', [\App\Http\Controllers\Api\V1\PosApiController::class, 'bootstrap'])->name('api.v1.pos.bootstrap');
+            Route::get('tables', [\App\Http\Controllers\Api\V1\PosApiController::class, 'tables'])->name('api.v1.pos.tables');
+            Route::get('shifts/current', [\App\Http\Controllers\Api\V1\PosApiController::class, 'currentShift'])->name('api.v1.pos.shifts.current');
+            Route::post('shifts/open', [\App\Http\Controllers\Api\V1\PosApiController::class, 'openShift'])->name('api.v1.pos.shifts.open');
+            Route::post('shifts/close', [\App\Http\Controllers\Api\V1\PosApiController::class, 'closeShift'])->name('api.v1.pos.shifts.close');
+            Route::get('orders', [\App\Http\Controllers\Api\V1\PosApiController::class, 'orders'])->name('api.v1.pos.orders.index');
+            Route::post('orders', [\App\Http\Controllers\Api\V1\PosApiController::class, 'storeOrder'])->name('api.v1.pos.orders.store');
+            Route::get('orders/{id}', [\App\Http\Controllers\Api\V1\PosApiController::class, 'showOrder'])->name('api.v1.pos.orders.show');
+            Route::post('orders/{id}/resume', [\App\Http\Controllers\Api\V1\PosApiController::class, 'resumeHeldOrder'])->name('api.v1.pos.orders.resume');
+            Route::delete('orders/{id}/held', [\App\Http\Controllers\Api\V1\PosApiController::class, 'cancelHeldOrder'])->name('api.v1.pos.orders.cancel-held');
+            Route::post('orders/{id}/refund', [\App\Http\Controllers\Api\V1\PosApiController::class, 'refundOrder'])->name('api.v1.pos.orders.refund');
+            Route::post('orders/{id}/print-job', [\App\Http\Controllers\Api\V1\PosApiController::class, 'printOrderJob'])->name('api.v1.pos.orders.print-job');
+            Route::get('kds', [\App\Http\Controllers\Api\V1\PosApiController::class, 'kds'])->name('api.v1.pos.kds.index');
+            Route::post('kds/{id}/status', [\App\Http\Controllers\Api\V1\PosApiController::class, 'updateKdsStatus'])->name('api.v1.pos.kds.status');
+            Route::patch('products/{id}/availability', [\App\Http\Controllers\Api\V1\PosApiController::class, 'toggleProductAvailability'])->name('api.v1.pos.products.availability');
+            Route::post('production-batches', [\App\Http\Controllers\Api\V1\PosApiController::class, 'storeProductionBatch'])->name('api.v1.pos.production-batches.store');
+            Route::post('wastage', [\App\Http\Controllers\Api\V1\PosApiController::class, 'storeWastage'])->name('api.v1.pos.wastage.store');
+            Route::get('reorder-requests', [\App\Http\Controllers\Api\V1\PosApiController::class, 'reorderRequests'])->name('api.v1.pos.reorder-requests.index');
+            Route::post('reorder-requests', [\App\Http\Controllers\Api\V1\PosApiController::class, 'storeReorderRequest'])->name('api.v1.pos.reorder-requests.store');
         });
 
         // INDUSTRY ADDON: Repair & RMA Service Center
@@ -207,15 +278,20 @@ Route::prefix('v1')->group(function () {
         Route::prefix('expenses')->group(function () {
             Route::get('/', [ExpenseApiController::class, 'index'])->name('api.v1.expenses.index');
             Route::post('/', [ExpenseApiController::class, 'store'])->name('api.v1.expenses.store');
+            Route::post('batch', [ExpenseApiController::class, 'storeBatch'])->name('api.v1.expenses.batch');
+            Route::get('accounts-summary', [ExpenseApiController::class, 'accountsSummary'])->name('api.v1.expenses.accounts-summary');
             Route::get('categories', [ExpenseApiController::class, 'categories'])->name('api.v1.expenses.categories');
         });
 
         // Organization & HRM (Attendance & Leaves)
         Route::prefix('hrm')->group(function () {
+            Route::get('attendance/status', [HrmApiController::class, 'status'])->name('api.v1.hrm.attendance.status');
             Route::post('attendance/check-in', [HrmApiController::class, 'checkIn'])->name('api.v1.hrm.check-in');
             Route::post('attendance/check-out', [HrmApiController::class, 'checkOut'])->name('api.v1.hrm.check-out');
             Route::get('leaves', [HrmApiController::class, 'leaves'])->name('api.v1.hrm.leaves');
             Route::post('leaves', [HrmApiController::class, 'applyLeave'])->name('api.v1.hrm.apply-leave');
+            Route::post('leaves/{id}/approve', [HrmApiController::class, 'approveLeave'])->name('api.v1.hrm.leaves.approve');
+            Route::post('leaves/{id}/reject', [HrmApiController::class, 'rejectLeave'])->name('api.v1.hrm.leaves.reject');
             Route::get('leave-types', [HrmApiController::class, 'leaveTypes'])->name('api.v1.hrm.leave-types');
         });
 

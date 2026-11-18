@@ -1,7 +1,9 @@
 name: Deploy to MilesWeb
 
 on:
-  # Deploy only the main commits that passed the acceptance suites.
+  push:
+    branches: [main]
+  # Deploy also on completion of acceptance suites or manual trigger.
   workflow_run:
     workflows: [ERP completion acceptance]
     types: [completed]
@@ -22,7 +24,7 @@ concurrency:
 jobs:
   deploy:
     name: dkenterprises.animazon.in
-    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

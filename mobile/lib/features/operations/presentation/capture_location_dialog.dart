@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/location_parser.dart';
+import '../../location/location_picker_screen.dart';
 
 class CaptureLocationDialog extends ConsumerStatefulWidget {
   final int customerId;
@@ -113,31 +113,54 @@ class _CaptureLocationDialogState extends ConsumerState<CaptureLocationDialog> {
     });
 
     try {
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
+      final snap = await ref.read(gpsServiceProvider).evaluate(requestIfDenied: true);
+      if (!mounted) return;
+      if (snap.latitude != null && snap.longitude != null) {
+        setState(() {
+          _parsedCoordinates = LocationCoordinates(
+            latitude: snap.latitude!,
+            longitude: snap.longitude!,
+          );
+          _inputController.text =
+              '${snap.latitude!.toStringAsFixed(6)}, ${snap.longitude!.toStringAsFixed(6)}';
+          _statusMessage = '✓ Live phone GPS captured successfully';
+          _isLocatingGps = false;
+        });
+      } else {
+        setState(() {
+          _statusMessage = 'Tap "Pin on Interactive Map" below or paste WhatsApp link.';
+          _isLocatingGps = false;
+        });
       }
-
-      final pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 10),
-      );
-
-      setState(() {
-        _parsedCoordinates = LocationCoordinates(
-          latitude: pos.latitude,
-          longitude: pos.longitude,
-        );
-        _inputController.text = '${pos.latitude.toStringAsFixed(6)}, ${pos.longitude.toStringAsFixed(6)}';
-        _statusMessage = '✓ Live phone GPS captured successfully';
-        _isLocatingGps = false;
-      });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
-        _statusMessage = 'GPS capture unavailable. Please paste WhatsApp link.';
+        _statusMessage = 'GPS capture unavailable. Use Interactive Map or WhatsApp link.';
         _isLocatingGps = false;
       });
     }
+  }
+
+  Future<void> _openInteractiveMapPicker() async {
+    final picked = await Navigator.of(context).push<PickedLocation>(
+      MaterialPageRoute(
+        builder: (_) => LocationPickerScreen(
+          initialLat: _parsedCoordinates?.latitude,
+          initialLng: _parsedCoordinates?.longitude,
+          title: 'Pin ${widget.customerName}',
+        ),
+      ),
+    );
+    if (!mounted || picked == null) return;
+    setState(() {
+      _parsedCoordinates = LocationCoordinates(
+        latitude: picked.latitude,
+        longitude: picked.longitude,
+      );
+      _inputController.text =
+          '${picked.latitude.toStringAsFixed(6)}, ${picked.longitude.toStringAsFixed(6)}';
+      _statusMessage = '✓ GPS location pinned on interactive map';
+    });
   }
 
   Future<void> _saveLocation() async {
@@ -418,25 +441,47 @@ class _CaptureLocationDialogState extends ConsumerState<CaptureLocationDialog> {
                 ),
               ),
 
-            // Alternative: Capture Current Device GPS
-            OutlinedButton.icon(
-              onPressed: _isLocatingGps ? null : _captureCurrentGps,
-              icon: _isLocatingGps
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.my_location_rounded, size: 18),
-              label: Text(_isLocatingGps ? 'Reading GPS Sensor...' : 'Capture My Current GPS Location Here'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: isDark ? AppColors.primaryDark : AppColors.primary,
-                side: BorderSide(
-                  color: (isDark ? AppColors.primaryDark : AppColors.primary).withOpacity(0.4),
+            // Alternative: Capture Current Device GPS OR Pin on Interactive Map
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _isLocatingGps ? null : _captureCurrentGps,
+                    icon: _isLocatingGps
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.my_location_rounded, size: 18),
+                    label: Text(_isLocatingGps ? 'Reading...' : 'My GPS'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: isDark ? AppColors.primaryDark : AppColors.primary,
+                      side: BorderSide(
+                        color: (isDark ? AppColors.primaryDark : AppColors.primary).withOpacity(0.4),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _openInteractiveMapPicker,
+                    icon: const Icon(Icons.map_rounded, size: 18),
+                    label: const Text('Pin on Map'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.brandEmerald,
+                      side: BorderSide(
+                        color: AppColors.brandEmerald.withOpacity(0.5),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
 

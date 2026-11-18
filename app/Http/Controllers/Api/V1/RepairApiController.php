@@ -135,21 +135,31 @@ class RepairApiController extends BaseApiController
 
         DB::table('repair_services')->where('id', $id)->update($updates);
 
-        // When marked completed, post to accounting ledger
+        // When marked completed, post to accounting ledger using resolved CompanyContext
         if ($request->status === 'Completed' && ($job->total_charge > 0 || ($updates['total_charge'] ?? 0) > 0)) {
-            $finalTotal = $updates['total_charge'] ?? $job->total_charge;
+            $finalTotal = (float) ($updates['total_charge'] ?? $job->total_charge);
             try {
-                $this->accountingService->postJournalEntry([
-                    'entry_date' => now()->toDateString(),
-                    'reference_type' => 'RepairService',
-                    'reference_id' => $job->job_sheet_no,
-                    'narration' => "Repair Service Job Completed [{$job->job_sheet_no}]",
-                    'items' => [
-                        ['account_code' => '1030', 'debit' => $finalTotal, 'credit' => 0, 'memo' => 'Service AR'],
-                        ['account_code' => '4020', 'debit' => 0, 'credit' => $finalTotal, 'memo' => 'Repair Revenue']
-                    ]
-                ]);
-            } catch (\Exception $e) {}
+                $companyId = (int) ($request->header('X-Company-ID')
+                    ?? DB::table('customers')->where('id', $job->customer_id)->value('company_id')
+                    ?? 1);
+                $context = app(\App\Services\Platform\CompanyContextResolver::class)->resolve((int) (Auth::id() ?? 1), $companyId);
+                $arAcc = $this->accountingService->getAccount('ar', $context)?->id;
+                $revAcc = $this->accountingService->getAccount('sales', $context)?->id;
+                if ($arAcc && $revAcc) {
+                    $this->accountingService->postJournalEntry([
+                        'entry_date' => now()->toDateString(),
+                        'reference_type' => 'voucher',
+                        'reference_no' => $job->job_sheet_no,
+                        'description' => "Repair Service Job Completed [{$job->job_sheet_no}]",
+                        'created_by' => Auth::id() ?? 1,
+                    ], [
+                        ['chart_of_account_id' => (int) $arAcc, 'debit' => $finalTotal, 'credit' => 0, 'memo' => 'Service AR', 'partner_type' => 'customer', 'partner_id' => (int) $job->customer_id],
+                        ['chart_of_account_id' => (int) $revAcc, 'debit' => 0, 'credit' => $finalTotal, 'memo' => 'Repair Revenue'],
+                    ], $context);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Repair service journal warning: ' . $e->getMessage());
+            }
         }
 
         return $this->sendResponse([

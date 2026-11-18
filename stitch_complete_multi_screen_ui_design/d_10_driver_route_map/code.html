@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-secondary-fixed":"#151f00","on-tertiary-fixed":"#002112","on-surface-variant":"#3f4946","surface-tint":"#1f695e","primary-fixed":"#a9f0e1","surface":"#FFFFFF","on-error":"#ffffff","info-sky":"#2E90FA","on-primary":"#ffffff","surface-variant":"#e4e2dd","on-primary-fixed":"#00201b","hairline":"#E3E1DA","role-field-action":"#C9F36A","ink-muted":"#66736C","primary-fixed-dim":"#8ed4c5","role-cafe-action":"#F4A62A","primary":"#00443b","primary-container":"#0b5d52","role-cafe-ink":"#2B1B14","dark-surface":"#17221D","surface-container-highest":"#e4e2dd","tertiary-container":"#005f3c","on-background":"#1b1c19","on-secondary-fixed-variant":"#394e00","inverse-surface":"#30312e","dark-surface-tonal":"#1F2E27","outline-variant":"#bec9c5","tertiary-fixed":"#7ffaba","outline":"#6f7976","dark-ink":"#EDF3EF","secondary-fixed-dim":"#acd44f","money-coral":"#E8505B","on-surface":"#1b1c19","inverse-primary":"#8ed4c5","error-container":"#ffdad6","on-error-container":"#93000a","on-tertiary-fixed-variant":"#005233","inverse-on-surface":"#f2f1ec","secondary":"#4c6700","surface-bright":"#fbf9f4","role-driver-action":"#FFC933","pending-honey":"#E9A23B","role-cafe-primary":"#C2542D","error":"#ba1a1a","surface-container-high":"#eae8e3","surface-dim":"#dcdad5","role-cafe-canvas":"#FBF4EA","on-secondary":"#ffffff","dark-canvas":"#0E1512","secondary-fixed":"#c7f169","on-primary-fixed-variant":"#005046","critical-ruby":"#D92D20","role-field-primary":"#3F7D58","background":"#fbf9f4","surface-container-lowest":"#ffffff","role-driver-primary":"#0E8FB3","money-mint":"#1FA971","on-tertiary-container":"#61dda0","dark-ink-muted":"#93A39B","surface-tonal":"#ECEFEA","on-secondary-container":"#506c00","on-tertiary":"#ffffff","role-driver-canvas":"#F3F8FA","tertiary-fixed-dim":"#61dda0","tertiary":"#00452a","on-primary-container":"#8dd3c5","ink":"#13201B","surface-container":"#f0eee9","surface-container-low":"#f5f3ee","secondary-container":"#c5ee66"},"borderRadius":{"DEFAULT":"1rem","lg":"2rem","xl":"3rem","full":"9999px"},"spacing":{"margin":"1rem","space-lg":"1rem","space-xs":"0.25rem","gutter":"0.75rem","space-xl":"1.5rem","space-sm":"0.5rem","space-md":"0.75rem"},"fontFamily":{"display-numeral-mobile":["Manrope"],"caption-meta":["Manrope"],"body-md":["Manrope"],"body-lg":["Manrope"],"headline-md":["Manrope"],"display-numeral":["Manrope"],"sublabel-regional":["Noto Sans Tamil"],"headline-lg":["Manrope"],"label-action":["Manrope"]},"fontSize":{"display-numeral-mobile":["40px",{"lineHeight":"44px","letterSpacing":"-0.02em","fontWeight":"800"}],"caption-meta":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"500"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"600"}],"headline-md":["20px",{"lineHeight":"26px","letterSpacing":"-0.01em","fontWeight":"700"}],"display-numeral":["48px",{"lineHeight":"52px","letterSpacing":"-0.03em","fontWeight":"800"}],"sublabel-regional":["11px",{"lineHeight":"14px","fontWeight":"600"}],"headline-lg":["28px",{"lineHeight":"34px","letterSpacing":"-0.02em","fontWeight":"800"}],"label-action":["16px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"700"}]}}}};</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-role-driver-canvas text-ink font-body-md text-body-md antialiased min-h-full flex flex-col"><header class="fixed top-0 inset-x-0 z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe"><div class="h-28 px-margin flex flex-col justify-center gap-space-xs"><div class="flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><button aria-label="Go back" class="w-11 h-11 shrink-0 rounded-full bg-surface-container flex items-center justify-center text-ink hover:bg-surface-variant transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[22px]">arrow_back</span></button><div class="flex flex-col min-w-0"><div class="flex items-baseline gap-space-xs truncate"><h1 class="font-headline-md text-headline-md text-ink truncate">Route Beat Map</h1><span class="font-sublabel-regional text-sublabel-regional text-ink-muted truncate">(வழித்தட வரைபடம்)</span></div><div class="flex items-center gap-1.5"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-caption-meta text-caption-meta"><span class="material-symbols-outlined text-[13px]">alt_route</span>Beat #01 · Anna Nagar</span></div></div></div><div class="flex items-center gap-space-sm shrink-0"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div><div class="flex items-center gap-space-xs overflow-x-auto no-scrollbar pt-0.5"><div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-caption-meta shrink-0"><span class="material-symbols-outlined text-[14px]">satellite_alt</span><span>12 Sats · ±3.5m</span></div><div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-ink font-caption-meta text-caption-meta shrink-0"><span class="material-symbols-outlined text-[14px] text-ink-muted">local_shipping</span><span>TN-58-WA-101</span></div><div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-role-driver-canvas text-role-driver-primary font-caption-meta text-caption-meta shrink-0"><span class="material-symbols-outlined text-[14px]">navigation</span><span>Aqua Day Online</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-28 bg-role-driver-canvas"><div class="flex flex-col w-full relative select-none">
+<!-- Top Floating Operations Bar: Route Pulse & Filter Chips -->
+<div class="px-margin pt-space-xs pb-space-sm flex flex-col gap-space-xs z-30">
+<!-- Beat Progress Status Pill -->
+<div class="w-full bg-surface/95 backdrop-blur-md rounded-2xl p-space-sm flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-9 h-9 rounded-xl bg-role-driver-canvas flex items-center justify-center shrink-0 text-role-driver-primary">
+<span class="material-symbols-outlined text-[20px]">local_shipping</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5 truncate">
+<span class="font-headline-md text-body-lg text-ink font-bold">Beat #01 Progress</span>
+<span class="font-caption-meta text-caption-meta text-money-mint bg-[#E6F7F0] px-2 py-0.5 rounded-full">22% Done</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink-muted truncate">4/18 Delivered • 32 Cans Remaining</span>
+</div>
+</div>
+<!-- Reorder Stops Toggle Button -->
+<button aria-label="Reorder Stops" class="h-11 px-3 bg-surface-container hover:bg-surface-variant active:scale-95 transition-all rounded-full flex items-center gap-1.5 text-ink shrink-0" id="toggle-reorder-btn">
+<span class="material-symbols-outlined text-[18px]">drag_indicator</span>
+<span class="font-label-action text-caption-meta font-bold">Reorder</span>
+</button>
+</div>
+<!-- Filter Chips Carousel -->
+<div class="flex items-center gap-space-xs overflow-x-auto no-scrollbar py-0.5">
+<button class="filter-chip active flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-ink text-surface font-caption-meta text-caption-meta shrink-0 transition-transform active:scale-95 shadow-sm">
+<span class="material-symbols-outlined text-[15px]">route</span>
+<span>All Stops (18)</span>
+</button>
+<button class="filter-chip flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface text-ink font-caption-meta text-caption-meta shrink-0 shadow-sm transition-transform active:scale-95">
+<span class="w-2.5 h-2.5 rounded-full bg-money-mint"></span>
+<span class="font-bold text-money-mint">Delivered (4)</span>
+</button>
+<button class="filter-chip flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface text-ink font-caption-meta text-caption-meta shrink-0 shadow-sm transition-transform active:scale-95">
+<span class="w-2.5 h-2.5 rounded-full bg-role-driver-primary animate-pulse"></span>
+<span class="font-bold text-role-driver-primary">Pending (13)</span>
+</button>
+<button class="filter-chip flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface text-ink font-caption-meta text-caption-meta shrink-0 shadow-sm transition-transform active:scale-95">
+<span class="w-2.5 h-2.5 rounded-full bg-ink-muted"></span>
+<span class="font-medium text-ink-muted">Skipped (1)</span>
+</button>
+</div>
+</div>
+<!-- Interactive Tactical Map Canvas -->
+<div class="relative w-full h-[470px] overflow-hidden bg-[#d9e8ed]">
+<!-- Vector Map Artwork with Streets, Water bodies, and Landmarks -->
+<svg class="absolute inset-0 w-full h-full" fill="none" preserveaspectratio="none" viewbox="0 0 390 470" xmlns="http://www.w3.org/2000/svg">
+<!-- Water body: Erode Canal / Teppakulam -->
+<path d="M-10 110 C80 140 180 90 260 140 C320 180 370 170 410 190 L410 230 C350 200 300 220 240 170 C160 120 70 170 -10 140 Z" fill="#b9e3ee" opacity="0.6"></path>
+<text fill="#0E8FB3" font-size="10" font-weight="700" letter-spacing="1" opacity="0.5" x="70" y="145">TEPPAKULAM TANK</text>
+<!-- Neighborhood blocks & ground planes -->
+<rect fill="#e8f1ec" height="55" opacity="0.8" rx="8" width="70" x="25" y="40"></rect>
+<rect fill="#ebf3f1" height="65" opacity="0.9" rx="8" width="110" x="110" y="30"></rect>
+<rect fill="#e6eff0" height="75" opacity="0.8" rx="8" width="130" x="235" y="45"></rect>
+<rect fill="#e5efe9" height="70" opacity="0.75" rx="8" width="90" x="30" y="165"></rect>
+<rect fill="#ecf4f2" height="85" opacity="0.9" rx="8" width="120" x="135" y="170"></rect>
+<rect fill="#e4eef0" height="60" opacity="0.8" rx="8" width="95" x="270" y="175"></rect>
+<rect fill="#e8f3ed" height="110" opacity="0.8" rx="8" width="105" x="40" y="270"></rect>
+<rect fill="#edf4f0" height="90" opacity="0.9" rx="8" width="115" x="160" y="290"></rect>
+<rect fill="#ebf1ec" height="110" opacity="0.8" rx="8" width="85" x="290" y="270"></rect>
+<!-- Secondary Streets Grid -->
+<path d="M0 95 L390 95" stroke="#FFFFFF" stroke-linecap="round" stroke-width="7"></path>
+<path d="M0 95 L390 95" stroke="#e0e8ea" stroke-linecap="round" stroke-width="5"></path>
+<text fill="#788b8f" font-size="8" font-weight="600" x="245" y="90">ANNA NAGAR 3RD ST</text>
+<path d="M0 255 L390 255" stroke="#FFFFFF" stroke-linecap="round" stroke-width="8"></path>
+<path d="M0 255 L390 255" stroke="#d5e2e4" stroke-linecap="round" stroke-width="5"></path>
+<text fill="#6d8387" font-size="8" font-weight="600" x="35" y="250">GANDHI ROAD CROSS</text>
+<path d="M125 0 L125 470" stroke="#FFFFFF" stroke-width="8"></path>
+<path d="M125 0 L125 470" stroke="#dbe6e8" stroke-width="5"></path>
+<path d="M265 0 L265 470" stroke="#FFFFFF" stroke-width="8"></path>
+<path d="M265 0 L265 470" stroke="#dbe6e8" stroke-width="5"></path>
+<!-- Arterial Highway: Perundurai Road (Curved Yellow Line) -->
+<path d="M-20 350 Q140 280 195 210 T380 40" stroke="#FFFFFF" stroke-linecap="round" stroke-width="14"></path>
+<path d="M-20 350 Q140 280 195 210 T380 40" stroke="#FFF3CC" stroke-linecap="round" stroke-width="10"></path>
+<text fill="#998634" font-size="9" font-weight="700" transform="rotate(-38 200 185)" x="200" y="185">PERUNDURAI MAIN ARTERIAL ROAD</text>
+<!-- Completed Route Polyline (Muted Mint/Slate) -->
+<path d="M 55 75 L 85 95 L 125 130 L 75 195 L 145 220" opacity="0.8" stroke="#1FA971" stroke-dasharray="1 1" stroke-linecap="round" stroke-linejoin="round" stroke-width="4.5"></path>
+<!-- Active / Upcoming Glowing Aqua Polyline -->
+<path d="M 145 220 L 195 210 L 225 240 L 265 255 L 265 315 L 310 340 L 335 390" opacity="0.35" stroke="#0E8FB3" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"></path>
+<path d="M 145 220 L 195 210 L 225 240 L 265 255 L 265 315 L 310 340 L 335 390" stroke="#0E8FB3" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5"></path>
+<!-- Navigational Direction Arrows -->
+<polygon fill="#0E8FB3" points="172,211 163,207 165,215" transform="rotate(-12 172 211)"></polygon>
+<polygon fill="#0E8FB3" points="248,249 239,245 241,253" transform="rotate(20 248 249)"></polygon>
+<polygon fill="#0E8FB3" points="265,285 261,277 269,277"></polygon>
+<polygon fill="#0E8FB3" points="288,328 279,324 282,332" transform="rotate(32 288 328)"></polygon>
+</svg>
+<!-- Map Markers Overlay Layer (DOM Elements for Maximum Crispness & Touch) -->
+<!-- Stop #1: Delivered -->
+<div class="absolute top-[63px] left-[43px] flex flex-col items-center transform -translate-x-1/2 -translate-y-1/2 group">
+<div class="w-6 h-6 rounded-full bg-money-mint shadow-md flex items-center justify-center text-surface font-bold text-[11px]">
+<span class="material-symbols-outlined text-[15px] leading-none">check</span>
+</div>
+<span class="mt-0.5 px-1.5 py-0.5 bg-surface/90 backdrop-blur rounded text-[9px] font-bold text-ink-muted whitespace-nowrap shadow-sm">1. Sri Ganesh</span>
+</div>
+<!-- Stop #2: Delivered -->
+<div class="absolute top-[83px] left-[73px] flex flex-col items-center transform -translate-x-1/2 -translate-y-1/2">
+<div class="w-6 h-6 rounded-full bg-money-mint shadow-md flex items-center justify-center text-surface font-bold text-[11px]">
+<span class="material-symbols-outlined text-[15px] leading-none">check</span>
+</div>
+<span class="mt-0.5 px-1.5 py-0.5 bg-surface/90 backdrop-blur rounded text-[9px] font-bold text-ink-muted whitespace-nowrap shadow-sm">2. Murugan Tea</span>
+</div>
+<!-- Stop #3: Delivered -->
+<div class="absolute top-[183px] left-[63px] flex flex-col items-center transform -translate-x-1/2 -translate-y-1/2">
+<div class="w-6 h-6 rounded-full bg-money-mint shadow-md flex items-center justify-center text-surface font-bold text-[11px]">
+<span class="material-symbols-outlined text-[15px] leading-none">check</span>
+</div>
+<span class="mt-0.5 px-1.5 py-0.5 bg-surface/90 backdrop-blur rounded text-[9px] font-bold text-ink-muted whitespace-nowrap shadow-sm">3. Anand Bakery</span>
+</div>
+<!-- Stop #4: Delivered (Just Finished) -->
+<div class="absolute top-[208px] left-[133px] flex flex-col items-center transform -translate-x-1/2 -translate-y-1/2">
+<div class="w-6 h-6 rounded-full bg-money-mint shadow-md flex items-center justify-center text-surface font-bold text-[11px]">
+<span class="material-symbols-outlined text-[15px] leading-none">check</span>
+</div>
+<span class="mt-0.5 px-1.5 py-0.5 bg-surface/90 backdrop-blur rounded text-[9px] font-bold text-ink-muted whitespace-nowrap shadow-sm">4. Sri Ram Mess</span>
+</div>
+<!-- ACTIVE VAN POSITION: Heading toward Stop 5 -->
+<div class="absolute top-[214px] left-[175px] transform -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center">
+<!-- Radar Pulse Ring -->
+<div class="absolute -inset-3 rounded-full bg-role-driver-action/30 animate-ping pointer-events-none"></div>
+<div class="relative w-11 h-11 rounded-full bg-ink text-role-driver-action shadow-lg flex items-center justify-center border-2 border-surface">
+<span class="material-symbols-outlined text-[24px] transform -rotate-12">navigation</span>
+</div>
+<div class="mt-1 px-2 py-0.5 rounded-full bg-dark-surface text-dark-ink text-[10px] font-bold flex items-center gap-1 shadow-md whitespace-nowrap">
+<span class="w-1.5 h-1.5 rounded-full bg-money-mint animate-pulse"></span>
+<span>28 km/h</span>
+</div>
+</div>
+<!-- Stop #5: TARGET STOP (Pulsing Hero Target) -->
+<div class="absolute top-[235px] left-[225px] transform -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center cursor-pointer">
+<!-- Target Glow -->
+<div class="absolute -inset-2.5 rounded-full bg-role-driver-action/40 animate-pulse pointer-events-none"></div>
+<div class="w-9 h-9 rounded-full bg-role-driver-action text-ink font-extrabold flex items-center justify-center shadow-md border-2 border-surface text-[15px]">
+        5
+      </div>
+<!-- Detailed Callout Pin -->
+<div class="mt-1 flex flex-col items-center">
+<div class="w-2.5 h-1.5 bg-surface rotate-45 transform -mb-1 shadow-sm"></div>
+<div class="px-2.5 py-1 rounded-xl bg-surface shadow-md flex flex-col items-center text-center">
+<div class="flex items-center gap-1 text-[11px] font-bold text-ink">
+<span>Hotel Saravana</span>
+<span class="text-role-driver-primary font-black">(14)</span>
+</div>
+<span class="text-[9px] text-money-mint font-bold tracking-tight">ETA 4m · 1.2 km</span>
+</div>
+</div>
+</div>
+<!-- Stop #6: Pending -->
+<div class="absolute top-[255px] left-[265px] transform -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center">
+<div class="w-7 h-7 rounded-full bg-role-driver-primary text-surface font-bold text-xs flex items-center justify-center shadow-md border-2 border-surface">
+        6
+      </div>
+<span class="mt-0.5 px-1.5 py-0.5 bg-surface/90 backdrop-blur rounded text-[9px] font-bold text-ink whitespace-nowrap shadow-sm">Krishna Sweets (8)</span>
+</div>
+<!-- Stop #7: Pending -->
+<div class="absolute top-[315px] left-[265px] transform -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center">
+<div class="w-7 h-7 rounded-full bg-role-driver-primary text-surface font-bold text-xs flex items-center justify-center shadow-md border-2 border-surface">
+        7
+      </div>
+<span class="mt-0.5 px-1.5 py-0.5 bg-surface/90 backdrop-blur rounded text-[9px] font-bold text-ink whitespace-nowrap shadow-sm">Senthil Murugan (12)</span>
+</div>
+<!-- Stop #8: Skipped (Grey with Dash) -->
+<div class="absolute top-[340px] left-[310px] transform -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center opacity-85">
+<div class="w-6 h-6 rounded-full bg-surface-variant text-ink-muted font-bold text-xs flex items-center justify-center shadow-sm border border-hairline">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</div>
+<span class="mt-0.5 px-1.5 py-0.5 bg-surface-container rounded text-[9px] font-semibold text-ink-muted line-through whitespace-nowrap">8. Kaveri Hotel</span>
+</div>
+<!-- Stop #9: Pending -->
+<div class="absolute top-[390px] left-[335px] transform -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center">
+<div class="w-7 h-7 rounded-full bg-role-driver-primary text-surface font-bold text-xs flex items-center justify-center shadow-md border-2 border-surface">
+        9
+      </div>
+<span class="mt-0.5 px-1.5 py-0.5 bg-surface/90 backdrop-blur rounded text-[9px] font-bold text-ink whitespace-nowrap shadow-sm">Aavin Parlour (6)</span>
+</div>
+<!-- Floating Map Controls HUD (Top Right & Bottom Right) -->
+<div class="absolute right-3 top-3 flex flex-col gap-2 z-20">
+<button aria-label="Recenter Location" class="w-11 h-11 rounded-full bg-surface/95 backdrop-blur-md shadow-md flex items-center justify-center text-ink hover:bg-surface active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px] text-role-driver-primary">my_location</span>
+</button>
+<button aria-label="Toggle Traffic" class="w-11 h-11 rounded-full bg-surface/95 backdrop-blur-md shadow-md flex items-center justify-center text-ink hover:bg-surface active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px] text-pending-honey">traffic</span>
+</button>
+<button aria-label="Map Layers" class="w-11 h-11 rounded-full bg-surface/95 backdrop-blur-md shadow-md flex items-center justify-center text-ink hover:bg-surface active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px] text-ink-muted">layers</span>
+</button>
+</div>
+<!-- Quick Map Scale / Satellite Badge Indicator -->
+<div class="absolute left-3 bottom-4 z-20 bg-dark-surface/85 backdrop-blur-md text-dark-ink px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1.5 shadow-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-money-mint"></span>
+<span>GPS Lock · Erode North</span>
+</div>
+</div>
+<!-- Tactical Bottom Slide-Up Card for Active Stop (#5) -->
+<div class="relative -mt-3 z-30 bg-surface rounded-t-[28px] shadow-[0_-10px_25px_-5px_rgba(19,32,27,0.1)] px-margin pt-3 pb-8 flex flex-col gap-space-md">
+<!-- Tactile Drag Handle -->
+<div class="w-12 h-1.5 bg-hairline rounded-full mx-auto cursor-grab"></div>
+<!-- Stop Identification & ETA Pill -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded-md bg-role-driver-action text-ink font-bold text-[11px] tracking-wide">
+            STOP #5 OF 18
+          </span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Sched: 09:30 AM</span>
+</div>
+<div class="flex items-baseline gap-1 mt-1 truncate">
+<h2 class="font-headline-md text-headline-md text-ink font-extrabold truncate">Hotel Saravana Bhavan</h2>
+</div>
+<div class="flex items-center gap-1">
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted truncate">ஹோட்டல் சரவண பவன் • Perundurai Main Rd</span>
+</div>
+</div>
+<!-- ETA Badge -->
+<div class="shrink-0 flex flex-col items-end">
+<div class="px-2.5 py-1 rounded-full bg-[#E6F7F0] text-money-mint font-bold text-caption-meta flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[15px]">timer</span>
+<span>4 mins</span>
+</div>
+<span class="text-[11px] font-semibold text-ink-muted mt-0.5">1.2 km away</span>
+</div>
+</div>
+<!-- Demand & Exchange Summary Bento Slab -->
+<div class="grid grid-cols-3 gap-2 bg-surface-container rounded-2xl p-2.5">
+<!-- Full Cans to Deliver -->
+<div class="bg-surface rounded-xl p-2 flex flex-col items-center justify-center text-center">
+<span class="font-caption-meta text-[11px] font-bold text-role-driver-primary">DELIVER</span>
+<span class="font-display-numeral-mobile text-[22px] leading-6 font-extrabold text-ink my-0.5">14</span>
+<span class="font-caption-meta text-[10px] text-ink-muted">20L Aqua Day</span>
+</div>
+<!-- Empty Cans to Collect -->
+<div class="bg-surface rounded-xl p-2 flex flex-col items-center justify-center text-center">
+<span class="font-caption-meta text-[11px] font-bold text-pending-honey">COLLECT</span>
+<span class="font-display-numeral-mobile text-[22px] leading-6 font-extrabold text-ink my-0.5">12</span>
+<span class="font-caption-meta text-[10px] text-ink-muted">Empty Jars</span>
+</div>
+<!-- Invoiced Collect Amount -->
+<div class="bg-surface rounded-xl p-2 flex flex-col items-center justify-center text-center">
+<span class="font-caption-meta text-[11px] font-bold text-money-mint">EXPECTED</span>
+<span class="font-display-numeral-mobile text-[22px] leading-6 font-extrabold text-ink my-0.5">₹280</span>
+<span class="font-caption-meta text-[10px] text-money-mint font-semibold">Cash / UPI</span>
+</div>
+</div>
+<!-- Primary Action: Big 56px Navigational Touch Slab -->
+<div class="flex flex-col gap-2">
+<button aria-label="Start Turn-by-Turn Navigation" class="w-full h-14 bg-role-driver-action hover:bg-[#fabc1e] active:scale-[0.98] transition-all rounded-full flex items-center justify-center gap-2 shadow-sm px-6">
+<span class="material-symbols-outlined text-[24px] text-ink">near_me</span>
+<span class="font-label-action text-label-action text-ink font-extrabold">Start Navigation (வழிகாட்டுதல்)</span>
+<span class="material-symbols-outlined text-[20px] text-ink ml-auto">arrow_forward</span>
+</button>
+<!-- Secondary Field Action Trio -->
+<div class="grid grid-cols-3 gap-2">
+<!-- Call Store -->
+<button class="h-12 rounded-full bg-surface-container hover:bg-surface-variant active:scale-95 transition-all flex items-center justify-center gap-1.5 text-ink font-semibold text-caption-meta">
+<span class="material-symbols-outlined text-[18px] text-role-driver-primary">call</span>
+<span>Call Store</span>
+</button>
+<!-- WhatsApp Dispatch -->
+<button class="h-12 rounded-full bg-surface-container hover:bg-surface-variant active:scale-95 transition-all flex items-center justify-center gap-1.5 text-ink font-semibold text-caption-meta">
+<span class="material-symbols-outlined text-[18px] text-money-mint">chat</span>
+<span>WhatsApp</span>
+</button>
+<!-- Direct D-03 Sales POS Punch -->
+<button class="h-12 rounded-full bg-[#E6F7F0] hover:bg-[#d6f2e6] active:scale-95 transition-all flex items-center justify-center gap-1 text-money-mint font-bold text-caption-meta">
+<span class="material-symbols-outlined text-[18px]">point_of_sale</span>
+<span>Quick POS</span>
+</button>
+</div>
+</div>
+<!-- Stop Sequence Preview & Reorder Sneak Peek Banner -->
+<div class="w-full rounded-2xl bg-surface-container-low p-space-sm flex items-center justify-between">
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-ink-muted text-[18px]">swap_vert</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-caption-meta font-bold text-ink truncate">Sequence: Next is #6 Krishna Sweets</span>
+<span class="font-caption-meta text-[11px] text-ink-muted truncate">Drag to reorder stops • 13 pending</span>
+</div>
+</div>
+<button class="px-2.5 py-1 rounded-full bg-surface font-caption-meta text-caption-meta font-bold text-role-driver-primary shadow-sm hover:bg-surface-variant active:scale-95 transition-all" id="preview-list-btn">
+        View List
+      </button>
+</div>
+</div>
+<!-- Slide-up Reorder Stops Modal Drawer (Interactive Component) -->
+<div class="hidden fixed inset-0 z-50 bg-dark-canvas/60 backdrop-blur-sm flex flex-col justify-end transition-opacity duration-300" id="reorder-modal">
+<div class="w-full max-h-[724px] bg-surface rounded-t-[32px] p-margin pb-safe flex flex-col gap-space-md shadow-2xl overflow-hidden">
+<!-- Modal Header -->
+<div class="flex items-center justify-between pb-2">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<h3 class="font-headline-md text-headline-md text-ink font-bold">Route Sequence</h3>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed text-[11px] font-bold">Beat #01</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">நிறுத்தங்களை வரிசைப்படுத்துங்கள் (Hold handle to reorder)</span>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-ink hover:bg-surface-variant active:scale-95" id="close-reorder-btn">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Draggable Stops List Container -->
+<div class="flex flex-col gap-2 overflow-y-auto max-h-[424px] pr-0.5 no-scrollbar">
+<!-- Target Stop #5 (Locked active or moveable) -->
+<div class="p-3 bg-surface-container rounded-2xl flex items-center justify-between border-l-4 border-role-driver-action">
+<div class="flex items-center gap-3 min-w-0">
+<span class="w-7 h-7 rounded-full bg-role-driver-action text-ink font-bold text-xs flex items-center justify-center shrink-0">5</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md font-bold text-ink truncate">Hotel Saravana Bhavan</span>
+<span class="text-caption-meta text-role-driver-primary font-semibold">Current Target • 14 Cans</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-muted cursor-grab text-[22px]">drag_handle</span>
+</div>
+<!-- Stop #6 -->
+<div class="p-3 bg-surface-container-low rounded-2xl flex items-center justify-between hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3 min-w-0">
+<span class="w-7 h-7 rounded-full bg-role-driver-primary text-surface font-bold text-xs flex items-center justify-center shrink-0">6</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md font-semibold text-ink truncate">Sri Krishna Sweets</span>
+<span class="text-caption-meta text-ink-muted">Perundurai Rd • 8 Cans</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-muted cursor-grab text-[22px]">drag_handle</span>
+</div>
+<!-- Stop #7 -->
+<div class="p-3 bg-surface-container-low rounded-2xl flex items-center justify-between hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3 min-w-0">
+<span class="w-7 h-7 rounded-full bg-role-driver-primary text-surface font-bold text-xs flex items-center justify-center shrink-0">7</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md font-semibold text-ink truncate">Senthil Murugan Cool Drinks</span>
+<span class="text-caption-meta text-ink-muted">Brough Road • 12 Cans</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-muted cursor-grab text-[22px]">drag_handle</span>
+</div>
+<!-- Stop #8 (Skipped) -->
+<div class="p-3 bg-surface-container-low rounded-2xl flex items-center justify-between opacity-60">
+<div class="flex items-center gap-3 min-w-0">
+<span class="w-7 h-7 rounded-full bg-surface-variant text-ink-muted font-bold text-xs flex items-center justify-center shrink-0">8</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md font-medium text-ink-muted line-through truncate">Kaveri Hotel</span>
+<span class="text-caption-meta text-money-coral font-semibold">Skipped (Shop Closed)</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-hairline text-[22px]">lock</span>
+</div>
+<!-- Stop #9 -->
+<div class="p-3 bg-surface-container-low rounded-2xl flex items-center justify-between hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3 min-w-0">
+<span class="w-7 h-7 rounded-full bg-role-driver-primary text-surface font-bold text-xs flex items-center justify-center shrink-0">9</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md font-semibold text-ink truncate">Aavin Milk Parlour</span>
+<span class="text-caption-meta text-ink-muted">Bus Stand Corner • 6 Cans</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-muted cursor-grab text-[22px]">drag_handle</span>
+</div>
+</div>
+<!-- Confirm Reorder Button -->
+<button class="w-full h-14 bg-primary text-on-primary rounded-full font-label-action text-label-action font-bold active:scale-[0.98] transition-transform flex items-center justify-center gap-2 shadow-md" id="apply-reorder-btn">
+<span class="material-symbols-outlined text-[20px]">done_all</span>
+<span>Save Optimized Sequence</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  (function initDriverMapInteractions() {
+    const toggleReorder = document.getElementById('toggle-reorder-btn');
+    const previewList = document.getElementById('preview-list-btn');
+    const closeReorder = document.getElementById('close-reorder-btn');
+    const applyReorder = document.getElementById('apply-reorder-btn');
+    const reorderModal = document.getElementById('reorder-modal');
+
+    function openModal() {
+      reorderModal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+      reorderModal.classList.add('hidden');
+    }
+
+    if (toggleReorder) toggleReorder.addEventListener('click', openModal);
+    if (previewList) previewList.addEventListener('click', openModal);
+    if (closeReorder) closeReorder.addEventListener('click', closeModal);
+    if (applyReorder) applyReorder.addEventListener('click', closeModal);
+
+    // Active filter chips micro-feedback
+    const chips = document.querySelectorAll('.filter-chip');
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        chips.forEach(c => {
+          c.classList.remove('bg-ink', 'text-surface');
+          c.classList.add('bg-surface', 'text-ink');
+        });
+        chip.classList.remove('bg-surface', 'text-ink');
+        chip.classList.add('bg-ink', 'text-surface');
+      });
+    });
+  })();
+</script></main></body></html>

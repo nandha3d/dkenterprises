@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><title>TMWS Driver Shell</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "tertiary-fixed": "#7ffaba", "dark-surface-tonal": "#1F2E27", "dark-canvas": "#0E1512", "dark-surface": "#17221D", "surface-tonal": "#ECEFEA", "role-driver-canvas": "#F3F8FA", "outline": "#6f7976", "tertiary-container": "#005f3c", "on-surface-variant": "#3f4946", "inverse-on-surface": "#f2f1ec", "secondary-container": "#c5ee66", "surface-container-lowest": "#ffffff", "on-primary-fixed": "#00201b", "surface-tint": "#1f695e", "money-coral": "#E8505B", "role-cafe-ink": "#2B1B14", "role-driver-action": "#FFC933", "on-tertiary": "#ffffff", "hairline": "#E3E1DA", "on-secondary": "#ffffff", "surface-dim": "#dcdad5", "on-secondary-container": "#506c00", "on-tertiary-fixed-variant": "#005233", "surface-container-highest": "#e4e2dd", "tertiary": "#00452a", "error-container": "#ffdad6", "on-surface": "#1b1c19", "on-primary-fixed-variant": "#005046", "dark-ink-muted": "#93A39B", "surface-container-high": "#eae8e3", "on-primary": "#ffffff", "role-field-primary": "#3F7D58", "on-secondary-fixed-variant": "#394e00", "secondary": "#4c6700", "surface": "#FFFFFF", "surface-bright": "#fbf9f4", "pending-honey": "#E9A23B", "primary": "#00443b", "info-sky": "#2E90FA", "on-error-container": "#93000a", "background": "#fbf9f4", "role-driver-primary": "#0E8FB3", "surface-container": "#f0eee9", "tertiary-fixed-dim": "#61dda0", "on-tertiary-container": "#61dda0", "on-error": "#ffffff", "surface-container-low": "#f5f3ee", "role-cafe-canvas": "#FBF4EA", "dark-ink": "#EDF3EF", "error": "#ba1a1a", "primary-container": "#0b5d52", "ink": "#13201B", "secondary-fixed": "#c7f169", "on-tertiary-fixed": "#002112", "money-mint": "#1FA971", "inverse-primary": "#8ed4c5", "surface-variant": "#e4e2dd", "secondary-fixed-dim": "#acd44f", "inverse-surface": "#30312e", "outline-variant": "#bec9c5", "primary-fixed-dim": "#8ed4c5", "on-secondary-fixed": "#151f00", "on-background": "#1b1c19", "ink-muted": "#66736C", "role-cafe-action": "#F4A62A", "role-cafe-primary": "#C2542D", "on-primary-container": "#8dd3c5", "critical-ruby": "#D92D20", "primary-fixed": "#a9f0e1", "role-field-action": "#C9F36A" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "margin": "1rem", "space-md": "0.75rem", "space-xs": "0.25rem", "gutter": "0.75rem", "space-lg": "1rem", "space-xl": "1.5rem", "space-sm": "0.5rem" }, fontFamily: { "headline-md": ["Manrope"], "headline-lg": ["Manrope"], "sublabel-regional": ["Noto Sans Tamil"], "label-action": ["Manrope"], "display-numeral-mobile": ["Manrope"], "body-md": ["Manrope"], "body-lg": ["Manrope"], "caption-meta": ["Manrope"], "display-numeral": ["Manrope"] }, fontSize: { "headline-md": ["20px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "700" }], "headline-lg": ["28px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "800" }], "sublabel-regional": ["11px", { lineHeight: "14px", fontWeight: "600" }], "label-action": ["16px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "700" }], "display-numeral-mobile": ["40px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "500" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "600" }], "caption-meta": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "display-numeral": ["48px", { lineHeight: "52px", letterSpacing: "-0.03em", fontWeight: "800" }] } } } };</script><style>@layer base{html,body{width:100vw;min-height:100vh;margin:0;padding:0;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-role-driver-canvas text-ink font-body-md antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 bg-role-driver-canvas/90 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.03)]"><div class="h-20 px-margin flex flex-col justify-center gap-space-xs"><div class="flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="px-space-sm py-0.5 rounded-full bg-role-driver-primary/10 flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px] text-role-driver-primary">water_drop</span><span class="font-caption-meta text-caption-meta text-role-driver-primary font-bold tracking-tight">TMWS Bulk Water</span></div><span class="font-sublabel-regional text-sublabel-regional text-ink-muted hidden xs:inline">திருச்செந்தூர் முருகன்</span></div><div class="flex items-center gap-space-sm"><div class="px-space-sm py-1 rounded-full bg-emerald-50 text-money-mint flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-money-mint animate-pulse"></span><span class="font-caption-meta text-caption-meta font-bold tracking-wide">12 Sats</span><span class="material-symbols-outlined text-[15px]">sync</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div><div class="flex items-baseline justify-between"><h1 class="font-headline-md text-headline-md text-ink tracking-tight">Driver Today</h1><span class="font-sublabel-regional text-sublabel-regional text-ink-muted">ஓட்டுநர் இடைமுகம்</span></div></div></header><main class="flex-1 flex flex-col relative w-full pt-20 pb-28 px-margin bg-role-driver-canvas"><div class="flex flex-col w-full gap-space-md">
+<!-- Driver Context & Status Module -->
+<div class="bg-surface rounded-lg p-space-lg flex flex-col gap-space-sm shadow-[0_1px_4px_rgba(19,32,27,0.04)]">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-12 h-12 rounded-full bg-role-driver-primary/10 flex items-center justify-center text-role-driver-primary shrink-0 font-headline-md text-headline-md">
+          KM
+        </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-md text-headline-md text-ink leading-tight">K. Murugan</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-tonal text-ink-muted font-caption-meta text-caption-meta">DRV-019</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">கே. முருகன் • கனரக டேங்கர் ஓட்டுநர்</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5">
+<button aria-label="Language Toggle" class="h-10 px-3 rounded-full bg-surface-tonal text-ink font-caption-meta text-caption-meta font-bold flex items-center gap-1 active:scale-95 transition-transform" type="button">
+<span>EN</span>
+<span class="text-ink-muted">|</span>
+<span class="text-role-driver-primary">தமிழ்</span>
+</button>
+<button aria-label="SOS Alert" class="w-10 h-10 rounded-full bg-error-container text-critical-ruby flex items-center justify-center active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">sos</span>
+</button>
+</div>
+</div>
+<div class="flex flex-wrap items-center justify-between pt-1 gap-2 border-t-0">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-role-driver-primary text-[18px]">local_shipping</span>
+<span class="font-body-md text-body-md text-ink font-semibold">Tata LPT 2518 (20KL Dual)</span>
+<span class="px-2 py-0.5 rounded-md bg-surface-tonal font-caption-meta text-caption-meta text-ink-muted font-bold tracking-wider">TN-33-AX-8910</span>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-role-driver-canvas text-role-driver-primary">
+<span class="w-2 h-2 rounded-full bg-role-driver-primary animate-ping"></span>
+<span class="font-caption-meta text-caption-meta font-bold">TMWS-TRIP-2026-002</span>
+</div>
+</div>
+<div class="flex items-center justify-between px-3 py-2 rounded-DEFAULT bg-surface-tonal">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-money-mint text-[18px]">cell_tower</span>
+<span class="font-caption-meta text-caption-meta text-ink font-bold">4G LTE Connected</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">தானியங்கி வழித்தடப் பட்டியல்</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-money-mint font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+        Synced
+      </span>
+</div>
+</div>
+<!-- Hero Module: Dual-Chamber Telemetry -->
+<div class="bg-role-driver-primary text-on-primary rounded-[28px] p-space-lg flex flex-col gap-space-md shadow-[0_4px_16px_rgba(14,143,179,0.18)]">
+<div class="flex items-start justify-between">
+<div>
+<h2 class="font-headline-md text-headline-md text-surface tracking-tight">Dual-Chamber Telemetry</h2>
+<span class="font-sublabel-regional text-sublabel-regional text-role-driver-canvas/80">மொத்த தண்ணீர் டேங்கர் விவரங்கள்</span>
+</div>
+<div class="px-3 py-1.5 rounded-full bg-surface-container-lowest/20 backdrop-blur-sm text-surface-container-lowest flex items-center gap-1.5 shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed-dim" style="font-variation-settings: 'FILL' 1;">lock</span>
+<span class="font-caption-meta text-caption-meta font-bold tracking-wide">VALVE SECURED</span>
+</div>
+</div>
+<!-- 2x2 Stat Bento Grid -->
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="bg-primary/20 rounded-DEFAULT p-3 flex flex-col justify-between">
+<span class="font-caption-meta text-caption-meta text-primary-fixed uppercase tracking-wider">Odometer</span>
+<div class="my-1">
+<span class="font-headline-lg text-headline-lg text-surface font-extrabold tracking-tight">84,312</span>
+<span class="font-body-md text-body-md text-primary-fixed ml-1">KM</span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-surface-container-highest/70">இன்றைய தொலைவு</span>
+</div>
+<div class="bg-primary/20 rounded-DEFAULT p-3 flex flex-col justify-between">
+<span class="font-caption-meta text-caption-meta text-primary-fixed uppercase tracking-wider">Today Trips</span>
+<div class="my-1">
+<span class="font-headline-lg text-headline-lg text-surface font-extrabold tracking-tight">2<span class="text-primary-fixed font-normal text-headline-md">/4</span></span>
+<span class="font-caption-meta text-caption-meta text-secondary-fixed ml-1">Done</span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-surface-container-highest/70">இன்றைய பயணங்கள்</span>
+</div>
+<div class="bg-primary/20 rounded-DEFAULT p-3 flex flex-col justify-between">
+<span class="font-caption-meta text-caption-meta text-primary-fixed uppercase tracking-wider">Total Water</span>
+<div class="my-1">
+<span class="font-headline-lg text-headline-lg text-tertiary-fixed font-extrabold tracking-tight">36.0</span>
+<span class="font-body-md text-body-md text-primary-fixed ml-1">KL</span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-surface-container-highest/70">விநியோகித்த நீர்</span>
+</div>
+<div class="bg-primary/20 rounded-DEFAULT p-3 flex flex-col justify-between">
+<span class="font-caption-meta text-caption-meta text-primary-fixed uppercase tracking-wider">Payload State</span>
+<div class="my-1">
+<span class="font-headline-md text-headline-md text-surface font-extrabold">20.0 KL</span>
+<span class="font-caption-meta text-caption-meta text-tertiary-fixed ml-0.5">Dual Full</span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-surface-container-highest/70">இரு அறை முழுமை</span>
+</div>
+</div>
+<!-- Dual Chamber Twin Level Visualizer -->
+<div class="flex items-center gap-space-sm bg-primary-container/40 p-2.5 rounded-DEFAULT">
+<div class="flex-1 flex flex-col gap-1">
+<div class="flex justify-between items-center text-caption-meta font-caption-meta">
+<span class="text-primary-fixed">CH-1: 10KL</span>
+<span class="text-tertiary-fixed">100% Full</span>
+</div>
+<div class="w-full h-2 bg-primary/40 rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed rounded-full w-full"></div>
+</div>
+</div>
+<div class="w-px h-6 bg-surface-container-lowest/20"></div>
+<div class="flex-1 flex flex-col gap-1">
+<div class="flex justify-between items-center text-caption-meta font-caption-meta">
+<span class="text-primary-fixed">CH-2: 10KL</span>
+<span class="text-tertiary-fixed">100% Full</span>
+</div>
+<div class="w-full h-2 bg-primary/40 rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed rounded-full w-full"></div>
+</div>
+</div>
+</div>
+<!-- Daily Quota Tracker -->
+<div class="flex flex-col gap-1.5 pt-1">
+<div class="flex items-center justify-between font-caption-meta text-caption-meta text-surface">
+<span class="font-bold">Daily Dispatch Quota</span>
+<span class="text-secondary-fixed font-bold">36 / 60 KL (60%)</span>
+</div>
+<div class="w-full h-2.5 bg-primary/40 rounded-full overflow-hidden">
+<div class="h-full bg-role-driver-action rounded-full w-3/5 transition-all duration-300"></div>
+</div>
+</div>
+</div>
+<!-- Card: Assigned Destination & Trip -->
+<div class="bg-surface rounded-lg p-space-lg flex flex-col gap-space-md shadow-[0_1px_4px_rgba(19,32,27,0.04)]">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-0.5">
+<span class="font-caption-meta text-caption-meta text-role-driver-primary font-bold uppercase tracking-wide">Assigned Destination &amp; Trip</span>
+<h3 class="font-headline-md text-headline-md text-ink">The Chennai Silks</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">தி சென்னை சில்க்ஸ் (சாய ஆலை பிரிவு)</span>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-emerald-50 text-money-mint font-caption-meta text-caption-meta font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">my_location</span>
+        Geo-Fence OK
+      </span>
+</div>
+<div class="flex items-center gap-2 p-2.5 rounded-DEFAULT bg-surface-tonal">
+<span class="material-symbols-outlined text-role-driver-primary text-[20px] shrink-0">factory</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-ink font-semibold truncate">Industrial Dyeing &amp; Processing Unit</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted truncate">Plot #42, Perundurai SIPCOT Industrial Area, Erode</span>
+</div>
+</div>
+<!-- Distance & ETA Badge -->
+<div class="flex items-center justify-between px-3 py-2 rounded-DEFAULT bg-surface-container-low">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-role-driver-primary text-[20px]">near_me</span>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-ink leading-tight">6.4 <span class="font-body-md text-body-md text-ink-muted">KM</span></span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">இலக்கு தொலைவு</span>
+</div>
+</div>
+<div class="w-px h-8 bg-hairline"></div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-pending-honey text-[20px]">schedule</span>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-ink leading-tight">14 <span class="font-body-md text-body-md text-ink-muted">Mins ETA</span></span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">தோராய வருகை நேரம்</span>
+</div>
+</div>
+<div class="w-px h-8 bg-hairline"></div>
+<div class="flex flex-col text-right">
+<span class="font-caption-meta text-caption-meta text-money-mint font-bold">Accuracy 38m</span>
+<span class="font-caption-meta text-[11px] text-ink-muted">GPS Live Fix</span>
+</div>
+</div>
+<!-- Action Buttons Row (56px touch target compliant) -->
+<div class="grid grid-cols-2 gap-space-sm pt-1">
+<a class="h-14 rounded-full bg-role-driver-primary text-on-primary font-label-action text-label-action flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-sm" href="https://maps.google.com" target="_blank">
+<span class="material-symbols-outlined text-[20px]">navigation</span>
+<span>Google Maps</span>
+</a>
+<a class="h-14 rounded-full bg-[#25D366] text-surface font-label-action text-label-action flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-sm" href="https://api.whatsapp.com" target="_blank">
+<span class="material-symbols-outlined text-[20px]">chat</span>
+<span>WhatsApp GPS</span>
+</a>
+</div>
+<button class="h-12 w-full rounded-full bg-surface-tonal text-role-driver-primary font-caption-meta text-caption-meta font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform" type="button">
+<span class="material-symbols-outlined text-[18px]">add_location_alt</span>
+<span>Request Site Re-Route / + New Site</span>
+</button>
+</div>
+<!-- Card: Decanting Meter & Flow Telemetry -->
+<div class="bg-surface rounded-lg p-space-lg flex flex-col gap-space-md shadow-[0_1px_4px_rgba(19,32,27,0.04)]">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-role-driver-primary font-bold uppercase tracking-wide">Decanting Meter &amp; Flow</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">நீர் இறக்கும் மீட்டர் மற்றும் ஓட்டம்</span>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-surface-tonal text-ink-muted font-caption-meta text-caption-meta font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">sensors</span>
+        Sensor #FLW-881
+      </span>
+</div>
+<!-- Big Decanting Quantity Readout -->
+<div class="flex items-center justify-between p-space-md rounded-DEFAULT bg-surface-container-low">
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted font-bold tracking-tight">WATER TO DECANT</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">இறக்க வேண்டிய மொத்த நீர் அளவு</span>
+<span class="font-display-numeral-mobile text-display-numeral-mobile text-role-driver-primary font-extrabold leading-none mt-1">
+          20.0 <span class="font-headline-md text-headline-md text-ink">KL</span>
+</span>
+</div>
+<!-- Radial Flow Gauge SVG -->
+<div class="relative w-24 h-24 flex items-center justify-center shrink-0">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-tonal" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
+<path class="text-role-driver-primary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="0, 100" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+<span class="font-headline-md text-headline-md text-ink leading-tight font-extrabold">0</span>
+<span class="font-caption-meta text-[10px] text-ink-muted leading-none font-semibold">L/min</span>
+</div>
+</div>
+</div>
+<!-- Sump Target Status -->
+<div class="flex flex-col gap-2 p-3 rounded-DEFAULT bg-surface-tonal">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-role-driver-primary text-[18px]">storage</span>
+<span class="font-body-md text-body-md text-ink font-bold">Factory Underground Sump #02</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-money-mint font-bold">Capacity: 50 KL</span>
+</div>
+<div class="flex items-center justify-between text-caption-meta font-caption-meta text-ink-muted">
+<span>Current Level: 18 KL</span>
+<span class="text-role-driver-primary font-bold">Available Space: 32 KL (Safe)</span>
+</div>
+<div class="w-full h-2 bg-hairline rounded-full overflow-hidden">
+<div class="h-full bg-role-driver-primary rounded-full w-[36%]"></div>
+</div>
+</div>
+</div>
+<!-- Anti-Siphon & Safety Telemetry Banner -->
+<div class="bg-surface rounded-lg p-space-md flex items-start gap-space-sm shadow-[0_1px_4px_rgba(19,32,27,0.04)]">
+<div class="w-10 h-10 rounded-full bg-money-mint/10 text-money-mint flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="font-caption-meta text-caption-meta text-ink font-bold">Anti-Siphon Electronic Protection Active</span>
+<p class="font-caption-meta text-[11px] text-ink-muted leading-tight">
+        Gate valve unlocks automatically only inside customer geofence perimeter. Real-time chamber tamper telemetry synchronized with TMWS Depot Command.
+      </p>
+<span class="font-sublabel-regional text-[10px] text-ink-muted pt-0.5">தானியங்கி திருட்டு தடுப்பு மின்னணு பூட்டு இயக்கத்தில் உள்ளது.</span>
+</div>
+</div>
+<!-- Primary Bottom Action Area (Tactile 56px slabs) -->
+<div class="flex flex-col gap-space-sm pt-2">
+<!-- Signature Sun-Yellow Slab -->
+<button class="w-full h-14 rounded-full bg-role-driver-action text-ink font-label-action text-label-action flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-[0_4px_12px_rgba(255,201,51,0.3)]" type="button">
+<span>Complete Trip</span>
+<span class="font-sublabel-regional text-[13px] text-ink/80">(பயணத்தை நிறைவுசெய்)</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+<!-- Secondary Action Slab -->
+<button class="w-full h-14 rounded-full bg-surface text-role-driver-primary font-label-action text-label-action flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-[0_1px_4px_rgba(19,32,27,0.04)]" type="button">
+<span class="material-symbols-outlined text-[20px]">water_drop</span>
+<span>Decanting &amp; Fuel Log</span>
+<span class="font-sublabel-regional text-[13px] text-role-driver-primary/80">(நீர் இறக்கம் &amp; டீசல் பதிவு)</span>
+</button>
+</div>
+</div></main><div class="fixed bottom-4 inset-x-0 z-50 px-margin pointer-events-none pb-safe"><nav class="h-16 w-full max-w-md mx-auto rounded-full bg-surface/95 backdrop-blur-xl shadow-[0_8px_24px_-4px_rgba(19,32,27,0.12)] flex items-center justify-around px-2 pointer-events-auto" data-active-classes="bg-role-driver-action text-ink font-bold shadow-sm"><a aria-current="page" class="flex flex-col items-center justify-center h-12 px-3 rounded-full transition-all duration-150 bg-role-driver-action text-ink font-bold shadow-sm" data-path="driver-today" href="#"><span class="material-symbols-outlined text-[20px]">today</span><span class="font-caption-meta text-caption-meta leading-none mt-0.5">Today</span><span class="font-sublabel-regional text-[9px] leading-tight text-ink-muted/80">இன்று</span></a><a class="flex flex-col items-center justify-center h-12 px-3 rounded-full text-ink-muted transition-all duration-150" data-path="trips-work" href="#"><span class="material-symbols-outlined text-[20px]">local_shipping</span><span class="font-caption-meta text-caption-meta leading-none mt-0.5">Work</span><span class="font-sublabel-regional text-[9px] leading-tight text-ink-muted/80">பணி</span></a><a class="flex flex-col items-center justify-center h-12 px-3 rounded-full text-ink-muted transition-all duration-150" data-path="cash-settlement" href="#"><span class="material-symbols-outlined text-[20px]">payments</span><span class="font-caption-meta text-caption-meta leading-none mt-0.5">Cash</span><span class="font-sublabel-regional text-[9px] leading-tight text-ink-muted/80">பணம்</span></a><a class="flex flex-col items-center justify-center h-12 px-3 rounded-full text-ink-muted transition-all duration-150" data-path="driver-profile" href="#"><span class="material-symbols-outlined text-[20px]">account_circle</span><span class="font-caption-meta text-caption-meta leading-none mt-0.5">Me</span><span class="font-sublabel-regional text-[9px] leading-tight text-ink-muted/80">சுயவிவரம்</span></a></nav></div></body></html>

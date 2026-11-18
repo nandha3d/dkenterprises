@@ -26,7 +26,7 @@
                             </div>
                             <h3 class="font-weight-bold text-dark m-0">Customer KYC, Credit Receivables &amp; Geocoding</h3>
                             <p class="text-muted small m-0 mt-1">
-                                Field Officer: <strong>{{ Auth::user()->name }}</strong> &bull; Coverage Zone: <strong>Erode, Perundurai &amp; Kangeyam Commercial Belt</strong>
+                                Field Officer: <strong>{{ Auth::user()->name }}</strong> &bull; Coverage Zone: <strong>{{ $metrics['coverage_zone'] ?? 'Assigned Collection Beat' }}</strong>
                             </p>
                         </div>
                         <div class="col-md-4 text-right">
@@ -43,22 +43,22 @@
                     <div class="row mt-4 pt-3 border-top">
                         <div class="col-md-3 border-right text-center">
                             <span class="text-muted small font-weight-600 text-uppercase">Assigned Accounts</span>
-                            <h3 class="font-weight-bold text-dark m-0 mt-1">{{ $metrics['summary']['assigned_customers'] ?? 18 }} Accounts</h3>
-                            <small class="text-info">{{ $metrics['summary']['geocoded_customers'] ?? 14 }} Geocoded &bull; {{ $metrics['summary']['missing_gps_customers'] ?? 4 }} Need GPS</small>
+                            <h3 class="font-weight-bold text-dark m-0 mt-1">{{ $metrics['summary']['assigned_customers'] ?? 0 }} Accounts</h3>
+                            <small class="text-info">{{ $metrics['summary']['geocoded_customers'] ?? 0 }} Geocoded &bull; {{ $metrics['summary']['missing_gps_customers'] ?? 0 }} Need GPS</small>
                         </div>
                         <div class="col-md-3 border-right text-center">
                             <span class="text-muted small font-weight-600 text-uppercase">Total Outstanding Receivables</span>
-                            <h3 class="font-weight-bold text-warning m-0 mt-1">₹ {{ number_format($metrics['summary']['total_receivables'] ?? 2100, 2) }}</h3>
-                            <small class="text-danger">{{ $metrics['summary']['overdue_accounts_count'] ?? 2 }} Overdue &gt; 30 Days</small>
+                            <h3 class="font-weight-bold text-warning m-0 mt-1">₹ {{ number_format($metrics['summary']['total_receivables'] ?? 0, 2) }}</h3>
+                            <small class="text-danger">{{ $metrics['summary']['overdue_accounts_count'] ?? 0 }} Overdue &gt; 30 Days</small>
                         </div>
                         <div class="col-md-3 border-right text-center">
                             <span class="text-muted small font-weight-600 text-uppercase">Today's Field Collections</span>
-                            <h3 class="font-weight-bold text-success m-0 mt-1">₹ {{ number_format($metrics['summary']['today_collected'] ?? 1450, 2) }}</h3>
+                            <h3 class="font-weight-bold text-success m-0 mt-1">₹ {{ number_format($metrics['summary']['today_collected'] ?? 0, 2) }}</h3>
                             <small class="text-success"><i class="fa fa-check-circle"></i> Direct receipts posted</small>
                         </div>
                         <div class="col-md-3 text-center">
                             <span class="text-muted small font-weight-600 text-uppercase">Recovery Rate</span>
-                            <h3 class="font-weight-bold text-primary m-0 mt-1">{{ $metrics['summary']['recovery_rate_percent'] ?? 85.0 }}%</h3>
+                            <h3 class="font-weight-bold text-primary m-0 mt-1">{{ $metrics['summary']['recovery_rate_percent'] ?? 0.0 }}%</h3>
                             <small class="text-muted">Month-to-date collection target</small>
                         </div>
                     </div>
@@ -79,7 +79,7 @@
                         </div>
                         <div class="d-flex gap-2">
                             <span class="badge badge-light border text-muted px-2 py-1 font-weight-600">
-                                {{ $metrics['summary']['missing_gps_customers'] ?? 4 }} Missing GPS Pins
+                                {{ $metrics['summary']['missing_gps_customers'] ?? 0 }} Missing GPS Pins
                             </span>
                         </div>
                     </div>
@@ -109,7 +109,7 @@
                                         </td>
                                         <td>
                                             <div><i class="fa fa-phone mr-1 text-muted"></i> <a href="tel:{{ $c['phone'] }}">{{ $c['phone'] }}</a></div>
-                                            <small class="text-muted">{{ $c['city'] ?? 'Erode' }}</small>
+                                            <small class="text-muted">{{ $c['city'] ?? '—' }}</small>
                                         </td>
                                         <td class="small text-muted" style="max-width: 250px;">{{ $c['address'] }}</td>
                                         <td class="text-right">

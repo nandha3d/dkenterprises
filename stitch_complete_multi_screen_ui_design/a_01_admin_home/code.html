@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-tertiary-fixed-variant": "#005233", "critical-ruby": "#D92D20", "pending-honey": "#E9A23B", "on-tertiary": "#ffffff", "role-cafe-primary": "#C2542D", "role-field-primary": "#3F7D58", "secondary": "#4c6700", "surface-dim": "#dcdad5", "surface-container-high": "#eae8e3", "role-driver-action": "#FFC933", "money-mint": "#1FA971", "on-error": "#ffffff", "role-driver-canvas": "#F3F8FA", "role-field-action": "#C9F36A", "outline": "#6f7976", "surface-container-low": "#f5f3ee", "ink": "#13201B", "dark-surface-tonal": "#1F2E27", "primary": "#00443b", "surface-tonal": "#ECEFEA", "surface": "#FFFFFF", "secondary-fixed-dim": "#acd44f", "surface-container-highest": "#e4e2dd", "on-secondary-fixed": "#151f00", "ink-muted": "#66736C", "role-driver-primary": "#0E8FB3", "on-secondary": "#ffffff", "primary-fixed": "#a9f0e1", "secondary-fixed": "#c7f169", "error": "#ba1a1a", "on-tertiary-container": "#61dda0", "surface-container": "#f0eee9", "tertiary": "#00452a", "primary-container": "#0b5d52", "tertiary-fixed-dim": "#61dda0", "background": "#fbf9f4", "on-tertiary-fixed": "#002112", "info-sky": "#2E90FA", "dark-canvas": "#0E1512", "role-cafe-action": "#F4A62A", "on-surface-variant": "#3f4946", "secondary-container": "#c5ee66", "surface-container-lowest": "#ffffff", "outline-variant": "#bec9c5", "inverse-on-surface": "#f2f1ec", "money-coral": "#E8505B", "on-primary-container": "#8dd3c5", "surface-variant": "#e4e2dd", "dark-surface": "#17221D", "inverse-primary": "#8ed4c5", "on-secondary-fixed-variant": "#394e00", "dark-ink": "#EDF3EF", "on-secondary-container": "#506c00", "surface-bright": "#fbf9f4", "inverse-surface": "#30312e", "hairline": "#E3E1DA", "role-cafe-ink": "#2B1B14", "on-error-container": "#93000a", "surface-tint": "#1f695e", "role-cafe-canvas": "#FBF4EA", "error-container": "#ffdad6", "on-surface": "#1b1c19", "tertiary-fixed": "#7ffaba", "primary-fixed-dim": "#8ed4c5", "dark-ink-muted": "#93A39B", "on-primary-fixed": "#00201b", "on-background": "#1b1c19", "tertiary-container": "#005f3c", "on-primary-fixed-variant": "#005046", "on-primary": "#ffffff" }, borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }, spacing: { "space-sm": "0.5rem", "gutter": "0.75rem", "space-xs": "0.25rem", "space-md": "0.75rem", "space-lg": "1rem", "space-xl": "1.5rem", "margin": "1rem" }, fontFamily: { "display-numeral-mobile": ["Manrope"], "label-action": ["Manrope"], "body-md": ["Manrope"], "caption-meta": ["Manrope"], "body-lg": ["Manrope"], "headline-md": ["Manrope"], "sublabel-regional": ["Noto Sans Tamil"], "display-numeral": ["Manrope"], "headline-lg": ["Manrope"] }, fontSize: { "display-numeral-mobile": ["40px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800" }], "label-action": ["16px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "700" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "500" }], "caption-meta": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "600" }], "headline-md": ["20px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "700" }], "sublabel-regional": ["11px", { lineHeight: "14px", fontWeight: "600" }], "display-numeral": ["48px", { lineHeight: "52px", letterSpacing: "-0.03em", fontWeight: "800" }], "headline-lg": ["28px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "800" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface-container-low text-ink font-body-md flex flex-col min-h-screen selection:bg-role-field-action"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin flex items-center justify-between gap-gutter"><div class="flex items-center gap-space-sm"><img alt="DK Enterprises Monogram" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrDWZ6BLDwpb_SDLS1VcIPwS_u68J_qSJJCiNpDuaLAW9Yovx9xym8ES6_OFDtD4N49PrhJhL4aod7Gp40vN0O2ok0ubp8akF_aUEtfow5zKkw05-t_h8ZQMiq0svlhlfvBpl0M_2a_X5Yi6A3E7m9u3hrxvqGOwwfEuQqw1FFN_CZ7BqF6xvFw-w79ioaE3hG9vP870jqxjYnc4Xorwfko003e7Lb9zuSbQv2bLPqb1"/><button class="flex items-center gap-space-xs px-space-sm py-1.5 rounded-full bg-surface-tonal hover:bg-surface-container-high transition-colors min-h-[44px]" type="button"><span class="material-symbols-outlined text-role-field-primary text-[18px]">store</span><span class="font-caption-meta text-caption-meta text-ink tracking-tight max-w-[124px] truncate">Aran Cafe</span><span class="material-symbols-outlined text-ink-muted text-[16px]">expand_more</span></button></div><div class="flex items-center gap-space-sm"><div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-money-mint/10 text-money-mint"><span class="material-symbols-outlined text-[14px]">check_circle</span><span class="font-caption-meta text-[11px] font-bold tracking-wide">Synced</span></div><button class="relative w-11 h-11 flex items-center justify-center rounded-full text-ink hover:bg-surface-tonal transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-critical-ruby"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full px-margin pt-16 pb-28 bg-surface-container-low"><div class="flex flex-col w-full pb-6 space-y-4">
+<!-- Greeting Bar -->
+<div class="flex items-center justify-between pt-1">
+<div class="flex flex-col min-w-0">
+<span class="font-headline-md text-headline-md text-ink tracking-tight truncate">Good morning, Nandhu</span>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="font-caption-meta text-caption-meta text-ink-muted">12 Nov 2026</span>
+<span class="w-1 h-1 rounded-full bg-ink-muted/40"></span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">நிர்வாக மேலோட்டம்</span>
+</div>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-tonal text-primary font-caption-meta text-[11px] font-bold">
+<span class="material-symbols-outlined text-[14px]">shield</span>
+<span>LAGOON</span>
+</div>
+</div>
+<!-- Hero Card: Cash in Hand -->
+<div class="w-full rounded-[28px] bg-primary-container text-on-primary p-5 relative overflow-hidden shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-role-field-action">
+<span class="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+</div>
+<div>
+<div class="font-caption-meta text-caption-meta text-on-primary/90 font-bold uppercase tracking-wider">Cash in Hand</div>
+<div class="font-sublabel-regional text-sublabel-regional text-on-primary/70">நேரடி பண இருப்பு • Liquid Main Cash</div>
+</div>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-role-field-action text-ink font-caption-meta text-[11px] font-bold tracking-tight">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span>+12.4% vs last week</span>
+</div>
+</div>
+<div class="mt-4 flex items-baseline justify-between">
+<div class="font-display-numeral-mobile text-display-numeral-mobile text-role-field-action tabular-nums tracking-tight">
+        ₹1,48,500
+      </div>
+<!-- Mini Sparkline inline SVG -->
+<div class="w-24 h-8 shrink-0">
+<svg class="w-full h-full stroke-role-field-action fill-none stroke-[2.5]" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 96 32">
+<path d="M2,24 L16,21 L32,25 L48,15 L64,18 L80,8 L94,5"></path>
+<circle class="fill-role-field-action stroke-primary-container stroke-[1.5]" cx="94" cy="5" r="2.5"></circle>
+</svg>
+</div>
+</div>
+<div class="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-on-primary/80 font-caption-meta text-caption-meta">
+<span class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-role-field-action"></span>
+        Main Cash Account (GL 1010)
+      </span>
+<span class="text-on-primary/90 font-bold">Safe Limit: ₹2,00,000</span>
+</div>
+</div>
+<!-- Attention Row (Action Chips) -->
+<div class="flex items-center gap-2 overflow-x-auto py-0.5 no-scrollbar">
+<button class="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-money-coral/15 text-money-coral hover:bg-money-coral/20 transition-transform active:scale-95" type="button">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+<span class="font-caption-meta text-caption-meta font-bold">Low stock (3)</span>
+</button>
+<button class="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-pending-honey/15 text-pending-honey hover:bg-pending-honey/20 transition-transform active:scale-95" type="button">
+<span class="material-symbols-outlined text-[16px]">hourglass_top</span>
+<span class="font-caption-meta text-caption-meta font-bold">Pending approvals (2)</span>
+</button>
+<button class="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-money-mint/15 text-money-mint hover:bg-money-mint/20 transition-transform active:scale-95" type="button">
+<span class="material-symbols-outlined text-[16px]">fact_check</span>
+<span class="font-caption-meta text-caption-meta font-bold">Cash surrender to verify (1)</span>
+</button>
+</div>
+<!-- 2x2 Bento Modules -->
+<div class="grid grid-cols-2 gap-gutter">
+<!-- Bento 1: Bank Balances -->
+<div class="rounded-[20px] bg-surface p-3.5 flex flex-col justify-between shadow-sm min-h-[118px]">
+<div class="flex items-center justify-between">
+<span class="font-caption-meta text-[11px] font-bold text-ink-muted uppercase tracking-wider truncate">Bank Balances</span>
+<div class="w-6 h-6 rounded-full bg-surface-tonal flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[14px]">account_balance</span>
+</div>
+</div>
+<div>
+<div class="font-headline-md text-headline-md text-ink tabular-nums font-extrabold mt-1">₹4,82,300</div>
+<div class="font-caption-meta text-[11px] text-ink-muted truncate mt-0.5">Active Bank &amp; UPI</div>
+<div class="font-sublabel-regional text-[10px] text-ink-muted">வங்கி மற்றும் UPI இருப்பு</div>
+</div>
+</div>
+<!-- Bento 2: Customer Receivables -->
+<div class="rounded-[20px] bg-surface p-3.5 flex flex-col justify-between shadow-sm min-h-[118px]">
+<div class="flex items-center justify-between">
+<span class="font-caption-meta text-[11px] font-bold text-ink-muted uppercase tracking-wider truncate">Receivables</span>
+<span class="px-1.5 py-0.5 rounded-full bg-money-coral/10 text-money-coral font-caption-meta text-[10px] font-bold">Due</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md text-money-coral tabular-nums font-extrabold mt-1">₹94,200</div>
+<div class="font-caption-meta text-[11px] text-ink-muted truncate mt-0.5">Customer Dues</div>
+<div class="font-sublabel-regional text-[10px] text-ink-muted">வாடிக்கையாளர் பாக்கி</div>
+</div>
+</div>
+<!-- Bento 3: Supplier Payables -->
+<div class="rounded-[20px] bg-surface p-3.5 flex flex-col justify-between shadow-sm min-h-[118px]">
+<div class="flex items-center justify-between">
+<span class="font-caption-meta text-[11px] font-bold text-ink-muted uppercase tracking-wider truncate">Payables</span>
+<div class="w-6 h-6 rounded-full bg-surface-tonal flex items-center justify-center text-ink-muted">
+<span class="material-symbols-outlined text-[14px]">assignment_return</span>
+</div>
+</div>
+<div>
+<div class="font-headline-md text-headline-md text-ink tabular-nums font-extrabold mt-1">₹62,400</div>
+<div class="font-caption-meta text-[11px] text-ink-muted truncate mt-0.5">Supplier Dues</div>
+<div class="font-sublabel-regional text-[10px] text-ink-muted">விற்பனையாளர் பட்டுவாடா</div>
+</div>
+</div>
+<!-- Bento 4: Journal Postings -->
+<div class="rounded-[20px] bg-surface p-3.5 flex flex-col justify-between shadow-sm min-h-[118px]">
+<div class="flex items-center justify-between">
+<span class="font-caption-meta text-[11px] font-bold text-ink-muted uppercase tracking-wider truncate">Journal Postings</span>
+<div class="w-6 h-6 rounded-full bg-primary-fixed/40 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[14px]">history_edu</span>
+</div>
+</div>
+<div>
+<div class="font-headline-md text-headline-md text-primary tabular-nums font-extrabold mt-1">18 Today</div>
+<div class="font-caption-meta text-[11px] text-ink-muted truncate mt-0.5">Posted to Ledger</div>
+<div class="font-sublabel-regional text-[10px] text-ink-muted">தினசரி ஏடு பதிவுகள்</div>
+</div>
+</div>
+</div>
+<!-- Sales Performance Card -->
+<div class="w-full rounded-[20px] bg-surface p-4 shadow-sm flex flex-col space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-body-lg text-body-lg font-bold text-ink">Sales Performance</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">விற்பனை</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Clean hourly ledger pacing</span>
+</div>
+<!-- Segmented Control -->
+<div class="flex items-center p-0.5 rounded-full bg-surface-tonal">
+<button class="px-2.5 py-1 rounded-full bg-surface text-ink font-caption-meta text-[11px] font-bold shadow-sm" type="button">Today</button>
+<button class="px-2.5 py-1 rounded-full text-ink-muted font-caption-meta text-[11px] font-medium hover:text-ink" type="button">7D</button>
+<button class="px-2.5 py-1 rounded-full text-ink-muted font-caption-meta text-[11px] font-medium hover:text-ink" type="button">30D</button>
+</div>
+</div>
+<!-- Chart Totals Summary Row -->
+<div class="flex items-center justify-between pt-1">
+<div>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Total Invoiced</span>
+<div class="font-headline-md text-headline-md text-ink font-extrabold tabular-nums">₹54,200</div>
+</div>
+<div class="text-right">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Volume</span>
+<div class="flex items-center gap-1">
+<span class="font-headline-md text-headline-md text-primary font-extrabold tabular-nums">42</span>
+<span class="font-caption-meta text-caption-meta text-ink font-bold">bills</span>
+</div>
+</div>
+</div>
+<!-- Smooth Line Chart (No gradient-free clean fill) -->
+<div class="relative w-full h-36 pt-2">
+<!-- Tooltip Marker -->
+<div class="absolute left-[54%] top-1 -translate-x-1/2 flex flex-col items-center pointer-events-none z-10">
+<div class="px-2 py-1 rounded-full bg-ink text-surface font-caption-meta text-[10px] font-bold shadow-md tracking-tight whitespace-nowrap">
+          ₹38,400 at 02:00 PM
+        </div>
+<div class="w-1.5 h-1.5 bg-ink rotate-45 -mt-0.5"></div>
+</div>
+<!-- SVG Chart -->
+<svg class="w-full h-full overflow-visible" viewbox="0 0 358 110">
+<!-- Dashed Horizon Gridlines -->
+<line class="text-surface-tonal stroke-[1] stroke-dasharray-[3,3]" stroke="currentColor" x1="0" x2="358" y1="20" y2="20"></line>
+<line class="text-surface-tonal stroke-[1] stroke-dasharray-[3,3]" stroke="currentColor" x1="0" x2="358" y1="55" y2="55"></line>
+<line class="text-surface-tonal stroke-[1] stroke-dasharray-[3,3]" stroke="currentColor" x1="0" x2="358" y1="90" y2="90"></line>
+<!-- Clean Solid Line with zero decorative gradient fill -->
+<path class="text-role-field-primary stroke-[3]" d="M 8,96 C 45,92 65,80 95,74 C 130,68 150,58 193,34 C 230,12 265,38 295,26 C 320,16 340,18 350,14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+<!-- Vertical Guide at 02:00 PM -->
+<line class="text-role-field-primary/40 stroke-[1.5] stroke-dasharray-[2,2]" stroke="currentColor" x1="193" x2="193" y1="22" y2="98"></line>
+<circle class="fill-surface stroke-role-field-primary stroke-[3]" cx="193" cy="34" r="4.5"></circle>
+</svg>
+<!-- X-axis Labels -->
+<div class="flex justify-between items-center px-1 text-[10px] font-caption-meta font-bold text-ink-muted pt-1">
+<span>08 AM</span>
+<span>11 AM</span>
+<span class="text-role-field-primary font-extrabold">02 PM</span>
+<span>05 PM</span>
+<span>08 PM</span>
+</div>
+</div>
+</div>
+<!-- Live Fleet Telematics Strip -->
+<div class="flex flex-col space-y-2">
+<div class="flex items-center justify-between px-0.5">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-role-driver-primary text-[18px]">satellite_alt</span>
+<span class="font-body-lg text-body-lg font-bold text-ink">Live Fleet Strip</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">வாகன இயக்கம்</span>
+</div>
+<span class="font-caption-meta text-[11px] font-bold text-primary flex items-center gap-0.5">
+<span>2 ACTIVE</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</span>
+</div>
+<!-- Horizontal Scrolling Fleet Cards -->
+<div class="flex gap-gutter overflow-x-auto pb-1 no-scrollbar">
+<!-- Fleet Card 1: Tata Ace -->
+<div class="min-w-[270px] max-w-[280px] shrink-0 rounded-[20px] bg-surface p-3.5 shadow-sm flex flex-col justify-between space-y-3">
+<div class="flex items-start justify-between">
+<div class="min-w-0">
+<div class="font-body-lg text-body-lg font-bold text-ink truncate leading-tight">Tata Ace TN-58-WA-101</div>
+<div class="font-caption-meta text-[11px] text-ink-muted mt-0.5 flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-role-field-primary">local_shipping</span>
+<span>Can Beat: Anna Nagar</span>
+</div>
+</div>
+<!-- Status Pill: EN ROUTE (Mint) -->
+<div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-money-mint/10 text-money-mint font-caption-meta text-[10px] font-bold uppercase shrink-0">
+<span class="material-symbols-outlined text-[12px]">near_me</span>
+<span>EN ROUTE</span>
+</div>
+</div>
+<div class="flex items-center justify-between bg-surface-tonal p-2 rounded-xl">
+<div class="flex flex-col">
+<span class="font-caption-meta text-[10px] uppercase text-ink-muted tracking-wide font-bold">LIVE SPEED</span>
+<span class="font-headline-md text-[18px] font-extrabold text-ink tabular-nums leading-snug">34 km/h</span>
+</div>
+<button class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-on-primary font-caption-meta text-[11px] font-bold hover:bg-primary-container transition-transform active:scale-95" type="button">
+<span class="material-symbols-outlined text-[14px]">navigation</span>
+<span>Track / Nav</span>
+</button>
+</div>
+</div>
+<!-- Fleet Card 2: Tata LPT 2518 (TMWS Bulk Tanker) -->
+<div class="min-w-[270px] max-w-[280px] shrink-0 rounded-[20px] bg-surface p-3.5 shadow-sm flex flex-col justify-between space-y-3">
+<div class="flex items-start justify-between">
+<div class="min-w-0">
+<div class="font-body-lg text-body-lg font-bold text-ink truncate leading-tight">Tata LPT 2518 TMWS</div>
+<div class="font-caption-meta text-[11px] text-ink-muted mt-0.5 flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-role-driver-primary">water_drop</span>
+<span>Bulk 20 KL • Texvalley Hub</span>
+</div>
+</div>
+<!-- Status Pill: DECANTING (Aqua #22B8CF / Driver Primary) -->
+<div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-role-driver-primary/10 text-role-driver-primary font-caption-meta text-[10px] font-bold uppercase shrink-0">
+<span class="material-symbols-outlined text-[12px]">water_bottle</span>
+<span>DECANTING</span>
+</div>
+</div>
+<div class="flex items-center justify-between bg-surface-tonal p-2 rounded-xl">
+<div class="flex flex-col">
+<span class="font-caption-meta text-[10px] uppercase text-ink-muted tracking-wide font-bold">LIVE SPEED</span>
+<span class="font-headline-md text-[18px] font-extrabold text-ink tabular-nums leading-snug">0 km/h</span>
+</div>
+<button class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-on-primary font-caption-meta text-[11px] font-bold hover:bg-primary-container transition-transform active:scale-95" type="button">
+<span class="material-symbols-outlined text-[14px]">sensors</span>
+<span>Track / Nav</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Tiles (2 Columns) -->
+<div class="flex flex-col space-y-2">
+<div class="flex items-center justify-between px-0.5">
+<div class="flex items-center gap-1.5">
+<span class="font-body-lg text-body-lg font-bold text-ink">Quick Modules</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">செயல்பாடுகள்</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Tap to launch</span>
+</div>
+<div class="grid grid-cols-2 gap-gutter">
+<!-- Tile 1: Sales Billing -->
+<button class="w-full text-left rounded-[20px] bg-surface p-3.5 shadow-sm hover:bg-surface-tonal transition-all active:scale-[0.98] flex flex-col justify-between min-h-[110px]" type="button">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+</div>
+<div class="mt-3">
+<div class="font-body-lg text-[15px] font-bold text-ink leading-tight">Sales Billing</div>
+<div class="font-sublabel-regional text-sublabel-regional text-ink-muted">விற்பனை பில் • B2B / POS</div>
+</div>
+</button>
+<!-- Tile 2: Physical Stock Count -->
+<button class="w-full text-left rounded-[20px] bg-surface p-3.5 shadow-sm hover:bg-surface-tonal transition-all active:scale-[0.98] flex flex-col justify-between min-h-[110px]" type="button">
+<div class="w-10 h-10 rounded-full bg-role-field-primary/10 flex items-center justify-center text-role-field-primary">
+<span class="material-symbols-outlined text-[20px]">inventory_2</span>
+</div>
+<div class="mt-3">
+<div class="font-body-lg text-[15px] font-bold text-ink leading-tight">Physical Stock Count</div>
+<div class="font-sublabel-regional text-sublabel-regional text-ink-muted">இருப்பு தணிக்கை • Godown</div>
+</div>
+</button>
+<!-- Tile 3: Cafe POS Terminal -->
+<button class="w-full text-left rounded-[20px] bg-surface p-3.5 shadow-sm hover:bg-surface-tonal transition-all active:scale-[0.98] flex flex-col justify-between min-h-[110px]" type="button">
+<div class="w-10 h-10 rounded-full bg-role-cafe-action/15 flex items-center justify-center text-role-cafe-primary">
+<span class="material-symbols-outlined text-[20px]">point_of_sale</span>
+</div>
+<div class="mt-3">
+<div class="font-body-lg text-[15px] font-bold text-ink leading-tight">Cafe POS Terminal</div>
+<div class="font-sublabel-regional text-sublabel-regional text-ink-muted">உணவக பில்லிங் • Table &amp; KOT</div>
+</div>
+</button>
+<!-- Tile 4: Live Tanker Radar -->
+<button class="w-full text-left rounded-[20px] bg-surface p-3.5 shadow-sm hover:bg-surface-tonal transition-all active:scale-[0.98] flex flex-col justify-between min-h-[110px]" type="button">
+<div class="w-10 h-10 rounded-full bg-role-driver-primary/15 flex items-center justify-center text-role-driver-primary">
+<span class="material-symbols-outlined text-[20px]">radar</span>
+</div>
+<div class="mt-3">
+<div class="font-body-lg text-[15px] font-bold text-ink leading-tight">Live Tanker Radar</div>
+<div class="font-sublabel-regional text-sublabel-regional text-ink-muted">தண்ணீர் லாரி ரேடார் • Telematics</div>
+</div>
+</button>
+</div>
+</div>
+<!-- Primary One-Action Slab (Admin Style Lagoon Sizing) -->
+<div class="pt-2">
+<button class="w-full h-14 rounded-full bg-primary text-on-primary hover:bg-primary-container flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-sm" type="button">
+<span class="material-symbols-outlined text-[20px] text-role-field-action">add_circle</span>
+<span class="font-label-action text-label-action tracking-wide">Issue New Commercial Sale Bill</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-field-action">விற்பனை தொடங்குக</span>
+</button>
+</div>
+</div></main><nav class="fixed bottom-0 w-full z-50 pb-safe pointer-events-none px-margin" data-active-classes="bg-surface-tonal text-primary font-bold"><div class="max-w-[390px] mx-auto mb-4 h-16 rounded-full bg-surface shadow-[0_8px_24px_-4px_rgba(19,32,27,0.08)] px-2 flex items-center justify-between pointer-events-auto"><a aria-current="page" class="flex items-center gap-1 px-3 py-2 rounded-full transition-colors min-h-[44px] bg-surface-tonal text-primary font-bold" data-path="admin-home" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span class="font-caption-meta text-caption-meta">Home</span></a><a class="flex items-center gap-1 px-3 py-2 rounded-full text-ink-muted transition-colors hover:text-ink min-h-[44px]" data-path="admin-trade" href="#"><span class="material-symbols-outlined text-[20px]">swap_horiz</span><span class="font-caption-meta text-caption-meta">Trade</span></a><a class="w-12 h-12 -my-2 rounded-full bg-primary flex items-center justify-center text-role-field-action shadow-md hover:bg-primary-container transition-transform active:scale-95" data-path="admin-quick-add" href="#"><span class="material-symbols-outlined text-[26px]">add</span></a><a class="flex items-center gap-1 px-3 py-2 rounded-full text-ink-muted transition-colors hover:text-ink min-h-[44px]" data-path="admin-money" href="#"><span class="material-symbols-outlined text-[20px]">account_balance_wallet</span><span class="font-caption-meta text-caption-meta">Money</span></a><a class="flex items-center gap-1 px-3 py-2 rounded-full text-ink-muted transition-colors hover:text-ink min-h-[44px]" data-path="admin-more" href="#"><span class="material-symbols-outlined text-[20px]">more_horiz</span><span class="font-caption-meta text-caption-meta">More</span></a></div></nav></body></html>

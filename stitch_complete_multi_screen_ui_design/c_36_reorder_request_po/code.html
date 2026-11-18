@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;margin:0;padding:0;min-height:100%;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "money-mint": "#1FA971", "dark-ink-muted": "#93A39B", "inverse-on-surface": "#f2f1ec", "on-secondary-container": "#506c00", "surface-variant": "#e4e2dd", "on-tertiary-fixed-variant": "#005233", "tertiary": "#00452a", "role-field-primary": "#3F7D58", "on-primary-container": "#8dd3c5", "on-tertiary": "#ffffff", "error-container": "#ffdad6", "role-driver-action": "#FFC933", "primary-container": "#0b5d52", "secondary-container": "#c5ee66", "on-primary": "#ffffff", "surface-bright": "#fbf9f4", "dark-canvas": "#0E1512", "surface": "#FFFFFF", "info-sky": "#2E90FA", "tertiary-container": "#005f3c", "background": "#fbf9f4", "on-surface": "#1b1c19", "role-cafe-canvas": "#FBF4EA", "money-coral": "#E8505B", "on-secondary-fixed": "#151f00", "ink-muted": "#66736C", "surface-container": "#f0eee9", "surface-container-high": "#eae8e3", "on-error-container": "#93000a", "surface-container-low": "#f5f3ee", "role-cafe-primary": "#C2542D", "on-tertiary-fixed": "#002112", "primary-fixed-dim": "#8ed4c5", "on-secondary": "#ffffff", "ink": "#13201B", "tertiary-fixed-dim": "#61dda0", "on-primary-fixed": "#00201b", "role-cafe-ink": "#2B1B14", "on-error": "#ffffff", "role-driver-canvas": "#F3F8FA", "inverse-primary": "#8ed4c5", "dark-ink": "#EDF3EF", "secondary": "#4c6700", "inverse-surface": "#30312e", "surface-tonal": "#ECEFEA", "on-tertiary-container": "#61dda0", "on-surface-variant": "#3f4946", "role-field-action": "#C9F36A", "surface-dim": "#dcdad5", "surface-container-lowest": "#ffffff", "outline-variant": "#bec9c5", "dark-surface": "#17221D", "error": "#ba1a1a", "tertiary-fixed": "#7ffaba", "surface-container-highest": "#e4e2dd", "role-cafe-action": "#F4A62A", "critical-ruby": "#D92D20", "on-background": "#1b1c19", "primary": "#00443b", "primary-fixed": "#a9f0e1", "secondary-fixed-dim": "#acd44f", "secondary-fixed": "#c7f169", "on-primary-fixed-variant": "#005046", "hairline": "#E3E1DA", "outline": "#6f7976", "on-secondary-fixed-variant": "#394e00", "role-driver-primary": "#0E8FB3", "dark-surface-tonal": "#1F2E27", "pending-honey": "#E9A23B", "surface-tint": "#1f695e" }, "borderRadius": { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, "spacing": { "space-sm": "0.5rem", "space-md": "0.75rem", "space-lg": "1rem", "margin": "1rem", "space-xl": "1.5rem", "space-xs": "0.25rem", "gutter": "0.75rem" }, "fontFamily": { "caption-meta": ["Manrope"], "headline-lg": ["Manrope"], "display-numeral-mobile": ["Manrope"], "body-lg": ["Manrope"], "body-md": ["Manrope"], "headline-md": ["Manrope"], "sublabel-regional": ["Noto Sans Tamil"], "display-numeral": ["Manrope"], "label-action": ["Manrope"] }, "fontSize": { "caption-meta": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "display-numeral-mobile": ["40px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }], "headline-md": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "sublabel-regional": ["11px", { "lineHeight": "14px", "fontWeight": "600" }], "display-numeral": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "label-action": ["16px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "700" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-role-cafe-canvas text-role-cafe-ink font-body-md flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><button aria-label="Go back" class="w-11 h-11 rounded-full flex items-center justify-center text-role-cafe-primary hover:bg-surface-tonal transition-colors" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><div class="flex flex-col"><div class="flex items-center gap-space-xs"><h1 class="font-headline-md text-headline-md text-role-cafe-ink leading-tight">Reorder Request / Po</h1><span class="font-sublabel-regional text-sublabel-regional text-ink-muted hidden sm:inline">(சரக்கு மறுஆர்டர்)</span></div><div class="flex items-center gap-space-sm mt-0.5"><p class="font-caption-meta text-caption-meta text-ink-muted truncate">Aran Cafe • Kitchen Desk #01</p><div class="inline-flex items-center gap-space-xs px-2 py-0.5 rounded-full bg-surface-container text-money-mint font-caption-meta text-caption-meta"><span class="material-symbols-outlined text-[13px]">check_circle</span><span>Synced</span></div></div></div></div><div class="flex items-center gap-space-sm"><button aria-label="Toggle Language" class="h-9 px-2.5 rounded-full bg-surface-tonal flex items-center gap-1 font-caption-meta text-caption-meta text-role-cafe-ink hover:bg-surface-container transition-colors" type="button"><span class="text-role-cafe-primary font-bold">EN</span><span class="text-ink-muted">|</span><span class="font-sublabel-regional text-sublabel-regional">தமிழ்</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-20 pb-safe bg-role-cafe-canvas min-h-screen"><div class="flex flex-col w-full text-role-cafe-ink font-body-md pb-12">
+<!-- Operational Meta & Urgency Indicator -->
+<div class="px-margin pt-space-md flex flex-col gap-space-sm">
+<div class="bg-surface rounded-lg p-space-md shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-ink-muted">
+<span class="material-symbols-outlined text-[18px] text-role-cafe-primary">storefront</span>
+<span class="font-caption-meta text-caption-meta">Aran Cafe • Main Branch • Bakehouse &amp; Kitchen</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-bold">பிரதான கிளை</span>
+</div>
+<div class="flex items-center justify-between text-ink-muted text-caption-meta font-caption-meta">
+<div class="flex items-center gap-space-xs truncate">
+<span class="material-symbols-outlined text-[16px]">badge</span>
+<span class="truncate">Chef Velu M. (#201) • Verified by Revathi S. (BM)</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-money-mint font-semibold">சரிபார்க்கப்பட்டது</span>
+</div>
+</div>
+<!-- Live Stock Alert Capsule -->
+<div class="w-full bg-error-container text-on-error-container px-space-md py-space-sm rounded-full flex items-center justify-between">
+<div class="flex items-center gap-space-xs truncate">
+<span class="material-symbols-outlined text-[18px] text-critical-ruby" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="font-caption-meta text-caption-meta font-bold truncate">4 Critical Ingredients Below Safety Threshold</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional shrink-0 font-bold">அதிமுக்கிய இருப்பு</span>
+</div>
+</div>
+<!-- Hero Requisition Summary Card -->
+<div class="px-margin mt-space-md">
+<div class="bg-role-cafe-primary text-on-primary rounded-[28px] p-space-lg flex flex-col gap-space-md shadow-sm">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-role-driver-action tracking-wider">PO #REQ-20261112-08</span>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-action text-label-action text-on-primary">REORDER REQUISITION</span>
+<span class="font-sublabel-regional text-sublabel-regional text-surface-container opacity-80">(கொள்முதல் ஆணை)</span>
+</div>
+</div>
+<span class="bg-critical-ruby text-on-error px-space-sm py-0.5 rounded-full font-caption-meta text-caption-meta font-bold tracking-wide flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">local_fire_department</span>
+          URGENT DISPATCH
+        </span>
+</div>
+<div class="flex flex-col pt-space-xs">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-lg text-headline-lg font-extrabold text-surface tracking-tight" id="hero-total-val">₹ 8,450.00</span>
+<span class="font-caption-meta text-caption-meta text-role-cafe-action font-bold">EST. PO OUTFLOW</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-surface-container-high opacity-90 mt-0.5">மதிப்பிடப்பட்ட கொள்முதல் தொகை (முழு பட்டுவாடா)</span>
+</div>
+<!-- 3-Tile Micro KPI Bento -->
+<div class="grid grid-cols-3 gap-gutter pt-space-xs">
+<div class="bg-role-cafe-ink/20 rounded-xl p-space-sm flex flex-col justify-between">
+<span class="font-caption-meta text-caption-meta text-surface-container-high">Items Selected</span>
+<span class="font-headline-md text-headline-md font-bold text-on-primary" id="hero-items-count">4 Lines</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-driver-action">அனைத்தும் தேர்வு</span>
+</div>
+<div class="bg-role-cafe-ink/20 rounded-xl p-space-sm flex flex-col justify-between">
+<span class="font-caption-meta text-caption-meta text-surface-container-high">Delivery Window</span>
+<span class="font-headline-md text-headline-md font-bold text-role-driver-action">06:00 AM</span>
+<span class="font-sublabel-regional text-sublabel-regional text-surface-container-high">காலை 6 மணிக்கு முன்</span>
+</div>
+<div class="bg-role-cafe-ink/20 rounded-xl p-space-sm flex flex-col justify-between">
+<span class="font-caption-meta text-caption-meta text-surface-container-high">GL Account</span>
+<span class="font-headline-md text-headline-md font-bold text-on-primary">1025</span>
+<span class="font-sublabel-regional text-sublabel-regional text-surface-container-high">சமையல் கிடங்கு</span>
+</div>
+</div>
+<div class="bg-role-cafe-ink/30 rounded-lg p-space-sm flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-role-driver-action text-[18px] shrink-0 mt-0.5">bolt</span>
+<p class="font-caption-meta text-caption-meta text-surface-container leading-tight">
+<strong class="text-role-driver-action">1-Tap Approval Broadcast:</strong> Auto-forwards PO WhatsApp voucher to Nandhu (Managing Director) &amp; notifies depot vendors via SMS API.
+        </p>
+</div>
+</div>
+</div>
+<!-- Segment Filter & Custom Item Bar -->
+<div class="px-margin mt-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs overflow-x-auto pb-1 no-scrollbar -mx-1 px-1">
+<button class="px-space-md py-1.5 rounded-full bg-role-cafe-primary text-on-primary font-caption-meta text-caption-meta shrink-0 font-bold shadow-sm">
+          All Urgent (4)
+        </button>
+<button class="px-space-md py-1.5 rounded-full bg-surface text-ink-muted font-caption-meta text-caption-meta shrink-0 hover:bg-surface-container transition-colors">
+          Aavin Dairy (2)
+        </button>
+<button class="px-space-md py-1.5 rounded-full bg-surface text-ink-muted font-caption-meta text-caption-meta shrink-0 hover:bg-surface-container transition-colors">
+          Packwell (1)
+        </button>
+<button class="px-space-md py-1.5 rounded-full bg-surface text-ink-muted font-caption-meta text-caption-meta shrink-0 hover:bg-surface-container transition-colors">
+          Erode Agro (1)
+        </button>
+</div>
+</div>
+<button class="w-full h-12 bg-surface text-role-cafe-primary font-label-action text-label-action rounded-full flex items-center justify-center gap-space-xs shadow-sm hover:bg-surface-container active:scale-[0.99] transition-transform">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span>+ Add Custom Item (கூடுதல் பொருள் சேர்க்க)</span>
+</button>
+</div>
+<!-- Pre-selected Low Stock Requisition List -->
+<div class="px-margin mt-space-md flex flex-col gap-gutter">
+<!-- Card 1: Fresh Buffalo Milk -->
+<div class="bg-surface rounded-[24px] p-space-md flex flex-col gap-space-sm shadow-sm" data-card-id="1">
+<div class="flex items-start justify-between gap-space-sm">
+<label class="flex items-start gap-space-sm cursor-pointer">
+<input checked="" class="w-6 h-6 mt-0.5 rounded-md accent-role-cafe-primary cursor-pointer item-check" type="checkbox"/>
+<div class="flex flex-col">
+<h2 class="font-body-lg text-body-lg font-bold text-role-cafe-ink leading-snug">Fresh Buffalo Milk (Aavin 500ml)</h2>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-semibold">பசும்பால் (ஆவின் அரை லிட்டர் பாக்கெட்டுகள்)</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted mt-0.5">RAW-MLK-01 • Daily Run: 32 L</span>
+</div>
+</label>
+<div class="flex flex-col items-end shrink-0">
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-caption-meta text-caption-meta font-bold">
+            Cur: 4.5 L
+          </span>
+<span class="font-sublabel-regional text-sublabel-regional text-critical-ruby font-bold mt-0.5">குறைந்தது: 15 L</span>
+</div>
+</div>
+<div class="bg-role-cafe-canvas rounded-xl p-space-sm flex items-center justify-between text-ink-muted">
+<div class="flex items-center gap-1.5 truncate">
+<span class="material-symbols-outlined text-[16px] text-role-cafe-primary">store</span>
+<span class="font-caption-meta text-caption-meta truncate">Aavin Erode Depot • Vendor #V-102</span>
+</div>
+<span class="flex items-center gap-1 text-money-mint font-caption-meta text-caption-meta shrink-0 font-bold">
+<span class="material-symbols-outlined text-[14px]">chat</span> WhatsApp
+        </span>
+</div>
+<!-- Stepper Controls & Line Price -->
+<div class="flex items-center justify-between pt-space-xs">
+<div class="flex items-center bg-surface-tonal rounded-full p-1 h-14">
+<button class="w-12 h-12 rounded-full bg-surface flex items-center justify-center text-role-cafe-ink shadow-sm active:scale-95 transition-transform" onclick="adjustQty(1, -5, 42)">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<div class="flex flex-col items-center justify-center px-4 min-w-[80px]">
+<span class="font-body-lg text-body-lg font-extrabold text-role-cafe-ink" id="qty-1">40</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted -mt-1 font-bold">LITRES</span>
+</div>
+<button class="w-12 h-12 rounded-full bg-surface flex items-center justify-center text-role-cafe-ink shadow-sm active:scale-95 transition-transform" onclick="adjustQty(1, 5, 42)">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-caption-meta text-caption-meta text-ink-muted">@ ₹42.00 / L</span>
+<span class="font-headline-md text-headline-md font-extrabold text-role-cafe-primary" id="line-1">₹ 1,680.00</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">வரிவிலக்கு</span>
+</div>
+</div>
+<!-- Fast Preset Slabs -->
+<div class="flex items-center gap-space-xs pt-1">
+<button class="flex-1 py-1 rounded-full bg-surface-tonal text-ink font-caption-meta text-caption-meta font-bold hover:bg-surface-container" onclick="setQty(1, 10, 42)">+10 L</button>
+<button class="flex-1 py-1 rounded-full bg-surface-tonal text-ink font-caption-meta text-caption-meta font-bold hover:bg-surface-container" onclick="setQty(1, 20, 42)">+20 L</button>
+<button class="flex-1 py-1 rounded-full bg-surface-container text-role-cafe-primary font-caption-meta text-caption-meta font-bold" onclick="setQty(1, 50, 42)">Max Crate (50 L)</button>
+</div>
+</div>
+<!-- Card 2: Unsalted Dairy Butter -->
+<div class="bg-surface rounded-[24px] p-space-md flex flex-col gap-space-sm shadow-sm" data-card-id="2">
+<div class="flex items-start justify-between gap-space-sm">
+<label class="flex items-start gap-space-sm cursor-pointer">
+<input checked="" class="w-6 h-6 mt-0.5 rounded-md accent-role-cafe-primary cursor-pointer item-check" type="checkbox"/>
+<div class="flex flex-col">
+<h2 class="font-body-lg text-body-lg font-bold text-role-cafe-ink leading-snug">Unsalted Dairy Butter (500g Blocks)</h2>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-semibold">வெண்ணெய் (குரோசண்ட் பேக்கிங்)</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted mt-0.5">RAW-BTR-05 • Croissant Lamination</span>
+</div>
+</label>
+<div class="flex flex-col items-end shrink-0">
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-caption-meta text-caption-meta font-bold">
+            Cur: 2.5 kg
+          </span>
+<span class="font-sublabel-regional text-sublabel-regional text-critical-ruby font-bold mt-0.5">குறைந்தது: 6 kg</span>
+</div>
+</div>
+<div class="bg-role-cafe-canvas rounded-xl p-space-sm flex items-center justify-between text-ink-muted">
+<div class="flex items-center gap-1.5 truncate">
+<span class="material-symbols-outlined text-[16px] text-role-cafe-primary">local_shipping</span>
+<span class="font-caption-meta text-caption-meta truncate">Milky Mist Distributor • Vendor #V-108</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-role-cafe-action shrink-0 font-bold">Credit 30D</span>
+</div>
+<!-- Stepper Controls & Line Price -->
+<div class="flex items-center justify-between pt-space-xs">
+<div class="flex items-center bg-surface-tonal rounded-full p-1 h-14">
+<button class="w-12 h-12 rounded-full bg-surface flex items-center justify-center text-role-cafe-ink shadow-sm active:scale-95 transition-transform" onclick="adjustQty(2, -2, 340)">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<div class="flex flex-col items-center justify-center px-4 min-w-[80px]">
+<span class="font-body-lg text-body-lg font-extrabold text-role-cafe-ink" id="qty-2">12</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted -mt-1 font-bold">KGS</span>
+</div>
+<button class="w-12 h-12 rounded-full bg-surface flex items-center justify-center text-role-cafe-ink shadow-sm active:scale-95 transition-transform" onclick="adjustQty(2, 2, 340)">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-caption-meta text-caption-meta text-ink-muted">@ ₹340.00 / kg</span>
+<span class="font-headline-md text-headline-md font-extrabold text-role-cafe-primary" id="line-2">₹ 4,080.00</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">வரிசேர்ப்பு</span>
+</div>
+</div>
+<!-- Fast Preset Slabs -->
+<div class="flex items-center gap-space-xs pt-1">
+<button class="flex-1 py-1 rounded-full bg-surface-tonal text-ink font-caption-meta text-caption-meta font-bold hover:bg-surface-container" onclick="setQty(2, 4, 340)">+4 kg</button>
+<button class="flex-1 py-1 rounded-full bg-surface-tonal text-ink font-caption-meta text-caption-meta font-bold hover:bg-surface-container" onclick="setQty(2, 8, 340)">+8 kg</button>
+<button class="flex-1 py-1 rounded-full bg-surface-container text-role-cafe-primary font-caption-meta text-caption-meta font-bold" onclick="setQty(2, 20, 340)">Full Box (20 kg)</button>
+</div>
+</div>
+<!-- Card 3: Maida Flour Grade A -->
+<div class="bg-surface rounded-[24px] p-space-md flex flex-col gap-space-sm shadow-sm" data-card-id="3">
+<div class="flex items-start justify-between gap-space-sm">
+<label class="flex items-start gap-space-sm cursor-pointer">
+<input checked="" class="w-6 h-6 mt-0.5 rounded-md accent-role-cafe-primary cursor-pointer item-check" type="checkbox"/>
+<div class="flex flex-col">
+<h2 class="font-body-lg text-body-lg font-bold text-role-cafe-ink leading-snug">Maida Flour Grade A (50kg Sack)</h2>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-semibold">மைதா மாவு (முதல் தரம் - பேக்கரி பயன்பாடு)</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted mt-0.5">RAW-FLR-04 • Premium Bakehouse Quality</span>
+</div>
+</label>
+<div class="flex flex-col items-end shrink-0">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-pending-honey font-caption-meta text-caption-meta font-bold">
+            Cur: 18.0 kg
+          </span>
+<span class="font-sublabel-regional text-sublabel-regional text-pending-honey font-bold mt-0.5">பாதுகாப்பு மறுஆர்டர்</span>
+</div>
+</div>
+<div class="bg-role-cafe-canvas rounded-xl p-space-sm flex items-center justify-between text-ink-muted">
+<div class="flex items-center gap-1.5 truncate">
+<span class="material-symbols-outlined text-[16px] text-role-cafe-primary">factory</span>
+<span class="font-caption-meta text-caption-meta truncate">Shree Krishna Agro Mills • Vendor #V-114</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-money-mint shrink-0 font-bold">Direct Mill</span>
+</div>
+<!-- Stepper Controls & Line Price -->
+<div class="flex items-center justify-between pt-space-xs">
+<div class="flex items-center bg-surface-tonal rounded-full p-1 h-14">
+<button class="w-12 h-12 rounded-full bg-surface flex items-center justify-center text-role-cafe-ink shadow-sm active:scale-95 transition-transform" onclick="adjustQty(3, -1, 1050)">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<div class="flex flex-col items-center justify-center px-4 min-w-[80px]">
+<span class="font-body-lg text-body-lg font-extrabold text-role-cafe-ink" id="qty-3">2</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted -mt-1 font-bold">SACKS</span>
+</div>
+<button class="w-12 h-12 rounded-full bg-surface flex items-center justify-center text-role-cafe-ink shadow-sm active:scale-95 transition-transform" onclick="adjustQty(3, 1, 1050)">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-caption-meta text-caption-meta text-ink-muted">@ ₹1,050.00 / sack</span>
+<span class="font-headline-md text-headline-md font-extrabold text-role-cafe-primary" id="line-3">₹ 2,100.00</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">100 kg மொத்தம்</span>
+</div>
+</div>
+<!-- Fast Preset Slabs -->
+<div class="flex items-center gap-space-xs pt-1">
+<button class="flex-1 py-1 rounded-full bg-surface-tonal text-ink font-caption-meta text-caption-meta font-bold hover:bg-surface-container" onclick="setQty(3, 1, 1050)">+1 Sack</button>
+<button class="flex-1 py-1 rounded-full bg-surface-container text-role-cafe-primary font-caption-meta text-caption-meta font-bold" onclick="setQty(3, 2, 1050)">+2 Sacks (Std)</button>
+<button class="flex-1 py-1 rounded-full bg-surface-tonal text-ink font-caption-meta text-caption-meta font-bold hover:bg-surface-container" onclick="setQty(3, 4, 1050)">+4 Sacks</button>
+</div>
+</div>
+<!-- Card 4: Kraft Pastry Carry Boxes -->
+<div class="bg-surface rounded-[24px] p-space-md flex flex-col gap-space-sm shadow-sm" data-card-id="4">
+<div class="flex items-start justify-between gap-space-sm">
+<label class="flex items-start gap-space-sm cursor-pointer">
+<input checked="" class="w-6 h-6 mt-0.5 rounded-md accent-role-cafe-primary cursor-pointer item-check" type="checkbox"/>
+<div class="flex flex-col">
+<h2 class="font-body-lg text-body-lg font-bold text-role-cafe-ink leading-snug">Kraft Pastry Carry Boxes (4pc)</h2>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-semibold">பேக்கரி பார்சல் பாக்ஸ் (பிரவுன் கிராஃப்ட் அட்டை)</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted mt-0.5">PKG-BX-04 • Brown Kraft Food Grade</span>
+</div>
+</label>
+<div class="flex flex-col items-end shrink-0">
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-caption-meta text-caption-meta font-bold">
+            Cur: 35 Pcs
+          </span>
+<span class="font-sublabel-regional text-sublabel-regional text-critical-ruby font-bold mt-0.5">தீரும் நிலையில்</span>
+</div>
+</div>
+<div class="bg-role-cafe-canvas rounded-xl p-space-sm flex items-center justify-between text-ink-muted">
+<div class="flex items-center gap-1.5 truncate">
+<span class="material-symbols-outlined text-[16px] text-role-cafe-primary">inventory_2</span>
+<span class="font-caption-meta text-caption-meta truncate">Packwell Printers &amp; Containers • #V-120</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-role-cafe-primary shrink-0 font-bold">COD Order</span>
+</div>
+<!-- Stepper Controls & Line Price -->
+<div class="flex items-center justify-between pt-space-xs">
+<div class="flex items-center bg-surface-tonal rounded-full p-1 h-14">
+<button class="w-12 h-12 rounded-full bg-surface flex items-center justify-center text-role-cafe-ink shadow-sm active:scale-95 transition-transform" onclick="adjustQty(4, -50, 1.9667)">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<div class="flex flex-col items-center justify-center px-4 min-w-[80px]">
+<span class="font-body-lg text-body-lg font-extrabold text-role-cafe-ink" id="qty-4">300</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted -mt-1 font-bold">PIECES</span>
+</div>
+<button class="w-12 h-12 rounded-full bg-surface flex items-center justify-center text-role-cafe-ink shadow-sm active:scale-95 transition-transform" onclick="adjustQty(4, 50, 1.9667)">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-caption-meta text-caption-meta text-ink-muted">@ ₹1.97 / pc</span>
+<span class="font-headline-md text-headline-md font-extrabold text-role-cafe-primary" id="line-4">₹ 590.00</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">மடிக்கக்கூடிய பெட்டி</span>
+</div>
+</div>
+<!-- Fast Preset Slabs -->
+<div class="flex items-center gap-space-xs pt-1">
+<button class="flex-1 py-1 rounded-full bg-surface-tonal text-ink font-caption-meta text-caption-meta font-bold hover:bg-surface-container" onclick="setQty(4, 100, 1.9667)">+100</button>
+<button class="flex-1 py-1 rounded-full bg-surface-container text-role-cafe-primary font-caption-meta text-caption-meta font-bold" onclick="setQty(4, 250, 1.9667)">+250 (Bundle)</button>
+<button class="flex-1 py-1 rounded-full bg-surface-tonal text-ink font-caption-meta text-caption-meta font-bold hover:bg-surface-container" onclick="setQty(4, 500, 1.9667)">+500</button>
+</div>
+</div>
+</div>
+<!-- Requisition Dispatch Settings & Routing -->
+<div class="px-margin mt-space-md">
+<div class="bg-surface rounded-[24px] p-space-md flex flex-col gap-space-md shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-role-cafe-primary text-[20px]">rule_settings</span>
+<h3 class="font-headline-md text-headline-md text-role-cafe-ink">DISPATCH ROUTING</h3>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-bold">அனுப்பும் முறை</span>
+</div>
+<!-- Routing Radio Slabs -->
+<div class="flex flex-col gap-space-sm">
+<label class="p-space-md rounded-2xl bg-role-cafe-canvas flex items-start gap-space-md cursor-pointer">
+<input checked="" class="w-5 h-5 mt-1 accent-role-cafe-primary cursor-pointer" name="dispatch_mode" type="radio"/>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-body-lg text-body-lg font-bold text-role-cafe-ink">Send to Owner for Approval</span>
+<span class="material-symbols-outlined text-money-mint text-[18px]">verified</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-semibold">உரிமையாளர் ஒப்புதலுக்கு அனுப்பவும்</span>
+<p class="font-caption-meta text-caption-meta text-ink-muted mt-1">
+              Dispatches WhatsApp push voucher to Nandhu (Managing Director). PO issues automatically upon 1-tap PIN authorization.
+            </p>
+</div>
+</label>
+<label class="p-space-md rounded-2xl bg-surface-tonal flex items-start gap-space-md cursor-pointer">
+<input class="w-5 h-5 mt-1 accent-role-cafe-primary cursor-pointer" name="dispatch_mode" type="radio"/>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-body-lg text-body-lg font-bold text-role-cafe-ink">Direct PO Dispatch to Vendors</span>
+<span class="material-symbols-outlined text-role-cafe-action text-[18px]">bolt</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-semibold">நேரடி விநியோகஸ்தர் ஆர்டர்</span>
+<p class="font-caption-meta text-caption-meta text-ink-muted mt-1">
+              Emergency overnight dispatch bypass without pre-clearance. Logged directly into unapproved Kitchen Debit ledger.
+            </p>
+</div>
+</label>
+</div>
+<!-- Expected Arrival Slab -->
+<div class="flex items-center justify-between p-space-sm bg-surface-tonal rounded-xl">
+<div class="flex items-center gap-space-xs text-ink-muted">
+<span class="material-symbols-outlined text-[18px] text-role-cafe-primary">alarm</span>
+<span class="font-caption-meta text-caption-meta">Expected Delivery:</span>
+</div>
+<span class="font-body-md text-body-md font-bold text-role-cafe-ink">Tomorrow, 05:30 AM (Bake Shift 01)</span>
+</div>
+<!-- Kitchen Remarks Field -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-caption-meta text-caption-meta text-ink-muted flex items-center justify-between">
+<span>Kitchen Desk Remark / Special Notes</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary">சமையலறை குறிப்பு</span>
+</label>
+<div class="bg-surface-tonal rounded-2xl p-space-sm">
+<textarea class="w-full bg-transparent text-role-cafe-ink font-body-md text-body-md focus:outline-none resize-none leading-snug" placeholder="Add specific delivery notes..." rows="2">Morning bake croissant batch #03 scheduled for 06:30 AM. Urgent butter &amp; milk needed before morning tea crowd.</textarea>
+</div>
+</div>
+</div>
+</div>
+<!-- Financial Breakdown Container -->
+<div class="px-margin mt-space-md">
+<div class="bg-surface rounded-[24px] p-space-md flex flex-col gap-space-xs shadow-sm">
+<div class="flex items-center justify-between text-ink-muted font-body-md text-body-md">
+<span>Subtotal (4 Critical Lines)</span>
+<span class="font-bold text-role-cafe-ink" id="subtotal-display">₹ 8,450.00</span>
+</div>
+<div class="flex items-center justify-between text-ink-muted font-caption-meta text-caption-meta">
+<span>Estimated GST / Composition (5% Raw)</span>
+<span class="text-money-mint font-bold">₹0.00 (Exempt raw supplies)</span>
+</div>
+<div class="h-2"></div>
+<div class="flex items-baseline justify-between pt-2 border-t-0 bg-surface-tonal p-space-sm rounded-xl">
+<div class="flex flex-col">
+<span class="font-body-lg text-body-lg font-extrabold text-role-cafe-ink">Net Estimated Outflow</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-bold">மொத்த மதிப்பிடப்பட்ட தொகை</span>
+</div>
+<span class="font-headline-lg text-headline-lg font-extrabold text-role-cafe-primary" id="net-total-display">₹ 8,450.00</span>
+</div>
+<div class="pt-space-xs">
+<p class="font-caption-meta text-caption-meta text-ink-muted leading-tight">
+<span class="font-bold text-role-cafe-ink">Credit Policy:</span> 30 Days Net on Aavin &amp; Milky Mist • Instant Cash on Delivery for Packwell containers.
+        </p>
+</div>
+</div>
+</div>
+<!-- Tactile Bottom Action Area -->
+<div class="px-margin mt-space-lg flex flex-col gap-space-sm">
+<button class="w-full h-14 bg-role-cafe-action text-role-cafe-ink font-label-action text-label-action rounded-full flex items-center justify-center gap-space-xs shadow-sm active:scale-[0.98] transition-transform" type="button">
+<span class="material-symbols-outlined text-[22px]">send</span>
+<span>Send to Owner for Approval (ஒப்புதலுக்கு அனுப்பு) →</span>
+</button>
+<button class="w-full h-12 rounded-full bg-surface text-role-cafe-primary font-label-action text-label-action flex items-center justify-center gap-space-xs shadow-sm hover:bg-surface-container active:scale-[0.98] transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px] text-money-mint">share</span>
+<span>Share PDF Draft to Vendor WhatsApp (வாட்ஸ்அப்)</span>
+</button>
+<div class="flex items-center justify-center gap-space-xs text-ink-muted pt-space-xs">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+<p class="font-caption-meta text-caption-meta text-center">
+        Requisition #REQ-20261112-08 • Auto-generates draft purchase bill in GL1025.
+      </p>
+</div>
+</div>
+</div>
+<script>
+  // Simple reactive store for the interactive quantities & line subtotals
+  const items = {
+    1: { qty: 40, rate: 42.00, active: true },
+    2: { qty: 12, rate: 340.00, active: true },
+    3: { qty: 2, rate: 1050.00, active: true },
+    4: { qty: 300, rate: 1.9666667, active: true }
+  };
+
+  function updateTotals() {
+    let sum = 0;
+    let count = 0;
+    for (const [id, item] of Object.entries(items)) {
+      if (item.active) {
+        sum += item.qty * item.rate;
+        count++;
+      }
+    }
+    const formatted = '₹ ' + sum.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById('hero-total-val').innerText = formatted;
+    document.getElementById('subtotal-display').innerText = formatted;
+    document.getElementById('net-total-display').innerText = formatted;
+    document.getElementById('hero-items-count').innerText = count + ' Lines';
+  }
+
+  function adjustQty(id, delta, rate) {
+    if (items[id].qty + delta > 0) {
+      items[id].qty += delta;
+      document.getElementById('qty-' + id).innerText = items[id].qty;
+      const lineCost = items[id].qty * rate;
+      document.getElementById('line-' + id).innerText = '₹ ' + lineCost.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      updateTotals();
+    }
+  }
+
+  function setQty(id, val, rate) {
+    items[id].qty = val;
+    document.getElementById('qty-' + id).innerText = items[id].qty;
+    const lineCost = items[id].qty * rate;
+    document.getElementById('line-' + id).innerText = '₹ ' + lineCost.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    updateTotals();
+  }
+
+  document.querySelectorAll('.item-check').forEach((chk, index) => {
+    chk.addEventListener('change', (e) => {
+      const id = index + 1;
+      items[id].active = e.target.checked;
+      const card = document.querySelector(`[data-card-id="${id}"]`);
+      if (!e.target.checked) {
+        card.classList.add('opacity-40');
+      } else {
+        card.classList.remove('opacity-40');
+      }
+      updateTotals();
+    });
+  });
+</script></main></body></html>

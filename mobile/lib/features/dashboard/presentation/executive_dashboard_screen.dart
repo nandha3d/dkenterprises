@@ -1,53 +1,178 @@
+import 'dart:async';
+import 'dart:io' show Platform;
+import 'dart:math' as math;
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:latlong2/latlong.dart' hide Path;
 import '../../../core/network/api_endpoints.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
-import '../../../core/ui/kpi_card.dart';
-import '../../../core/ui/sales_performance_card.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../core/ui/daily_sales_chart.dart';
+import '../../../core/ui/gps_map_interactive_sheets.dart';
 import '../../../core/ui/ledger_transactions_section.dart';
-import '../../../core/utils/location_parser.dart';
+import '../../../core/ui/ripple_components.dart';
+import '../../../core/ui/sparkline_chart.dart';
 import '../../auth/domain/auth_models.dart';
-import 'tanker_driver_dashboard_screen.dart';
 import 'can_delivery_driver_dashboard_screen.dart';
 import 'cashier_dashboard_screen.dart';
 import 'field_agent_dashboard_screen.dart';
+import 'tanker_driver_dashboard_screen.dart';
+
+/// 1x1 transparent PNG bytes used when running headless widget tests.
+final Uint8List _kTransparentTilePng = Uint8List.fromList(<int>[
+  0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
+  0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
+  0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+  0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4,
+  0x89, 0x00, 0x00, 0x00, 0x0A, 0x49, 0x44, 0x41,
+  0x54, 0x78, 0x9C, 0x63, 0x00, 0x01, 0x00, 0x00,
+  0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00,
+  0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE,
+  0x42, 0x60, 0x82,
+]);
+
+class _MemoryStubTileProvider extends TileProvider {
+  @override
+  ImageProvider getImage(TileCoordinates coordinates, TileLayer options) {
+    return MemoryImage(_kTransparentTilePng);
+  }
+}
+
+TileProvider _buildSafeTileProvider() {
+  if (Platform.environment.containsKey('FLUTTER_TEST')) {
+    return _MemoryStubTileProvider();
+  }
+  return NetworkTileProvider();
+}
 
 class ExecutiveDashboardScreen extends ConsumerStatefulWidget {
   const ExecutiveDashboardScreen({super.key});
 
   @override
-  ConsumerState<ExecutiveDashboardScreen> createState() => _ExecutiveDashboardScreenState();
+  ConsumerState<ExecutiveDashboardScreen> createState() =>
+      _ExecutiveDashboardScreenState();
 }
 
-class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScreen> {
+class _ExecutiveDashboardScreenState
+    extends ConsumerState<ExecutiveDashboardScreen>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+  static final NumberFormat _inrWhole = NumberFormat.currency(
+    locale: 'en_IN',
+    symbol: '₹',
+    decimalDigits: 0,
+  );
+  static final NumberFormat _inrCompact = NumberFormat.compactCurrency(
+    locale: 'en_IN',
+    symbol: '₹',
+    decimalDigits: 1,
+  );
+
   bool _isLoading = true;
   String? _errorMessage;
   Map<String, dynamic>? _financials;
   DateTime? _lastRefreshedAt;
   bool _isFromCache = false;
 
-  // Active filter states for dynamic Sales & Ledger queries
-  String _salesPeriod = 'this_month'; // Default: Monthly Sales
+  String _salesPeriod = 'this_month';
+  int _dailyChartDays = 14;
   DateTime? _salesStartDate;
   DateTime? _salesEndDate;
 
-  String _ledgerPeriod = 'today'; // Default: Today
+  String _ledgerPeriod = 'today';
   DateTime? _ledgerStartDate;
   DateTime? _ledgerEndDate;
 
-  // Active Vehicle index for Live Fleet GPS Tracking Card (Water Supply & Can Supply)
-  int _selectedFleetVehicleIndex = 0;
   Map<String, dynamic>? _fleetLiveSnapshot;
+  late final MapController _ownerMapController;
+  bool _ownerMapReady = false;
+  String _ownerMapFilter = 'all';
+  int? _ownerSelectedCustomerId;
+  String? _ownerSelectedVehicleKey;
 
   @override
   void initState() {
     super.initState();
+    _ownerMapController = MapController();
     _loadDashboardData();
+  }
+
+  @override
+  void dispose() {
+    _ownerMapController.dispose();
+    super.dispose();
+  }
+
+  String _resolveEffectiveIndustry(CompanyInfo? company) {
+    final raw = (company?.industry ?? '').trim().toLowerCase();
+    if (raw == 'bulk_water' || raw == 'packaged_water' || raw == 'cafe_bakery') {
+      return raw;
+    }
+    final code = (company?.code ?? '').trim().toLowerCase();
+    final name = (company?.name ?? '').trim().toLowerCase();
+    if (code == 'tmws' || name.contains('murugan') || name.contains('tanker') || name.contains('bulk')) {
+      return 'bulk_water';
+    }
+    if (code.contains('dkw') || name.contains('dk water') || name.contains('can') || name.contains('packaged')) {
+      return 'packaged_water';
+    }
+    if (code.contains('aran') || name.contains('cafe') || name.contains('bakery')) {
+      return 'cafe_bakery';
+    }
+    return raw;
+  }
+
+  double? _parseCoord(dynamic raw) {
+    if (raw == null) return null;
+    final val = double.tryParse(raw.toString());
+    if (val == null || val.abs() < 0.0001) return null;
+    return val;
+  }
+
+  double _numVal(dynamic raw) => double.tryParse(raw?.toString() ?? '0') ?? 0.0;
+
+  String _customerPaymentStatus(Map<String, dynamic> c) {
+    final explicit = (c['payment_status'] ?? '').toString().toLowerCase();
+    if (explicit == 'overdue' || _numVal(c['overdue_amount']) > 0.01) {
+      return 'overdue';
+    }
+    if (explicit == 'due' || _numVal(c['due_amount']) > 0.01) {
+      return 'due';
+    }
+    return 'paid';
+  }
+
+  Color _colorForPaymentStatus(String status) {
+    return switch (status) {
+      'overdue' => AppColors.danger,
+      'due' => AppColors.warning,
+      _ => AppColors.success,
+    };
+  }
+
+  List<Map<String, dynamic>> _extractFleetVehicles(
+    Map<String, dynamic>? snapshot,
+    bool isBulk,
+  ) {
+    final raw = isBulk
+        ? (snapshot?['tankers'] as List<dynamic>? ?? const [])
+        : (snapshot?['can_routes'] as List<dynamic>? ?? const []);
+    return raw.whereType<Map>().map((m) => Map<String, dynamic>.from(m)).toList();
+  }
+
+  List<Map<String, dynamic>> _extractFleetCustomers(Map<String, dynamic>? snapshot) {
+    final raw = snapshot?['customers'] as List<dynamic>? ?? const [];
+    return raw
+        .whereType<Map>()
+        .map((m) => Map<String, dynamic>.from(m))
+        .where((c) => _parseCoord(c['latitude']) != null && _parseCoord(c['longitude']) != null)
+        .toList();
   }
 
   Future<void> _loadDashboardData() async {
@@ -60,9 +185,9 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
     final db = ref.read(localDatabaseProvider);
     final authState = ref.read(authNotifierProvider);
     final companyId = authState.activeCompany?.id ?? 0;
-    final cacheKey = 'financials_comp_${companyId}_s_${_salesPeriod}_l_$_ledgerPeriod';
+    final cacheKey =
+        'financials_comp_${companyId}_s_${_salesPeriod}_l_${_ledgerPeriod}_d_$_dailyChartDays';
 
-    // 1. Check offline cache first
     try {
       final cached = await db.getCache(cacheKey).timeout(const Duration(milliseconds: 500));
       final cacheTime = await db.getCacheTimestamp(cacheKey).timeout(const Duration(milliseconds: 500));
@@ -71,17 +196,15 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
           _financials = cached;
           _lastRefreshedAt = cacheTime;
           _isFromCache = true;
-          _isLoading = false; // Immediately paint cached snapshot!
+          _isLoading = false;
         });
       }
-    } catch (_) {
-      // Continue to live fetch
-    }
+    } catch (_) {}
 
-    // 2. Prepare query parameters for dynamic backend computation
     final queryParams = <String, dynamic>{
       'sales_period': _salesPeriod,
       'ledger_period': _ledgerPeriod,
+      'days': _dailyChartDays,
     };
     if (_salesStartDate != null) {
       queryParams['sales_start_date'] = DateFormat('yyyy-MM-dd').format(_salesStartDate!);
@@ -96,13 +219,52 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
       queryParams['ledger_end_date'] = DateFormat('yyyy-MM-dd').format(_ledgerEndDate!);
     }
 
-    // 3. Attempt live server fetch with safe timeout
+    final industry = _resolveEffectiveIndustry(authState.activeCompany);
+    final Future<dynamic> wsFuture = authState.companies.length <= 1
+        ? () async {
+            try {
+              return await apiClient
+                  .get(
+                    ApiEndpoints.workspace,
+                    fromJson: (data) =>
+                        data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{},
+                  )
+                  .timeout(const Duration(seconds: 4));
+            } catch (_) {
+              return null;
+            }
+          }()
+        : Future<dynamic>.value(null);
+
+    Future<dynamic> fetchFleetFor(String ind, Duration timeout) async {
+      try {
+        return await apiClient
+            .get(
+              ApiEndpoints.fleetLive,
+              queryParameters: {'vertical': ind, 'industry': ind},
+              fromJson: (data) => data is Map
+                  ? Map<String, dynamic>.from(data)
+                  : <String, dynamic>{},
+            )
+            .timeout(timeout);
+      } catch (_) {
+        return null;
+      }
+    }
+
+    final Future<dynamic> fleetFuture =
+        (industry == 'bulk_water' || industry == 'packaged_water')
+            ? fetchFleetFor(industry, const Duration(seconds: 4))
+            : Future<dynamic>.value(null);
+
     try {
-      final result = await apiClient.get(
-        ApiEndpoints.financials,
-        queryParameters: queryParams,
-        fromJson: (data) => data as Map<String, dynamic>,
-      ).timeout(const Duration(seconds: 8));
+      final result = await apiClient
+          .get(
+            ApiEndpoints.financials,
+            queryParameters: queryParams,
+            fromJson: (data) => data as Map<String, dynamic>,
+          )
+          .timeout(const Duration(seconds: 8));
 
       if (!mounted) return;
 
@@ -110,7 +272,9 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
         final rawData = result.dataOrNull ?? <String, dynamic>{};
         final liveData = rawData['data'] is Map<String, dynamic>
             ? rawData['data'] as Map<String, dynamic>
-            : (rawData['data'] is Map ? Map<String, dynamic>.from(rawData['data'] as Map) : rawData);
+            : (rawData['data'] is Map
+                ? Map<String, dynamic>.from(rawData['data'] as Map)
+                : rawData);
         await db.saveCache(cacheKey, liveData);
         if (mounted) {
           setState(() {
@@ -119,14 +283,13 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
             _lastRefreshedAt = DateTime.now();
           });
         }
-      } else {
-        if (_financials == null && mounted) {
-          setState(() {
-            _errorMessage = result.failureOrNull?.message ?? 'Failed to load live data';
-          });
-        }
+      } else if (_financials == null && mounted) {
+        setState(() {
+          _errorMessage =
+              result.failureOrNull?.message ?? 'Failed to load live ledger balances';
+        });
       }
-    } catch (e) {
+    } catch (_) {
       if (_financials == null && mounted) {
         setState(() {
           _errorMessage = 'Connection timeout. Pull down to refresh.';
@@ -134,25 +297,63 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
       }
     }
 
-    // 4. Live Fleet Telematics for Water Supply and Water Can Supply
-    final industry = authState.activeCompany?.industry ?? '';
-    if (industry == 'bulk_water' || industry == 'packaged_water') {
-      try {
-        final fleetRes = await apiClient.get(
-          ApiEndpoints.fleetLive,
-          queryParameters: {'vertical': industry},
-          fromJson: (data) => data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{},
-        ).timeout(const Duration(seconds: 4));
-        if (fleetRes.isSuccess && fleetRes.dataOrNull != null) {
-          final rawFleet = fleetRes.dataOrNull!;
-          final fData = rawFleet['data'] is Map ? Map<String, dynamic>.from(rawFleet['data'] as Map) : rawFleet;
-          if (mounted) {
-            setState(() {
-              _fleetLiveSnapshot = fData;
-            });
-          }
+    final wsRes = await wsFuture;
+    if (wsRes != null && wsRes.isSuccess == true && wsRes.dataOrNull != null && mounted) {
+      final rawWs = wsRes.dataOrNull as Map<String, dynamic>;
+      final wsData = rawWs['data'] is Map
+          ? Map<String, dynamic>.from(rawWs['data'] as Map)
+          : rawWs;
+      final rawComps = wsData['companies'];
+      if (rawComps is List && rawComps.isNotEmpty) {
+        final parsedComps = rawComps
+            .whereType<Map>()
+            .map((c) => CompanyInfo.fromJson(Map<String, dynamic>.from(c)))
+            .toList();
+        if (parsedComps.isNotEmpty) {
+          try {
+            await ref
+                .read(authNotifierProvider.notifier)
+                .syncCompaniesFromWorkspace(parsedComps);
+          } catch (_) {}
         }
-      } catch (_) {}
+      }
+    }
+
+    var fleetRes = await fleetFuture;
+    final resolvedAfterSync = mounted
+        ? _resolveEffectiveIndustry(ref.read(authNotifierProvider).activeCompany)
+        : industry;
+    if (fleetRes == null &&
+        mounted &&
+        (resolvedAfterSync == 'bulk_water' || resolvedAfterSync == 'packaged_water')) {
+      fleetRes = await fetchFleetFor(resolvedAfterSync, const Duration(seconds: 3));
+    }
+
+    if (fleetRes != null &&
+        fleetRes.isSuccess == true &&
+        fleetRes.dataOrNull != null &&
+        mounted) {
+      final rawFleet = fleetRes.dataOrNull as Map<String, dynamic>;
+      final fData = rawFleet['data'] is Map
+          ? Map<String, dynamic>.from(rawFleet['data'] as Map)
+          : rawFleet;
+      setState(() {
+        _fleetLiveSnapshot = fData;
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_ownerMapReady) return;
+        final isBulk = resolvedAfterSync == 'bulk_water';
+        _fitOwnerMapBounds(
+          _extractFleetCustomers(fData),
+          _extractFleetVehicles(fData, isBulk),
+        );
+      });
+    } else if (resolvedAfterSync != 'bulk_water' &&
+        resolvedAfterSync != 'packaged_water' &&
+        mounted) {
+      setState(() {
+        _fleetLiveSnapshot = null;
+      });
     }
 
     if (mounted) {
@@ -162,54 +363,64 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
     }
   }
 
+  String _greetingText() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     ref.listen<AuthState>(authNotifierProvider, (previous, next) {
       if (previous?.activeCompany?.id != next.activeCompany?.id) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            _loadDashboardData();
-          }
+          if (!mounted) return;
+          setState(() {
+            _fleetLiveSnapshot = null;
+            _ownerMapFilter = 'all';
+            _ownerSelectedCustomerId = null;
+            _ownerSelectedVehicleKey = null;
+          });
+          _loadDashboardData();
         });
       }
     });
 
-    // Auto-refresh when offline outbox mutations are drained to the server
-    ref.listen<int>(syncWorkerProvider.select((w) => w.state.pendingCount), (previous, next) {
-      if (previous != null && next < previous) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            _loadDashboardData();
-          }
-        });
-      }
-    });
+    ref.listen<int>(
+      syncWorkerProvider.select((w) => w.state.pendingCount),
+      (previous, next) {
+        if (previous != null && next < previous) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _loadDashboardData();
+          });
+        }
+      },
+    );
 
-    // Auto-refresh when an operational action signals new transactions
     ref.listen<int>(dashboardRefreshSignalProvider, (previous, next) {
       if (previous != null && next != previous) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            _loadDashboardData();
-          }
+          if (mounted) _loadDashboardData();
         });
       }
     });
 
     final authState = ref.watch(authNotifierProvider);
     final userRole = (authState.user?.role ?? '').toLowerCase();
-    final userName = (authState.user?.username ?? authState.user?.name ?? '').toLowerCase();
+    final userName =
+        (authState.user?.username ?? authState.user?.name ?? '').toLowerCase();
     final userEmail = (authState.user?.email ?? '').toLowerCase();
     final allRoles = authState.roles.map((r) => r.toLowerCase()).toList();
 
     bool hasKeyword(String kw) {
       return userRole.contains(kw) ||
-             userName.contains(kw) ||
-             userEmail.contains(kw) ||
-             allRoles.any((r) => r.contains(kw));
+          userName.contains(kw) ||
+          userEmail.contains(kw) ||
+          allRoles.any((r) => r.contains(kw));
     }
 
-    // Role-based executive redirect guard: Never show balance sheets to field crew
     if (hasKeyword('tanker')) {
       return const TankerDriverDashboardScreen();
     } else if (hasKeyword('delivery') || hasKeyword('driver')) {
@@ -219,1074 +430,956 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
     } else if (hasKeyword('agent') || hasKeyword('field')) {
       return const FieldAgentDashboardScreen();
     }
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textCol = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
-    final mutedCol = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
-    final industry = authState.activeCompany?.industry ?? '';
+    final skin = RippleSkin.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final industry = _resolveEffectiveIndustry(authState.activeCompany);
+    final isWaterVertical =
+        industry == 'bulk_water' || industry == 'packaged_water';
+    final displayName =
+        authState.user?.name.trim().isNotEmpty == true
+            ? authState.user!.name.trim()
+            : 'Executive';
 
     final cashBalance = _financials?['cash_balance'] as num? ??
-        _financials?['cash_in_hand_1010'] as num? ?? 0;
+        _financials?['cash_in_hand_1010'] as num? ??
+        0;
     final bankBalance = _financials?['bank_balance'] as num? ??
-        _financials?['bank_account_1020'] as num? ?? 0;
+        _financials?['bank_account_1020'] as num? ??
+        0;
     final receivables = _financials?['receivables'] as num? ??
-        _financials?['accounts_receivable_1030'] as num? ?? 0;
+        _financials?['accounts_receivable_1030'] as num? ??
+        0;
     final payables = _financials?['payables'] as num? ?? 0;
     final todayCollections = _financials?['collections_today'] as num? ??
-        _financials?['today_collections'] as num? ?? 0;
+        _financials?['today_collections'] as num? ??
+        0;
+    final cashInTransit = _financials?['cash_in_transit_drivers'] as num? ?? 0;
 
-    // Dynamic Sales Performance
     final salesAmount = _financials?['sales_amount'] as num? ?? 0;
     final salesToday = _financials?['sales_today'] as num? ?? 0;
     final salesCount = (_financials?['sales_count'] as num?)?.toInt() ?? 0;
-    final salesPeriodLabel = _financials?['sales_period_label'] as String? ?? 'This Month (Default)';
+    final salesPeriodLabel =
+        _financials?['sales_period_label'] as String? ?? 'This Month';
 
     final salesTrendRaw = _financials?['sales_trend'] as List<dynamic>? ?? [];
-    final salesTrend = salesTrendRaw.map<num>((e) {
-      if (e is Map) return (e['amount'] as num? ?? 0);
-      if (e is num) return e;
-      return 0;
-    }).toList();
+    final salesTrend = salesTrendRaw
+        .map<({String label, double amount})>((e) {
+          if (e is Map) {
+            return (
+              label: (e['label'] ?? e['date'] ?? '').toString(),
+              amount: (e['amount'] as num? ?? 0).toDouble(),
+            );
+          }
+          if (e is num) {
+            return (label: '', amount: e.toDouble());
+          }
+          return (label: '', amount: 0.0);
+        })
+        .toList();
 
-    // Core Financial Sparkline Trajectories
     final cashTrend = (_financials?['cash_trend'] as List<dynamic>?)
             ?.map<num>((e) => e as num)
             .toList() ??
-        [];
-    final bankTrend = (_financials?['bank_trend'] as List<dynamic>?)
-            ?.map<num>((e) => e as num)
-            .toList() ??
-        [];
-    final receivablesTrend = (_financials?['receivables_trend'] as List<dynamic>?)
-            ?.map<num>((e) => e as num)
-            .toList() ??
-        [];
-    final payablesTrend = (_financials?['payables_trend'] as List<dynamic>?)
-            ?.map<num>((e) => e as num)
-            .toList() ??
-        [];
+        const <num>[];
 
-    // Live Accounting Ledger Postings
     final ledgerEntries = _financials?['ledger_entries'] as List<dynamic>? ??
         _financials?['recent_transactions'] as List<dynamic>? ??
         [];
     final ledgerPeriodLabel =
-        _financials?['ledger_period_label'] as String? ?? 'Today (Default)';
+        _financials?['ledger_period_label'] as String? ?? 'Today';
+
+    final dailySalesSeries =
+        (_financials?['daily_sales_series'] as List<dynamic>? ?? [])
+            .whereType<Map>()
+            .map((m) => Map<String, dynamic>.from(m))
+            .toList();
+    final dailyCollectedTotal =
+        (_financials?['daily_collected_total'] as num? ?? 0).toDouble();
+    final dailyDueTotal =
+        (_financials?['daily_due_total'] as num? ?? 0).toDouble();
+    final dailyGstTotal =
+        (_financials?['daily_gst_total'] as num? ?? 0).toDouble();
 
     final isInitialLoading = _isLoading && _financials == null;
 
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1100),
-        child: RefreshIndicator(
-          onRefresh: _loadDashboardData,
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            children: [
-          if (_isLoading)
-            const Padding(
-              padding: EdgeInsets.only(bottom: 12),
-              child: LinearProgressIndicator(minHeight: 2),
-            ),
+    return Container(
+      color: skin.canvas,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1100),
+          child: RefreshIndicator(
+            onRefresh: _loadDashboardData,
+            color: skin.primary,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 28),
+              children: [
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_isLoading)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: LinearProgressIndicator(
+                          minHeight: 2,
+                          color: skin.primary,
+                          backgroundColor: skin.hairline,
+                        ),
+                      ),
+                    if (_errorMessage != null && !isInitialLoading)
+                      _buildErrorBanner(skin),
+                  ],
+                ),
 
-          // Error Banner if network failed and no cache
-          if (_errorMessage != null && !isInitialLoading)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                color: AppColors.danger.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.danger.withOpacity(0.3)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.info_outline_rounded, size: 16, color: AppColors.danger),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      _errorMessage ?? 'An error occurred',
-                      style: const TextStyle(fontSize: 12, color: AppColors.danger),
+                // 1. Greeting Header & Role Badge
+                _buildGreetingHeader(
+                  skin: skin,
+                  displayName: displayName,
+                  companyName: authState.activeCompany?.name.trim().isNotEmpty == true
+                      ? authState.activeCompany!.name.trim()
+                      : 'DK Enterprises',
+                ),
+                const SizedBox(height: 12),
+
+                // 1B. Admin Company Switcher & Group Insights Strip
+                _buildCompanySwitcherStrip(
+                  skin: skin,
+                  companies: authState.companies,
+                  activeCompanyId: authState.activeCompany?.id,
+                ),
+                const SizedBox(height: 14),
+
+                // 1C. Owner Live GPS Command Center (Primary View for Bulk Water & Can Delivery)
+                if (isWaterVertical) ...[
+                  _buildOwnerWaterGpsCommandSection(
+                    skin: skin,
+                    isDark: isDark,
+                    industry: industry,
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                // 2. Hero Cash in Hand Card (#0B5D52 + #C9F36A + Mini Sparkline)
+                _buildHeroCashCard(
+                  skin: skin,
+                  isDark: isDark,
+                  isLoading: isInitialLoading,
+                  cashBalance: cashBalance,
+                  todayCollections: todayCollections,
+                  cashTrend: cashTrend,
+                ),
+                const SizedBox(height: 12),
+
+                // 3. Horizontal Attention / Operational Pills Strip
+                _buildAttentionStrip(
+                  skin: skin,
+                  isDark: isDark,
+                  industry: industry,
+                  receivables: receivables,
+                  cashInTransit: cashInTransit,
+                ),
+                const SizedBox(height: 14),
+
+                // 4. 2x2 Bento Metric Grid (Bank, Receivables, Payables, Journal Postings)
+                _buildBentoMetricGrid(
+                  skin: skin,
+                  isDark: isDark,
+                  isLoading: isInitialLoading,
+                  bankBalance: bankBalance,
+                  receivables: receivables,
+                  payables: payables,
+                  postingsCount: ledgerEntries.length,
+                ),
+                const SizedBox(height: 16),
+
+                // 5. Sales Performance Card (Today | 7D | Month + Line Chart)
+                _buildSalesPerformanceSection(
+                  skin: skin,
+                  isDark: isDark,
+                  salesAmount: salesAmount,
+                  salesToday: salesToday,
+                  salesCount: salesCount,
+                  salesPeriodLabel: salesPeriodLabel,
+                  salesTrend: salesTrend,
+                ),
+                const SizedBox(height: 16),
+
+                // 5B. Daily Sales & Collections Bar Graph (Synced ERP + GST)
+                DailySalesChart(
+                  series: dailySalesSeries,
+                  selectedDays: _dailyChartDays,
+                  onDaysChanged: (days) {
+                    if (days == _dailyChartDays) return;
+                    setState(() => _dailyChartDays = days);
+                    _loadDashboardData();
+                  },
+                  collectedTotal: dailyCollectedTotal,
+                  dueTotal: dailyDueTotal,
+                  gstTotal: dailyGstTotal,
+                  skin: skin,
+                  isDark: isDark,
+                ),
+                const SizedBox(height: 16),
+
+                // 6. Live Fleet Strip (Bulk Tanker & Can Supply verticals only)
+                if (industry == 'bulk_water' || industry == 'packaged_water') ...[
+                  _buildLiveFleetStrip(
+                    skin: skin,
+                    isDark: isDark,
+                    industry: industry,
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                // 7. Quick Modules 2x2 Grid (Scoped by Industry)
+                _buildQuickModulesGrid(
+                  skin: skin,
+                  isDark: isDark,
+                  industry: industry,
+                ),
+                const SizedBox(height: 14),
+
+                // 8. Primary Action Pill CTA
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: FilledButton.icon(
+                    onPressed: () => context.push('/sales/new'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor:
+                          isDark ? skin.primary : AppColors.rippleLightInk,
+                      foregroundColor:
+                          isDark ? Colors.white : Colors.white,
+                      shape: const StadiumBorder(),
+                      elevation: 0,
+                    ),
+                    icon: const Icon(Icons.receipt_long_rounded, size: 20),
+                    label: const Text(
+                      'Issue New Commercial Sale Bill',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
-                  TextButton(
-                    onPressed: _loadDashboardData,
-                    child: const Text('Retry', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                ),
+                const SizedBox(height: 22),
+
+                // 9. Live Accounting Ledger Postings
+                LedgerTransactionsSection(
+                  entries: ledgerEntries,
+                  activePeriod: _ledgerPeriod,
+                  activePeriodLabel: ledgerPeriodLabel,
+                  verticalIndustry: industry,
+                  onDateFilterSelected: (period, {startDate, endDate}) {
+                    setState(() {
+                      _ledgerPeriod = period;
+                      _ledgerStartDate = startDate;
+                      _ledgerEndDate = endDate;
+                    });
+                    _loadDashboardData();
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorBanner(RippleSkin skin) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.rippleRuby.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.rippleRuby.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.info_outline_rounded,
+              size: 16, color: AppColors.rippleRuby),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              _errorMessage ?? 'An error occurred',
+              style: const TextStyle(fontSize: 12, color: AppColors.rippleRuby),
+            ),
+          ),
+          TextButton(
+            onPressed: _loadDashboardData,
+            child: const Text('Retry',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGreetingHeader({
+    required RippleSkin skin,
+    required String displayName,
+    required String companyName,
+  }) {
+    final dateStr = DateFormat('d MMM yyyy').format(DateTime.now());
+    final syncLabel = _isFromCache ? 'Cached' : 'Live';
+    final syncColor = _isFromCache ? AppColors.rippleHoney : AppColors.rippleMint;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${_greetingText()}, $displayName',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: skin.ink,
+                  letterSpacing: -0.5,
+                  height: 1.15,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      '$dateStr • $companyName',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: skin.muted,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: syncColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    _lastRefreshedAt != null
+                        ? '$syncLabel · ${DateFormat('h:mm a').format(_lastRefreshedAt!)}'
+                        : syncLabel,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: syncColor,
+                    ),
                   ),
                 ],
               ),
-            ),
-          // Live Server / Cached Status Bar
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ],
+          ),
+        ),
+        const SizedBox(width: 10),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: skin.primary.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: skin.primary.withValues(alpha: 0.25)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              Icon(Icons.verified_user_outlined, size: 14, color: skin.primary),
+              const SizedBox(width: 4),
+              Text(
+                skin.skinName.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.6,
+                  color: skin.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCompanySwitcherStrip({
+    required RippleSkin skin,
+    required List<CompanyInfo> companies,
+    required int? activeCompanyId,
+  }) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          ActionChip(
+            avatar: Icon(Icons.corporate_fare_rounded, size: 16, color: skin.primary),
+            label: const Text(
+              'Group Insights',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+            ),
+            onPressed: () => context.go('/workspace'),
+          ),
+          for (final company in companies) ...[
+            const SizedBox(width: 8),
+            ChoiceChip(
+              avatar: Icon(
+                switch (company.industry) {
+                  'cafe_bakery' => Icons.restaurant_rounded,
+                  'bulk_water' => Icons.fire_truck_rounded,
+                  'packaged_water' => Icons.water_drop_rounded,
+                  _ => Icons.business_rounded,
+                },
+                size: 15,
+                color: company.id == activeCompanyId ? Colors.white : skin.primary,
+              ),
+              selected: company.id == activeCompanyId,
+              label: Text(
+                company.name,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+              ),
+              onSelected: (selected) async {
+                if (!selected || company.id == activeCompanyId) return;
+                try {
+                  await ref.read(authNotifierProvider.notifier).switchCompany(company);
+                } catch (_) {}
+              },
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeroCashCard({
+    required RippleSkin skin,
+    required bool isDark,
+    required bool isLoading,
+    required num cashBalance,
+    required num todayCollections,
+    required List<num> cashTrend,
+  }) {
+    final cardBgTop = isDark ? const Color(0xFF0A4A41) : AppColors.lagoonPrimary;
+    final cardBgBottom = isDark ? const Color(0xFF052E28) : const Color(0xFF00443B);
+    const lime = AppColors.lagoonAction;
+    final sparkPoints =
+        cashTrend.length >= 2 ? cashTrend : <num>[cashBalance, cashBalance];
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [cardBgTop, cardBgBottom],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(skin.heroRadius),
+        boxShadow: [
+          BoxShadow(
+            color: cardBgBottom.withValues(alpha: isDark ? 0.35 : 0.22),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -36,
+            top: -36,
+            child: IgnorePointer(
+              child: Container(
+                width: 148,
+                height: 148,
                 decoration: BoxDecoration(
-                  color: _isFromCache
-                      ? (isDark ? AppColors.chipWarningBgDark : AppColors.chipWarningBgLight)
-                      : (isDark ? AppColors.chipSuccessBgDark : AppColors.chipSuccessBgLight),
-                  borderRadius: BorderRadius.circular(16),
+                  shape: BoxShape.circle,
+                  color: lime.withValues(alpha: 0.08),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                'CASH IN HAND',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.0,
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: lime,
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  todayCollections > 0
+                                      ? '+${_inrCompact.format(todayCollections)} today'
+                                      : 'GL 1010',
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.rippleLightInk,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              isLoading ? '₹...' : _inrWhole.format(cashBalance),
+                              style: const TextStyle(
+                                fontSize: 34,
+                                fontWeight: FontWeight.w800,
+                                color: lime,
+                                letterSpacing: -0.8,
+                                fontFeatures: [FontFeature.tabularFigures()],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        const SizedBox(height: 16),
+                        SparklineChart(
+                          data: sparkPoints,
+                          lineColor: lime,
+                          height: 36,
+                          width: 78,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                InkWell(
+                  onTap: () => context.push('/accounting/books'),
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.account_balance_wallet_outlined,
+                            size: 15, color: lime),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Main Cash Account (GL 1010)',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white.withValues(alpha: 0.9),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          'Collected Today: ${_inrWhole.format(todayCollections)}',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: lime,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAttentionStrip({
+    required RippleSkin skin,
+    required bool isDark,
+    required String industry,
+    required num receivables,
+    required num cashInTransit,
+  }) {
+    final items = <({
+      String label,
+      IconData icon,
+      Color accent,
+      String route,
+    })>[
+      if (industry == 'bulk_water' || industry == 'packaged_water')
+        (
+          label: 'Live GPS & Due Map',
+          icon: Icons.map_rounded,
+          accent: AppColors.rippleSky,
+          route: '/fleet/gps?mode=$industry',
+        ),
+      (
+        label: receivables > 0
+            ? 'Customer Dues (${_inrCompact.format(receivables)})'
+            : 'Receivables Clear',
+        icon: receivables > 0
+            ? Icons.warning_amber_rounded
+            : Icons.check_circle_outline_rounded,
+        accent: receivables > 0 ? AppColors.rippleCoral : AppColors.rippleMint,
+        route: '/accounting/collect',
+      ),
+      if (cashInTransit > 0)
+        (
+          label: 'Surrender Queue (${_inrCompact.format(cashInTransit)})',
+          icon: Icons.payments_outlined,
+          accent: AppColors.rippleHoney,
+          route: '/operations/driver-surrender',
+        ),
+      if (industry == 'packaged_water')
+        (
+          label: 'Can Route Manifest',
+          icon: Icons.local_shipping_outlined,
+          accent: AppColors.aquaPrimary,
+          route: '/operations/driver-manifest',
+        )
+      else if (industry == 'bulk_water')
+        (
+          label: 'Tanker Driver Desk',
+          icon: Icons.local_shipping_outlined,
+          accent: AppColors.aquaPrimary,
+          route: '/operations/tanker-dashboard',
+        )
+      else if (industry == 'cafe_bakery')
+        (
+          label: 'Open Touch POS',
+          icon: Icons.point_of_sale_rounded,
+          accent: AppColors.chaiPrimary,
+          route: '/operations/cafe-pos',
+        ),
+      (
+        label: 'Stock Audit',
+        icon: Icons.inventory_2_outlined,
+        accent: AppColors.rippleHoney,
+        route: '/inventory/stock-count',
+      ),
+    ];
+
+    return SizedBox(
+      height: 38,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: items.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final pill = items[index];
+          return Material(
+            color: pill.accent.withValues(alpha: isDark ? 0.16 : 0.11),
+            borderRadius: BorderRadius.circular(999),
+            child: InkWell(
+              onTap: () => context.push(pill.route),
+              borderRadius: BorderRadius.circular(999),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(999),
                   border: Border.all(
-                    color: _isFromCache ? AppColors.warning : AppColors.success,
-                    width: 1,
+                    color: pill.accent.withValues(alpha: 0.35),
                   ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      _isFromCache ? Icons.cloud_off_rounded : Icons.cloud_done_rounded,
-                      size: 14,
-                      color: _isFromCache ? AppColors.warning : AppColors.success,
-                    ),
-                    const SizedBox(width: 4),
+                    Icon(pill.icon, size: 15, color: pill.accent),
+                    const SizedBox(width: 6),
                     Text(
-                      _isFromCache ? 'Cached Snapshot' : 'Live Ledger Server',
+                      pill.label,
                       style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: _isFromCache ? AppColors.warning : AppColors.success,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: pill.accent,
                       ),
                     ),
                   ],
                 ),
               ),
-              if (_lastRefreshedAt != null)
-                Text(
-                  'Updated: ${DateFormat('hh:mm a').format(_lastRefreshedAt!)}',
-                  style: AppTypography.caption.copyWith(color: mutedCol, fontSize: 11),
-                ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // User Greeting Strip
-          Text(
-            'Hello, ${authState.user?.name.isNotEmpty == true ? (authState.user?.name ?? "Executive") : "Executive"}',
-            style: AppTypography.title.copyWith(color: textCol),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            'Role: ${authState.user?.role.toUpperCase() ?? "STAFF"} • ${authState.activeCompany?.name ?? ""}',
-            style: AppTypography.caption.copyWith(color: mutedCol),
-          ),
-          const SizedBox(height: 14),
-
-          // Operational View Switcher / Driver Dashboard Direct Access Banner
-          _buildDriverDashboardShortcutBanner(context, isDark, industry),
-          const SizedBox(height: 16),
-
-          // High-Impact Sales Performance Card with Default Monthly Sales & Instant Range Filters
-          SalesPerformanceCard(
-            salesAmount: salesAmount,
-            todaySalesAmount: salesToday,
-            salesCount: salesCount,
-            activePeriod: _salesPeriod,
-            activePeriodLabel: salesPeriodLabel,
-            trendPoints: salesTrend,
-            verticalIndustry: industry,
-            onPeriodSelected: (period, {startDate, endDate}) {
-              setState(() {
-                _salesPeriod = period;
-                _salesStartDate = startDate;
-                _salesEndDate = endDate;
-              });
-              _loadDashboardData();
-            },
-          ),
-          const SizedBox(height: 16),
-
-          // 2nd Main Card: Live Fleet GPS & Telematics Tracking View (For Water Supply & Can Supply)
-          if (industry == 'bulk_water' || industry == 'packaged_water') ...[
-            _buildFleetGpsTrackingCard(context, isDark, industry),
-            const SizedBox(height: 16),
-          ],
-
-          // Responsive Core Financial KPIs Grid (Compact with Graphical Sparklines & Separate GL Codes)
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isTablet = constraints.maxWidth >= 720;
-              return GridView.count(
-                crossAxisCount: isTablet ? 4 : 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: isTablet ? 1.35 : 1.25,
-                children: [
-                  KpiCard(
-                    title: 'Cash in Hand',
-                    glCode: '1010',
-                    amount: isInitialLoading ? null : cashBalance,
-                    customValue: isInitialLoading ? '...' : null,
-                    icon: Icons.account_balance_wallet_rounded,
-                    accentColor: AppColors.brandEmerald,
-                    sparklineData: cashTrend,
-                    subtitle: 'Liquid Main Cash',
-                    onTap: () => context.push('/accounting/books'),
-                  ),
-                  KpiCard(
-                    title: 'Bank Balances',
-                    glCode: '1020',
-                    amount: isInitialLoading ? null : bankBalance,
-                    customValue: isInitialLoading ? '...' : null,
-                    icon: Icons.account_balance_rounded,
-                    accentColor: AppColors.brandSky,
-                    sparklineData: bankTrend,
-                    subtitle: 'Active Bank & UPI',
-                    onTap: () => context.push('/accounting/books'),
-                  ),
-                  KpiCard(
-                    title: 'Customer Receivables',
-                    glCode: '1030',
-                    amount: isInitialLoading ? null : receivables,
-                    customValue: isInitialLoading ? '...' : null,
-                    icon: Icons.call_received_rounded,
-                    accentColor: const Color(0xFF7C3AED),
-                    sparklineData: receivablesTrend,
-                    subtitle: 'Customer Dues',
-                    onTap: () => context.push('/accounting/collect'),
-                  ),
-                  KpiCard(
-                    title: 'Supplier Payables',
-                    glCode: '2010',
-                    amount: isInitialLoading ? null : payables,
-                    customValue: isInitialLoading ? '...' : null,
-                    icon: Icons.outbox_rounded,
-                    accentColor: AppColors.brandDanger,
-                    sparklineData: payablesTrend,
-                    subtitle: 'Supplier Dues',
-                    onTap: () => context.push('/purchases'),
-                  ),
-                ],
-              );
-            },
-          ),
-          const SizedBox(height: 12),
-
-          // Today's Verified Collections Strip
-          KpiCard(
-            title: "Today's Verified Collections",
-            glCode: 'GL 1010 / 1020',
-            amount: isInitialLoading ? null : todayCollections,
-            customValue: isInitialLoading ? '...' : null,
-            icon: Icons.verified_user_rounded,
-            accentColor: const Color(0xFF0D9488),
-            subtitle: 'Direct journal entries posted to ledger',
-            onTap: () => context.push('/accounting/collect'),
-          ),
-          const SizedBox(height: 20),
-
-          // Strict Vertical Operational Command
-          Text(
-            switch (industry) {
-              'cafe_bakery' => 'Bakery & Cafe Operations',
-              'bulk_water' => 'Bulk Tanker Fleet Logistics',
-              'packaged_water' => '20L Can Route Distribution',
-              'textile' => 'Textile & Loom Manufacturing',
-              _ => 'Commercial Operations',
-            },
-            style: AppTypography.section.copyWith(color: textCol),
-          ),
-          const SizedBox(height: 10),
-
-          // 1. Cafe & Bakery Vertical (Aran Cafe)
-          if (industry == 'cafe_bakery') ...[
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Aran Cafe POS Terminal',
-              description: 'Touch order billing, table & counter dispatch',
-              icon: Icons.restaurant_rounded,
-              color: const Color(0xFFD97706),
-              onTap: () => context.push('/operations/cafe-pos'),
             ),
-            const SizedBox(height: 10),
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Kitchen & Recipe Inventory',
-              description: 'Bakery ingredient stocks, flour & dairy audit',
-              icon: Icons.inventory_2_rounded,
-              color: const Color(0xFF059669),
-              onTap: () => context.push('/inventory/stock-count'),
-            ),
-            const SizedBox(height: 10),
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Cafe Expenses & Kitchen Purchases',
-              description: 'Vegetable, milk, gas & daily operational bills',
-              icon: Icons.receipt_long_rounded,
-              color: AppColors.primary,
-              onTap: () => context.push('/expenses/new'),
-            ),
-          ]
-          // 2. Bulk Water Tankers Vertical (TMWS)
-          else if (industry == 'bulk_water') ...[
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Tanker Driver Active Trip Dashboard',
-              description: 'Live decanting flow sensor, destination sump navigation & anti-siphon lock',
-              icon: Icons.local_shipping_rounded,
-              color: const Color(0xFF0284C7),
-              onTap: () => context.push('/operations/tanker-dashboard'),
-            ),
-            const SizedBox(height: 10),
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Live Tanker GPS Fleet Telematics',
-              description: 'Radar tracking, decanting flow rate, dwell time & fuel',
-              icon: Icons.share_location_rounded,
-              color: const Color(0xFF0369A1),
-              onTap: () => context.push('/fleet/gps?mode=bulk_water'),
-            ),
-            const SizedBox(height: 10),
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Bulk Tanker Fleet Operations',
-              description: 'Trip sheets, motor pumping & waiting surcharges',
-              icon: Icons.local_shipping_rounded,
-              color: const Color(0xFF0369A1),
-              onTap: () => context.push('/operations/tanker-trip'),
-            ),
-            const SizedBox(height: 10),
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Trip Payment Collection',
-              description: 'Collect driver cash & corporate commercial dues',
-              icon: Icons.payments_rounded,
-              color: AppColors.success,
-              onTap: () => context.push('/accounting/collect'),
-            ),
-            const SizedBox(height: 10),
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Diesel & Vehicle Maintenance',
-              description: 'Fuel slips, tanker repair & toll expenditure',
-              icon: Icons.local_gas_station_rounded,
-              color: AppColors.warning,
-              onTap: () => context.push('/expenses/new'),
-            ),
-          ]
-          // 3. 20L Can Route Distribution Vertical (DK Waters)
-          else if (industry == 'packaged_water') ...[
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Can Delivery Driver Manifest & Stops',
-              description: 'Live Tata Ace beat route, 60-jar load, customer stops & cash dues',
-              icon: Icons.local_shipping_rounded,
-              color: const Color(0xFF059669),
-              onTap: () => context.push('/operations/driver-manifest'),
-            ),
-            const SizedBox(height: 10),
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Live Tata Ace Beat GPS Radar',
-              description: 'Route beat perimeter, delivery stops & van jar balance',
-              icon: Icons.share_location_rounded,
-              color: const Color(0xFF0284C7),
-              onTap: () => context.push('/fleet/gps?mode=packaged_water'),
-            ),
-            const SizedBox(height: 10),
-            _buildWorkflowActionCard(
-              context: context,
-              title: '20L Can Distribution Beat',
-              description: 'Ticket Machine, Spot Empty Audit & Plant Refill',
-              icon: Icons.water_drop_rounded,
-              color: const Color(0xFF059669),
-              onTap: () => context.push('/operations/can-sales'),
-            ),
-            const SizedBox(height: 10),
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Spot Empty Can Audit',
-              description: 'Inspect Tata Ace vehicle cans vs route manifest',
-              icon: Icons.fact_check_rounded,
-              color: AppColors.warning,
-              onTap: () => context.push('/operations/spot-audit'),
-            ),
-            const SizedBox(height: 10),
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Driver Cash & Jar Surrender',
-              description: 'End-of-day route settlement with admin cashier',
-              icon: Icons.price_check_rounded,
-              color: const Color(0xFF0284C7),
-              onTap: () => context.push('/operations/driver-surrender'),
-            ),
-            const SizedBox(height: 10),
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'RO Plant Refill Manifest',
-              description: 'Reverse Osmosis factory intake batch logs',
-              icon: Icons.factory_rounded,
-              color: AppColors.primary,
-              onTap: () => context.push('/operations/plant-refill'),
-            ),
-          ]
-          // 4. Textile & Garment Manufacturing Vertical (zoloERP Textiles)
-          else if (industry == 'textile') ...[
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Wholesale Tax Invoicing',
-              description: 'Fabric & garment commercial invoice generation',
-              icon: Icons.receipt_long_rounded,
-              color: const Color(0xFF7C3AED),
-              onTap: () => context.push('/sales/new'),
-            ),
-            const SizedBox(height: 10),
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Fabric Roll & Yarn Stock Audit',
-              description: 'Physical meter roll and yarn weight audits',
-              icon: Icons.inventory_2_rounded,
-              color: AppColors.primary,
-              onTap: () => context.push('/inventory/stock-count'),
-            ),
-            const SizedBox(height: 10),
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Commercial Debtor Collection',
-              description: 'Collect trade receivables against B2B invoices',
-              icon: Icons.payments_rounded,
-              color: AppColors.success,
-              onTap: () => context.push('/accounting/collect'),
-            ),
-          ]
-          // 5. Default General Enterprise Fallback
-          else ...[
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Sales Billing',
-              description: 'New invoice and customer receipt creation',
-              icon: Icons.receipt_long_rounded,
-              color: AppColors.primary,
-              onTap: () => context.push('/sales/new'),
-            ),
-            const SizedBox(height: 10),
-            _buildWorkflowActionCard(
-              context: context,
-              title: 'Physical Stock Count',
-              description: 'Barcode scan, godown inventory reconciliation',
-              icon: Icons.inventory_2_rounded,
-              color: const Color(0xFF059669),
-              onTap: () => context.push('/inventory/stock-count'),
-            ),
-          ],
-          const SizedBox(height: 24),
-
-          // Live Accounting Ledger Postings with Date Filtering across all verticals
-          LedgerTransactionsSection(
-            entries: ledgerEntries,
-            activePeriod: _ledgerPeriod,
-            activePeriodLabel: ledgerPeriodLabel,
-            verticalIndustry: industry,
-            onDateFilterSelected: (period, {startDate, endDate}) {
-              setState(() {
-                _ledgerPeriod = period;
-                _ledgerStartDate = startDate;
-                _ledgerEndDate = endDate;
-              });
-              _loadDashboardData();
-            },
-          ),
-          const SizedBox(height: 32),
-        ],
+          );
+        },
       ),
-    ),
-    ),
     );
   }
 
-  Widget _buildWorkflowActionCard({
-    required BuildContext context,
-    required String title,
-    required String description,
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
+  Widget _buildBentoMetricGrid({
+    required RippleSkin skin,
+    required bool isDark,
+    required bool isLoading,
+    required num bankBalance,
+    required num receivables,
+    required num payables,
+    required int postingsCount,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? AppColors.darkCard : AppColors.lightCard;
-    final borderCol = isDark ? AppColors.darkBorder : AppColors.lightBorder;
-    final textCol = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
-    final mutedCol = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: cardBg,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderCol, width: 1),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: color, size: 24),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: AppTypography.label.copyWith(color: textCol),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    description,
-                    style: AppTypography.caption.copyWith(color: mutedCol),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right_rounded, size: 20, color: mutedCol),
-          ],
-        ),
+    final cards = [
+      _BentoMetricData(
+        title: 'BANK BALANCES',
+        value: isLoading ? '...' : _inrWhole.format(bankBalance),
+        subtitle: 'Active Bank & UPI',
+        badgeText: 'GL 1020',
+        badgeColor: AppColors.rippleSky,
+        onTap: () => context.push('/accounting/books'),
       ),
+      _BentoMetricData(
+        title: 'RECEIVABLES',
+        value: isLoading ? '...' : _inrWhole.format(receivables),
+        subtitle: 'Customer Dues',
+        badgeText: receivables > 0 ? 'Due' : 'Clear',
+        badgeColor:
+            receivables > 0 ? AppColors.rippleCoral : AppColors.rippleMint,
+        valueColor: receivables > 0 ? AppColors.rippleCoral : skin.ink,
+        onTap: () => context.push('/accounting/collect'),
+      ),
+      _BentoMetricData(
+        title: 'PAYABLES',
+        value: isLoading ? '...' : _inrWhole.format(payables),
+        subtitle: 'Supplier Dues',
+        badgeText: 'GL 2010',
+        badgeColor: AppColors.rippleHoney,
+        onTap: () => context.push('/purchases'),
+      ),
+      _BentoMetricData(
+        title: 'JOURNAL POSTINGS',
+        value: isLoading
+            ? '...'
+            : '$postingsCount ${_ledgerPeriod == 'today' ? 'Today' : 'Entries'}',
+        subtitle: 'Posted to Ledger',
+        badgeText: 'Live',
+        badgeColor: AppColors.rippleMint,
+        onTap: () => context.push('/accounting/books'),
+      ),
+    ];
+
+    return Builder(
+      builder: (context) {
+        final isWide = MediaQuery.sizeOf(context).width >= 720;
+        if (isWide) {
+          return Row(
+            children: [
+              for (int i = 0; i < cards.length; i++) ...[
+                Expanded(child: _buildBentoCard(skin, cards[i])),
+                if (i < cards.length - 1) const SizedBox(width: 10),
+              ],
+            ],
+          );
+        }
+        return Column(
+          children: [
+            Row(
+              children: [
+                Expanded(child: _buildBentoCard(skin, cards[0])),
+                const SizedBox(width: 10),
+                Expanded(child: _buildBentoCard(skin, cards[1])),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(child: _buildBentoCard(skin, cards[2])),
+                const SizedBox(width: 10),
+                Expanded(child: _buildBentoCard(skin, cards[3])),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildFleetGpsTrackingCard(BuildContext context, bool isDark, String industry) {
-    final isBulk = industry == 'bulk_water';
-    final cardBg = isDark ? const Color(0xFF0F172A) : Colors.white;
-    final borderCol = isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
-    final textPrim = isDark ? Colors.white : const Color(0xFF0F172A);
-    final textMuted = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
-
-    final List<Map<String, dynamic>> defaultVehicles = isBulk
-        ? [
-            {
-              'number': 'TN-58-BW-2001',
-              'model': 'Tata LPT 2518 (20KL)',
-              'driver': 'K. Murugan',
-              'phone': '+91 98421 00001',
-              'status': 'IN TRANSIT',
-              'statusColor': const Color(0xFF0284C7),
-              'destination': 'The Chennai Silks (Dyeing Unit)',
-              'site': 'Perundurai SIPCOT Industrial Area',
-              'lat': 11.0845,
-              'lng': 77.2941,
-              'speed': '38 km/h',
-              'flowRate': '160 L/min',
-              'cargo': '16.0 / 20.0 KL',
-              'valve': 'ANTI-SIPHON SECURED',
-              'eta': '12 mins',
-            },
-            {
-              'number': 'TN-58-BW-4001',
-              'model': 'BharatBenz 3528 (40KL)',
-              'driver': 'P. Selvam',
-              'phone': '+91 98421 00002',
-              'status': 'DISPATCHED',
-              'statusColor': const Color(0xFF059669),
-              'destination': 'Texvalley Commercial Complex',
-              'site': 'NH-544 Gangapuram, Erode',
-              'lat': 11.3142,
-              'lng': 77.6820,
-              'speed': '42 km/h',
-              'flowRate': 'Idle (In Transit)',
-              'cargo': '40.0 KL (Full Tank)',
-              'valve': 'VALVE SECURED',
-              'eta': '25 mins',
-            },
-            {
-              'number': 'TN-58-BW-1001',
-              'model': 'Eicher Pro 9KL',
-              'driver': 'M. Velu',
-              'phone': '+91 98421 00003',
-              'status': 'BOREWELL REFILL',
-              'statusColor': const Color(0xFFD97706),
-              'destination': 'TMWS Borewell Hub #1',
-              'site': 'Perundurai Borewell Hub',
-              'lat': 11.2780,
-              'lng': 77.5920,
-              'speed': '0 km/h',
-              'flowRate': 'Refilling Tank',
-              'cargo': '8.5 / 9.0 KL',
-              'valve': 'VALVE SECURED',
-              'eta': 'At Station',
-            },
-          ]
-        : [
-            {
-              'number': 'TN-58-WA-101',
-              'model': 'Tata Ace (60 Cans)',
-              'driver': 'R. Muthu',
-              'phone': '+91 98421 00010',
-              'status': 'ON ACTIVE BEAT',
-              'statusColor': const Color(0xFF059669),
-              'destination': 'Anna Nagar & Teppakulam Route',
-              'site': 'Next: Hotel Saravana Bhavan (10 Cans)',
-              'lat': 11.3410,
-              'lng': 77.7172,
-              'speed': '28 km/h',
-              'flowRate': '25 Delivered (41%)',
-              'cargo': '20 Empties · 35 Cans Left',
-              'valve': '12.8V ECU BATTERY',
-              'eta': '5 mins',
-            },
-            {
-              'number': 'TN-58-WA-102',
-              'model': 'Tata Ace (60 Cans)',
-              'driver': 'Manikandan V.',
-              'phone': '+91 98421 55102',
-              'status': 'ON ACTIVE BEAT',
-              'statusColor': const Color(0xFF0284C7),
-              'destination': 'Erode Tech Park & Ring Road Beat #2',
-              'site': 'Next: Texvalley Tech Campus (20 Cans)',
-              'lat': 11.3520,
-              'lng': 77.7280,
-              'speed': '34 km/h',
-              'flowRate': '40 Delivered (66%)',
-              'cargo': '35 Empties · 20 Cans Left',
-              'valve': '13.1V ECU BATTERY',
-              'eta': '8 mins',
-            },
-          ];
-
-    final vehicles = defaultVehicles;
-    // Overlay live server fleet telemetry if available
-    if (_fleetLiveSnapshot != null) {
-      final liveList = isBulk
-          ? (_fleetLiveSnapshot!['tankers'] as List<dynamic>?)
-          : (_fleetLiveSnapshot!['routes'] as List<dynamic>?);
-      if (liveList != null && liveList.isNotEmpty) {
-        for (var i = 0; i < liveList.length && i < vehicles.length; i++) {
-          final liveItem = liveList[i];
-          if (liveItem is Map) {
-            if (liveItem['speed_kmh'] != null) {
-              vehicles[i]['speed'] = '${liveItem['speed_kmh']} km/h';
-            }
-            if (liveItem['latitude'] != null && liveItem['longitude'] != null) {
-              vehicles[i]['lat'] = (liveItem['latitude'] as num).toDouble();
-              vehicles[i]['lng'] = (liveItem['longitude'] as num).toDouble();
-            }
-          }
-        }
-      }
+  ({IconData icon, Color color}) _metricVisual(_BentoMetricData data) {
+    final t = data.title.toUpperCase();
+    if (t.contains('CASH')) {
+      return (icon: Icons.account_balance_wallet_rounded, color: data.badgeColor);
     }
-    if (_selectedFleetVehicleIndex >= vehicles.length) {
-      _selectedFleetVehicleIndex = 0;
+    if (t.contains('DUE') || t.contains('RECEIVABLE') || t.contains('CREDIT')) {
+      return (icon: Icons.request_quote_rounded, color: data.badgeColor);
     }
-    final selected = vehicles[_selectedFleetVehicleIndex];
-    final lat = (selected['lat'] as num?)?.toDouble() ?? 11.0845;
-    final lng = (selected['lng'] as num?)?.toDouble() ?? 77.2941;
-    final phone = selected['phone']?.toString() ?? '';
+    if (t.contains('CAN') || t.contains('WATER') || t.contains('TANK')) {
+      return (icon: Icons.water_drop_rounded, color: data.badgeColor);
+    }
+    if (t.contains('PROFIT') || t.contains('SALES') || t.contains('REV')) {
+      return (icon: Icons.trending_up_rounded, color: data.badgeColor);
+    }
+    if (t.contains('EXPENSE')) {
+      return (icon: Icons.receipt_long_rounded, color: data.badgeColor);
+    }
+    return (icon: Icons.analytics_rounded, color: data.badgeColor);
+  }
+
+  Widget _buildBentoCard(RippleSkin skin, _BentoMetricData data) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final visual = _metricVisual(data);
+    final accent = visual.color;
 
     return Container(
       decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
+          colors: [
+            Color.alphaBlend(
+              accent.withValues(alpha: isDark ? 0.11 : 0.05),
+              skin.surface,
+            ),
+            skin.surface,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(skin.cardRadius),
         border: Border.all(
-          color: isDark ? borderCol : const Color(0xFFBAE6FD),
-          width: 1.5,
+          color: accent.withValues(alpha: isDark ? 0.28 : 0.18),
         ),
         boxShadow: [
           BoxShadow(
-            color: (isDark ? Colors.black : const Color(0xFF0284C7)).withOpacity(0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
+            color: (isDark ? Colors.black : accent)
+                .withValues(alpha: isDark ? 0.16 : 0.045),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header Row
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-            child: Row(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(skin.cardRadius),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: data.onTap,
+            borderRadius: BorderRadius.circular(skin.cardRadius),
+            child: Stack(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: (isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669)).withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    isBulk ? Icons.local_shipping_rounded : Icons.water_drop_rounded,
-                    size: 20,
-                    color: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
+                PositionedDirectional(
+                  end: -8,
+                  bottom: -8,
+                  child: ExcludeSemantics(
+                    child: Icon(
+                      visual.icon,
+                      size: 52,
+                      color: accent.withValues(alpha: isDark ? 0.065 : 0.045),
+                    ),
                   ),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
+                Padding(
+                  padding: const EdgeInsets.all(13),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Flexible(
+                          RippleIconBadge(
+                            icon: visual.icon,
+                            accentColor: accent,
+                            size: 28,
+                            iconSize: 15,
+                            radius: 9,
+                          ),
+                          const SizedBox(width: 7),
+                          Expanded(
                             child: Text(
-                              isBulk ? 'Bulk Tanker Fleet GPS Tracking' : '20L Can Delivery Fleet Tracking',
+                              data.title,
                               style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 10,
                                 fontWeight: FontWeight.w800,
-                                color: textPrim,
+                                letterSpacing: 0.5,
+                                color: skin.muted,
                               ),
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 4),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 7,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF059669).withOpacity(0.12),
-                              borderRadius: BorderRadius.circular(4),
+                              color: data.badgeColor.withValues(alpha: 0.13),
+                              borderRadius: BorderRadius.circular(999),
                             ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.circle, size: 6, color: Color(0xFF059669)),
-                                SizedBox(width: 4),
-                                Text(
-                                  'LIVE GPS',
-                                  style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF059669)),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Where is the truck · Real-time satellite telemetrics',
-                        style: TextStyle(fontSize: 11, color: textMuted),
-                      ),
-                    ],
-                  ),
-                ),
-                // Full Radar Map Button
-                InkWell(
-                  onTap: () => context.push('/fleet/gps?mode=$industry'),
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: (isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669)).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: (isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669)).withOpacity(0.3),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.radar_rounded,
-                          size: 14,
-                          color: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Radar',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Vehicle Switcher Chips
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: List.generate(vehicles.length, (idx) {
-                final v = vehicles[idx];
-                final isSel = idx == _selectedFleetVehicleIndex;
-                final col = v['statusColor'] as Color;
-
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: InkWell(
-                    onTap: () => setState(() => _selectedFleetVehicleIndex = idx),
-                    borderRadius: BorderRadius.circular(10),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: isSel
-                            ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFE0F2FE))
-                            : (isDark ? const Color(0xFF1E293B).withOpacity(0.4) : const Color(0xFFF1F5F9)),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: isSel
-                              ? (isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669))
-                              : borderCol,
-                          width: isSel ? 1.5 : 1,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            isBulk ? Icons.local_shipping_rounded : Icons.airport_shuttle_rounded,
-                            size: 15,
-                            color: isSel
-                                ? (isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669))
-                                : textMuted,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            v['number'],
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
-                              color: isSel ? textPrim : textMuted,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Container(
-                            width: 7,
-                            height: 7,
-                            decoration: BoxDecoration(
-                              color: col,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              }),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // Active Vehicle Details Box
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E293B).withOpacity(0.7) : const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: borderCol),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Destination & Lat/Lng Banner
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: (isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669)).withOpacity(0.12),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.location_on_rounded,
-                          size: 16,
-                          color: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              selected['destination']?.toString() ?? '',
+                            child: Text(
+                              data.badgeText,
                               style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: textPrim,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: isDark
+                                    ? Color.lerp(data.badgeColor, Colors.white, 0.22)!
+                                    : data.badgeColor,
                               ),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              selected['site']?.toString() ?? '',
-                              style: TextStyle(fontSize: 11, color: textMuted),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Text(
-                                  'GPS: ${lat.toStringAsFixed(4)}° N, ${lng.toStringAsFixed(4)}° E',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontFamily: 'monospace',
-                                    fontWeight: FontWeight.w600,
-                                    color: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                                  decoration: BoxDecoration(
-                                    color: (isDark ? Colors.white : Colors.black).withOpacity(0.06),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    'ETA: ${selected['eta']}',
-                                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: textPrim),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // 3-Metric HUD Ribbon
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildFleetMiniHud(
-                          icon: Icons.speed_rounded,
-                          label: 'LIVE SPEED',
-                          value: selected['speed'],
-                          color: const Color(0xFF0284C7),
-                          isDark: isDark,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildFleetMiniHud(
-                          icon: isBulk ? Icons.water_drop_rounded : Icons.inventory_2_rounded,
-                          label: isBulk ? 'FLOW RATE' : 'DISPATCH',
-                          value: selected['flowRate'],
-                          color: const Color(0xFF059669),
-                          isDark: isDark,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildFleetMiniHud(
-                          icon: Icons.shield_rounded,
-                          label: 'STATUS',
-                          value: selected['status'],
-                          color: selected['statusColor'] as Color,
-                          isDark: isDark,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Driver Details & Quick Actions Bar
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 14,
-                        backgroundColor: (isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669)).withOpacity(0.12),
-                        child: Icon(
-                          Icons.person_rounded,
-                          size: 16,
-                          color: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              selected['driver']?.toString() ?? 'Driver',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: textPrim),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              phone,
-                              style: TextStyle(fontSize: 10, color: textMuted),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Turn-by-Turn Navigate Button (Google Maps)
-                      ElevatedButton.icon(
-                        onPressed: () => LocationParser.launchNavigation(lat, lng),
-                        icon: const Icon(Icons.navigation_rounded, size: 14),
-                        label: const Text('Track / Nav', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                      ),
-                      if (phone.isNotEmpty) ...[
-                        const SizedBox(width: 6),
-                        OutlinedButton(
-                          onPressed: () async {
-                            final uri = Uri.parse('tel:$phone');
-                            if (await canLaunchUrl(uri)) {
-                              await launchUrl(uri);
-                            }
-                          },
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
-                            side: BorderSide(color: (isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669)).withOpacity(0.5)),
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                          child: const Icon(Icons.call_rounded, size: 14),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Text(
+                          data.value,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: data.valueColor ?? skin.ink,
+                            letterSpacing: -0.4,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
                         ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // Footer Dispatch Link
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  isBulk ? 'Cargo: ${selected['cargo']} · ${selected['valve']}' : 'Manifest: ${selected['cargo']}',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: textMuted),
-                ),
-                InkWell(
-                  onTap: () => context.push(isBulk ? '/operations/tanker-dashboard' : '/operations/driver-manifest'),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
+                      ),
+                      const SizedBox(height: 4),
                       Text(
-                        'Driver Dispatch View',
+                        data.subtitle,
                         style: TextStyle(
                           fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
+                          fontWeight: FontWeight.w500,
+                          color: skin.muted,
                         ),
-                      ),
-                      const SizedBox(width: 2),
-                      Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        size: 10,
-                        color: isBulk ? const Color(0xFF0284C7) : const Color(0xFF059669),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -1294,195 +1387,1578 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildFleetMiniHud({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
+  Widget _buildSalesPerformanceSection({
+    required RippleSkin skin,
     required bool isDark,
+    required num salesAmount,
+    required num salesToday,
+    required int salesCount,
+    required String salesPeriodLabel,
+    required List<({String label, double amount})> salesTrend,
   }) {
+    final periods = [
+      (key: 'today', label: 'Today'),
+      (key: 'this_week', label: '7D'),
+      (key: 'this_month', label: 'Month'),
+    ];
+
+    final hasTrend = salesTrend.any((p) => p.amount > 0);
+    final peakPoint = salesTrend.isNotEmpty
+        ? salesTrend.reduce((a, b) => a.amount >= b.amount ? a : b)
+        : (label: '', amount: 0.0);
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F172A) : Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
-        ),
+        color: skin.surface,
+        borderRadius: BorderRadius.circular(skin.cardRadius),
+        border: Border.all(color: skin.hairline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 12, color: color),
-              const SizedBox(width: 4),
               Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: color),
-                  overflow: TextOverflow.ellipsis,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Sales Performance',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: skin.ink,
+                        letterSpacing: -0.2,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$salesPeriodLabel · Ledger pacing',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: skin.muted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  color: skin.surface2,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final p in periods)
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _salesPeriod = p.key;
+                            _salesStartDate = null;
+                            _salesEndDate = null;
+                          });
+                          _loadDashboardData();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: _salesPeriod == p.key
+                                ? (isDark ? skin.primary : skin.surface)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            p.label,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: _salesPeriod == p.key
+                                  ? (isDark ? Colors.white : skin.ink)
+                                  : skin.muted,
+                            ),
+                          ),
+                        ),
+                      ),
+                    IconButton(
+                      onPressed: () => _pickCustomSalesDateRange(context),
+                      icon: Icon(Icons.date_range_rounded,
+                          size: 16, color: skin.primary),
+                      tooltip: 'Custom Date Range',
+                      visualDensity: VisualDensity.compact,
+                      constraints:
+                          const BoxConstraints(minWidth: 28, minHeight: 28),
+                      padding: EdgeInsets.zero,
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 2),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              fontFamily: 'monospace',
-              color: isDark ? Colors.white : const Color(0xFF0F172A),
-            ),
-            overflow: TextOverflow.ellipsis,
+          const SizedBox(height: 14),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Total Invoiced',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: skin.muted,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _inrWhole.format(salesAmount),
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        color: skin.ink,
+                        letterSpacing: -0.5,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Volume',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: skin.muted,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '$salesCount bills · Today ${_inrCompact.format(salesToday)}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: skin.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
+          const SizedBox(height: 14),
+          if (hasTrend) ...[
+            if (peakPoint.amount > 0)
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.rippleLightInk,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    'Peak${peakPoint.label.isNotEmpty ? ' (${peakPoint.label})' : ''}: ${_inrWhole.format(peakPoint.amount)}',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            SizedBox(
+              height: 120,
+              width: double.infinity,
+              child: CustomPaint(
+                painter: _StitchAreaLinePainter(
+                  values: salesTrend.map((e) => e.amount).toList(),
+                  lineColor: skin.primary,
+                  gridColor: skin.hairline,
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (salesTrend.isNotEmpty)
+                  Text(
+                    salesTrend.first.label,
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: skin.muted),
+                  ),
+                if (salesTrend.length > 2)
+                  Text(
+                    salesTrend[salesTrend.length ~/ 2].label,
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: skin.muted),
+                  ),
+                if (salesTrend.isNotEmpty)
+                  Text(
+                    salesTrend.last.label,
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: skin.muted),
+                  ),
+              ],
+            ),
+          ] else
+            Container(
+              height: 92,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: skin.surface2.withValues(alpha: 0.65),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Text(
+                'No sales invoices recorded in this window yet.',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: skin.muted,
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildDriverDashboardShortcutBanner(BuildContext context, bool isDark, String industry) {
-    final (title, subtitle, badge, badgeColor, icon, route) = switch (industry) {
-      'packaged_water' => (
-        'DK Waters 20L Can Driver Dashboard',
-        'Live Tata Ace beat route · 60 cans loaded · 25/60 customer stops completed',
-        'CAN DRIVER MANIFEST',
-        const Color(0xFF059669),
-        Icons.local_shipping_rounded,
-        '/operations/driver-manifest',
-      ),
-      'bulk_water' => (
-        'TMWS Tanker Driver Dashboard',
-        'TN-58-BW-2001 (12 KL) · Active Texvalley Sump · 160 L/min Decanting',
-        'TANKER DRIVER DESK',
-        const Color(0xFF0284C7),
-        Icons.local_shipping_rounded,
-        '/operations/tanker-dashboard',
-      ),
-      'cafe_bakery' => (
-        'Aran Cafe Express Touch POS',
-        'Table dining orders, kitchen KOT dispatch & counter cash checkout',
-        'TOUCH POS BILLING',
-        const Color(0xFFD97706),
-        Icons.restaurant_rounded,
-        '/operations/cafe-pos',
-      ),
-      _ => (
-        'Operations Field Dispatch Desk',
-        'Field deliveries, customer collections & trip execution',
-        'FIELD DESK',
-        AppColors.primary,
-        Icons.engineering_rounded,
-        '/modules',
-      ),
-    };
+  Future<void> _pickCustomSalesDateRange(BuildContext context) async {
+    final range = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+      lastDate: DateTime.now(),
+    );
+    if (range != null && mounted) {
+      setState(() {
+        _salesPeriod = 'custom';
+        _salesStartDate = range.start;
+        _salesEndDate = range.end;
+      });
+      _loadDashboardData();
+    }
+  }
 
-    final cardBg = isDark ? const Color(0xFF1E293B) : Colors.white;
-    final textPrim = isDark ? Colors.white : const Color(0xFF0F172A);
-    final textSec = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+  Widget _buildLiveFleetStrip({
+    required RippleSkin skin,
+    required bool isDark,
+    required String industry,
+  }) {
+    final isBulk = industry == 'bulk_water';
+    final rawUnits = isBulk
+        ? (_fleetLiveSnapshot?['tankers'] as List<dynamic>? ?? const [])
+        : (_fleetLiveSnapshot?['can_routes'] as List<dynamic>? ?? const []);
 
-    return InkWell(
-      onTap: () => context.push(route),
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: cardBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: badgeColor.withOpacity(isDark ? 0.4 : 0.28),
-            width: 1.2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: badgeColor.withOpacity(isDark ? 0.15 : 0.08),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Row(
+    final units = rawUnits.whereType<Map>().map((item) {
+      final mapCopy = Map<String, dynamic>.from(item);
+      if (isBulk) {
+        final reg = (item['tanker_number'] ??
+                item['vehicle_number'] ??
+                item['name'] ??
+                'Tanker')
+            .toString();
+        final cap = item['capacity_liters'] != null
+            ? '${((item['capacity_liters'] as num) / 1000).toStringAsFixed(0)} KL Tanker'
+            : (item['driver_name']?.toString() ?? 'Bulk Water Unit');
+        final rawSpeed = item['current_speed'] ?? item['speed_kmh'];
+        final speed = rawSpeed != null
+            ? '$rawSpeed km/h'
+            : (item['latitude'] != null ? 'GPS Active' : 'Telemetry Pending');
+        final status =
+            (item['status'] ?? 'ACTIVE').toString().toUpperCase();
+        return (
+          raw: mapCopy,
+          title: reg,
+          subtitle: cap,
+          status: status,
+          metricLabel: 'LIVE SPEED',
+          metricValue: speed,
+        );
+      }
+      final routeName = (item['route_name'] ??
+              item['vehicle_no'] ??
+              item['vehicle_number'] ??
+              'Delivery Route')
+          .toString();
+      final driverName = (item['driver_name'] ??
+              item['vehicle_no'] ??
+              item['vehicle_number'] ??
+              'Active Beat')
+          .toString();
+      final rawSpeed = item['current_speed'] ?? item['speed_kmh'];
+      final speed = rawSpeed != null
+          ? '$rawSpeed km/h'
+          : (item['latitude'] != null ? 'GPS Active' : 'Route Ready');
+      return (
+        raw: mapCopy,
+        title: routeName,
+        subtitle: driverName,
+        status: 'ACTIVE BEAT',
+        metricLabel: 'ROUTE STATUS',
+        metricValue: speed,
+      );
+    }).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: badgeColor.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: badgeColor, size: 22),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: badgeColor.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          badge,
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w800,
-                            color: badgeColor,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        '1-Tap Direct View',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: textSec,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: textPrim,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 1),
-                  Text(
-                    subtitle,
-                    style: TextStyle(fontSize: 11, color: textSec),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+            Text(
+              'Live Fleet Strip',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: skin.ink,
               ),
             ),
             const SizedBox(width: 8),
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: badgeColor.withOpacity(0.1),
-                shape: BoxShape.circle,
+                color: AppColors.rippleMint.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(999),
               ),
-              child: Icon(
-                Icons.arrow_forward_rounded,
-                size: 16,
-                color: badgeColor,
+              child: Text(
+                '${units.length} ACTIVE',
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.rippleMint,
+                ),
+              ),
+            ),
+            const Spacer(),
+            TextButton.icon(
+              onPressed: () => context.push('/fleet/gps?mode=$industry'),
+              icon: Icon(Icons.radar_rounded, size: 16, color: skin.primary),
+              label: Text(
+                'Open Radar',
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: skin.primary),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        if (units.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: skin.surface,
+              borderRadius: BorderRadius.circular(skin.cardRadius),
+              border: Border.all(color: skin.hairline),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.local_shipping_outlined,
+                    size: 20, color: skin.muted),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'No active fleet telemetry units reported by server for this company.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: skin.muted,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          SizedBox(
+            height: 142,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: units.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 10),
+              itemBuilder: (context, index) {
+                final u = units[index];
+                return InkWell(
+                  borderRadius: BorderRadius.circular(skin.cardRadius),
+                  onTap: () => _openOwnerDriverDetails(u.raw, isBulk),
+                  child: Container(
+                    width: 248,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: skin.surface,
+                      borderRadius: BorderRadius.circular(skin.cardRadius),
+                      border: Border.all(color: skin.hairline),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                u.title,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                  color: skin.ink,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: AppColors.rippleMint.withValues(alpha: 0.14),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                u.status,
+                                style: const TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.rippleMint,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          u.subtitle,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: skin.muted,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const Spacer(),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    u.metricLabel,
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w800,
+                                      color: skin.muted,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                  Text(
+                                    u.metricValue,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w800,
+                                      color: skin.ink,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            FilledButton(
+                              onPressed: () =>
+                                  context.push('/fleet/gps?mode=$industry'),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: isDark
+                                    ? skin.primary
+                                    : AppColors.rippleLightInk,
+                                foregroundColor: Colors.white,
+                                shape: const StadiumBorder(),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 14, vertical: 8),
+                                minimumSize: const Size(0, 34),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: const Text(
+                                'Track / Nav',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildQuickModulesGrid({
+    required RippleSkin skin,
+    required bool isDark,
+    required String industry,
+  }) {
+    final thirdModule = switch (industry) {
+      'cafe_bakery' => (
+          title: 'Cafe POS Terminal',
+          subtitle: 'Touch billing & dining tables',
+          icon: Icons.point_of_sale_rounded,
+          color: AppColors.chaiPrimary,
+          route: '/operations/cafe-pos',
+        ),
+      'bulk_water' => (
+          title: 'Tanker Trip Desk',
+          subtitle: 'Dispatch & sump decanting',
+          icon: Icons.water_drop_rounded,
+          color: AppColors.aquaPrimary,
+          route: '/operations/tanker-dashboard',
+        ),
+      'packaged_water' => (
+          title: 'Water Can Beat POS',
+          subtitle: 'Route sales & empty audit',
+          icon: Icons.local_shipping_rounded,
+          color: AppColors.aquaPrimary,
+          route: '/operations/can-sales',
+        ),
+      _ => (
+          title: 'Collect Receivables',
+          subtitle: 'Post customer settlements',
+          icon: Icons.payments_rounded,
+          color: AppColors.rippleMint,
+          route: '/accounting/collect',
+        ),
+    };
+
+    final fourthModule = switch (industry) {
+      'cafe_bakery' => (
+          title: 'Kitchen KOT Display',
+          subtitle: 'Live prep orders & queue',
+          icon: Icons.soup_kitchen_rounded,
+          color: AppColors.chaiAction,
+          route: '/operations/pos/kitchen',
+        ),
+      'bulk_water' => (
+          title: 'Live Tanker Radar',
+          subtitle: 'GPS position & flow status',
+          icon: Icons.radar_rounded,
+          color: AppColors.rippleSky,
+          route: '/fleet/gps?mode=bulk_water',
+        ),
+      'packaged_water' => (
+          title: 'Driver Surrender',
+          subtitle: 'Verify route cash & empties',
+          icon: Icons.price_check_rounded,
+          color: AppColors.rippleMint,
+          route: '/operations/driver-surrender',
+        ),
+      _ => (
+          title: 'Expense Vouchers',
+          subtitle: 'Record operational spends',
+          icon: Icons.money_off_rounded,
+          color: AppColors.rippleCoral,
+          route: '/expenses/new',
+        ),
+    };
+
+    final tiles = [
+      (
+        title: 'Sales Billing',
+        subtitle: 'Create GST / cash invoices',
+        icon: Icons.receipt_long_rounded,
+        color: skin.primary,
+        route: '/sales/new',
+      ),
+      (
+        title: 'Physical Stock Count',
+        subtitle: 'Godown & SKU verification',
+        icon: Icons.inventory_2_rounded,
+        color: AppColors.rippleMint,
+        route: '/inventory/stock-count',
+      ),
+      thirdModule,
+      fourthModule,
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Quick Modules',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: skin.ink,
+              ),
+            ),
+            const Spacer(),
+            Text(
+              'Tap to launch',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: skin.muted,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Column(
+          children: [
+            Row(
+              children: [
+                Expanded(child: _buildQuickModuleTile(skin, tiles[0])),
+                const SizedBox(width: 10),
+                Expanded(child: _buildQuickModuleTile(skin, tiles[1])),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(child: _buildQuickModuleTile(skin, tiles[2])),
+                const SizedBox(width: 10),
+                Expanded(child: _buildQuickModuleTile(skin, tiles[3])),
+              ],
+            ),
+            const SizedBox(height: 10),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  ActionChip(
+                    avatar: Icon(Icons.shopping_bag_rounded, size: 16, color: skin.primary),
+                    label: const Text(
+                      'Purchase Bill',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                    ),
+                    onPressed: () => context.push('/operations/quick-purchase'),
+                  ),
+                  const SizedBox(width: 8),
+                  ActionChip(
+                    avatar: const Icon(Icons.table_chart_rounded, size: 16, color: AppColors.rippleMint),
+                    label: const Text(
+                      '2026 Sheet Batch',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                    ),
+                    onPressed: () => context.push('/expenses/new'),
+                  ),
+                  const SizedBox(width: 8),
+                  ActionChip(
+                    avatar: const Icon(Icons.cleaning_services_rounded, size: 16, color: AppColors.danger),
+                    label: const Text(
+                      'Go-Live Clean Reset',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.danger,
+                      ),
+                    ),
+                    onPressed: _showGoLiveResetDialog,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Future<void> _showGoLiveResetDialog() async {
+    final confirmCtrl = TextEditingController();
+    var isSubmitting = false;
+    String? errorMsg;
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: AppColors.danger),
+              SizedBox(width: 8),
+              Expanded(child: Text('Go-Live Clean Reset', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800))),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Clears demo sales, deliveries, tanker trips, POS orders & test expenses while preserving companies, ARAN1/ARAN2 branches, fleet vehicles, 8 pickup points, regular suppliers, accounts & logins.',
+                style: TextStyle(fontSize: 12),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: confirmCtrl,
+                decoration: InputDecoration(
+                  labelText: 'Type RESET-FOR-LIVE to confirm',
+                  hintText: 'RESET-FOR-LIVE',
+                  errorText: errorMsg,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: isSubmitting ? null : () => Navigator.of(ctx).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.danger,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: isSubmitting
+                  ? null
+                  : () async {
+                      if (confirmCtrl.text.trim() != 'RESET-FOR-LIVE') {
+                        setDialogState(() {
+                          errorMsg = 'Enter exact text RESET-FOR-LIVE';
+                        });
+                        return;
+                      }
+                      setDialogState(() {
+                        isSubmitting = true;
+                        errorMsg = null;
+                      });
+                      final res = await ref.read(apiClientProvider).post(
+                            ApiEndpoints.adminResetDemoData,
+                            data: const {
+                              'confirmation': 'RESET-FOR-LIVE',
+                              'confirm': 'RESET-FOR-LIVE',
+                              'seed_masters': true,
+                            },
+                            fromJson: (d) => d,
+                          );
+                      if (!ctx.mounted) return;
+                      if (res.isSuccess) {
+                        Navigator.of(ctx).pop();
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Demo data wiped cleanly! System ready for live trial.'),
+                            backgroundColor: AppColors.success,
+                          ),
+                        );
+                        _loadDashboardData();
+                      } else {
+                        setDialogState(() {
+                          isSubmitting = false;
+                          errorMsg = res.failureOrNull?.message ?? 'Reset failed. Check permissions.';
+                        });
+                      }
+                    },
+              child: isSubmitting
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Text('Wipe Demo Data'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    confirmCtrl.dispose();
+  }
+
+  Widget _buildQuickModuleTile(
+    RippleSkin skin,
+    ({
+      String title,
+      String subtitle,
+      IconData icon,
+      Color color,
+      String route,
+    }) tile,
+  ) {
+    return RippleMenuTileCard(
+      icon: tile.icon,
+      title: tile.title,
+      subtitle: tile.subtitle,
+      accentColor: tile.color,
+      onTap: () => context.push(tile.route),
+    );
+  }
+
+  void _fitOwnerMapBounds(
+    List<Map<String, dynamic>> customers,
+    List<Map<String, dynamic>> vehicles,
+  ) {
+    if (!_ownerMapReady || !mounted) return;
+    final points = <LatLng>[];
+    for (final c in customers) {
+      final lat = _parseCoord(c['latitude']);
+      final lng = _parseCoord(c['longitude']);
+      if (lat != null && lng != null) points.add(LatLng(lat, lng));
+    }
+    for (final v in vehicles) {
+      final lat = _parseCoord(v['latitude']);
+      final lng = _parseCoord(v['longitude']);
+      if (lat != null && lng != null) points.add(LatLng(lat, lng));
+    }
+    if (points.isEmpty) {
+      _ownerMapController.move(const LatLng(9.9252, 78.1198), 12.6);
+      return;
+    }
+    if (points.length == 1) {
+      _ownerMapController.move(points.first, 14.8);
+      return;
+    }
+    final bounds = LatLngBounds.fromPoints(points);
+    _ownerMapController.fitCamera(
+      CameraFit.bounds(
+        bounds: bounds,
+        padding: const EdgeInsets.fromLTRB(36, 44, 36, 36),
+      ),
+    );
+  }
+
+  void _focusOwnerMapOnPoint(LatLng target, {double zoom = 15.2}) {
+    if (!_ownerMapReady || !mounted) return;
+    _ownerMapController.move(target, zoom);
+  }
+
+  String _ownerVehicleKeyOf(Map<String, dynamic> v, bool isBulk) {
+    return '${isBulk ? 'tanker' : 'route'}_${v['id'] ?? v['vehicle_number'] ?? v['vehicle_no'] ?? v['route_name'] ?? ''}';
+  }
+
+  Map<String, dynamic>? _findOwnerSelectedCustomer(
+    List<Map<String, dynamic>> customers,
+  ) {
+    if (_ownerSelectedCustomerId == null) return null;
+    for (final c in customers) {
+      final cid = int.tryParse(c['id']?.toString() ?? '') ?? -1;
+      if (cid == _ownerSelectedCustomerId) return c;
+    }
+    return null;
+  }
+
+  Map<String, dynamic>? _findOwnerSelectedVehicle(
+    List<Map<String, dynamic>> vehicles,
+    bool isBulk,
+  ) {
+    if (_ownerSelectedVehicleKey == null) return null;
+    for (final v in vehicles) {
+      if (_ownerVehicleKeyOf(v, isBulk) == _ownerSelectedVehicleKey) return v;
+    }
+    return null;
+  }
+
+  void _onOwnerCustomerPinTapped(Map<String, dynamic> customer) {
+    final cid = int.tryParse(customer['id']?.toString() ?? '') ?? 0;
+    final lat = _parseCoord(customer['latitude']);
+    final lng = _parseCoord(customer['longitude']);
+    setState(() {
+      _ownerSelectedCustomerId = cid;
+      _ownerSelectedVehicleKey = null;
+    });
+    if (lat != null && lng != null) {
+      _focusOwnerMapOnPoint(LatLng(lat + 0.0022, lng), zoom: 15.0);
+    }
+  }
+
+  void _onOwnerVehiclePinTapped(Map<String, dynamic> vehicle, bool isBulk) {
+    final lat = _parseCoord(vehicle['latitude']);
+    final lng = _parseCoord(vehicle['longitude']);
+    setState(() {
+      _ownerSelectedVehicleKey = _ownerVehicleKeyOf(vehicle, isBulk);
+      _ownerSelectedCustomerId = null;
+    });
+    if (lat != null && lng != null) {
+      _focusOwnerMapOnPoint(LatLng(lat + 0.0022, lng), zoom: 15.0);
+    }
+  }
+
+  void _openOwnerDriverDetails(Map<String, dynamic> vehicle, bool isBulk) {
+    final lat = _parseCoord(vehicle['latitude']);
+    final lng = _parseCoord(vehicle['longitude']);
+    if (lat != null && lng != null) {
+      _focusOwnerMapOnPoint(LatLng(lat, lng));
+    }
+    showDriverFullDetailsSheet(
+      context,
+      ref: ref,
+      vehicle: vehicle,
+      isTanker: isBulk,
+      onCenterOnMap: (lat != null && lng != null)
+          ? () => _focusOwnerMapOnPoint(LatLng(lat, lng))
+          : null,
+    );
+  }
+
+  void _openOwnerCustomerDetails(
+    Map<String, dynamic> customer,
+    String industry,
+  ) {
+    showCustomerFullDetailsSheet(
+      context,
+      ref: ref,
+      customer: customer,
+      isPackagedWater: industry == 'packaged_water',
+    );
+  }
+
+  Widget _buildOwnerWaterGpsCommandSection({
+    required RippleSkin skin,
+    required bool isDark,
+    required String industry,
+  }) {
+    final isBulk = industry == 'bulk_water';
+    final vehicles = _extractFleetVehicles(_fleetLiveSnapshot, isBulk);
+    final allCustomers = _extractFleetCustomers(_fleetLiveSnapshot);
+
+    final paidCustomers =
+        allCustomers.where((c) => _customerPaymentStatus(c) == 'paid').toList();
+    final dueCustomers =
+        allCustomers.where((c) => _customerPaymentStatus(c) != 'paid').toList();
+    final overdueCustomers = allCustomers
+        .where((c) => _customerPaymentStatus(c) == 'overdue')
+        .toList();
+
+    final totalPaid =
+        allCustomers.fold<double>(0, (s, c) => s + _numVal(c['total_paid']));
+    final totalDue =
+        allCustomers.fold<double>(0, (s, c) => s + _numVal(c['due_amount']));
+    final totalOverdue = allCustomers.fold<double>(
+      0,
+      (s, c) => s + _numVal(c['overdue_amount']),
+    );
+
+    final visibleCustomers = switch (_ownerMapFilter) {
+      'drivers' => const <Map<String, dynamic>>[],
+      'paid' => paidCustomers,
+      'due' => dueCustomers,
+      'overdue' => overdueCustomers,
+      _ => allCustomers,
+    };
+
+    final selectedOwnerCustomer = _findOwnerSelectedCustomer(visibleCustomers);
+    final selectedOwnerVehicle = _findOwnerSelectedVehicle(vehicles, isBulk);
+
+    final filters = [
+      (key: 'all', label: 'All (${vehicles.length + allCustomers.length})', color: skin.primary),
+      (key: 'drivers', label: 'Drivers Only (${vehicles.length})', color: AppColors.rippleSky),
+      (key: 'due', label: 'Due (${dueCustomers.length})', color: AppColors.warning),
+      (key: 'overdue', label: 'Overdue (${overdueCustomers.length})', color: AppColors.danger),
+      (key: 'paid', label: 'Paid (${paidCustomers.length})', color: AppColors.success),
+    ];
+
+    return Container(
+      key: const ValueKey('owner_water_gps_command_section'),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: skin.surface,
+        borderRadius: BorderRadius.circular(skin.heroRadius),
+        border: Border.all(
+          color: AppColors.rippleSky.withValues(alpha: isDark ? 0.35 : 0.25),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (isDark ? Colors.black : AppColors.rippleSky)
+                .withValues(alpha: isDark ? 0.22 : 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Header Row
+          Row(
+            children: [
+              const RippleIconBadge(
+                icon: Icons.radar_rounded,
+                accentColor: AppColors.rippleSky,
+                size: 38,
+                iconSize: 20,
+                radius: 12,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isBulk
+                          ? 'Owner Live GPS: Bulk Tankers & Customer Map'
+                          : 'Owner Live GPS: Delivery Boys & Customer Map',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: skin.ink,
+                        letterSpacing: -0.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Live driver locations & customer Paid / Due / Overdue status',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: skin.muted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              FilledButton.icon(
+                onPressed: () => context.push('/fleet/gps?mode=$industry'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: skin.primary,
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  minimumSize: const Size(0, 34),
+                  shape: const StadiumBorder(),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                icon: const Icon(Icons.open_in_full_rounded, size: 14),
+                label: const Text(
+                  'Full Screen Map',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // 2. Owner KPI Summary Pills
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _OwnerKpiChip(
+                  label: isBulk ? 'Tankers Live' : 'Drivers Live',
+                  value: '${vehicles.length}',
+                  color: AppColors.rippleSky,
+                  onTap: () => setState(() => _ownerMapFilter = 'drivers'),
+                ),
+                const SizedBox(width: 8),
+                _OwnerKpiChip(
+                  label: 'Paid (${paidCustomers.length})',
+                  value: _inrCompact.format(totalPaid),
+                  color: AppColors.success,
+                  onTap: () => setState(() => _ownerMapFilter = 'paid'),
+                ),
+                const SizedBox(width: 8),
+                _OwnerKpiChip(
+                  label: 'Due (${dueCustomers.length})',
+                  value: _inrCompact.format(totalDue),
+                  color: AppColors.warning,
+                  onTap: () => setState(() => _ownerMapFilter = 'due'),
+                ),
+                const SizedBox(width: 8),
+                _OwnerKpiChip(
+                  label: 'Overdue (${overdueCustomers.length})',
+                  value: _inrCompact.format(totalOverdue),
+                  color: AppColors.danger,
+                  onTap: () => setState(() => _ownerMapFilter = 'overdue'),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // 3. Interactive Filter Chips
+          SizedBox(
+            height: 32,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: filters.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 6),
+              itemBuilder: (context, index) {
+                final f = filters[index];
+                final selected = _ownerMapFilter == f.key;
+                return GestureDetector(
+                  onTap: () => setState(() => _ownerMapFilter = f.key),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 11,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: selected
+                          ? f.color
+                          : skin.surface2.withValues(alpha: 0.7),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                        color: selected ? f.color : skin.hairline,
+                      ),
+                    ),
+                    child: Text(
+                      f.label,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: selected ? Colors.white : skin.ink,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // 4. Embedded Live Interactive FlutterMap
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: SizedBox(
+              height: 300,
+              width: double.infinity,
+              child: Stack(
+                children: [
+                  FlutterMap(
+                    mapController: _ownerMapController,
+                    options: MapOptions(
+                      initialCenter: const LatLng(9.9252, 78.1198),
+                      initialZoom: 12.6,
+                      onMapReady: () {
+                        if (!mounted) return;
+                        _ownerMapReady = true;
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (mounted) {
+                            _fitOwnerMapBounds(visibleCustomers, vehicles);
+                          }
+                        });
+                      },
+                      onTap: (_, __) {
+                        if (_ownerSelectedCustomerId != null ||
+                            _ownerSelectedVehicleKey != null) {
+                          setState(() {
+                            _ownerSelectedCustomerId = null;
+                            _ownerSelectedVehicleKey = null;
+                          });
+                        }
+                      },
+                    ),
+                    children: [
+                      TileLayer(
+                        urlTemplate:
+                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        userAgentPackageName:
+                            'com.dkenterprises.dk_track_mobile',
+                        tileProvider: _buildSafeTileProvider(),
+                      ),
+                      if (visibleCustomers.isNotEmpty)
+                        CircleLayer(
+                          circles: [
+                            for (final c in visibleCustomers)
+                              if (_parseCoord(c['latitude']) != null &&
+                                  _parseCoord(c['longitude']) != null)
+                                CircleMarker(
+                                  point: LatLng(
+                                    _parseCoord(c['latitude'])!,
+                                    _parseCoord(c['longitude'])!,
+                                  ),
+                                  radius: _numVal(c['geofence_radius']) > 0
+                                      ? _numVal(c['geofence_radius'])
+                                      : 150,
+                                  useRadiusInMeter: true,
+                                  color: _colorForPaymentStatus(
+                                    _customerPaymentStatus(c),
+                                  ).withValues(alpha: 0.12),
+                                  borderColor: _colorForPaymentStatus(
+                                    _customerPaymentStatus(c),
+                                  ).withValues(alpha: 0.55),
+                                  borderStrokeWidth: 1.5,
+                                ),
+                          ],
+                        ),
+                      MarkerLayer(
+                        markers: [
+                          for (final c in visibleCustomers)
+                            if (_parseCoord(c['latitude']) != null &&
+                                _parseCoord(c['longitude']) != null)
+                              Marker(
+                                point: LatLng(
+                                  _parseCoord(c['latitude'])!,
+                                  _parseCoord(c['longitude'])!,
+                                ),
+                                width: 146,
+                                height: 54,
+                                alignment: Alignment.bottomCenter,
+                                child: GestureDetector(
+                                  onTap: () => _onOwnerCustomerPinTapped(c),
+                                  child: CompactCustomerMapPin(
+                                    name: c['name']?.toString() ?? 'Customer',
+                                    paidAmount: _numVal(c['total_paid']),
+                                    dueAmount: _numVal(c['due_amount']),
+                                    status: _customerPaymentStatus(c),
+                                    isSelected: _ownerSelectedCustomerId ==
+                                        (int.tryParse(c['id']?.toString() ?? '') ??
+                                            -1),
+                                    compactFormatter: _inrCompact,
+                                  ),
+                                ),
+                              ),
+                          for (final v in vehicles)
+                            if (_parseCoord(v['latitude']) != null &&
+                                _parseCoord(v['longitude']) != null)
+                              Marker(
+                                point: LatLng(
+                                  _parseCoord(v['latitude'])!,
+                                  _parseCoord(v['longitude'])!,
+                                ),
+                                width: 176,
+                                height: 50,
+                                alignment: Alignment.center,
+                                child: GestureDetector(
+                                  onTap: () =>
+                                      _onOwnerVehiclePinTapped(v, isBulk),
+                                  child: _OwnerDriverMapPin(
+                                    driverName: (v['driver_name'] ??
+                                            v['assigned_driver'] ??
+                                            'Driver')
+                                        .toString(),
+                                    vehicleNo: (v['vehicle_number'] ??
+                                            v['vehicle_no'] ??
+                                            v['tanker_number'] ??
+                                            v['route_name'] ??
+                                            'Unit')
+                                        .toString()
+                                        .split(' ')
+                                        .first,
+                                    speedKmh: _numVal(
+                                      v['current_speed'] ?? v['speed_kmh'],
+                                    ),
+                                    isTanker: isBulk,
+                                  ),
+                                ),
+                              ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  if (selectedOwnerCustomer != null ||
+                      selectedOwnerVehicle != null)
+                    Positioned(
+                      top: 8,
+                      left: 10,
+                      right: 54,
+                      child: Center(
+                        child: selectedOwnerCustomer != null
+                            ? CustomerMapCalloutBubble(
+                                key: ValueKey(
+                                  'customer_map_callout_bubble_${selectedOwnerCustomer['id']}',
+                                ),
+                                customer: selectedOwnerCustomer,
+                                onClose: () => setState(
+                                  () => _ownerSelectedCustomerId = null,
+                                ),
+                                onOpenFullDetails: () {
+                                  final target = selectedOwnerCustomer;
+                                  setState(
+                                    () => _ownerSelectedCustomerId = null,
+                                  );
+                                  _openOwnerCustomerDetails(target, industry);
+                                },
+                              )
+                            : DriverMapCalloutBubble(
+                                key: const ValueKey(
+                                  'driver_map_callout_bubble',
+                                ),
+                                vehicle: selectedOwnerVehicle!,
+                                isTanker: isBulk,
+                                onClose: () => setState(
+                                  () => _ownerSelectedVehicleKey = null,
+                                ),
+                                onOpenFullDetails: () {
+                                  final target = selectedOwnerVehicle;
+                                  setState(
+                                    () => _ownerSelectedVehicleKey = null,
+                                  );
+                                  _openOwnerDriverDetails(target, isBulk);
+                                },
+                              ),
+                      ),
+                    ),
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Column(
+                      children: [
+                        Material(
+                          color: skin.surface.withValues(alpha: 0.94),
+                          shape: const CircleBorder(),
+                          elevation: 2,
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            onTap: () =>
+                                _fitOwnerMapBounds(visibleCustomers, vehicles),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Icon(
+                                Icons.fit_screen_rounded,
+                                size: 18,
+                                color: skin.primary,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Material(
+                          color: skin.surface.withValues(alpha: 0.94),
+                          shape: const CircleBorder(),
+                          elevation: 2,
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            onTap: () =>
+                                context.push('/fleet/gps?mode=$industry'),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Icon(
+                                Icons.fullscreen_rounded,
+                                size: 18,
+                                color: skin.primary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (_fleetLiveSnapshot == null ||
+                      (vehicles.isEmpty && visibleCustomers.isEmpty))
+                    Positioned(
+                      left: 10,
+                      right: 10,
+                      bottom: 10,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: skin.surface.withValues(alpha: 0.92),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: skin.hairline),
+                        ),
+                        child: Text(
+                          _isLoading
+                              ? 'Syncing live GPS fleet & customer pins...'
+                              : 'Waiting for GPS telemetry or pull to refresh',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: skin.muted,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+
+          // 5. Active Drivers / Delivery Boys Locator Strip
+          if (vehicles.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    isBulk
+                        ? 'Active Tanker Drivers (${vehicles.length})'
+                        : 'Active Delivery Boys (${vehicles.length})',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w800,
+                      color: skin.ink,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    'Tap driver for today timeline',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      color: skin.muted,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 68,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: vehicles.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final v = vehicles[index];
+                  final driverName =
+                      (v['driver_name'] ?? v['assigned_driver'] ?? 'Driver')
+                          .toString();
+                  final vehicleNo = (v['vehicle_number'] ??
+                          v['vehicle_no'] ??
+                          v['tanker_number'] ??
+                          v['route_name'] ??
+                          'Unit')
+                      .toString();
+                  final speed =
+                      _numVal(v['current_speed'] ?? v['speed_kmh']);
+
+                  return Material(
+                    color: skin.canvas,
+                    borderRadius: BorderRadius.circular(12),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () => _openOwnerDriverDetails(v, isBulk),
+                      onLongPress: () => _openOwnerDriverDetails(v, isBulk),
+                      child: Container(
+                        width: 196,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.rippleSky.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 16,
+                              backgroundColor:
+                                  AppColors.rippleSky.withValues(alpha: 0.14),
+                              child: Icon(
+                                isBulk
+                                    ? Icons.local_shipping_rounded
+                                    : Icons.fire_truck_rounded,
+                                size: 16,
+                                color: AppColors.rippleSky,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    driverName,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                      color: skin.ink,
+                                    ),
+                                  ),
+                                  Text(
+                                    '$vehicleNo · ${speed.toStringAsFixed(0)} km/h',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.rippleSky,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _OwnerKpiChip extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _OwnerKpiChip({
+    required this.label,
+    required this.value,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 7,
+              height: 7,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              '$label: $value',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: color,
               ),
             ),
           ],
@@ -1492,3 +2968,190 @@ class _ExecutiveDashboardScreenState extends ConsumerState<ExecutiveDashboardScr
   }
 }
 
+class _OwnerDriverMapPin extends StatelessWidget {
+  final String driverName;
+  final String vehicleNo;
+  final double speedKmh;
+  final bool isTanker;
+
+  const _OwnerDriverMapPin({
+    required this.driverName,
+    required this.vehicleNo,
+    required this.speedKmh,
+    required this.isTanker,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = isTanker ? const Color(0xFF0369A1) : const Color(0xFF0EA5E9);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: bg.withValues(alpha: 0.38),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isTanker ? Icons.local_shipping_rounded : Icons.fire_truck_rounded,
+            color: Colors.white,
+            size: 14,
+          ),
+          const SizedBox(width: 5),
+          Flexible(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  driverName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Text(
+                  '$vehicleNo · ${speedKmh.toStringAsFixed(0)} km/h',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 8.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BentoMetricData {
+  final String title;
+  final String value;
+  final String subtitle;
+  final String badgeText;
+  final Color badgeColor;
+  final Color? valueColor;
+  final VoidCallback onTap;
+
+  const _BentoMetricData({
+    required this.title,
+    required this.value,
+    required this.subtitle,
+    required this.badgeText,
+    required this.badgeColor,
+    this.valueColor,
+    required this.onTap,
+  });
+}
+
+class _StitchAreaLinePainter extends CustomPainter {
+  final List<double> values;
+  final Color lineColor;
+  final Color gridColor;
+
+  _StitchAreaLinePainter({
+    required this.values,
+    required this.lineColor,
+    required this.gridColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (values.isEmpty || size.width <= 0 || size.height <= 0) return;
+
+    // 3 dashed horizontal grid lines
+    final gridPaint = Paint()
+      ..color = gridColor
+      ..strokeWidth = 1;
+    for (final ratio in [0.15, 0.5, 0.85]) {
+      final y = size.height * ratio;
+      double x = 0;
+      while (x < size.width) {
+        canvas.drawLine(
+          Offset(x, y),
+          Offset(math.min(x + 5, size.width), y),
+          gridPaint,
+        );
+        x += 9;
+      }
+    }
+
+    final minVal = values.reduce(math.min);
+    final maxVal = values.reduce(math.max);
+    final range = (maxVal - minVal) <= 0 ? 1.0 : (maxVal - minVal);
+    const padV = 12.0;
+    final usableH = math.max(1.0, size.height - padV * 2);
+
+    final points = <Offset>[];
+    final divisor = values.length > 1 ? values.length - 1 : 1;
+    for (int i = 0; i < values.length; i++) {
+      final x = values.length == 1 ? size.width / 2 : (i / divisor) * size.width;
+      final norm = (maxVal - minVal) <= 0 ? 0.5 : (values[i] - minVal) / range;
+      final y = padV + usableH * (1 - norm);
+      points.add(Offset(x, y));
+    }
+
+    final linePath = Path()..moveTo(points.first.dx, points.first.dy);
+    for (int i = 0; i < points.length - 1; i++) {
+      final p0 = points[i];
+      final p1 = points[i + 1];
+      final ctrlX = (p0.dx + p1.dx) / 2;
+      linePath.cubicTo(ctrlX, p0.dy, ctrlX, p1.dy, p1.dx, p1.dy);
+    }
+
+    final fillPath = Path.from(linePath)
+      ..lineTo(points.last.dx, size.height)
+      ..lineTo(points.first.dx, size.height)
+      ..close();
+
+    final fillPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          lineColor.withValues(alpha: 0.24),
+          lineColor.withValues(alpha: 0.0),
+        ],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+    canvas.drawPath(fillPath, fillPaint);
+
+    final strokePaint = Paint()
+      ..color = lineColor
+      ..strokeWidth = 2.5
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(linePath, strokePaint);
+
+    final peak = points.reduce((a, b) => a.dy <= b.dy ? a : b);
+    canvas.drawCircle(peak, 5, Paint()..color = lineColor);
+    canvas.drawCircle(
+        peak,
+        2.5,
+        Paint()..color = Colors.white);
+  }
+
+  @override
+  bool shouldRepaint(covariant _StitchAreaLinePainter oldDelegate) {
+    return oldDelegate.values != values ||
+        oldDelegate.lineColor != lineColor ||
+        oldDelegate.gridColor != gridColor;
+  }
+}

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Noto+Sans+Tamil:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "dark-ink": "#EDF3EF", "dark-ink-muted": "#93A39B", "on-primary-fixed-variant": "#005046", "dark-canvas": "#0E1512", "on-tertiary-container": "#61dda0", "dark-surface": "#17221D", "role-cafe-canvas": "#FBF4EA", "role-driver-primary": "#0E8FB3", "inverse-on-surface": "#f2f1ec", "role-driver-canvas": "#F3F8FA", "error-container": "#ffdad6", "inverse-primary": "#8ed4c5", "on-tertiary-fixed": "#002112", "tertiary-fixed-dim": "#61dda0", "surface": "#FFFFFF", "surface-tint": "#1f695e", "surface-container-highest": "#e4e2dd", "dark-surface-tonal": "#1F2E27", "on-primary": "#ffffff", "money-mint": "#1FA971", "on-primary-fixed": "#00201b", "primary": "#00443b", "on-surface-variant": "#3f4946", "surface-container-low": "#f5f3ee", "on-primary-container": "#8dd3c5", "background": "#fbf9f4", "on-background": "#1b1c19", "surface-variant": "#e4e2dd", "on-tertiary": "#ffffff", "on-secondary-fixed": "#151f00", "on-secondary-fixed-variant": "#394e00", "outline": "#6f7976", "on-error-container": "#93000a", "secondary-fixed": "#c7f169", "secondary-fixed-dim": "#acd44f", "on-tertiary-fixed-variant": "#005233", "primary-fixed": "a9f0e1", "role-cafe-action": "#F4A62A", "role-cafe-primary": "#C2542D", "surface-dim": "#dcdad5", "tertiary-fixed": "#7ffaba", "hairline": "#E3E1DA", "primary-container": "#0b5d52", "role-field-primary": "#3F7D58", "tertiary-container": "#005f3c", "money-coral": "#E8505B", "surface-container-lowest": "#ffffff", "on-secondary-container": "#506c00", "error": "#ba1a1a", "role-driver-action": "#FFC933", "secondary-container": "#c5ee66", "role-field-action": "#C9F36A", "tertiary": "#00452a", "ink": "#13201B", "primary-fixed-dim": "#8ed4c5", "pending-honey": "#E9A23B", "ink-muted": "#66736C", "info-sky": "#2E90FA", "secondary": "#4c6700", "on-secondary": "#ffffff", "inverse-surface": "#30312e", "surface-container": "#f0eee9", "outline-variant": "#bec9c5", "on-error": "#ffffff", "surface-tonal": "#ECEFEA", "on-surface": "#1b1c19", "role-cafe-ink": "#2B1B14", "surface-container-high": "#eae8e3", "surface-bright": "#fbf9f4", "critical-ruby": "#D92D20" }, "borderRadius": { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, "spacing": { "space-sm": "0.5rem", "space-xl": "1.5rem", "space-lg": "1rem", "gutter": "0.75rem", "space-md": "0.75rem", "margin": "1rem", "space-xs": "0.25rem" }, "fontFamily": { "headline-lg": ["Manrope"], "headline-md": ["Manrope"], "body-md": ["Manrope"], "display-numeral": ["Manrope"], "caption-meta": ["Manrope"], "body-lg": ["Manrope"], "label-action": ["Manrope"], "display-numeral-mobile": ["Manrope"], "sublabel-regional": ["Noto Sans Tamil"] }, "fontSize": { "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "headline-md": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }], "display-numeral": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "caption-meta": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "label-action": ["16px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "700" }], "display-numeral-mobile": ["40px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "sublabel-regional": ["11px", { "lineHeight": "14px", "fontWeight": "600" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-role-cafe-canvas font-body-md text-role-cafe-ink flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-role-cafe-canvas/90 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(43,27,20,0.04)]"><div class="h-24 px-margin flex flex-col justify-center gap-space-xs"><div class="flex items-center justify-between"><div class="flex items-center gap-space-sm"><button aria-label="Go back" class="w-11 h-11 -ml-space-xs rounded-full flex items-center justify-center text-role-cafe-primary hover:bg-surface-tonal transition-colors" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><div class="flex flex-col"><div class="flex items-center gap-space-xs"><h1 class="font-headline-md text-headline-md text-role-cafe-ink">New Production Batch</h1><span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-semibold">(தயாரிப்பு தொகுதி)</span></div><p class="font-caption-meta text-caption-meta text-ink-muted">Aran Cafe • Kitchen Desk #01</p></div></div><div class="flex items-center gap-space-sm"><div class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#E6F7F0] text-money-mint select-none"><span class="material-symbols-outlined text-[16px]">check_circle</span><span class="font-caption-meta text-caption-meta font-bold">Synced ✓</span></div><button aria-label="Toggle regional language" class="h-9 px-3 rounded-full bg-surface-container flex items-center justify-center text-role-cafe-ink hover:bg-surface-container-high transition-colors" type="button"><span class="font-caption-meta text-caption-meta font-bold">EN | தமிழ்</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="flex flex-col relative w-full px-margin pt-24 pb-safe bg-role-cafe-canvas min-h-screen"><div class="flex flex-col w-full gap-space-lg pb-10">
+<!-- 1. STATION & SHIFT STATUS CHIP -->
+<div class="bg-surface rounded-DEFAULT p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-role-cafe-primary text-[20px] shrink-0" style="font-variation-settings: 'FILL' 1;">oven_gen</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-role-cafe-ink font-bold truncate">Deck Oven Station #02</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">ரொட்டி அடுப்பு பிரிவு 02 • Bakehouse Sub-Unit</span>
+</div>
+</div>
+<div class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#E6F7F0] text-money-mint shrink-0">
+<span class="material-symbols-outlined text-[16px]">bolt</span>
+<span class="font-caption-meta text-caption-meta font-bold">KDS Ready</span>
+</div>
+</div>
+<div class="bg-surface-tonal rounded-DEFAULT p-space-sm flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-role-cafe-primary/10 text-role-cafe-primary flex items-center justify-center font-headline-md text-headline-md">
+<span class="material-symbols-outlined text-[20px]">skillet</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-role-cafe-ink font-bold">Chef Velu M. <span class="text-ink-muted text-[12px] font-normal">(#201)</span></span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Shift #02 (Morning Bake)</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-ink-muted font-caption-meta text-caption-meta bg-surface px-2.5 py-1 rounded-full shadow-sm">
+<span class="material-symbols-outlined text-[15px] text-role-cafe-action">schedule</span>
+<span>07:00 AM - 03:00 PM</span>
+</div>
+</div>
+</div>
+<!-- 2. RECIPE SELECTOR & TARGET YIELD HERO CARD -->
+<div class="bg-role-cafe-primary text-on-primary rounded-lg p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-start justify-between">
+<div>
+<div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-on-primary text-caption-meta font-caption-meta uppercase tracking-wider mb-1">
+<span class="material-symbols-outlined text-[14px]">local_fire_department</span>
+<span>Bake Run C-32</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-primary leading-tight">Recipe Production Run</h2>
+<p class="font-sublabel-regional text-sublabel-regional text-white/80">தயாரிப்பு செய்முறை தொகுதி நிர்வாகம்</p>
+</div>
+<div class="text-right">
+<span class="font-caption-meta text-caption-meta bg-black/25 text-white/90 px-2.5 py-1 rounded-full inline-block">REC-BC-004 • v2.2</span>
+</div>
+</div>
+<!-- Horizontal Recipe Selector -->
+<div class="flex flex-col gap-1.5">
+<span class="font-caption-meta text-caption-meta text-white/90 uppercase tracking-wider">Select Baked Item (செய்முறை தேர்வு)</span>
+<div class="flex gap-space-sm overflow-x-auto pb-1 -mx-space-lg px-space-lg">
+<!-- Active Option -->
+<button class="shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-full bg-surface text-role-cafe-ink shadow-sm transition-transform active:scale-95 text-left" type="button">
+<span class="w-6 h-6 rounded-full bg-role-cafe-action text-role-cafe-ink flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</span>
+<div class="flex flex-col pr-1">
+<span class="font-body-md text-body-md font-bold leading-tight">Butter Croissant</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary">வெண்ணெய் குரோசான்</span>
+</div>
+</button>
+<!-- Other Options -->
+<button class="shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-full bg-white/15 text-white transition-transform active:scale-95 text-left" type="button">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-medium leading-tight">Madras Decoction</span>
+<span class="font-sublabel-regional text-sublabel-regional text-white/70">காபி டிகாக்ஷன்</span>
+</div>
+</button>
+<button class="shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-full bg-white/15 text-white transition-transform active:scale-95 text-left" type="button">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-medium leading-tight">Spicy Samosa</span>
+<span class="font-sublabel-regional text-sublabel-regional text-white/70">உருளை சமோசா</span>
+</div>
+</button>
+<button class="shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-full bg-white/15 text-white transition-transform active:scale-95 text-left" type="button">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-medium leading-tight">Classic Milk Bun</span>
+<span class="font-sublabel-regional text-sublabel-regional text-white/70">பால் பன்</span>
+</div>
+</button>
+</div>
+</div>
+<!-- Stepper Control Area -->
+<div class="bg-white/10 rounded-DEFAULT p-space-md flex flex-col gap-space-sm backdrop-blur-xs">
+<div class="flex items-center justify-between">
+<span class="font-caption-meta text-caption-meta text-white/90 font-bold uppercase tracking-wider">Target Batch Yield</span>
+<span class="font-sublabel-regional text-sublabel-regional text-white/80">இலக்கு எண்ணிக்கை</span>
+</div>
+<!-- Tactile Stepper Slab -->
+<div class="h-16 bg-surface rounded-DEFAULT flex items-center justify-between px-2 text-role-cafe-ink shadow-sm">
+<div class="flex items-center gap-1">
+<button class="h-12 px-3 rounded-DEFAULT bg-surface-tonal hover:bg-surface-container-high text-role-cafe-ink font-label-action text-label-action transition-transform active:scale-95 flex items-center justify-center font-bold" id="btn-step-sub10" type="button">
+            -10
+          </button>
+<button class="w-12 h-12 rounded-DEFAULT bg-surface-tonal hover:bg-surface-container-high text-role-cafe-ink font-headline-md text-headline-md transition-transform active:scale-95 flex items-center justify-center" id="btn-step-sub" type="button">
+<span class="material-symbols-outlined text-[24px]">remove</span>
+</button>
+</div>
+<div class="flex flex-col items-center">
+<span class="font-display-numeral-mobile text-display-numeral-mobile font-bold leading-none tracking-tight text-role-cafe-ink" id="batch-yield-display">40</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">Pieces (எண்ணிக்கை)</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="w-12 h-12 rounded-DEFAULT bg-role-cafe-action/20 text-role-cafe-ink hover:bg-role-cafe-action/30 font-headline-md text-headline-md transition-transform active:scale-95 flex items-center justify-center font-bold" id="btn-step-add" type="button">
+<span class="material-symbols-outlined text-[24px]">add</span>
+</button>
+<button class="h-12 px-3 rounded-DEFAULT bg-role-cafe-action text-role-cafe-ink hover:bg-role-cafe-action/90 font-label-action text-label-action transition-transform active:scale-95 flex items-center justify-center font-bold" id="btn-step-add10" type="button">
+            +10
+          </button>
+</div>
+</div>
+<!-- Multiplier & Time Details -->
+<div class="flex flex-col gap-1.5 text-white/95">
+<div class="flex items-center justify-between text-[13px] bg-black/15 px-3 py-1.5 rounded-full">
+<span class="font-bold text-role-cafe-action flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">calculate</span>
+            2.0x Standard Recipe
+          </span>
+<span class="text-white/80 font-caption-meta">Base Recipe = 20 Pcs</span>
+</div>
+<div class="flex items-center justify-between text-[12px] px-1 text-white/90">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-role-cafe-action">timer</span>
+            45 Mins (Prep 15m • Bake 25m • Rest 5m)
+          </span>
+<span class="font-bold text-white">Ready: 03:45 PM</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 3. LIVE INGREDIENT DEDUCTION & STOCK ALLOCATION -->
+<div class="bg-surface rounded-lg p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<h3 class="font-headline-md text-headline-md text-role-cafe-ink">Required Ingredients</h3>
+<span class="w-6 h-6 rounded-full bg-surface-tonal text-role-cafe-primary font-bold text-caption-meta flex items-center justify-center">4</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">தானியங்கி மூலப்பொருள் ஒதுக்கீடு (4 பொருட்கள்)</span>
+</div>
+<div class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-caption-meta font-bold">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>Stock Available ✓</span>
+</div>
+</div>
+<!-- Ingredient 1 -->
+<div class="bg-surface-tonal rounded-DEFAULT p-space-md flex flex-col gap-space-xs">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">Maida Flour Grade A</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary">மைதா மாவு • RAW-FLR-04</span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-caption-meta font-bold">
+          Sufficient ✓
+        </span>
+</div>
+<div class="grid grid-cols-3 gap-2 mt-1 pt-2 border-t-0 bg-surface rounded-DEFAULT p-2 text-center">
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">Deduct</span>
+<span class="font-body-lg text-body-lg text-role-cafe-primary font-bold">4.0 kg</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">(2.0kg/base)</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">Bin #01</span>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">25.0 kg</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">Present</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">After Run</span>
+<span class="font-body-lg text-body-lg text-money-mint font-bold">21.0 kg</span>
+<span class="font-sublabel-regional text-[10px] text-money-mint font-semibold">Safe Level</span>
+</div>
+</div>
+</div>
+<!-- Ingredient 2 -->
+<div class="bg-surface-tonal rounded-DEFAULT p-space-md flex flex-col gap-space-xs">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">Unsalted Dairy Butter</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary">வெண்ணெய் • RAW-BTR-05 (Laminating Block)</span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-caption-meta font-bold">
+          Sufficient ✓
+        </span>
+</div>
+<div class="grid grid-cols-3 gap-2 mt-1 pt-2 bg-surface rounded-DEFAULT p-2 text-center">
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">Deduct</span>
+<span class="font-body-lg text-body-lg text-role-cafe-primary font-bold">2.5 kg</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">Chilled Block</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">Walk-in</span>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">8.5 kg</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">Present</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">After Run</span>
+<span class="font-body-lg text-body-lg text-money-mint font-bold">6.0 kg</span>
+<span class="font-sublabel-regional text-[10px] text-money-mint font-semibold">Safe Level</span>
+</div>
+</div>
+</div>
+<!-- Ingredient 3 -->
+<div class="bg-surface-tonal rounded-DEFAULT p-space-md flex flex-col gap-space-xs">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">Refined Sugar M-30</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary">சர்க்கரை • RAW-SGR-03</span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-caption-meta font-bold">
+          Sufficient ✓
+        </span>
+</div>
+<div class="grid grid-cols-3 gap-2 mt-1 pt-2 bg-surface rounded-DEFAULT p-2 text-center">
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">Deduct</span>
+<span class="font-body-lg text-body-lg text-role-cafe-primary font-bold">600 g</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">Dry Store</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">Rack C-04</span>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">20.0 kg</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">Present</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">After Run</span>
+<span class="font-body-lg text-body-lg text-money-mint font-bold">19.4 kg</span>
+<span class="font-sublabel-regional text-[10px] text-money-mint font-semibold">Safe Level</span>
+</div>
+</div>
+</div>
+<!-- Ingredient 4 -->
+<div class="bg-surface-tonal rounded-DEFAULT p-space-md flex flex-col gap-space-xs">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">Active Dry Yeast &amp; Sea Salt</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary">ஈஸ்ட் &amp; உப்பு • RAW-YST-09</span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#E6F7F0] text-money-mint font-caption-meta text-caption-meta font-bold">
+          Sufficient ✓
+        </span>
+</div>
+<div class="grid grid-cols-3 gap-2 mt-1 pt-2 bg-surface rounded-DEFAULT p-2 text-center">
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">Deduct</span>
+<span class="font-body-lg text-body-lg text-role-cafe-primary font-bold">80g / 40g</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">Locker</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">Spice Box</span>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">1.2 kg</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">Present</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">After Run</span>
+<span class="font-body-lg text-body-lg text-money-mint font-bold">1.08 kg</span>
+<span class="font-sublabel-regional text-[10px] text-money-mint font-semibold">Safe Level</span>
+</div>
+</div>
+</div>
+<!-- Cost Breakdown Banner -->
+<div class="bg-surface-container rounded-DEFAULT p-space-md flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase font-bold">Total Batch Raw Cost</span>
+<span class="font-caption-meta text-caption-meta text-money-mint font-bold bg-[#E6F7F0] px-2 py-0.5 rounded-full">73.8% Gross Margin</span>
+</div>
+<div class="flex items-baseline justify-between">
+<div class="flex items-baseline gap-1">
+<span class="font-display-numeral-mobile text-headline-lg font-bold text-role-cafe-ink">₹680.00</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">(₹17.00/pc)</span>
+</div>
+<div class="text-right">
+<span class="font-caption-meta text-caption-meta text-ink-muted block">Selling Price: ₹65.00/pc</span>
+<span class="font-body-md text-role-cafe-primary font-bold">Batch Total: ₹2,600</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 4. PRODUCTION PARAMETERS & OVEN DISPATCH CONFIGURATION -->
+<div class="bg-surface rounded-lg p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-role-cafe-primary text-[24px]">tune</span>
+<div class="flex flex-col">
+<h3 class="font-headline-md text-headline-md text-role-cafe-ink">Baking &amp; Equipment Setup</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">அடுப்பு &amp; உற்பத்தி வழிகாட்டல்</span>
+</div>
+</div>
+<!-- Oven Selection Chips -->
+<div class="flex flex-col gap-1.5">
+<label class="font-caption-meta text-caption-meta text-ink-muted font-bold uppercase">Target Oven Appliance</label>
+<div class="grid grid-cols-3 gap-2">
+<button class="h-14 rounded-DEFAULT bg-role-cafe-action/20 text-role-cafe-ink flex flex-col items-center justify-center font-body-md font-bold px-1 text-center transition-transform active:scale-95" type="button">
+<span class="truncate w-full text-[13px]">Deck Oven #01</span>
+<span class="text-[11px] text-role-cafe-primary font-semibold">200°C Ready ✓</span>
+</button>
+<button class="h-14 rounded-DEFAULT bg-surface-tonal text-ink-muted flex flex-col items-center justify-center font-body-md px-1 text-center transition-transform active:scale-95" type="button">
+<span class="truncate w-full text-[13px]">Deck Oven #02</span>
+<span class="text-[11px] font-normal">Idle (Standby)</span>
+</button>
+<button class="h-14 rounded-DEFAULT bg-surface-tonal text-ink-muted flex flex-col items-center justify-center font-body-md px-1 text-center transition-transform active:scale-95" type="button">
+<span class="truncate w-full text-[13px]">Convection #01</span>
+<span class="text-[11px] font-normal">Cooling</span>
+</button>
+</div>
+</div>
+<!-- Telemetry Cards -->
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="bg-surface-tonal rounded-DEFAULT p-space-sm flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-surface text-role-cafe-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">device_thermostat</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Chamber Temp</span>
+<span class="font-body-lg text-body-lg font-bold text-role-cafe-ink">200°C Target</span>
+<span class="font-sublabel-regional text-[10px] text-money-mint font-bold">Preheated ✓</span>
+</div>
+</div>
+<div class="bg-surface-tonal rounded-DEFAULT p-space-sm flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-surface text-role-cafe-action flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">hourglass_top</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Bake Timer</span>
+<span class="font-body-lg text-body-lg font-bold text-role-cafe-ink">25 Minutes</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">Steam Injection</span>
+</div>
+</div>
+</div>
+<!-- Production Note -->
+<div class="flex flex-col gap-1">
+<label class="font-caption-meta text-caption-meta text-ink-muted font-bold uppercase" for="prod-note">Kitchen Operator Note (தயாரிப்புக் குறிப்பு)</label>
+<textarea class="w-full bg-surface-tonal rounded-DEFAULT p-space-sm text-role-cafe-ink font-body-md resize-none outline-none focus:bg-surface focus:shadow-sm transition-all" id="prod-note" rows="2">Extra flaky fold technique as per evening rush standard batch. High butter retention.</textarea>
+</div>
+</div>
+<!-- 5. BATCH QUALITY & EXPIRY TRACEABILITY -->
+<div class="bg-surface rounded-lg p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-role-cafe-primary text-[22px]">verified</span>
+<div class="flex flex-col">
+<h3 class="font-headline-md text-headline-md text-role-cafe-ink">Batch Quality &amp; Traceability</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">தரக் கட்டுப்பாடு &amp; காலாவதி தேதி</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-money-mint text-[24px]">qr_code_2</span>
+</div>
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="bg-surface-tonal rounded-DEFAULT p-space-sm flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">Generated Batch No.</span>
+<span class="font-body-md text-body-md font-bold text-role-cafe-ink mt-0.5 truncate">#BAT-20261112-03</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">GL1025 Store Ref</span>
+</div>
+<div class="bg-surface-tonal rounded-DEFAULT p-space-sm flex flex-col">
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">Manufacture Stamp</span>
+<span class="font-body-md text-body-md font-bold text-role-cafe-ink mt-0.5">Today, 03:00 PM</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">12 Nov 2026</span>
+</div>
+<div class="bg-surface-tonal rounded-DEFAULT p-space-sm flex flex-col col-span-2">
+<div class="flex items-center justify-between">
+<span class="font-caption-meta text-caption-meta text-ink-muted uppercase">Best Before Expiry (காலாவதி)</span>
+<span class="font-caption-meta text-caption-meta font-bold text-role-cafe-primary bg-role-cafe-primary/10 px-2 py-0.5 rounded-full">30 Hours Shelf Life</span>
+</div>
+<span class="font-body-lg text-body-lg font-bold text-role-cafe-ink mt-1">13 Nov 2026, 09:00 PM</span>
+</div>
+</div>
+<!-- FSSAI Seal Tag -->
+<div class="bg-[#FBF4EA] rounded-DEFAULT p-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-role-cafe-primary text-[20px]">security</span>
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta font-bold text-role-cafe-ink">FSSAI Food Safety Compliance Tag</span>
+<span class="font-caption-meta text-[11px] text-ink-muted">Lic #1242300000000 • Aran Bakehouse #01</span>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface text-money-mint font-caption-meta text-caption-meta font-bold shadow-xs">
+        Pass ✓
+      </span>
+</div>
+</div>
+<!-- 6. TACTILE BOTTOM ACTION ZONE -->
+<div class="flex flex-col gap-space-sm pt-2">
+<!-- Primary Saffron Action Slab -->
+<button class="w-full h-14 rounded-full bg-role-cafe-action text-role-cafe-ink font-label-action text-label-action shadow-md flex items-center justify-center gap-2 transition-transform active:scale-98" id="btn-start-prod" type="button">
+<span class="material-symbols-outlined text-[24px]">local_fire_department</span>
+<span>Start Production &amp; Deduct Stock</span>
+<span class="font-sublabel-regional text-sublabel-regional font-bold opacity-80">(உற்பத்தி தொடங்கு)</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+<!-- Secondary Save Draft Outlined Slab -->
+<button class="w-full h-14 rounded-full bg-surface text-role-cafe-primary font-label-action text-label-action transition-transform active:scale-98 flex items-center justify-center gap-2 shadow-xs" type="button">
+<span class="material-symbols-outlined text-[20px]">bookmark_border</span>
+<span>Save Draft Recipe Sheet (வரைவாகச் சேமி)</span>
+</button>
+<!-- Operational Accounting Footnote -->
+<div class="px-space-sm py-1 flex items-start gap-2 text-ink-muted">
+<span class="material-symbols-outlined text-[16px] text-role-cafe-primary shrink-0 mt-0.5">info</span>
+<p class="font-caption-meta text-[11px] leading-relaxed">
+        Auto-posts Material Requisition Slip to ERP Inventory Ledger <strong class="text-role-cafe-ink">GL1025</strong>. Immutable KDS Batch Ticket will instantly print on <strong class="text-role-cafe-ink">Deck Oven Station #01</strong>.
+      </p>
+</div>
+</div>
+</div>
+<script>
+  (function initBatchStepper() {
+    const display = document.getElementById('batch-yield-display');
+    const btnSub = document.getElementById('btn-step-sub');
+    const btnSub10 = document.getElementById('btn-step-sub10');
+    const btnAdd = document.getElementById('btn-step-add');
+    const btnAdd10 = document.getElementById('btn-step-add10');
+    const startBtn = document.getElementById('btn-start-prod');
+
+    let count = 40;
+
+    function updateYield(delta) {
+      count = Math.max(10, Math.min(200, count + delta));
+      if (display) {
+        display.textContent = count;
+        display.classList.add('scale-105');
+        setTimeout(() => display.classList.remove('scale-105'), 120);
+      }
+    }
+
+    if (btnSub) btnSub.addEventListener('click', () => updateYield(-1));
+    if (btnAdd) btnAdd.addEventListener('click', () => updateYield(1));
+    if (btnSub10) btnSub10.addEventListener('click', () => updateYield(-10));
+    if (btnAdd10) btnAdd10.addEventListener('click', () => updateYield(10));
+
+    if (startBtn) {
+      startBtn.addEventListener('click', function() {
+        const originalContent = startBtn.innerHTML;
+        startBtn.innerHTML = `
+          <span class="material-symbols-outlined text-[22px] animate-spin">sync</span>
+          <span>Deducting Stock & Dispatching KDS...</span>
+        `;
+        startBtn.classList.add('opacity-90');
+        setTimeout(() => {
+          startBtn.innerHTML = `
+            <span class="material-symbols-outlined text-[24px]">check_circle</span>
+            <span>Batch #BAT-03 Dispatched to Oven #01 ✓</span>
+          `;
+          startBtn.classList.remove('bg-role-cafe-action');
+          startBtn.classList.add('bg-money-mint', 'text-white');
+          setTimeout(() => {
+            startBtn.innerHTML = originalContent;
+            startBtn.classList.add('bg-role-cafe-action');
+            startBtn.classList.remove('bg-money-mint', 'text-white', 'opacity-90');
+          }, 2400);
+        }, 1100);
+      });
+    }
+  })();
+</script></main></body></html>

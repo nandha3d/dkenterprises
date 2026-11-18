@@ -93,9 +93,10 @@ class DriverIsolationAndLocationTest extends TestCase
         $user = User::where('name', 'admin')->first();
         $token = $user->createToken('test-token')->plainTextToken;
 
-        // Customer ID 4 (The Chennai Silks)
+        $targetCustomer = Customer::where('is_active', true)->orderBy('id')->firstOrFail();
+
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-            ->postJson('/api/v1/mobile/customers/4/location', [
+            ->postJson("/api/v1/mobile/customers/{$targetCustomer->id}/location", [
                 'whatsapp_text' => 'https://maps.google.com/?q=11.0845000,77.2941000',
             ]);
 
@@ -107,7 +108,7 @@ class DriverIsolationAndLocationTest extends TestCase
         $this->assertStringContainsString('google.com/maps', $data['google_maps_url']);
 
         // Verify in database
-        $customer = Customer::find(4);
+        $customer = Customer::find($targetCustomer->id);
         $this->assertEquals('11.0845000', $customer->latitude);
         $this->assertEquals('77.2941000', $customer->longitude);
     }

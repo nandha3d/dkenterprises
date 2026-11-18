@@ -77,7 +77,15 @@ class SecureStorageService {
     await _prefs.setString(_keyThemeMode, mode);
   }
 
-  String getServerUrl() => _prefs.getString(_keyServerUrl) ?? 'https://dkenterprises.animazon.in/api/v1';
+  String getServerUrl() {
+    final saved = _prefs.getString(_keyServerUrl)?.trim();
+    if (saved == null ||
+        saved.isEmpty ||
+        saved == 'https://dkenterprises.animazon.in/api/v1') {
+      return 'http://dk-track.test/api/v1';
+    }
+    return saved;
+  }
 
   Future<void> setServerUrl(String url) async {
     await _prefs.setString(_keyServerUrl, url.trim());

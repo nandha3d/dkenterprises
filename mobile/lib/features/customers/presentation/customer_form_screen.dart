@@ -5,6 +5,7 @@ import '../../../core/network/api_endpoints.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/location_parser.dart';
+import '../../location/location_picker_screen.dart';
 
 class CustomerFormScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic>? initialCustomer;
@@ -59,12 +60,18 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
     _waNumberController = TextEditingController(text: init['wa_number']?.toString() ?? _phoneController.text);
     _contactPersonController = TextEditingController(text: init['contact_person']?.toString() ?? '');
     _addressController = TextEditingController(text: init['address']?.toString() ?? '');
-    _cityController = TextEditingController(text: init['city']?.toString() ?? 'Erode');
+    _cityController = TextEditingController(text: init['city']?.toString() ?? 'Madurai');
     _whatsappLocationController = TextEditingController();
     _initialCansController = TextEditingController(text: init['cans_held']?.toString() ?? '5');
     _depositController = TextEditingController(text: init['deposit_held']?.toString() ?? '750');
     _openingBalanceController = TextEditingController(text: init['opening_balance']?.toString() ?? '0.00');
     _gstinController = TextEditingController(text: init['tax_no']?.toString() ?? '');
+
+    if (init['route_id'] != null) {
+      _selectedRouteId = int.tryParse(init['route_id'].toString()) ?? 1;
+    } else if ((ref.read(authNotifierProvider).activeCompany?.industry ?? '').toLowerCase() == 'bulk_water') {
+      _selectedRouteId = 3;
+    }
 
     if (init['latitude'] != null && init['longitude'] != null) {
       _parsedLat = double.tryParse(init['latitude'].toString());
@@ -126,6 +133,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
     try {
       final apiClient = ref.read(apiClientProvider);
       final activeCompany = ref.read(authNotifierProvider).activeCompany;
+      final isBulkTanker = (activeCompany?.industry ?? '').toLowerCase() == 'bulk_water';
 
       final payload = {
         'name': _nameController.text.trim(),
@@ -143,8 +151,8 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
         'latitude': _parsedLat,
         'longitude': _parsedLng,
         'whatsapp_location': _whatsappLocationController.text.trim(),
-        'opening_cans_held': int.tryParse(_initialCansController.text.trim()) ?? 0,
-        'deposit_held': double.tryParse(_depositController.text.trim()) ?? 0.0,
+        'opening_cans_held': isBulkTanker ? 0 : (int.tryParse(_initialCansController.text.trim()) ?? 0),
+        'deposit_held': isBulkTanker ? 0.0 : (double.tryParse(_depositController.text.trim()) ?? 0.0),
         'opening_balance': double.tryParse(_openingBalanceController.text.trim()) ?? 0.0,
         'tax_no': _gstinController.text.trim(),
       };
@@ -200,6 +208,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
     final textPrim = isDark ? Colors.white : const Color(0xFF0F172A);
     final textSec = isDark ? Colors.white70 : const Color(0xFF64748B);
     final activeCompany = ref.watch(authNotifierProvider).activeCompany;
+    final isBulkTanker = (activeCompany?.industry ?? '').toLowerCase() == 'bulk_water';
 
     return Scaffold(
       backgroundColor: bgCol,
@@ -475,8 +484,8 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                         Expanded(
                           child: Text(
                             _parsedLat != null
-                                ? 'GPS Coordinates Locked: $_parsedLat, $_parsedLng'
-                                : 'No GPS Coordinates Set (Paste WhatsApp Link Above)',
+                                ? 'GPS Coordinates Locked: ${_parsedLat!.toStringAsFixed(5)}, ${_parsedLng!.toStringAsFixed(5)}'
+                                : 'No GPS Coordinates Set (Paste Link or Pin on Map)',
                             style: GoogleFonts.inter(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
@@ -487,14 +496,46 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () async {
+                            final picked = await Navigator.of(context).push<PickedLocation>(
+                              MaterialPageRoute(
+                                builder: (_) => LocationPickerScreen(
+                                  initialLat: _parsedLat,
+                                  initialLng: _parsedLng,
+                                ),
+                              ),
+                            );
+                            if (!mounted || picked == null) return;
+                            setState(() {
+                              _parsedLat = picked.latitude;
+                              _parsedLng = picked.longitude;
+                              _whatsappLocationController.text =
+                                  '${picked.latitude.toStringAsFixed(6)}, ${picked.longitude.toStringAsFixed(6)}';
+                            });
+                          },
+                          icon: const Icon(Icons.map_rounded, size: 18),
+                          label: const Text('Pick on Map'),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
 
             const SizedBox(height: 16),
 
-            // Section 3: Route Beat & 20L Water Can Inventory
-            _buildSectionHeader('3. Route Beat & Water Inventory', Icons.water_drop_rounded, AppColors.brandAmber),
+            // Section 3: Route Beat & Water Inventory / Tanker Opening Balance
+            _buildSectionHeader(
+              isBulkTanker ? '3. Tanker Route & Opening Balance' : '3. Route Beat & Water Inventory',
+              isBulkTanker ? Icons.local_shipping_rounded : Icons.water_drop_rounded,
+              AppColors.brandAmber,
+            ),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(16),
@@ -525,34 +566,36 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                       if (val != null) setState(() => _selectedRouteId = val);
                     },
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _initialCansController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            labelText: 'Initial Cans Held',
-                            hintText: 'e.g. 5',
-                            prefixIcon: Icon(Icons.water_drop, size: 18),
+                  if (!isBulkTanker) ...[
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _initialCansController,
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                              labelText: 'Initial Cans Held',
+                              hintText: 'e.g. 5',
+                              prefixIcon: Icon(Icons.water_drop, size: 18),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _depositController,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          decoration: const InputDecoration(
-                            labelText: 'Security Deposit (₹)',
-                            hintText: 'e.g. 750',
-                            prefixIcon: Icon(Icons.currency_rupee, size: 18),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _depositController,
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            decoration: const InputDecoration(
+                              labelText: 'Security Deposit (₹)',
+                              hintText: 'e.g. 750',
+                              prefixIcon: Icon(Icons.currency_rupee, size: 18),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _openingBalanceController,

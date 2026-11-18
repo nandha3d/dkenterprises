@@ -5,6 +5,7 @@ import '../../../core/network/api_endpoints.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/ui/scrollable_counter_field.dart';
 
 class SpotAuditScreen extends ConsumerStatefulWidget {
   const SpotAuditScreen({super.key});
@@ -89,6 +90,7 @@ class _SpotAuditScreenState extends ConsumerState<SpotAuditScreen> {
     );
 
     if (!mounted) return;
+    setState(() => _isSubmitting = false);
 
     if (result.isSuccess) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -98,6 +100,15 @@ class _SpotAuditScreenState extends ConsumerState<SpotAuditScreen> {
         ),
       );
       Navigator.of(context).pop();
+    } else if (result.failureOrNull?.statusCode == 422 ||
+        result.failureOrNull?.statusCode == 403 ||
+        result.failureOrNull?.statusCode == 400) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.failureOrNull?.message ?? 'Spot audit validation failed.'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
     } else {
       await db.queueMutation(
         id: const Uuid().v4(),
@@ -169,30 +180,12 @@ class _SpotAuditScreenState extends ConsumerState<SpotAuditScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Physically Counted Jars', style: AppTypography.body),
-                      Row(
-                        children: [
-                          IconButton.filledTonal(
-                            onPressed: _physicalCountedJars > 0 ? () => setState(() => _physicalCountedJars--) : null,
-                            icon: const Icon(Icons.remove_rounded, size: 18),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 14),
-                            child: Text(
-                              '$_physicalCountedJars',
-                              style: AppTypography.title.copyWith(fontSize: 20),
-                            ),
-                          ),
-                          IconButton.filledTonal(
-                            onPressed: () => setState(() => _physicalCountedJars++),
-                            icon: const Icon(Icons.add_rounded, size: 18),
-                          ),
-                        ],
-                      ),
-                    ],
+                  ScrollableCounterRow(
+                    title: 'Physically Counted Jars',
+                    subtitle: 'Scroll wheel or tap to type',
+                    value: _physicalCountedJars,
+                    onChanged: (v) => setState(() => _physicalCountedJars = v),
+                    titleColor: textCol,
                   ),
                   const Divider(height: 24),
                   Row(

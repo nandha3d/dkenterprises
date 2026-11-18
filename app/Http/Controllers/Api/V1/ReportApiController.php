@@ -13,18 +13,38 @@ use Illuminate\Support\Facades\DB;
 
 class ReportApiController extends BaseApiController
 {
+    private function resolveAuthorizedCompanyId(Request $request): int
+    {
+        $context = $request->attributes->get(\App\Services\Platform\CompanyContext::class);
+        if ($context instanceof \App\Services\Platform\CompanyContext) {
+            return $context->companyId;
+        }
+        $requested = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id');
+        $userId = \Illuminate\Support\Facades\Auth::id();
+        $companyId = $requested ? (int) $requested : (int) (
+            DB::table('company_user')->where('user_id', $userId)->where('is_default', 1)->value('company_id')
+            ?? DB::table('company_user')->where('user_id', $userId)->value('company_id')
+            ?? 1
+        );
+        if ($userId) {
+            app(\App\Services\Platform\CompanyContextResolver::class)->authorizedCompany((int) $userId, $companyId);
+        }
+
+        return $companyId;
+    }
+
     /**
      * Mobile Sales Analytics Report.
      */
     public function sales(Request $request): JsonResponse
     {
-        $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id');
+        $companyId = $this->resolveAuthorizedCompanyId($request);
         $startDate = $request->input('start_date', date('Y-m-01'));
         $endDate = $request->input('end_date', date('Y-m-d'));
 
         $query = Sale::whereDate('created_at', '>=', $startDate)
             ->whereDate('created_at', '<=', $endDate)
-            ->when($companyId, fn ($q) => $q->where('company_id', $companyId));
+            ->where('company_id', $companyId);
 
         $totalSales = (float) $query->sum('grand_total');
         $totalPaid = (float) $query->sum('paid_amount');
@@ -47,13 +67,13 @@ class ReportApiController extends BaseApiController
      */
     public function purchases(Request $request): JsonResponse
     {
-        $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id');
+        $companyId = $this->resolveAuthorizedCompanyId($request);
         $startDate = $request->input('start_date', date('Y-m-01'));
         $endDate = $request->input('end_date', date('Y-m-d'));
 
         $query = Purchase::whereDate('created_at', '>=', $startDate)
             ->whereDate('created_at', '<=', $endDate)
-            ->when($companyId, fn ($q) => $q->where('company_id', $companyId));
+            ->where('company_id', $companyId);
 
         $totalPurchases = (float) $query->sum('grand_total');
         $totalPaid = (float) $query->sum('paid_amount');
@@ -75,13 +95,13 @@ class ReportApiController extends BaseApiController
      */
     public function stock(Request $request): JsonResponse
     {
-        $companyId = $request->header('X-Company-ID') ?? $request->attributes->get('erp.company_id');
+        $companyId = $this->resolveAuthorizedCompanyId($request);
         $warehouseId = $request->input('warehouse_id');
 
         $query = DB::table('product_warehouse')
             ->join('products', 'product_warehouse.product_id', '=', 'products.id')
             ->join('warehouses', 'product_warehouse.warehouse_id', '=', 'warehouses.id')
-            ->when($companyId, fn ($q) => $q->where('warehouses.company_id', $companyId))
+            ->where('warehouses.company_id', $companyId)
             ->when($warehouseId, fn ($q) => $q->where('warehouses.id', $warehouseId))
             ->select(
                 'products.id as product_id',
@@ -112,12 +132,17 @@ class ReportApiController extends BaseApiController
      */
     public function customerLedger(Request $request, int $id): JsonResponse
     {
-        $customer = Customer::findOrFail($id);
+        $companyId = $this->resolveAuthorizedCompanyId($request);
+        $customer = Customer::where('company_id', $companyId)->find($id);
+        if (!$customer) {
+            return $this->sendError('Customer not found in active company.', [], 404);
+        }
         $startDate = $request->input('start_date', date('Y-04-01'));
         $endDate = $request->input('end_date', date('Y-m-d'));
 
         // Sales debits
-        $sales = Sale::where('customer_id', $id)
+        $sales = Sale::where('company_id', $companyId)
+            ->where('customer_id', $id)
             ->whereDate('created_at', '>=', $startDate)
             ->whereDate('created_at', '<=', $endDate)
             ->select('id', 'reference_no', 'grand_total', 'created_at')
@@ -133,6 +158,7 @@ class ReportApiController extends BaseApiController
         // Payment credits
         $payments = DB::table('payments')
             ->join('sales', 'payments.sale_id', '=', 'sales.id')
+            ->where('sales.company_id', $companyId)
             ->where('sales.customer_id', $id)
             ->whereDate('payments.created_at', '>=', $startDate)
             ->whereDate('payments.created_at', '<=', $endDate)

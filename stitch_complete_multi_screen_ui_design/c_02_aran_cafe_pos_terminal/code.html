@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;min-height:100%;margin:0;padding:0;}body{overscroll-behavior:none;background-color:#FBF4EA;color:#2B1B14;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 500,'GRAD' 0,'opsz' 24;display:inline-block;vertical-align:middle;line-height:1;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "info-sky": "#2E90FA", "on-error": "#ffffff", "secondary": "#4c6700", "on-error-container": "#93000a", "secondary-fixed": "#c7f169", "error-container": "#ffdad6", "inverse-on-surface": "#f2f1ec", "role-cafe-action": "#F4A62A", "tertiary-fixed": "#7ffaba", "role-cafe-canvas": "#FBF4EA", "error": "#ba1a1a", "surface-container": "#f0eee9", "hairline": "#E3E1DA", "on-tertiary-container": "#61dda0", "money-coral": "#E8505B", "outline": "#6f7976", "tertiary-container": "#005f3c", "pending-honey": "#E9A23B", "dark-ink": "#EDF3EF", "on-primary-container": "#8dd3c5", "role-driver-primary": "#0E8FB3", "critical-ruby": "#D92D20", "role-field-action": "#C9F36A", "surface-dim": "#dcdad5", "surface-container-lowest": "#ffffff", "primary": "#00443b", "surface-container-high": "#eae8e3", "dark-ink-muted": "#93A39B", "on-secondary-fixed": "#151f00", "secondary-fixed-dim": "#acd44f", "on-surface-variant": "#3f4946", "surface-container-highest": "#e4e2dd", "surface-tint": "#1f695e", "primary-fixed": "a9f0e1", "inverse-primary": "#8ed4c5", "ink": "#13201B", "on-tertiary-fixed-variant": "#005233", "surface-container-low": "#f5f3ee", "on-background": "#1b1c19", "on-tertiary": "#ffffff", "dark-surface": "#17221D", "primary-fixed-dim": "#8ed4c5", "surface-bright": "#fbf9f4", "surface-variant": "#e4e2dd", "on-surface": "#1b1c19", "role-field-primary": "#3F7D58", "inverse-surface": "#30312e", "on-primary-fixed-variant": "#005046", "dark-surface-tonal": "#1F2E27", "on-primary-fixed": "#00201b", "role-cafe-primary": "#C2542D", "ink-muted": "#66736C", "role-driver-action": "#FFC933", "tertiary": "#00452a", "on-secondary-fixed-variant": "#394e00", "surface": "#FFFFFF", "role-cafe-ink": "#2B1B14", "outline-variant": "#bec9c5", "background": "#fbf9f4", "money-mint": "#1FA971", "dark-canvas": "#0E1512", "tertiary-fixed-dim": "#61dda0", "role-driver-canvas": "#F3F8FA", "on-tertiary-fixed": "#002112", "on-secondary": "#ffffff", "on-primary": "#ffffff", "on-secondary-container": "#506c00", "secondary-container": "#c5ee66", "surface-tonal": "#ECEFEA", "primary-container": "#0b5d52" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "margin": "1rem", "space-sm": "0.5rem", "space-md": "0.75rem", "gutter": "0.75rem", "space-lg": "1rem", "space-xs": "0.25rem", "space-xl": "1.5rem" }, fontFamily: { "label-action": ["Manrope"], "body-lg": ["Manrope"], "body-md": ["Manrope"], "display-numeral": ["Manrope"], "headline-lg": ["Manrope"], "sublabel-regional": ["Noto Sans Tamil"], "display-numeral-mobile": ["Manrope"], "caption-meta": ["Manrope"], "headline-md": ["Manrope"] }, fontSize: { "label-action": ["16px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "700" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "600" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "500" }], "display-numeral": ["48px", { lineHeight: "52px", letterSpacing: "-0.03em", fontWeight: "800" }], "headline-lg": ["28px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "800" }], "sublabel-regional": ["11px", { lineHeight: "14px", fontWeight: "600" }], "display-numeral-mobile": ["40px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800" }], "caption-meta": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "headline-md": ["20px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "700" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-role-cafe-canvas text-role-cafe-ink font-body-md min-h-screen flex flex-col antialiased selection:bg-role-cafe-action selection:text-role-cafe-ink"><header class="fixed top-0 w-full z-50 pt-safe bg-role-cafe-canvas/90 backdrop-blur-xl shadow-[0_4px_20px_rgba(43,27,20,0.04)]"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><div class="w-11 h-11 rounded-full bg-role-cafe-primary flex items-center justify-center text-surface shrink-0 shadow-sm"><span class="material-symbols-outlined text-[22px]">coffee</span></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-1"><span class="font-headline-md text-headline-md tracking-tight text-role-cafe-ink leading-tight truncate">Aran Cafe</span><span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-bold hidden xs:inline">அரண்</span></div><span class="font-caption-meta text-caption-meta text-ink-muted truncate">Terminal C-02 • Counter Pos</span></div></div><div class="flex items-center gap-space-xs shrink-0"><div class="hidden sm:flex items-center gap-1 px-space-sm py-1 rounded-full bg-emerald-50 text-money-mint"><span class="material-symbols-outlined text-[16px]">check_circle</span><span class="font-caption-meta text-caption-meta font-bold">Synced</span></div><div class="flex items-center gap-1 px-space-sm py-1.5 rounded-full bg-surface text-role-cafe-ink shadow-[0_1px_6px_rgba(43,27,20,0.06)]"><span class="material-symbols-outlined text-[18px] text-role-cafe-action">table_restaurant</span><span class="font-caption-meta text-caption-meta font-bold">T-4</span></div><button class="w-11 h-11 rounded-full flex items-center justify-center text-role-cafe-ink hover:bg-surface-tonal/60 transition-colors relative active:scale-95"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-role-cafe-primary"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full px-margin pt-16 pb-32 bg-role-cafe-canvas"><div class="flex flex-col w-full gap-space-md">
+<!-- Top Search & Barcode Quick Controls -->
+<div class="flex items-center gap-space-sm w-full">
+<div class="flex-1 flex items-center h-[52px] bg-surface rounded-full px-space-md shadow-sm transition-all focus-within:ring-2 focus-within:ring-role-cafe-primary">
+<span class="material-symbols-outlined text-[22px] text-ink-muted mr-space-xs">search</span>
+<input class="w-full bg-transparent border-none outline-none font-body-md text-role-cafe-ink placeholder:text-ink-muted text-body-md" placeholder="Search coffee, pastry, snacks or SKU..." type="text"/>
+<button aria-label="Clear or voice search" class="p-1 rounded-full text-ink-muted hover:text-role-cafe-ink" type="button">
+<span class="material-symbols-outlined text-[20px]">mic</span>
+</button>
+</div>
+<button aria-label="Scan barcode or camera SKU" class="w-[52px] h-[52px] rounded-full bg-surface text-role-cafe-ink flex items-center justify-center shrink-0 shadow-sm active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[24px] text-role-cafe-primary">barcode_scanner</span>
+</button>
+</div>
+<!-- Order Configuration & Mode Ribbon -->
+<div class="flex flex-col gap-space-xs bg-surface p-space-sm rounded-lg shadow-sm">
+<div class="flex items-center justify-between gap-space-sm">
+<!-- Order-Type Segmented Pill Control -->
+<div class="flex p-1 bg-surface-tonal rounded-full gap-1">
+<button class="px-space-md h-9 rounded-full bg-role-cafe-primary text-on-primary font-body-md text-caption-meta flex items-center gap-1 shadow-sm active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[16px]">restaurant</span>
+<span>Dine-in</span>
+</button>
+<button class="px-space-md h-9 rounded-full text-ink-muted hover:text-role-cafe-ink font-body-md text-caption-meta flex items-center gap-1 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[16px]">takeout_dining</span>
+<span>Takeaway</span>
+</button>
+<button class="px-space-md h-9 rounded-full text-ink-muted hover:text-role-cafe-ink font-body-md text-caption-meta flex items-center gap-1 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[16px]">moped</span>
+<span>Delivery</span>
+</button>
+</div>
+<!-- Quick Ticket Badge -->
+<div class="flex items-center gap-1 px-space-sm py-1 rounded-full bg-surface-container text-role-cafe-ink">
+<span class="font-caption-meta text-caption-meta font-bold">#ORD-084</span>
+</div>
+</div>
+<!-- Active Table Context & Sub-labels -->
+<div class="flex items-center justify-between px-space-xs pt-1">
+<div class="flex items-center gap-2">
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-role-cafe-canvas text-role-cafe-primary">
+<span class="material-symbols-outlined text-[16px]">table_restaurant</span>
+<span class="font-body-md text-caption-meta font-bold">Table 4 (4 Pax)</span>
+<span class="font-sublabel-regional text-[10px] text-role-cafe-primary font-bold">மேஜை 4</span>
+</div>
+<button class="flex items-center gap-0.5 text-caption-meta text-role-cafe-primary font-bold hover:underline" type="button">
+<span>Change</span>
+<span class="material-symbols-outlined text-[14px]">expand_more</span>
+</button>
+</div>
+<div class="flex items-center gap-1 text-ink-muted font-caption-meta text-[11px]">
+<span class="w-1.5 h-1.5 rounded-full bg-money-mint animate-pulse"></span>
+<span>Counter C-02 • Priyan</span>
+</div>
+</div>
+</div>
+<!-- Horizontal Scrollable Category Filter Chips -->
+<div class="flex items-center gap-2 overflow-x-auto pb-1 -mx-margin px-margin scrollbar-none">
+<button class="shrink-0 flex items-center gap-1.5 px-4 h-11 rounded-full bg-role-cafe-primary text-on-primary font-body-md text-caption-meta font-bold shadow-sm active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[16px] text-role-cafe-action">star</span>
+<span>Featured &amp; Fast</span>
+</button>
+<button class="shrink-0 flex flex-col justify-center px-4 h-11 rounded-full bg-surface text-role-cafe-ink font-body-md text-caption-meta font-bold shadow-sm active:scale-95 transition-transform" type="button">
+<div class="flex items-center gap-1 leading-none">
+<span>Bakery &amp; Buns</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted font-normal">ரொட்டி</span>
+</div>
+</button>
+<button class="shrink-0 flex flex-col justify-center px-4 h-11 rounded-full bg-surface text-role-cafe-ink font-body-md text-caption-meta font-bold shadow-sm active:scale-95 transition-transform" type="button">
+<div class="flex items-center gap-1 leading-none">
+<span>Hot Coffee &amp; Chai</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted font-normal">காபி</span>
+</div>
+</button>
+<button class="shrink-0 flex items-center px-4 h-11 rounded-full bg-surface text-role-cafe-ink font-body-md text-caption-meta font-bold shadow-sm active:scale-95 transition-transform" type="button">
+<span>Cold Beverages &amp; Shakes</span>
+</button>
+<button class="shrink-0 flex items-center px-4 h-11 rounded-full bg-surface text-role-cafe-ink font-body-md text-caption-meta font-bold shadow-sm active:scale-95 transition-transform" type="button">
+<span>Evening Snacks</span>
+</button>
+<button class="shrink-0 flex items-center px-4 h-11 rounded-full bg-surface text-role-cafe-ink font-body-md text-caption-meta font-bold shadow-sm active:scale-95 transition-transform" type="button">
+<span>Breakfast Specials</span>
+</button>
+</div>
+<!-- Featured / Rush Top Sellers Row -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-role-cafe-action">bolt</span>
+<span class="font-headline-md text-caption-meta font-bold text-role-cafe-ink uppercase tracking-wider">Rush Hour Super-Fast</span>
+</div>
+<span class="font-caption-meta text-[11px] text-ink-muted">Tap to instant add</span>
+</div>
+<div class="grid grid-cols-3 gap-2">
+<!-- Fast Item 1 -->
+<div class="flex flex-col justify-between bg-surface p-2.5 rounded-DEFAULT shadow-sm relative active:scale-95 transition-transform cursor-pointer" onclick="incrementCart('Special Filter Coffee', 35)">
+<span class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-role-cafe-primary text-on-primary font-caption-meta text-[11px] font-bold flex items-center justify-center shadow-sm">2</span>
+<div class="w-full h-16 rounded-lg overflow-hidden mb-1.5">
+<img class="w-full h-full object-cover" data-alt="Traditional South Indian foaming filter coffee served in a stainless steel brass dabarah tumbler set on warm terracotta ceramic tile counter with natural soft daylight, aromatic steam swirls, golden crema" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDskhPNihfiCBmnJcBMdM5Bsf2jmH4jinyTf08bVSnXXHu6xVAKu53V9p1Me86vMjV9pWA3opMdTWZcc3Tn0TFS5effmA2fDH1KpdJxqAV2qtdHANWiFeo8wMk3YDvPvOFGeyh3iM8cS-RrdhjivCZdqzpO011vbyPecgontWzztpwBpzsBqOrVBY94N3THOXtkhKWqSdY8xsnjPRBT4Qy8j8SjvwwUbysdN5fMiKg"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-md text-[13px] leading-tight font-bold text-role-cafe-ink truncate">Filter Coffee</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">பில்டர் காபி</span>
+<div class="flex items-center justify-between mt-1">
+<span class="font-headline-md text-[13px] font-bold text-role-cafe-primary">₹35</span>
+<div class="w-6 h-6 rounded-full bg-role-cafe-canvas text-role-cafe-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px]">add</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Fast Item 2 -->
+<div class="flex flex-col justify-between bg-surface p-2.5 rounded-DEFAULT shadow-sm relative active:scale-95 transition-transform cursor-pointer" onclick="incrementCart('Butter Croissant', 85)">
+<div class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded bg-money-mint text-surface text-[9px] font-bold">Fresh Batch</div>
+<div class="w-full h-16 rounded-lg overflow-hidden mb-1.5">
+<img class="w-full h-full object-cover" data-alt="Golden crisp flaky French style butter croissant placed on a warm baking parchment paper inside a bright artisan cafe bakery showcase with honey tones and subtle dusting of powdered sugar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMzyKhT5BTFkhCMXrZ2YSu96dUBZtsCrMUfbr2g4XoRyV9v74h9I8ShiF5bQMtbZf9ORZKUjarM4dWxXkyGXkHhsfMB0CMvxC-ERKo6LHquIMaV3Iw4Xk7KBBcd-OXS2h5O1JR3j2w49oq94dQT1E7_o07ehmiKiQ7iJ5TydFlPB7BxeZrkcVL5LzbVs96C4Y2TGdvsV138GK9eFV8q4mWCn-JFqxWKDsQIIdRTDo"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-md text-[13px] leading-tight font-bold text-role-cafe-ink truncate">Croissant</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">பட்டர் கிரசண்ட்</span>
+<div class="flex items-center justify-between mt-1">
+<span class="font-headline-md text-[13px] font-bold text-role-cafe-primary">₹85</span>
+<div class="w-6 h-6 rounded-full bg-role-cafe-action text-role-cafe-ink flex items-center justify-center font-bold">
+<span class="material-symbols-outlined text-[14px]">add</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Fast Item 3 -->
+<div class="flex flex-col justify-between bg-surface p-2.5 rounded-DEFAULT shadow-sm relative active:scale-95 transition-transform cursor-pointer" onclick="incrementCart('Paneer Puff', 45)">
+<div class="w-full h-16 rounded-lg overflow-hidden mb-1.5">
+<img class="w-full h-full object-cover" data-alt="Golden layered hot savoury bakery paneer puff pastry with spicy spiced cottage cheese filling visible through flaky crust, served on wooden board with cafe warm morning lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAtX-uP1kwa4AnF1Qr6bqT-M3JbKl9A9M-Lv0vSgFbq26pEkGoQGwwgx0zQXrBZ7SrbjU5sye4pxh4f4zNBIqhBmVw0D8R4Ol2NQ2b4jPXqjH4nWi6El8hur-HtQoWqfGVq_2uQV_YcJFCRFzoibnypt35NG97Ajq2iMewilu4cUZ3TzjAjc2Uo5bOSZqwc4DxKWpxAAtTuRqvKmK5znjr2MVpPx_z86mtx1cQE4s"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-md text-[13px] leading-tight font-bold text-role-cafe-ink truncate">Paneer Puff</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">பன்னீர் பஃப்</span>
+<div class="flex items-center justify-between mt-1">
+<span class="font-headline-md text-[13px] font-bold text-role-cafe-primary">₹45</span>
+<div class="w-6 h-6 rounded-full bg-role-cafe-canvas text-role-cafe-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px]">add</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 2-Column Menu Grid -->
+<div class="flex flex-col gap-space-xs mt-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-role-cafe-primary">storefront</span>
+<span class="font-headline-md text-caption-meta font-bold text-role-cafe-ink uppercase tracking-wider">All Counter Items</span>
+</div>
+<span class="font-caption-meta text-[11px] text-ink-muted">Station auto-routing</span>
+</div>
+<div class="grid grid-cols-2 gap-gutter">
+<!-- Item Card 1: Active Stepper Mode -->
+<div class="flex flex-col justify-between bg-surface p-3 rounded-lg shadow-sm">
+<div class="flex flex-col gap-2">
+<div class="relative w-full h-28 rounded-DEFAULT overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Traditional frothy hot Madras filter coffee in brass dabara tumbler standing beside roasted arabica and robusta coffee beans on a cafe table, warm lighting and rich foam" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3kSFk8HF1uaHAR4n6-33ub3W5-rtsVpHOgzxD9vvLFJzS_7jAmpZFTnkKqJStaeWSmzBiQcTSpS0WvqtNhxJUqF6DOlPHceS-7ZKvKfPSj8aaNS8T2Y3Up6_f-3thi_CJcZJ-lSzo1Oc3e84xP7bRu7wNmn-5Wf-OuvVRj2SNN_4jhgjpL-cWdyj53_wnfZwEHqAMacYwiiOzgn2jkkZKawWjd2jXmldcL_QE4SQ"/>
+<span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-surface/90 backdrop-blur-sm text-[10px] font-bold text-role-cafe-primary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-role-cafe-primary"></span>
+              Tea Counter
+            </span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-md text-body-lg font-bold text-role-cafe-ink leading-tight truncate">Madras Filter Coffee</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">மதராஸ் டிகிரி பில்டர் காபி</span>
+<span class="font-caption-meta text-[11px] text-role-cafe-primary mt-0.5 font-bold">+ Strong decoction option</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-3 pt-2">
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-role-cafe-primary font-bold">₹35</span>
+<span class="font-caption-meta text-[10px] text-ink-muted">Reg (110ml)</span>
+</div>
+<!-- Stepper 56px ergonomic control -->
+<div class="flex items-center bg-surface-tonal rounded-full h-11 p-1">
+<button class="w-9 h-9 rounded-full bg-surface text-role-cafe-ink flex items-center justify-center font-bold active:scale-95 transition-transform" onclick="updateItemCount(this, -1)" type="button">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+</button>
+<span class="w-7 text-center font-headline-md text-caption-meta font-bold text-role-cafe-ink">2</span>
+<button class="w-9 h-9 rounded-full bg-role-cafe-primary text-on-primary flex items-center justify-center font-bold active:scale-95 transition-transform" onclick="updateItemCount(this, 1)" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item Card 2: Fresh Add State -->
+<div class="flex flex-col justify-between bg-surface p-3 rounded-lg shadow-sm">
+<div class="flex flex-col gap-2">
+<div class="relative w-full h-28 rounded-DEFAULT overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Soft brioche bun overflowing with chocolate hazelnut spread and crushed toasted hazelnuts in artisan cafe bakery setting with gentle indoor warm light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfViazp-cxSk3IG9yphMJQ7DOkzUVjs43UDCvT7Ki8GaFydZ9vhvCICTGpuNDt3NYQYgSPJHh1trkr8n7hOBL-1_nyPACe_ku64fq8HY6JDopxTxR4u61UAH7LVsNhzfDAn4UXOAUjcIY1R1anLk-7vtYtw6bUp3qnyELSDlpeuBBuWPQNR0J6vue_Dt0OmG9qvH2PAe0uyrSA02HjyC_MqMGxOj90D5bY3p5iD3M"/>
+<span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-surface/90 backdrop-blur-sm text-[10px] font-bold text-role-cafe-ink flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-role-cafe-action"></span>
+              Oven Station
+            </span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-md text-body-lg font-bold text-role-cafe-ink leading-tight truncate">Chocolate Hazelnut Bun</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">சாக்கலேட் ரொட்டி</span>
+<span class="font-caption-meta text-[11px] text-ink-muted mt-0.5">Warm served</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-3 pt-2">
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-role-cafe-primary font-bold">₹70</span>
+<span class="font-caption-meta text-[10px] text-ink-muted">Single</span>
+</div>
+<button class="h-11 px-4 rounded-full bg-role-cafe-canvas text-role-cafe-primary font-bold flex items-center gap-1 hover:bg-role-cafe-action hover:text-role-cafe-ink active:scale-95 transition-all" onclick="incrementCart('Chocolate Hazelnut Bun', 70)" type="button">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span class="font-caption-meta text-caption-meta">Add</span>
+</button>
+</div>
+</div>
+<!-- Item Card 3: Savory Snack with Add-ons -->
+<div class="flex flex-col justify-between bg-surface p-3 rounded-lg shadow-sm">
+<div class="flex flex-col gap-2">
+<div class="relative w-full h-28 rounded-DEFAULT overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Two golden triangular Indian crispy potato samosas served with green mint coriander chutney and sweet tamarind dip on small terracotta plate in modern cafe" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCC3TyAdLks4mnPAJMNEenkXjwAOoYOYOMTCpAyTJyNKm_YObYjVf5rgZJ2Cno5gIG0V-CgWzaF66zPip2GGeXdu1tO-m-y9ei8qyNvG8oQYKR2jWtvtJxDxTlDOAPoSKUtsxPiPRiJ7ZO6ldlW-_dkjN991JO1Wg_kGIXboXEBIGOvFmwowRGI1CTCNamTfROq5MFutglnygc7e5WekhXjc-Lk5N-KHCD9iO2j8vA"/>
+<span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-surface/90 backdrop-blur-sm text-[10px] font-bold text-role-cafe-ink flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-money-mint"></span>
+              Snack Unit
+            </span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-md text-body-lg font-bold text-role-cafe-ink leading-tight truncate">Veg Samosa (2 pcs)</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">காய்கறி சமோசா</span>
+<span class="font-caption-meta text-[11px] text-role-cafe-action font-bold mt-0.5">+ Chutney dip avail</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-3 pt-2">
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-role-cafe-primary font-bold">₹50</span>
+<span class="font-caption-meta text-[10px] text-ink-muted">Set of 2</span>
+</div>
+<!-- Stepper active with 1 item -->
+<div class="flex items-center bg-surface-tonal rounded-full h-11 p-1">
+<button class="w-9 h-9 rounded-full bg-surface text-role-cafe-ink flex items-center justify-center font-bold active:scale-95 transition-transform" onclick="updateItemCount(this, -1)" type="button">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+</button>
+<span class="w-7 text-center font-headline-md text-caption-meta font-bold text-role-cafe-ink">1</span>
+<button class="w-9 h-9 rounded-full bg-role-cafe-primary text-on-primary flex items-center justify-center font-bold active:scale-95 transition-transform" onclick="updateItemCount(this, 1)" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item Card 4: Ooty Bun Maska with Add-on Available Badge -->
+<div class="flex flex-col justify-between bg-surface p-3 rounded-lg shadow-sm">
+<div class="flex flex-col gap-2">
+<div class="relative w-full h-28 rounded-DEFAULT overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Fluffy round bakery bun sliced open with generous dollop of fresh yellow butter and mixed fruit jam filling on a rustic table in South Indian style cafe" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPGnbVOfEJ207_EdzZltuXSmWIklfexIISmFg6dZvWpsmSk40iwEY2bnTKTy1pslmd_1NN2hNsbBy36-IrE-HPRcctwK83QJh4oNyDpG-NhiKlsmXMekAZgDEE4-h5Ac1aICjAeu2gkxMBXFBhZATq1_yqpOzxEwN2IvD__n8UnQ_v7FfYZAT6Tz3gA2JnF6y6U_ZWmVwOLZi4GQRYWgYu-H-SqIolhWFimB4Jz2c"/>
+<span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-surface/90 backdrop-blur-sm text-[10px] font-bold text-role-cafe-ink flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-role-cafe-action"></span>
+              Oven Station
+            </span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-md text-body-lg font-bold text-role-cafe-ink leading-tight truncate">Ooty Bun Maska</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">ஊட்டி பன் மஸ்கா</span>
+<span class="font-caption-meta text-[11px] text-role-cafe-primary font-bold mt-0.5">+ Extra Jam / Butter</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-3 pt-2">
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-role-cafe-primary font-bold">₹40</span>
+<span class="font-caption-meta text-[10px] text-ink-muted">Warm slice</span>
+</div>
+<button class="h-11 px-4 rounded-full bg-role-cafe-canvas text-role-cafe-primary font-bold flex items-center gap-1 hover:bg-role-cafe-action hover:text-role-cafe-ink active:scale-95 transition-all" onclick="incrementCart('Ooty Bun Maska', 40)" type="button">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span class="font-caption-meta text-caption-meta">Add</span>
+</button>
+</div>
+</div>
+<!-- Item Card 5: Sold Out State with Long-Press Toggle -->
+<div class="flex flex-col justify-between bg-surface-container/70 p-3 rounded-lg shadow-sm opacity-80 relative select-none">
+<div class="absolute inset-0 bg-surface-tonal/40 rounded-lg backdrop-grayscale z-10 flex flex-col items-center justify-center pointer-events-none p-3 text-center">
+<div class="px-2.5 py-1 rounded-full bg-error-container text-critical-ruby font-caption-meta text-[11px] font-bold flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">block</span>
+<span>Sold Out • தீர்ந்துவிட்டது</span>
+</div>
+<span class="font-caption-meta text-[10px] text-ink-muted mt-1">Press &amp; hold 2s to restock</span>
+</div>
+<div class="flex flex-col gap-2">
+<div class="relative w-full h-28 rounded-DEFAULT overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Artisanal almond Danish pastry with flaked toasted almonds and vanilla custard glaze on marble shelf with warm side lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiS8O-jeFU6d9kplG2fNDT4zSZ4WWLEyNhL_e24OhksJeFBI7QJq0SSi99RPOPqmnyex1nVFKWYZgdh9NVVOtbSqmd7UGrw0R0KLPKViYw-pgwOQIMDkPXACN91TuVXj6QYq6eYuoWPyOM2rS8d9yZqU7T8gPWxWXCFggccRD3JaQ52EFpPc6vtfq5yQ6KWfdWMYjrUZhnM6_M1vQ0FBgRFRj9YnLnqqvSCf6UXO0"/>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-md text-body-lg font-bold text-ink-muted leading-tight truncate">Almond Danish Pastry</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">பாதாம் டேனிஷ்</span>
+<span class="font-caption-meta text-[11px] text-ink-muted mt-0.5">Batch depleted (11:30 AM)</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-3 pt-2">
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-ink-muted font-bold line-through">₹95</span>
+<span class="font-caption-meta text-[10px] text-ink-muted">0 in stock</span>
+</div>
+<button class="h-11 px-4 rounded-full bg-surface-tonal text-ink-muted font-bold flex items-center gap-1 cursor-not-allowed" disabled="" type="button">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span class="font-caption-meta text-caption-meta">Add</span>
+</button>
+</div>
+</div>
+<!-- Item Card 6: Hot Badam Milk -->
+<div class="flex flex-col justify-between bg-surface p-3 rounded-lg shadow-sm">
+<div class="flex flex-col gap-2">
+<div class="relative w-full h-28 rounded-DEFAULT overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Thick saffron infused badam almond milk garnished with crushed pistachios, saffron strands and chopped almonds served in heavy glass mug on wooden cafe saucer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTzW1ux1BWGdLTulF4vxJxefXe1K_GE3ZxyxBP5EQfbFllmUXJp7u7WllYbZsJKk0LgBH1wnRRlWuikdXlcPoLocfan-xdMdD9byrgFm0gpoc2MpE85weZn6Ilck3SXhm5HmHq2klqg8vjKH8fm1Y-Gd7f7-aPL1I5J9D2MXWhAa39i_OGZV4cqGd7Mww83RGdYOFcu4GgGeL0U7f_gl5Edlsk4nyRpdzI14BRtS4"/>
+<span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-surface/90 backdrop-blur-sm text-[10px] font-bold text-role-cafe-primary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-role-cafe-primary"></span>
+              Tea Counter
+            </span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-md text-body-lg font-bold text-role-cafe-ink leading-tight truncate">Kesari Badam Milk</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">கேசரி பாதாம் பால்</span>
+<span class="font-caption-meta text-[11px] text-role-cafe-action font-bold mt-0.5">Hot or Chilled</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-3 pt-2">
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-role-cafe-primary font-bold">₹55</span>
+<span class="font-caption-meta text-[10px] text-ink-muted">180ml</span>
+</div>
+<button class="h-11 px-4 rounded-full bg-role-cafe-canvas text-role-cafe-primary font-bold flex items-center gap-1 hover:bg-role-cafe-action hover:text-role-cafe-ink active:scale-95 transition-all" onclick="incrementCart('Kesari Badam Milk', 55)" type="button">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span class="font-caption-meta text-caption-meta">Add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Counter Utility Floating Capsule (KOT Print / Hold Ticket) -->
+<div class="flex items-center justify-between bg-surface/90 backdrop-blur-md px-space-md py-2.5 rounded-full shadow-sm">
+<div class="flex items-center gap-2">
+<button aria-label="Hold current order" class="w-9 h-9 rounded-full bg-surface-tonal text-role-cafe-ink flex items-center justify-center active:scale-95" type="button">
+<span class="material-symbols-outlined text-[18px]">pause</span>
+</button>
+<span class="font-caption-meta text-caption-meta text-role-cafe-ink">Hold Tab (நிறுத்து)</span>
+</div>
+<div class="flex items-center gap-2">
+<button aria-label="Direct Kitchen KOT trigger" class="flex items-center gap-1 px-3 h-9 rounded-full bg-role-cafe-canvas text-role-cafe-primary font-caption-meta text-caption-meta font-bold active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[16px]">soup_kitchen</span>
+<span>Send KOT</span>
+</button>
+<button aria-label="Print guest check" class="w-9 h-9 rounded-full bg-surface-tonal text-role-cafe-ink flex items-center justify-center active:scale-95" type="button">
+<span class="material-symbols-outlined text-[18px]">print</span>
+</button>
+</div>
+</div>
+<!-- Sticky Bottom Cart Billing Bar (Portal-ready inside App Shell Slot) -->
+<div class="w-full bg-role-cafe-ink text-surface p-space-sm rounded-lg shadow-xl flex items-center justify-between gap-space-sm">
+<!-- Left Summary & Pill Count -->
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="relative w-12 h-12 rounded-full bg-role-cafe-primary text-surface flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">shopping_bag</span>
+<span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-role-cafe-action text-role-cafe-ink font-caption-meta text-[11px] font-bold flex items-center justify-center shadow">5</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md font-bold text-surface">₹245</span>
+<span class="font-caption-meta text-[10px] text-dark-ink-muted">(Inc. GST)</span>
+</div>
+<div class="flex items-center gap-1 text-[11px] text-dark-ink-muted truncate">
+<span>3 Items</span>
+<span>•</span>
+<span class="text-secondary-fixed">Table 4</span>
+</div>
+</div>
+</div>
+<!-- Right Primary Action Button -->
+<div class="flex items-center gap-1.5 shrink-0">
+<button class="h-12 px-space-md rounded-full bg-role-cafe-action text-role-cafe-ink font-label-action text-caption-meta font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition-all" type="button">
+<span>View Cart &amp; Pay</span>
+<span class="font-sublabel-regional text-[10px] font-bold hidden xs:inline">வண்டி</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  function incrementCart(itemName, price) {
+    if (window.navigator && window.navigator.vibrate) {
+      window.navigator.vibrate(25);
+    }
+  }
+
+  function updateItemCount(btn, delta) {
+    const parent = btn.parentElement;
+    const countSpan = parent.querySelector('span');
+    let current = parseInt(countSpan.textContent, 10) || 0;
+    current = Math.max(0, current + delta);
+    countSpan.textContent = current;
+    if (window.navigator && window.navigator.vibrate) {
+      window.navigator.vibrate(20);
+    }
+  }
+</script></main><div class="fixed bottom-24 inset-x-0 z-40 px-margin pointer-events-none flex justify-center"><div class="w-full max-w-md pointer-events-auto" id="cafe-floating-cart-slot"></div></div><div class="fixed bottom-0 w-full z-50 pb-safe pointer-events-none flex justify-center px-margin mb-3"><nav class="pointer-events-auto h-16 w-full max-w-md bg-surface/95 backdrop-blur-xl rounded-full shadow-[0_8px_24px_-4px_rgba(19,32,27,0.12)] flex items-center justify-around px-space-xs" data-active-classes="bg-role-cafe-canvas text-role-cafe-primary font-bold shadow-sm"><a aria-current="page" class="flex flex-col items-center justify-center min-w-[56px] h-12 px-2.5 rounded-full transition-all active:scale-95 bg-role-cafe-canvas text-role-cafe-primary font-bold shadow-sm" data-path="counter-pos" href="#"><span class="material-symbols-outlined text-[20px]">point_of_sale</span><span class="font-caption-meta text-[11px] leading-tight">Counter</span></a><a class="flex flex-col items-center justify-center min-w-[56px] h-12 px-2.5 rounded-full text-ink-muted hover:text-role-cafe-ink transition-all active:scale-95" data-path="active-orders" href="#"><span class="material-symbols-outlined text-[20px]">receipt_long</span><span class="font-caption-meta text-[11px] leading-tight">Orders</span></a><a class="flex flex-col items-center justify-center min-w-[56px] h-12 px-2.5 rounded-full text-ink-muted hover:text-role-cafe-ink transition-all active:scale-95" data-path="cash-drawer" href="#"><span class="material-symbols-outlined text-[20px]">payments</span><span class="font-caption-meta text-[11px] leading-tight">Drawer</span></a><a class="flex flex-col items-center justify-center min-w-[56px] h-12 px-2.5 rounded-full text-ink-muted hover:text-role-cafe-ink transition-all active:scale-95" data-path="kitchen-kds" href="#"><span class="material-symbols-outlined text-[20px]">skillet</span><span class="font-caption-meta text-[11px] leading-tight">Kitchen</span></a><a class="flex flex-col items-center justify-center min-w-[56px] h-12 px-2.5 rounded-full text-ink-muted hover:text-role-cafe-ink transition-all active:scale-95" data-path="shift-profile" href="#"><span class="material-symbols-outlined text-[20px]">badge</span><span class="font-caption-meta text-[11px] leading-tight">Me</span></a></nav></div></body></html>

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#FBF4EA;color:#2B1B14;}body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-tertiary-container": "#61dda0", "dark-ink-muted": "#93A39B", "role-cafe-ink": "#2B1B14", "on-primary": "#ffffff", "role-driver-action": "#FFC933", "dark-surface": "#17221D", "money-coral": "#E8505B", "on-secondary": "#ffffff", "role-driver-primary": "#0E8FB3", "on-secondary-container": "#506c00", "ink": "#13201B", "surface-variant": "#e4e2dd", "on-surface": "#1b1c19", "surface-container-low": "#f5f3ee", "on-error-container": "#93000a", "primary-fixed": "#a9f0e1", "surface-bright": "#fbf9f4", "surface-container-high": "#eae8e3", "on-background": "#1b1c19", "ink-muted": "#66736C", "on-tertiary-fixed-variant": "#005233", "hairline": "#E3E1DA", "dark-ink": "#EDF3EF", "surface-container": "#f0eee9", "on-error": "#ffffff", "surface-container-lowest": "#ffffff", "tertiary-fixed": "#7ffaba", "on-primary-fixed-variant": "#005046", "role-driver-canvas": "#F3F8FA", "secondary-fixed-dim": "#acd44f", "tertiary-fixed-dim": "#61dda0", "tertiary": "#00452a", "money-mint": "#1FA971", "role-cafe-action": "#F4A62A", "dark-surface-tonal": "#1F2E27", "on-secondary-fixed-variant": "#394e00", "pending-honey": "#E9A23B", "critical-ruby": "#D92D20", "error": "#ba1a1a", "secondary": "#4c6700", "surface": "#FFFFFF", "on-secondary-fixed": "#151f00", "on-primary-fixed": "#00201b", "surface-container-highest": "#e4e2dd", "background": "#fbf9f4", "surface-tint": "#1f695e", "role-cafe-primary": "#C2542D", "on-tertiary-fixed": "#002112", "outline": "#6f7976", "role-field-primary": "#3F7D58", "secondary-fixed": "#c7f169", "on-surface-variant": "#3f4946", "secondary-container": "#c5ee66", "surface-dim": "#dcdad5", "tertiary-container": "#005f3c", "inverse-primary": "#8ed4c5", "info-sky": "#2E90FA", "on-tertiary": "#ffffff", "on-primary-container": "#8dd3c5", "role-cafe-canvas": "#FBF4EA", "inverse-surface": "#30312e", "primary-container": "#0b5d52", "primary-fixed-dim": "#8ed4c5", "surface-tonal": "#ECEFEA", "outline-variant": "#bec9c5", "error-container": "#ffdad6", "dark-canvas": "#0E1512", "primary": "#00443b", "inverse-on-surface": "#f2f1ec", "role-field-action": "#C9F36A" }, "borderRadius": { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, "spacing": { "space-md": "0.75rem", "space-xl": "1.5rem", "margin": "1rem", "gutter": "0.75rem", "space-xs": "0.25rem", "space-lg": "1rem", "space-sm": "0.5rem" }, "fontFamily": { "caption-meta": ["Manrope"], "sublabel-regional": ["Noto Sans Tamil"], "label-action": ["Manrope"], "headline-md": ["Manrope"], "body-lg": ["Manrope"], "display-numeral": ["Manrope"], "headline-lg": ["Manrope"], "display-numeral-mobile": ["Manrope"], "body-md": ["Manrope"] }, "fontSize": { "caption-meta": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "sublabel-regional": ["11px", { "lineHeight": "14px", "fontWeight": "600" }], "label-action": ["16px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "700" }], "headline-md": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "display-numeral": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "display-numeral-mobile": ["40px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-role-cafe-canvas font-body-md text-role-cafe-ink flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-role-cafe-canvas/90 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(43,27,20,0.06)]"><div class="h-20 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-[96px]"><button aria-label="Back to Order Details" class="w-11 h-11 rounded-full bg-surface flex items-center justify-center text-role-cafe-primary hover:bg-surface-container active:scale-95 transition-transform" onclick="history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><div class="flex flex-col text-left"><span class="font-caption-meta text-caption-meta text-ink-muted uppercase">Order</span><span class="font-caption-meta text-caption-meta text-role-cafe-primary font-bold">#ORD-084</span></div></div><div class="flex flex-col items-center justify-center flex-1 text-center px-space-xs"><h1 class="font-headline-md text-headline-md text-role-cafe-ink leading-tight flex items-center justify-center gap-1.5"><span>Refund / Void Bill</span></h1><span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-semibold">பில் ரத்து &amp; திருப்பம்</span></div><div class="flex items-center justify-end gap-space-xs min-w-[96px]"><div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-role-cafe-action/20 text-role-cafe-ink"><span class="material-symbols-outlined text-role-cafe-primary text-[15px]">verified_user</span><span class="font-caption-meta text-caption-meta font-bold">MGR</span></div><button aria-label="Switch Language" class="h-8 px-2 rounded-full bg-surface flex items-center justify-center text-role-cafe-ink hover:bg-surface-container active:scale-95 transition-transform" type="button"><span class="font-caption-meta text-caption-meta font-bold text-role-cafe-primary">EN</span><span class="font-caption-meta text-caption-meta text-ink-muted mx-0.5">|</span><span class="font-sublabel-regional text-sublabel-regional font-bold text-role-cafe-ink">தமிழ்</span></button><div class="w-8 h-8 rounded-full bg-role-cafe-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-20 px-margin pb-safe bg-role-cafe-canvas min-h-screen"><div class="flex flex-col w-full pb-10">
+<!-- TOP CONTEXT & CRITICAL SECURITY BANNER -->
+<div class="flex flex-col gap-space-sm mb-space-md">
+<!-- Order Quick Context Pill -->
+<div class="flex items-center justify-between bg-surface rounded-lg px-space-md py-2 shadow-sm">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-role-cafe-action animate-pulse"></span>
+<span class="font-body-md text-body-md text-role-cafe-ink font-bold">#ORD-084</span>
+<span class="text-ink-muted text-xs">•</span>
+<span class="font-caption-meta text-caption-meta text-role-cafe-ink font-semibold">Table 04 (Dine-in)</span>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container px-2.5 py-1 rounded-full">
+<span class="material-symbols-outlined text-[16px] text-role-cafe-primary">payments</span>
+<span class="font-caption-meta text-caption-meta text-role-cafe-ink font-bold">Paid ₹245.00</span>
+</div>
+</div>
+<!-- Security Alert Callout -->
+<div class="bg-error-container/40 rounded-lg p-space-md flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-critical-ruby/15 text-critical-ruby flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[22px]">admin_panel_settings</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="font-caption-meta text-caption-meta text-critical-ruby font-bold uppercase tracking-wider">High-Value Fiscal Reversal</span>
+<span class="bg-critical-ruby text-on-error font-caption-meta text-[10px] px-1.5 py-0.5 rounded-full font-bold">&gt; ₹200</span>
+</div>
+<p class="font-body-md text-body-md text-role-cafe-ink mt-0.5 font-semibold">
+          Manager Authorization PIN required to void this bill.
+        </p>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">
+          ₹200.00-க்கு மேற்பட்ட பில் ரத்து செய்ய மேலாளர் பின் அவசியம்
+        </span>
+</div>
+</div>
+</div>
+<!-- REFUND SCOPE SELECTOR (SEGMENTED TACTILE CONTROL) -->
+<div class="bg-surface rounded-lg p-1.5 flex gap-1 mb-space-md shadow-sm">
+<button class="flex-1 py-3 px-2 rounded-[14px] bg-role-cafe-primary text-on-primary flex flex-col items-center justify-center transition-all duration-200" id="scopeFullBtn" onclick="setScope('full')">
+<span class="font-label-action text-body-md font-bold text-center">Full Order Void</span>
+<span class="font-sublabel-regional text-[10px] opacity-90">முழு பில் ரத்து</span>
+</button>
+<button class="flex-1 py-3 px-2 rounded-[14px] bg-transparent text-role-cafe-ink flex flex-col items-center justify-center hover:bg-surface-container transition-all duration-200" id="scopePartialBtn" onclick="setScope('partial')">
+<span class="font-label-action text-body-md font-bold text-center">Partial Item Refund</span>
+<span class="font-sublabel-regional text-[10px] text-ink-muted">பொருட்கள் தேர்வு</span>
+</button>
+</div>
+<!-- ACTIVE SCOPE STATUS BADGE -->
+<div class="flex items-center justify-between px-space-xs mb-space-sm">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-role-cafe-primary">format_list_bulleted</span>
+<span class="font-caption-meta text-caption-meta text-role-cafe-ink font-bold uppercase">Items Under Reversal</span>
+</div>
+<span class="bg-role-cafe-action/20 text-role-cafe-ink font-caption-meta text-caption-meta px-2.5 py-1 rounded-full font-bold" id="itemsSummaryPill">
+      3 Items • 5 Units • ₹245.00
+    </span>
+</div>
+<!-- ITEMS CHECKLIST & STEPPER TILES -->
+<div class="flex flex-col gap-space-sm mb-space-lg">
+<!-- Item 1 -->
+<div class="bg-surface rounded-lg p-space-md shadow-sm flex flex-col gap-2.5 transition-all" id="itemRow1">
+<div class="flex items-start justify-between gap-space-sm">
+<label class="flex items-start gap-space-sm cursor-pointer min-w-0 flex-1">
+<input checked="" class="mt-1 w-5 h-5 accent-role-cafe-primary rounded cursor-pointer" id="chk1" onchange="toggleItem(1, 35)" type="checkbox"/>
+<div class="flex flex-col min-w-0">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold leading-tight truncate">Madras Filter Coffee</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted mt-0.5">Less Sugar • Tea Counter Station</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary mt-0.5">2x ஃபில்டர் காபி</span>
+</div>
+</label>
+<div class="text-right shrink-0">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-extrabold block">₹70.00</span>
+<span class="font-caption-meta text-[11px] text-ink-muted">₹35.00 ea</span>
+</div>
+</div>
+<!-- Stepper Controls & Line Status -->
+<div class="flex items-center justify-between pt-2 border-t-0 bg-surface-container-low p-2 rounded-DEFAULT">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Refund quantity:</span>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 rounded-full bg-surface text-role-cafe-ink font-bold text-lg flex items-center justify-center active:scale-95 shadow-sm" onclick="changeQty(1, -1)" type="button">-</button>
+<span class="font-headline-md text-headline-md text-role-cafe-ink w-6 text-center tabular-nums" id="qty1">2</span>
+<button class="w-8 h-8 rounded-full bg-surface text-role-cafe-ink font-bold text-lg flex items-center justify-center active:scale-95 shadow-sm" onclick="changeQty(1, 1)" type="button">+</button>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="bg-surface rounded-lg p-space-md shadow-sm flex flex-col gap-2.5 transition-all" id="itemRow2">
+<div class="flex items-start justify-between gap-space-sm">
+<label class="flex items-start gap-space-sm cursor-pointer min-w-0 flex-1">
+<input checked="" class="mt-1 w-5 h-5 accent-role-cafe-primary rounded cursor-pointer" id="chk2" onchange="toggleItem(2, 70)" type="checkbox"/>
+<div class="flex flex-col min-w-0">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold leading-tight truncate">Choco Hazelnut Bun</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted mt-0.5">Warm served • Oven Station</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary mt-0.5">2x சாக்லேட் ரொட்டி</span>
+</div>
+</label>
+<div class="text-right shrink-0">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-extrabold block">₹140.00</span>
+<span class="font-caption-meta text-[11px] text-ink-muted">₹70.00 ea</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 bg-surface-container-low p-2 rounded-DEFAULT">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Refund quantity:</span>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 rounded-full bg-surface text-role-cafe-ink font-bold text-lg flex items-center justify-center active:scale-95 shadow-sm" onclick="changeQty(2, -1)" type="button">-</button>
+<span class="font-headline-md text-headline-md text-role-cafe-ink w-6 text-center tabular-nums" id="qty2">2</span>
+<button class="w-8 h-8 rounded-full bg-surface text-role-cafe-ink font-bold text-lg flex items-center justify-center active:scale-95 shadow-sm" onclick="changeQty(2, 1)" type="button">+</button>
+</div>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="bg-surface rounded-lg p-space-md shadow-sm flex flex-col gap-2.5 transition-all" id="itemRow3">
+<div class="flex items-start justify-between gap-space-sm">
+<label class="flex items-start gap-space-sm cursor-pointer min-w-0 flex-1">
+<input checked="" class="mt-1 w-5 h-5 accent-role-cafe-primary rounded cursor-pointer" id="chk3" onchange="toggleItem(3, 50)" type="checkbox"/>
+<div class="flex flex-col min-w-0">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold leading-tight truncate">Veg Samosa (2 pcs)</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted mt-0.5">Extra Mint Chutney • Snack Unit</span>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary mt-0.5">1x சமோசா தட்டு</span>
+</div>
+</label>
+<div class="text-right shrink-0">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-extrabold block">₹50.00</span>
+<span class="font-caption-meta text-[11px] text-ink-muted">₹50.00 / plate</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 bg-surface-container-low p-2 rounded-DEFAULT">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Refund quantity:</span>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 rounded-full bg-surface text-role-cafe-ink font-bold text-lg flex items-center justify-center active:scale-95 shadow-sm" onclick="changeQty(3, -1)" type="button">-</button>
+<span class="font-headline-md text-headline-md text-role-cafe-ink w-6 text-center tabular-nums" id="qty3">1</span>
+<button class="w-8 h-8 rounded-full bg-surface text-role-cafe-ink font-bold text-lg flex items-center justify-center active:scale-95 shadow-sm" onclick="changeQty(3, 1)" type="button">+</button>
+</div>
+</div>
+</div>
+<!-- Breakdown Sub-card -->
+<div class="bg-surface-container-high rounded-DEFAULT p-3 flex flex-col gap-1.5">
+<div class="flex justify-between items-center text-caption-meta font-caption-meta text-ink-muted">
+<span>Items Gross Total</span>
+<span class="font-bold text-role-cafe-ink">₹260.00</span>
+</div>
+<div class="flex justify-between items-center text-caption-meta font-caption-meta text-money-mint font-semibold">
+<span>Staff Courtesy Discount (10%)</span>
+<span>-₹26.00</span>
+</div>
+<div class="flex justify-between items-center text-caption-meta font-caption-meta text-ink-muted">
+<span>CGST + SGST (5% Net Reversal)</span>
+<span>+₹11.00</span>
+</div>
+<div class="flex justify-between items-center pt-2 mt-1 border-t border-hairline font-bold">
+<span class="font-body-md text-body-md text-role-cafe-ink">Total Reversible Cash</span>
+<span class="font-headline-md text-headline-md text-role-cafe-primary tabular-nums" id="totalDisplayTop">₹245.00</span>
+</div>
+</div>
+</div>
+<!-- REVERSAL REASON SELECTOR (TACTILE CHIPS) -->
+<div class="bg-surface rounded-lg p-space-md shadow-sm mb-space-lg flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-role-cafe-primary text-[20px]">report_problem</span>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">Reason for Reversal</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">காரணம் தேர்வு</span>
+</div>
+<!-- Reason Chip Cloud -->
+<div class="flex flex-wrap gap-2" id="reasonsContainer">
+<button class="reason-chip flex items-center gap-1.5 px-3 py-2.5 rounded-full bg-surface-container text-role-cafe-ink text-left transition-all active:scale-95" onclick="selectReason(this)" type="button">
+<span class="material-symbols-outlined text-[17px] text-ink-muted">wrong_location</span>
+<span class="font-caption-meta text-caption-meta font-semibold">Wrong Item Billed</span>
+</button>
+<button class="reason-chip flex items-center gap-1.5 px-3 py-2.5 rounded-full bg-surface-container text-role-cafe-ink text-left transition-all active:scale-95" onclick="selectReason(this)" type="button">
+<span class="material-symbols-outlined text-[17px] text-ink-muted">person_cancel</span>
+<span class="font-caption-meta text-caption-meta font-semibold">Customer Cancelled</span>
+</button>
+<!-- Active by default -->
+<button class="reason-chip active flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-critical-ruby text-on-error shadow-sm text-left transition-all active:scale-95" onclick="selectReason(this)" type="button">
+<span class="material-symbols-outlined text-[17px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta font-bold">Quality / Taste Complaint</span>
+<span class="font-sublabel-regional text-[10px] text-white/90">தரம் / சுவை குறைபாடு</span>
+</div>
+</button>
+<button class="reason-chip flex items-center gap-1.5 px-3 py-2.5 rounded-full bg-surface-container text-role-cafe-ink text-left transition-all active:scale-95" onclick="selectReason(this)" type="button">
+<span class="material-symbols-outlined text-[17px] text-ink-muted">content_copy</span>
+<span class="font-caption-meta text-caption-meta font-semibold">Duplicate Punch</span>
+</button>
+<button class="reason-chip flex items-center gap-1.5 px-3 py-2.5 rounded-full bg-surface-container text-role-cafe-ink text-left transition-all active:scale-95" onclick="selectReason(this)" type="button">
+<span class="material-symbols-outlined text-[17px] text-ink-muted">timer_off</span>
+<span class="font-caption-meta text-caption-meta font-semibold">Order Delay (SLA)</span>
+</button>
+</div>
+<!-- Mandatory Audit Note Field -->
+<div class="flex flex-col gap-1.5 mt-1">
+<div class="flex justify-between items-center">
+<label class="font-caption-meta text-caption-meta text-role-cafe-ink font-bold" for="auditNotes">
+          Mandatory Incident / Manager Audit Notes *
+        </label>
+<span class="font-caption-meta text-[11px] text-ink-muted">Max 250 chars</span>
+</div>
+<textarea class="w-full bg-surface-container-low rounded-DEFAULT p-3 font-body-md text-body-md text-role-cafe-ink focus:outline-none focus:bg-surface focus:shadow-inner transition-colors resize-none" id="auditNotes" rows="3">Customer reported coffee decoction was cold and buns were hard. Re-order declined by guest. Cash handover selected.</textarea>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">
+        தணிக்கை அறிக்கை: வாடிக்கையாளர் புகார் விவரம் மற்றும் காரணம்
+      </span>
+</div>
+</div>
+<!-- REFUND TENDER DESTINATION -->
+<div class="bg-surface rounded-lg p-space-md shadow-sm mb-space-lg flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-role-cafe-primary text-[20px]">account_balance_wallet</span>
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">Refund Tender Mode</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">திருப்பும் முறை</span>
+</div>
+<!-- 3 Big Selectable Tiles -->
+<div class="grid grid-cols-1 gap-2.5">
+<!-- Option 1: Cash Drawer (Default Selected) -->
+<div class="tender-card cursor-pointer p-3.5 rounded-DEFAULT bg-surface-container-low transition-all active:scale-[0.99] flex items-center justify-between" id="tenderCash" onclick="selectTender('cash', this)">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-full bg-role-cafe-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[24px]">point_of_sale</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">Cash Drawer #02</span>
+<span class="font-sublabel-regional text-[11px] text-role-cafe-primary font-semibold">பணப் பெட்டி</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Hand over ₹245.00 • Drawer kick automated</span>
+</div>
+</div>
+<div class="w-6 h-6 rounded-full bg-role-cafe-primary text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+</div>
+<!-- Option 2: Instant UPI Reversal -->
+<div class="tender-card cursor-pointer p-3.5 rounded-DEFAULT bg-surface-container-low transition-all active:scale-[0.99] flex items-center justify-between opacity-80" id="tenderUPI" onclick="selectTender('upi', this)">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-full bg-surface text-role-cafe-ink flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">qr_code_2</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">Instant UPI Reversal</span>
+<span class="font-sublabel-regional text-[11px] text-ink-muted">UPI திருப்பம்</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Direct refund to customer VPA via Razorpay</span>
+</div>
+</div>
+<div class="w-6 h-6 rounded-full bg-surface-container text-ink-muted flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px] hidden">check</span>
+</div>
+</div>
+<!-- Option 3: Khata / Store Credit -->
+<div class="tender-card cursor-pointer p-3.5 rounded-DEFAULT bg-surface-container-low transition-all active:scale-[0.99] flex items-center justify-between opacity-80" id="tenderCredit" onclick="selectTender('credit', this)">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-full bg-surface text-role-cafe-ink flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">book_online</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-body-lg text-body-lg text-role-cafe-ink font-bold">Store Credit / Khata</span>
+<span class="font-sublabel-regional text-[11px] text-ink-muted">வாடிக்கையாளர் கணக்கு</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Credit to Table Guest account (Dr. Rajan VIP)</span>
+</div>
+</div>
+<div class="w-6 h-6 rounded-full bg-surface-container text-ink-muted flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px] hidden">check</span>
+</div>
+</div>
+</div>
+</div>
+<!-- MANAGER SECURITY PIN PAD -->
+<div class="bg-surface rounded-lg p-space-md shadow-sm mb-space-lg flex flex-col gap-4">
+<!-- Header -->
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-10 h-10 rounded-full bg-role-cafe-action/25 text-role-cafe-ink flex items-center justify-center">
+<span class="material-symbols-outlined text-[22px] text-role-cafe-primary">lock</span>
+</div>
+<div class="flex flex-col">
+<h2 class="font-body-lg text-body-lg text-role-cafe-ink font-bold leading-snug">Manager Authorization PIN</h2>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary">மேலாளர் ஒப்புதல் பின் குறியீடு</span>
+</div>
+</div>
+<button class="h-9 px-3 rounded-full bg-surface-container text-role-cafe-primary flex items-center gap-1 font-caption-meta text-caption-meta font-bold active:scale-95 transition-transform" onclick="triggerBiometric()" type="button">
+<span class="material-symbols-outlined text-[18px]">fingerprint</span>
+<span>Bio-ID</span>
+</button>
+</div>
+<!-- Approver Attribution -->
+<div class="bg-surface-container-low rounded-DEFAULT px-3 py-2 flex items-center justify-between text-caption-meta font-caption-meta">
+<div class="flex items-center gap-1.5 text-ink-muted truncate">
+<span>Requester: Priyan (#104)</span>
+<span>•</span>
+<span class="text-role-cafe-ink font-semibold">Approver: Revathi (MGR)</span>
+</div>
+<span class="text-money-mint font-bold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">verified</span> Validated
+      </span>
+</div>
+<!-- 4-Dot PIN Entry Display with Hide/Show -->
+<div class="flex flex-col items-center justify-center py-2">
+<div class="flex items-center gap-4" id="pinDisplayContainer">
+<!-- Dot 1 -->
+<div class="w-5 h-5 rounded-full bg-role-cafe-primary flex items-center justify-center text-on-primary">
+<span class="w-2.5 h-2.5 rounded-full bg-white"></span>
+</div>
+<!-- Dot 2 -->
+<div class="w-5 h-5 rounded-full bg-role-cafe-primary flex items-center justify-center text-on-primary">
+<span class="w-2.5 h-2.5 rounded-full bg-white"></span>
+</div>
+<!-- Dot 3 -->
+<div class="w-5 h-5 rounded-full bg-role-cafe-primary flex items-center justify-center text-on-primary">
+<span class="w-2.5 h-2.5 rounded-full bg-white"></span>
+</div>
+<!-- Dot 4 (Empty / Awaiting) -->
+<div class="w-5 h-5 rounded-full bg-surface-container-highest transition-all duration-200" id="dot4"></div>
+</div>
+<span class="font-caption-meta text-[11px] text-ink-muted mt-2">Enter 4-digit supervisor secret key</span>
+</div>
+<!-- Numeric 3x4 Tactile Keypad -->
+<div class="grid grid-cols-3 gap-2.5 pt-1">
+<button class="h-14 rounded-DEFAULT bg-surface-container-low hover:bg-surface-container active:scale-95 text-role-cafe-ink font-headline-md text-headline-md font-bold flex items-center justify-center transition-transform" onclick="keyPress('1')" type="button">1</button>
+<button class="h-14 rounded-DEFAULT bg-surface-container-low hover:bg-surface-container active:scale-95 text-role-cafe-ink font-headline-md text-headline-md font-bold flex items-center justify-center transition-transform" onclick="keyPress('2')" type="button">2</button>
+<button class="h-14 rounded-DEFAULT bg-surface-container-low hover:bg-surface-container active:scale-95 text-role-cafe-ink font-headline-md text-headline-md font-bold flex items-center justify-center transition-transform" onclick="keyPress('3')" type="button">3</button>
+<button class="h-14 rounded-DEFAULT bg-surface-container-low hover:bg-surface-container active:scale-95 text-role-cafe-ink font-headline-md text-headline-md font-bold flex items-center justify-center transition-transform" onclick="keyPress('4')" type="button">4</button>
+<button class="h-14 rounded-DEFAULT bg-surface-container-low hover:bg-surface-container active:scale-95 text-role-cafe-ink font-headline-md text-headline-md font-bold flex items-center justify-center transition-transform" onclick="keyPress('5')" type="button">5</button>
+<button class="h-14 rounded-DEFAULT bg-surface-container-low hover:bg-surface-container active:scale-95 text-role-cafe-ink font-headline-md text-headline-md font-bold flex items-center justify-center transition-transform" onclick="keyPress('6')" type="button">6</button>
+<button class="h-14 rounded-DEFAULT bg-surface-container-low hover:bg-surface-container active:scale-95 text-role-cafe-ink font-headline-md text-headline-md font-bold flex items-center justify-center transition-transform" onclick="keyPress('7')" type="button">7</button>
+<button class="h-14 rounded-DEFAULT bg-surface-container-low hover:bg-surface-container active:scale-95 text-role-cafe-ink font-headline-md text-headline-md font-bold flex items-center justify-center transition-transform" onclick="keyPress('8')" type="button">8</button>
+<button class="h-14 rounded-DEFAULT bg-surface-container-low hover:bg-surface-container active:scale-95 text-role-cafe-ink font-headline-md text-headline-md font-bold flex items-center justify-center transition-transform" onclick="keyPress('9')" type="button">9</button>
+<button class="h-14 rounded-DEFAULT bg-surface-container hover:bg-surface-container-high active:scale-95 text-role-cafe-primary flex flex-col items-center justify-center transition-transform" onclick="triggerBiometric()" type="button">
+<span class="material-symbols-outlined text-[22px]">fingerprint</span>
+<span class="font-caption-meta text-[10px] font-bold">BIO</span>
+</button>
+<button class="h-14 rounded-DEFAULT bg-surface-container-low hover:bg-surface-container active:scale-95 text-role-cafe-ink font-headline-md text-headline-md font-bold flex items-center justify-center transition-transform" onclick="keyPress('0')" type="button">0</button>
+<button class="h-14 rounded-DEFAULT bg-surface-container hover:bg-surface-container-high active:scale-95 text-critical-ruby flex items-center justify-center transition-transform" onclick="keyBackspace()" type="button">
+<span class="material-symbols-outlined text-[24px]">backspace</span>
+</button>
+</div>
+</div>
+<!-- INVENTORY RESTOCK OPTION SWITCH -->
+<div class="bg-surface rounded-lg p-space-md shadow-sm mb-space-lg flex items-center justify-between gap-3">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-ink-muted">inventory_2</span>
+<span class="font-body-md text-body-md text-role-cafe-ink font-bold">Restore Items to Stock?</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary mt-0.5">சரக்கு இருப்பு மீட்டெடுப்பு</span>
+<span class="font-caption-meta text-[11px] text-critical-ruby mt-1">
+        Items marked as Food Wastage (Wastage GL 5020). Prepared coffee &amp; buns cannot be restocked.
+      </span>
+</div>
+<!-- Toggle Slider Control (Default OFF) -->
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input class="sr-only peer" id="restockToggle" type="checkbox"/>
+<div class="w-12 h-7 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[3px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-money-mint"></div>
+</label>
+</div>
+<!-- PINNED PRIMARY ACTION BAR & REVERSAL DETAILS -->
+<div class="bg-surface rounded-lg p-space-md shadow-md flex flex-col gap-3">
+<!-- Net Reversal Header -->
+<div class="flex items-center justify-between bg-error-container/20 p-space-sm rounded-DEFAULT">
+<div class="flex flex-col">
+<span class="font-caption-meta text-caption-meta text-critical-ruby font-bold uppercase">Net Ledger Reversal</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">பணப் பெட்டி திரும்ப ஒப்படைத்தல்</span>
+</div>
+<div class="text-right">
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-critical-ruby font-extrabold tabular-nums block leading-tight" id="finalReversalAmount">
+          -₹245.00
+        </span>
+<span class="font-caption-meta text-[11px] text-role-cafe-ink font-semibold">Cash Drawer #02</span>
+</div>
+</div>
+<!-- Primary Action Slab (56px Enforced Height) -->
+<button class="w-full h-14 rounded-full bg-critical-ruby text-on-error font-label-action text-label-action flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-md" id="confirmVoidBtn" onclick="authorizeVoid()" type="button">
+<span class="material-symbols-outlined text-[22px]">delete_sweep</span>
+<span>Authorize &amp; Post Refund</span>
+<span class="font-sublabel-regional text-xs text-white/90">| பில் ரத்து செய்</span>
+</button>
+<!-- Secondary Cancel Link -->
+<button class="w-full h-11 rounded-full bg-surface-container-low hover:bg-surface-container text-role-cafe-ink font-body-md text-body-md font-bold flex items-center justify-center gap-1 active:scale-95 transition-transform" onclick="history.back()" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+<span>Cancel Reversal &amp; Return to #ORD-084</span>
+</button>
+<!-- Cryptographic Audit Footnote -->
+<div class="flex items-start gap-1.5 pt-2 text-ink-muted text-center justify-center">
+<span class="material-symbols-outlined text-[14px] mt-0.5 shrink-0 text-role-cafe-primary">verified</span>
+<p class="font-caption-meta text-[11px] leading-tight text-ink-muted text-left">
+        Fiscal reversal entry posted to GL 1010 (Cash in Till) &amp; GL 4010 (Sales Returns). Immutable audit log logged under ID #REV-8409.
+      </p>
+</div>
+</div>
+</div>
+<!-- INTERACTIVE BEHAVIORS -->
+<script>
+  let pinDigits = ['8', '4', '2']; // 3 preset, awaiting 4th
+  let currentScope = 'full';
+  let quantities = { 1: 2, 2: 2, 3: 1 };
+  const prices = { 1: 35, 2: 70, 3: 50 };
+  let selectedTender = 'cash';
+
+  function updateTotals() {
+    let rawSum = 0;
+    if (document.getElementById('chk1').checked) rawSum += quantities[1] * prices[1];
+    if (document.getElementById('chk2').checked) rawSum += quantities[2] * prices[2];
+    if (document.getElementById('chk3').checked) rawSum += quantities[3] * prices[3];
+
+    // Net with 10% discount and 5% tax reverse:
+    let discounted = rawSum * 0.9;
+    let net = Math.round(discounted * 1.05);
+
+    // If full selection, keep baseline exactly ₹245.00
+    if (document.getElementById('chk1').checked && document.getElementById('chk2').checked && document.getElementById('chk3').checked && quantities[1] === 2 && quantities[2] === 2 && quantities[3] === 1) {
+      net = 245;
+    }
+
+    const fmt = '₹' + net.toFixed(2);
+    document.getElementById('totalDisplayTop').innerText = fmt;
+    document.getElementById('finalReversalAmount').innerText = '-' + fmt;
+
+    let totalItemsCount = (document.getElementById('chk1').checked ? quantities[1] : 0) +
+                         (document.getElementById('chk2').checked ? quantities[2] : 0) +
+                         (document.getElementById('chk3').checked ? quantities[3] : 0);
+    
+    document.getElementById('itemsSummaryPill').innerText = `${totalItemsCount} Units • ${fmt}`;
+  }
+
+  function setScope(scope) {
+    currentScope = scope;
+    const fullBtn = document.getElementById('scopeFullBtn');
+    const partialBtn = document.getElementById('scopePartialBtn');
+
+    if (scope === 'full') {
+      fullBtn.className = 'flex-1 py-3 px-2 rounded-[14px] bg-role-cafe-primary text-on-primary flex flex-col items-center justify-center transition-all duration-200';
+      partialBtn.className = 'flex-1 py-3 px-2 rounded-[14px] bg-transparent text-role-cafe-ink flex flex-col items-center justify-center hover:bg-surface-container transition-all duration-200';
+      
+      // Check all items
+      [1, 2, 3].forEach(id => {
+        document.getElementById('chk' + id).checked = true;
+      });
+      quantities = { 1: 2, 2: 2, 3: 1 };
+      document.getElementById('qty1').innerText = '2';
+      document.getElementById('qty2').innerText = '2';
+      document.getElementById('qty3').innerText = '1';
+    } else {
+      partialBtn.className = 'flex-1 py-3 px-2 rounded-[14px] bg-role-cafe-primary text-on-primary flex flex-col items-center justify-center transition-all duration-200';
+      fullBtn.className = 'flex-1 py-3 px-2 rounded-[14px] bg-transparent text-role-cafe-ink flex flex-col items-center justify-center hover:bg-surface-container transition-all duration-200';
+    }
+    updateTotals();
+  }
+
+  function toggleItem(id, price) {
+    updateTotals();
+  }
+
+  function changeQty(id, delta) {
+    const maxLimits = { 1: 2, 2: 2, 3: 1 };
+    let newQty = quantities[id] + delta;
+    if (newQty >= 1 && newQty <= maxLimits[id]) {
+      quantities[id] = newQty;
+      document.getElementById('qty' + id).innerText = newQty;
+      document.getElementById('chk' + id).checked = true;
+      updateTotals();
+    }
+  }
+
+  function selectReason(btn) {
+    document.querySelectorAll('.reason-chip').forEach(b => {
+      b.className = 'reason-chip flex items-center gap-1.5 px-3 py-2.5 rounded-full bg-surface-container text-role-cafe-ink text-left transition-all active:scale-95';
+      const icon = b.querySelector('.material-symbols-outlined');
+      if (icon) icon.className = 'material-symbols-outlined text-[17px] text-ink-muted';
+    });
+    btn.className = 'reason-chip active flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-critical-ruby text-on-error shadow-sm text-left transition-all active:scale-95';
+    const activeIcon = btn.querySelector('.material-symbols-outlined');
+    if (activeIcon) {
+      activeIcon.className = 'material-symbols-outlined text-[17px] text-on-error';
+    }
+  }
+
+  function selectTender(mode, card) {
+    selectedTender = mode;
+    ['tenderCash', 'tenderUPI', 'tenderCredit'].forEach(t => {
+      const el = document.getElementById(t);
+      el.className = 'tender-card cursor-pointer p-3.5 rounded-DEFAULT bg-surface-container-low transition-all active:scale-[0.99] flex items-center justify-between opacity-80';
+      const checkEl = el.querySelector('.w-6');
+      checkEl.className = 'w-6 h-6 rounded-full bg-surface-container text-ink-muted flex items-center justify-center shrink-0';
+      checkEl.querySelector('.material-symbols-outlined').classList.add('hidden');
+    });
+
+    card.className = 'tender-card cursor-pointer p-3.5 rounded-DEFAULT bg-surface-container-low transition-all active:scale-[0.99] flex items-center justify-between opacity-100 ring-2 ring-role-cafe-primary';
+    const activeCheck = card.querySelector('.w-6');
+    activeCheck.className = 'w-6 h-6 rounded-full bg-role-cafe-primary text-on-primary flex items-center justify-center shrink-0';
+    activeCheck.querySelector('.material-symbols-outlined').classList.remove('hidden');
+  }
+
+  function renderPinDots() {
+    const dot4 = document.getElementById('dot4');
+    if (pinDigits.length >= 4) {
+      dot4.className = 'w-5 h-5 rounded-full bg-role-cafe-primary flex items-center justify-center text-on-primary transition-all duration-200';
+      dot4.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-white"></span>';
+    } else {
+      dot4.className = 'w-5 h-5 rounded-full bg-surface-container-highest transition-all duration-200';
+      dot4.innerHTML = '';
+    }
+  }
+
+  function keyPress(digit) {
+    if (pinDigits.length < 4) {
+      pinDigits.push(digit);
+      renderPinDots();
+      if (pinDigits.length === 4) {
+        // Soft tactile confirmation flash
+        const btn = document.getElementById('confirmVoidBtn');
+        btn.classList.add('animate-bounce');
+        setTimeout(() => btn.classList.remove('animate-bounce'), 800);
+      }
+    }
+  }
+
+  function keyBackspace() {
+    if (pinDigits.length > 0) {
+      pinDigits.pop();
+      renderPinDots();
+    }
+  }
+
+  function triggerBiometric() {
+    pinDigits = ['8', '4', '2', '9'];
+    renderPinDots();
+    const btn = document.getElementById('confirmVoidBtn');
+    btn.classList.add('ring-4', 'ring-money-mint');
+    setTimeout(() => btn.classList.remove('ring-4', 'ring-money-mint'), 600);
+  }
+
+  function authorizeVoid() {
+    if (pinDigits.length < 4) {
+      alert("Please enter full 4-digit Manager PIN authorization.");
+      return;
+    }
+    const amount = document.getElementById('finalReversalAmount').innerText;
+    alert(`Order #ORD-084 successfully voided (${amount}). Cash drawer opened for payout.`);
+    history.back();
+  }
+
+  // Initialize
+  renderPinDots();
+</script></main></body></html>

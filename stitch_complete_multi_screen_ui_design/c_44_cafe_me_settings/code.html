@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=Noto+Sans+Tamil:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "secondary-container": "#c5ee66", "inverse-primary": "#8ed4c5", "dark-surface-tonal": "#1F2E27", "inverse-on-surface": "#f2f1ec", "surface-container": "#f0eee9", "role-cafe-ink": "#2B1B14", "primary": "#00443b", "on-primary-fixed-variant": "#005046", "dark-ink-muted": "#93A39B", "surface-container-high": "#eae8e3", "inverse-surface": "#30312e", "surface-tint": "#1f695e", "on-primary-container": "#8dd3c5", "role-driver-primary": "#0E8FB3", "role-driver-canvas": "#F3F8FA", "surface-tonal": "#ECEFEA", "on-error-container": "#93000a", "primary-fixed-dim": "#8ed4c5", "error": "#ba1a1a", "role-cafe-canvas": "#FBF4EA", "info-sky": "#2E90FA", "role-driver-action": "#FFC933", "on-surface-variant": "#3f4946", "surface-container-low": "#f5f3ee", "background": "#fbf9f4", "primary-fixed": "#a9f0e1", "secondary-fixed": "#c7f169", "surface-variant": "#e4e2dd", "money-mint": "#1FA971", "role-cafe-action": "#F4A62A", "on-primary": "#ffffff", "outline-variant": "#bec9c5", "dark-surface": "#17221D", "on-surface": "#1b1c19", "tertiary-fixed": "#7ffaba", "on-tertiary": "#ffffff", "on-secondary": "#ffffff", "ink-muted": "#66736C", "tertiary": "#00452a", "tertiary-container": "#005f3c", "tertiary-fixed-dim": "#61dda0", "on-secondary-fixed": "#151f00", "dark-canvas": "#0E1512", "on-primary-fixed": "#00201b", "money-coral": "#E8505B", "on-secondary-fixed-variant": "#394e00", "dark-ink": "#EDF3EF", "critical-ruby": "#D92D20", "on-tertiary-fixed": "#002112", "error-container": "#ffdad6", "on-secondary-container": "#506c00", "secondary-fixed-dim": "#acd44f", "outline": "#6f7976", "hairline": "#E3E1DA", "on-tertiary-fixed-variant": "#005233", "surface-bright": "#fbf9f4", "on-tertiary-container": "#61dda0", "role-field-primary": "#3F7D58", "surface": "#FFFFFF", "on-background": "#1b1c19", "on-error": "#ffffff", "role-cafe-primary": "#C2542D", "surface-container-lowest": "#ffffff", "surface-container-highest": "#e4e2dd", "secondary": "#4c6700", "primary-container": "#0b5d52", "ink": "#13201B", "surface-dim": "#dcdad5", "role-field-action": "#C9F36A", "pending-honey": "#E9A23B" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "margin": "1rem", "space-sm": "0.5rem", "space-xs": "0.25rem", "space-lg": "1rem", "space-xl": "1.5rem", "gutter": "0.75rem", "space-md": "0.75rem" }, fontFamily: { "headline-md": ["Manrope"], "caption-meta": ["Manrope"], "label-action": ["Manrope"], "headline-lg": ["Manrope"], "sublabel-regional": ["Noto Sans Tamil"], "body-lg": ["Manrope"], "display-numeral-mobile": ["Manrope"], "body-md": ["Manrope"], "display-numeral": ["Manrope"] }, fontSize: { "headline-md": ["20px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "700" }], "caption-meta": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "label-action": ["16px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "700" }], "headline-lg": ["28px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "800" }], "sublabel-regional": ["11px", { lineHeight: "14px", fontWeight: "600" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "600" }], "display-numeral-mobile": ["40px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "500" }], "display-numeral": ["48px", { lineHeight: "52px", letterSpacing: "-0.03em", fontWeight: "800" }] } } } };</script><style>@layer base{html,body{width:100vw;min-height:100%;margin:0;padding:0;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:max(env(safe-area-inset-bottom,0px),16px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}*{-ms-overflow-style:none;scrollbar-width:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-role-cafe-canvas text-role-cafe-ink font-body-md antialiased flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-role-cafe-canvas/85 backdrop-blur-xl pt-safe"><div class="h-20 px-margin flex items-center justify-between gap-space-sm"><div class="flex flex-col justify-center min-w-0 pr-space-xs"><h1 class="font-headline-md text-headline-md text-role-cafe-ink truncate leading-tight tracking-tight">Me</h1><span class="font-sublabel-regional text-sublabel-regional text-role-cafe-primary font-bold tracking-normal opacity-90 truncate">சுயவிவரம் &amp; அமைப்புகள்</span></div><div class="flex items-center gap-space-sm flex-shrink-0"><div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-money-mint"><span class="material-symbols-outlined text-[15px] font-bold">check_circle</span><span class="font-caption-meta text-caption-meta text-money-mint font-bold uppercase tracking-wider">Synced</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full px-margin pt-20 pb-28 bg-role-cafe-canvas flex-grow"><div class="flex flex-col w-full gap-space-lg pb-12">
+<!-- Section 1: Profile & Shift Telemetry Hero Card -->
+<div class="bg-surface rounded-DEFAULT p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="relative flex-shrink-0">
+<div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center text-role-cafe-primary font-headline-md font-bold shadow-inner">
+          PK
+        </div>
+<div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-money-mint flex items-center justify-center text-on-primary text-[12px] shadow-sm">
+<span class="material-symbols-outlined text-[14px]">local_cafe</span>
+</div>
+</div>
+<div class="flex flex-col min-w-0 flex-grow">
+<div class="flex items-center justify-between gap-space-xs">
+<h2 class="font-headline-md text-headline-md text-role-cafe-ink truncate">Priyan K.</h2>
+<span class="px-2.5 py-1 rounded-full bg-surface-tonal text-role-cafe-ink font-caption-meta text-caption-meta flex items-center gap-1 flex-shrink-0">
+<span class="material-symbols-outlined text-[14px] text-money-mint" style="font-variation-settings: 'FILL' 1;">verified</span>
+            #104 Shift OK
+          </span>
+</div>
+<div class="flex items-center gap-1 mt-0.5">
+<span class="font-body-md text-body-md text-role-cafe-primary font-bold">Lead Cashier &amp; Counter In-Charge</span>
+</div>
+<span class="font-sublabel-regional text-sublabel-regional text-role-cafe-ink/70">முதன்மை காசாளர் &amp; கவுண்டர் பொறுப்பாளர்</span>
+<div class="flex items-center gap-1.5 mt-2 text-ink-muted font-caption-meta text-caption-meta">
+<span class="material-symbols-outlined text-[15px]">call</span>
+<span>+91 98421 99104</span>
+</div>
+</div>
+</div>
+<!-- Shift Telemetry Bento Row -->
+<div class="grid grid-cols-3 gap-gutter mt-1">
+<div class="bg-surface-tonal rounded-DEFAULT p-space-sm flex flex-col justify-between">
+<span class="font-caption-meta text-[11px] text-ink-muted uppercase tracking-wider">Shift #02</span>
+<div class="my-1">
+<p class="font-label-action text-label-action text-role-cafe-ink leading-tight">Morning Bake</p>
+<span class="font-caption-meta text-[11px] text-ink-muted">06:30 - 15:00</span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-role-cafe-primary font-bold">காலை ஷிப்ட்</span>
+</div>
+<div class="bg-surface-tonal rounded-DEFAULT p-space-sm flex flex-col justify-between">
+<span class="font-caption-meta text-[11px] text-ink-muted uppercase tracking-wider">Till Station</span>
+<div class="my-1">
+<p class="font-label-action text-label-action text-role-cafe-ink leading-tight">Desk #01</p>
+<span class="font-caption-meta text-[11px] text-ink-muted">Aran POS Engine</span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-role-cafe-primary font-bold">கவுண்டர் நிலை</span>
+</div>
+<div class="bg-surface-tonal rounded-DEFAULT p-space-sm flex flex-col justify-between">
+<span class="font-caption-meta text-[11px] text-ink-muted uppercase tracking-wider">Handled Today</span>
+<div class="my-1">
+<p class="font-label-action text-label-action text-money-mint font-extrabold leading-tight">₹24,850</p>
+<span class="font-caption-meta text-[11px] text-role-cafe-ink font-semibold">142 Bills</span>
+</div>
+<span class="font-sublabel-regional text-[10px] text-role-cafe-primary font-bold">இன்றைய வசூல்</span>
+</div>
+</div>
+</div>
+<!-- Section 2: Active Branch & Till Organization Card -->
+<div class="bg-surface rounded-DEFAULT p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-role-cafe-primary">
+<span class="material-symbols-outlined text-[20px]">storefront</span>
+</div>
+<div>
+<h3 class="font-label-action text-label-action text-role-cafe-ink">Active Branch &amp; Node</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">நடப்பு கிளை &amp; பதிவகம்</span>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-surface-tonal text-ink-muted font-caption-meta text-caption-meta">FY 2026-27</span>
+</div>
+<div class="bg-surface-container-low rounded-DEFAULT p-space-md flex flex-col gap-space-xs">
+<span class="font-caption-meta text-[11px] text-ink-muted uppercase font-bold tracking-wider">Company</span>
+<p class="font-body-lg text-body-lg text-role-cafe-ink font-bold">Aran Cafe &amp; Bakery Express</p>
+<div class="flex items-center gap-1.5 text-role-cafe-primary font-body-md text-body-md font-semibold">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+<span>Main Branch (Perundurai Road, Erode)</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-gutter text-caption-meta">
+<div class="bg-surface-tonal rounded-DEFAULT p-space-sm flex flex-col gap-0.5">
+<span class="text-ink-muted font-caption-meta">FSSAI License</span>
+<span class="font-label-action text-role-cafe-ink tracking-tight font-mono">1242300000000</span>
+</div>
+<div class="bg-surface-tonal rounded-DEFAULT p-space-sm flex flex-col gap-0.5">
+<span class="text-ink-muted font-caption-meta">GSTIN</span>
+<span class="font-label-action text-role-cafe-ink tracking-tight font-mono">33AAACT9102L1Z4</span>
+</div>
+</div>
+<div class="p-space-sm rounded-DEFAULT bg-surface-tonal flex items-start gap-2">
+<span class="material-symbols-outlined text-[18px] text-role-cafe-action flex-shrink-0 mt-0.5">lock</span>
+<p class="font-caption-meta text-caption-meta text-ink-muted leading-relaxed">
+        Terminal is locked to Main Branch Erode. Multi-company operational handoff is restricted to central Admin/Super Admin clearance (Ref: G-05).
+      </p>
+</div>
+</div>
+<!-- Section 3: Thermal Printer Setup Card (G-13) -->
+<div class="bg-surface rounded-DEFAULT p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-role-cafe-primary">
+<span class="material-symbols-outlined text-[20px]">print</span>
+</div>
+<div>
+<h3 class="font-label-action text-label-action text-role-cafe-ink">Thermal Printer Setup</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">ரசீது அச்சு அமைப்புகள் (G-13)</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-money-mint font-caption-meta text-caption-meta font-bold">
+<span class="material-symbols-outlined text-[14px]">battery_5_bar</span>
+<span>88%</span>
+</div>
+</div>
+<!-- Active Hardware Capsule -->
+<div class="p-space-md rounded-DEFAULT bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="material-symbols-outlined text-role-cafe-primary text-[24px]">bluetooth_connected</span>
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-label-action text-label-action text-role-cafe-ink font-bold">RP58-BT</span>
+<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-money-mint font-caption-meta text-[10px] font-bold">BT 5.2</span>
+</div>
+<span class="font-caption-meta text-caption-meta text-ink-muted block truncate">Counter Till • Active Default Route</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-money-mint text-[22px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<!-- Paired List Selector -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-caption-meta text-[11px] text-ink-muted uppercase font-bold tracking-wider">Paired Output Devices</span>
+<div class="flex items-center justify-between p-space-sm rounded-DEFAULT bg-surface-tonal">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-role-cafe-ink text-[18px]">receipt</span>
+<div>
+<p class="font-body-md text-body-md text-role-cafe-ink font-semibold">RP58-BT (Counter Till)</p>
+<span class="font-caption-meta text-caption-meta text-money-mint font-medium">Default Slip Printer</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-money-mint text-on-primary font-caption-meta text-[11px] font-bold">Active</span>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-DEFAULT bg-surface-tonal">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-ink-muted text-[18px]">soup_kitchen</span>
+<div>
+<p class="font-body-md text-body-md text-role-cafe-ink font-semibold">KDS-Kitchen-80 (Deck Oven)</p>
+<span class="font-caption-meta text-caption-meta text-ink-muted">Ethernet LAN • 192.168.1.42</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-role-cafe-ink font-caption-meta text-[11px] font-medium">Ready</span>
+</div>
+</div>
+<!-- Settings & Controls -->
+<div class="flex flex-col gap-space-md pt-space-xs">
+<!-- Width Control -->
+<div class="flex items-center justify-between">
+<div>
+<span class="font-body-md text-body-md text-role-cafe-ink font-semibold block">Thermal Roll Width</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">தாள் அகல அளவு</span>
+</div>
+<div class="inline-flex p-1 rounded-full bg-surface-tonal gap-1">
+<button class="px-3 py-1.5 rounded-full bg-role-cafe-primary text-on-primary font-caption-meta text-caption-meta font-bold transition-all shadow-sm">58mm (Receipt)</button>
+<button class="px-3 py-1.5 rounded-full text-role-cafe-ink font-caption-meta text-caption-meta font-medium">80mm (KOT)</button>
+</div>
+</div>
+<!-- Copies Stepper -->
+<div class="flex items-center justify-between">
+<div>
+<span class="font-body-md text-body-md text-role-cafe-ink font-semibold block">Default Slip Copies</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">வாடிக்கையாளர் நகல் எண்ணிக்கை</span>
+</div>
+<div class="flex items-center bg-surface-tonal rounded-full p-1 h-12">
+<button class="w-10 h-10 rounded-full bg-surface text-role-cafe-ink flex items-center justify-center font-bold text-headline-md active:scale-95 transition-transform" id="step-dec">-</button>
+<span class="w-10 text-center font-label-action text-label-action text-role-cafe-ink font-extrabold" id="copies-count">1</span>
+<button class="w-10 h-10 rounded-full bg-surface text-role-cafe-ink flex items-center justify-center font-bold text-headline-md active:scale-95 transition-transform" id="step-inc">+</button>
+</div>
+</div>
+<!-- Switches -->
+<div class="flex flex-col gap-space-sm">
+<label class="flex items-center justify-between cursor-pointer py-1">
+<div>
+<span class="font-body-md text-body-md text-role-cafe-ink font-semibold block">Auto-print 58mm slip after payment</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">பணம் செலுத்தியதும் ரசீது வெளியிடவும்</span>
+</div>
+<div class="relative">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-7 bg-surface-tonal peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[3px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-money-mint"></div>
+</div>
+</label>
+<label class="flex items-center justify-between cursor-pointer py-1">
+<div>
+<span class="font-body-md text-body-md text-role-cafe-ink font-semibold block">Print Kitchen KOT on order submit</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">சமையலறை டிக்கெட் (KOT) அச்சிடவும்</span>
+</div>
+<div class="relative">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-7 bg-surface-tonal peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[3px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-money-mint"></div>
+</div>
+</label>
+<label class="flex items-center justify-between cursor-pointer py-1">
+<div>
+<span class="font-body-md text-body-md text-role-cafe-ink font-semibold block">Show FSSAI &amp; GSTIN on bill footer</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">ரசீதில் சட்டபூர்வ எண்களை காட்டுக</span>
+</div>
+<div class="relative">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-7 bg-surface-tonal peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[3px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-money-mint"></div>
+</div>
+</label>
+</div>
+<!-- Action Button -->
+<button class="h-14 rounded-full bg-surface-tonal active:bg-surface-container-high text-role-cafe-primary font-label-action text-label-action flex items-center justify-center gap-2 transition-all active:scale-[0.99] mt-2" id="btn-print-test">
+<span class="material-symbols-outlined text-[20px]">fact_check</span>
+<span>Print Test Slip (மாதிரி ரசீது அச்சிடு)</span>
+</button>
+</div>
+</div>
+<!-- Section 4: Cash Till & Drawer Hardware Preferences -->
+<div class="bg-surface rounded-DEFAULT p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-role-cafe-primary">
+<span class="material-symbols-outlined text-[20px]">point_of_sale</span>
+</div>
+<div>
+<h3 class="font-label-action text-label-action text-role-cafe-ink">Cash Till &amp; Hardware Controls</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">பணப்பெட்டி &amp; ஒலி அறிவிப்புகள்</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-sm">
+<label class="flex items-center justify-between cursor-pointer py-1">
+<div>
+<span class="font-body-md text-body-md text-role-cafe-ink font-semibold block">Auto-kick cash drawer on Cash Tender</span>
+<span class="font-caption-meta text-caption-meta text-ink-muted">RJ11 Solenoid pulse (100ms) over printer bus</span>
+</div>
+<div class="relative flex-shrink-0 ml-2">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-7 bg-surface-tonal peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[3px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-money-mint"></div>
+</div>
+</label>
+<label class="flex items-center justify-between cursor-pointer py-1">
+<div>
+<span class="font-body-md text-body-md text-role-cafe-ink font-semibold block">Sound buzzer on incoming KOT / Order</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">புதிய ஆர்டருக்கு எச்சரிக்கை மணி ஒலிக்க</span>
+</div>
+<div class="relative flex-shrink-0 ml-2">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-7 bg-surface-tonal peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[3px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-money-mint"></div>
+</div>
+</label>
+<label class="flex items-center justify-between cursor-pointer py-1">
+<div>
+<span class="font-body-md text-body-md text-role-cafe-ink font-semibold block">Require Manager PIN for Bill Void &gt; ₹200</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">ரத்து செய்ய மேலாளர் அங்கீகாரம் தேவை</span>
+</div>
+<div class="relative flex-shrink-0 ml-2">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-7 bg-surface-tonal peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[3px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-money-mint"></div>
+</div>
+</label>
+</div>
+</div>
+<!-- Section 5: App Preferences & Localization Card -->
+<div class="bg-surface rounded-DEFAULT p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-role-cafe-primary">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+</div>
+<div>
+<h3 class="font-label-action text-label-action text-role-cafe-ink">App Preferences &amp; Access</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">செயலி அமைப்புகள் &amp; மொழி</span>
+</div>
+</div>
+<!-- Appearance -->
+<div class="flex items-center justify-between">
+<div>
+<span class="font-body-md text-body-md text-role-cafe-ink font-semibold block">Theme Appearance</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">வடிவமைப்பு நிறம்</span>
+</div>
+<div class="inline-flex p-1 rounded-full bg-surface-tonal gap-1">
+<button class="px-3 py-1.5 rounded-full bg-role-cafe-primary text-on-primary font-caption-meta text-caption-meta font-bold shadow-sm">Light Mode</button>
+<button class="px-3 py-1.5 rounded-full text-role-cafe-ink font-caption-meta text-caption-meta font-medium">Dark Theme</button>
+</div>
+</div>
+<!-- Language -->
+<div class="flex items-center justify-between">
+<div>
+<span class="font-body-md text-body-md text-role-cafe-ink font-semibold block">Language / மொழி</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">இருமொழி முறை (Bilingual)</span>
+</div>
+<div class="inline-flex p-1 rounded-full bg-surface-tonal gap-1">
+<button class="px-3 py-1.5 rounded-full text-role-cafe-ink font-caption-meta text-caption-meta font-medium">English</button>
+<button class="px-3 py-1.5 rounded-full bg-role-cafe-primary text-on-primary font-caption-meta text-caption-meta font-bold shadow-sm">தமிழ் (Tamil)</button>
+</div>
+</div>
+<!-- Rows linking to child views -->
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<a class="flex items-center justify-between p-space-sm rounded-DEFAULT bg-surface-tonal hover:bg-surface-container transition-colors" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-role-cafe-primary text-[20px]">notifications_active</span>
+<div>
+<span class="font-body-md text-body-md text-role-cafe-ink font-semibold block">Notifications &amp; Alarms (G-14)</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">விழிப்பூட்டல்கள் &amp; KOT அறிவிப்பு</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-role-cafe-primary font-caption-meta text-[11px] font-bold">8 Alerts</span>
+<span class="material-symbols-outlined text-ink-muted text-[18px]">chevron_right</span>
+</div>
+</a>
+<a class="flex items-center justify-between p-space-sm rounded-DEFAULT bg-surface-tonal hover:bg-surface-container transition-colors" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-role-cafe-primary text-[20px]">pin</span>
+<div>
+<span class="font-body-md text-body-md text-role-cafe-ink font-semibold block">Change Cashier PIN (G-12)</span>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">4-இலக்க பதிவு கடவுச்சொல் மாற்று</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-muted text-[18px]">chevron_right</span>
+</a>
+</div>
+</div>
+<!-- Section 6: Offline Sync Centre & Local Database -->
+<div class="bg-surface rounded-DEFAULT p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-role-cafe-primary">
+<span class="material-symbols-outlined text-[20px]">cloud_sync</span>
+</div>
+<div>
+<h3 class="font-label-action text-label-action text-role-cafe-ink">Offline Sync Centre</h3>
+<span class="font-sublabel-regional text-sublabel-regional text-ink-muted">தரவு ஒத்திசைவு (G-09)</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-money-mint font-caption-meta text-caption-meta font-bold">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span>Clean</span>
+</div>
+</div>
+<div class="bg-surface-tonal rounded-DEFAULT p-space-md flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Last Synchronized</span>
+<span class="font-caption-meta text-caption-meta text-role-cafe-ink font-bold">12 Nov 2026, 03:45 PM</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-caption-meta text-caption-meta text-ink-muted">Local Outbox Buffer</span>
+<span class="font-caption-meta text-caption-meta text-money-mint font-bold">0 Pending Records</span>
+</div>
+<div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden mt-1">
+<div class="bg-money-mint h-full rounded-full w-full"></div>
+</div>
+</div>
+<button class="h-14 rounded-full bg-surface-tonal active:bg-surface-container-high text-role-cafe-ink font-label-action text-label-action flex items-center justify-center gap-2 transition-all active:scale-[0.99]" id="btn-sync">
+<span class="material-symbols-outlined text-[20px] text-money-mint">sync</span>
+<span>Sync Outbox Now (G-09)</span>
+</button>
+</div>
+<!-- Section 7: Footer & Sign Out -->
+<div class="flex flex-col gap-space-md pt-2 items-center">
+<!-- Version Telemetry -->
+<div class="text-center">
+<p class="font-caption-meta text-[11px] text-ink-muted">ZOLO ERP Mobile v1.0.0+1 (Build 2026.11)</p>
+<p class="font-caption-meta text-[11px] text-ink-muted font-medium">Aran OS Frontline Till Engine • Erode Node</p>
+</div>
+<!-- Sign Out Action Slab -->
+<button class="w-full h-14 rounded-full border-2 border-critical-ruby/20 bg-critical-ruby/5 active:bg-critical-ruby/15 text-critical-ruby font-label-action text-label-action flex items-center justify-center gap-2 transition-all active:scale-[0.98]" id="btn-signout">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+<span>Sign Out of Shift Account (வெளியேறு)</span>
+</button>
+<span class="font-caption-meta text-[11px] text-ink-muted text-center max-w-xs">
+      Sign-out automatically locks the register till drawer and requests day-end cashier tally verification.
+    </span>
+</div>
+</div>
+<script>
+  // Stepper logic
+  const decBtn = document.getElementById('step-dec');
+  const incBtn = document.getElementById('step-inc');
+  const countEl = document.getElementById('copies-count');
+
+  if (decBtn && incBtn && countEl) {
+    decBtn.addEventListener('click', () => {
+      let val = parseInt(countEl.textContent, 10);
+      if (val > 1) countEl.textContent = --val;
+    });
+    incBtn.addEventListener('click', () => {
+      let val = parseInt(countEl.textContent, 10);
+      if (val < 5) countEl.textContent = ++val;
+    });
+  }
+
+  // Visual feedback for test print
+  const printBtn = document.getElementById('btn-print-test');
+  if (printBtn) {
+    printBtn.addEventListener('click', () => {
+      const origText = printBtn.innerHTML;
+      printBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[20px]">autorenew</span><span>Printing Slip...</span>';
+      setTimeout(() => {
+        printBtn.innerHTML = '<span class="material-symbols-outlined text-[20px] text-money-mint">check</span><span>Test Slip Printed!</span>';
+        setTimeout(() => {
+          printBtn.innerHTML = origText;
+        }, 1500);
+      }, 1000);
+    });
+  }
+
+  // Sync interaction
+  const syncBtn = document.getElementById('btn-sync');
+  if (syncBtn) {
+    syncBtn.addEventListener('click', () => {
+      const orig = syncBtn.innerHTML;
+      syncBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[20px] text-money-mint">sync</span><span>Syncing Data...</span>';
+      setTimeout(() => {
+        syncBtn.innerHTML = '<span class="material-symbols-outlined text-[20px] text-money-mint">cloud_done</span><span>Completed ✓</span>';
+        setTimeout(() => {
+          syncBtn.innerHTML = orig;
+        }, 1500);
+      }, 1200);
+    });
+  }
+
+  // Sign out confirmation simulation
+  const signoutBtn = document.getElementById('btn-signout');
+  if (signoutBtn) {
+    signoutBtn.addEventListener('click', () => {
+      const proceed = confirm('End and lock Shift #02 for Priyan K.? Cash drawer will be secured.');
+      if (proceed) {
+        alert('Shift closed successfully. Redirecting to PIN login...');
+      }
+    });
+  }
+</script></main><div class="fixed bottom-0 inset-x-0 z-50 pb-safe pointer-events-none px-margin"><nav class="pointer-events-auto mx-auto max-w-md w-full h-16 bg-surface/95 backdrop-blur-xl rounded-full shadow-[0_8px_24px_-4px_rgba(43,27,20,0.12)] flex items-center justify-around px-2.5" data-active-classes="bg-role-cafe-primary text-on-primary font-bold shadow-sm"><a class="flex flex-col items-center justify-center w-14 h-12 rounded-full text-role-cafe-ink/65 hover:text-role-cafe-ink transition-all active:scale-95" data-path="counter" href="#"><span class="material-symbols-outlined text-[22px]">point_of_sale</span><span class="font-caption-meta text-[11px] leading-tight font-semibold mt-0.5">Counter</span></a><a class="flex flex-col items-center justify-center w-14 h-12 rounded-full text-role-cafe-ink/65 hover:text-role-cafe-ink transition-all active:scale-95" data-path="orders" href="#"><span class="material-symbols-outlined text-[22px]">receipt_long</span><span class="font-caption-meta text-[11px] leading-tight font-semibold mt-0.5">Orders</span></a><a class="flex flex-col items-center justify-center w-14 h-12 rounded-full text-role-cafe-ink/65 hover:text-role-cafe-ink transition-all active:scale-95" data-path="drawer" href="#"><span class="material-symbols-outlined text-[22px]">payments</span><span class="font-caption-meta text-[11px] leading-tight font-semibold mt-0.5">Drawer</span></a><a class="flex flex-col items-center justify-center w-14 h-12 rounded-full text-role-cafe-ink/65 hover:text-role-cafe-ink transition-all active:scale-95" data-path="kitchen" href="#"><span class="material-symbols-outlined text-[22px]">soup_kitchen</span><span class="font-caption-meta text-[11px] leading-tight font-semibold mt-0.5">Kitchen</span></a><a aria-current="page" class="flex flex-col items-center justify-center w-14 h-12 rounded-full transition-all active:scale-95 bg-role-cafe-primary text-on-primary font-bold shadow-sm" data-path="me" href="#"><span class="material-symbols-outlined text-[22px]">person</span><span class="font-caption-meta text-[11px] leading-tight font-semibold mt-0.5">Me</span></a></nav></div></body></html>

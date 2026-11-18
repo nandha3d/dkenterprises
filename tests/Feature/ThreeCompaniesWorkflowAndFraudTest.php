@@ -484,7 +484,7 @@ class ThreeCompaniesWorkflowAndFraudTest extends TestCase
         $responseTmws = $this->get('/water-logistics');
         $responseTmws->assertStatus(200);
         $responseTmws->assertSee('Commercial Bulk Water &amp; Fleet Logistics', false);
-        $responseTmws->assertSee('Log Tanker Trip');
+        $responseTmws->assertSee('Create Order / Trip');
         $responseTmws->assertDontSee('Packaged Water Delivery');
         $responseTmws->assertDontSee('Packaged Drinking Water');
         $responseTmws->assertDontSee('Customer Containers in Custody');

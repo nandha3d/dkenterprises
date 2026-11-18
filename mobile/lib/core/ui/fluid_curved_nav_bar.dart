@@ -1,29 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_theme.dart';
 
 class FluidNavItem {
   final IconData icon;
   final IconData? activeIcon;
   final String label;
   final String? tooltip;
+  final bool isActionOnly;
+  final VoidCallback? onActionTap;
 
   const FluidNavItem({
     required this.icon,
     this.activeIcon,
     required this.label,
     this.tooltip,
+    this.isActionOnly = false,
+    this.onActionTap,
   });
 }
 
-/// A high-performance fluid curved bottom navigation bar inspired by Figma's
-/// Smart Animate liquid notch navigation pattern.
+/// Floating, theme-colored curved bottom navigation pill driven by the
+/// Stitch "Ripple" role skin system.
 ///
 /// Features:
-/// - Smooth cubic Bezier scooped notch that glides across tabs.
-/// - Elevated floating circular active indicator with glowing drop shadow.
-/// - Spring-animated icon scaling inside the active circle.
-/// - Fully responsive geometry on phone and tablet/desktop.
+/// - Floating rounded capsule with bottom/side clearance and smooth Bezier cutout notch.
+/// - Responsive max-width centering on tablets/desktops so it never anchors wall-to-wall.
+/// - Standardized 5-slot layout per role with integrated center (+) quick action.
+/// - Theme-adaptive active circle badge, crisp labels, and reduced-motion support.
 class FluidCurvedNavBar extends StatefulWidget {
   final int currentIndex;
   final ValueChanged<int> onTabSelected;
@@ -89,91 +93,113 @@ class _FluidCurvedNavBarState extends State<FluidCurvedNavBar> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final skinExt = theme.extension<RippleSkin>();
+    final skin = skinExt ?? RippleSkin.forRole(RippleRole.admin, theme.brightness);
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
 
-    // Theme-derived palette: In light theme, the bar is vibrant enterprise blue!
-    final navBg = widget.backgroundColor ??
-        (isDark ? AppColors.darkCard : const Color(0xFF0284C7));
+    final defaultNavBg = skinExt != null
+        ? (isDark
+            ? Color.alphaBlend(skin.primary.withValues(alpha: 0.22), skin.navBackground)
+            : skin.navBackground)
+        : (isDark
+            ? Color.alphaBlend(colorScheme.primary.withValues(alpha: 0.22), colorScheme.surface)
+            : colorScheme.primary);
+
+    final navBg = widget.backgroundColor ?? defaultNavBg;
     final borderCol = isDark
-        ? AppColors.darkBorder
-        : const Color(0xFF38BDF8).withOpacity(0.35);
+        ? skin.primary.withValues(alpha: 0.34)
+        : Colors.white.withValues(alpha: 0.24);
+    final shadowCol = isDark
+        ? Colors.black.withValues(alpha: 0.50)
+        : Color.lerp(navBg, Colors.black, 0.45)!.withValues(alpha: 0.34);
 
-    // Active circle and icon colors:
-    // In light theme with a blue bar, the active circle is crisp pure white,
-    // and the icon inside it is drawn in the company / brand theme color!
-    final activeCircleCol = isDark
-        ? (widget.activeColor ?? AppColors.primaryDark)
-        : Colors.white;
-
+    final activeCircleCol = widget.activeColor ??
+        (skinExt != null
+            ? skin.navActiveCircle
+            : (isDark ? colorScheme.primary : Colors.white));
     final activeIconCol = widget.activeIconColor ??
-        (isDark
-            ? const Color(0xFF0B0F17)
-            : (widget.activeColor ?? const Color(0xFF0284C7)));
-
+        (widget.activeColor != null
+            ? (ThemeData.estimateBrightnessForColor(activeCircleCol) == Brightness.dark
+                ? Colors.white
+                : skin.ink)
+            : (skinExt != null
+                ? skin.navActiveIcon
+                : (isDark ? colorScheme.onPrimary : colorScheme.primary)));
     final inactiveCol = widget.inactiveColor ??
-        (isDark ? AppColors.darkTextSecondary : Colors.white.withOpacity(0.85));
+        (skinExt != null
+            ? skin.navInactiveIcon
+            : (isDark
+                ? colorScheme.onSurface.withValues(alpha: 0.70)
+                : Colors.white.withValues(alpha: 0.80)));
+    final activeLabelCol = isDark ? skin.ink : Colors.white;
 
-    const barHeight = 64.0;
-    const notchRadius = 42.0; // Half-width of notch
-    const notchDepth = 26.0;  // Depth of concave dip
-    const circleRadius = 25.0; // Diameter 50.0
-    const cornerRadius = 24.0;
-    const totalBarHeight = barHeight + 14.0 + 12.0; // 64 + 14 + 12 = 90.0
+    const barHeight = 56.0;
+    const topOverhang = 24.0;
+    const bottomFloat = 10.0;
+    const totalOuterHeight = barHeight + topOverhang + bottomFloat; // 90.0px invariant
+    const innerStackHeight = barHeight + topOverhang; // 80.0px
+    const notchRadius = 35.0;
+    const notchDepth = 24.0;
+    const circleRadius = 21.0;
+    const cornerRadius = 22.0;
+
+    final safeSelected = widget.currentIndex.clamp(0, widget.items.length - 1);
 
     return SizedBox(
-      height: totalBarHeight,
+      width: double.infinity,
+      height: totalOuterHeight,
       child: Align(
         alignment: Alignment.bottomCenter,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 580),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 0, 14, bottomFloat),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 620),
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final totalWidth = constraints.maxWidth;
                 final itemCount = widget.items.length;
                 final slotWidth = totalWidth / itemCount;
 
-                // Calculate horizontal centers for each slot
-                double getSlotCenter(int index) {
-                  return (index * slotWidth) + (slotWidth / 2);
-                }
+                double getSlotCenter(int index) => (index * slotWidth) + (slotWidth / 2);
 
                 return AnimatedBuilder(
                   animation: _animation,
                   builder: (context, _) {
-                    final prevX = getSlotCenter(_previousIndex.clamp(0, itemCount - 1));
-                    final targetX = getSlotCenter(widget.currentIndex.clamp(0, itemCount - 1));
-                    // Interpolated X coordinate of active notch and circle
-                    final activeX = prevX + (targetX - prevX) * _animation.value;
+                    final prevSafe = _previousIndex.clamp(0, itemCount - 1);
+                    final animValue = reduceMotion ? 1.0 : _animation.value;
+                    final prevX = getSlotCenter(prevSafe);
+                    final targetX = getSlotCenter(safeSelected);
+                    final activeX = prevX + (targetX - prevX) * animValue;
 
                     return SizedBox(
-                      height: barHeight + 14.0, // extra 14px for elevated circle
+                      height: innerStackHeight,
                       child: Stack(
                         clipBehavior: Clip.none,
                         alignment: Alignment.bottomCenter,
                         children: [
-                          // 1. Fluid Scoop Notch Canvas Painter
                           Positioned(
+                            key: const Key('fluid_floating_nav_pill'),
                             left: 0,
                             right: 0,
                             bottom: 0,
                             height: barHeight,
                             child: CustomPaint(
+                              key: const Key('fluid_nav_custom_paint'),
                               size: Size(totalWidth, barHeight),
                               painter: _FluidNavBarPainter(
                                 activeX: activeX,
                                 backgroundColor: navBg,
                                 borderColor: borderCol,
+                                shadowColor: shadowCol,
                                 notchRadius: notchRadius,
                                 notchDepth: notchDepth,
                                 cornerRadius: cornerRadius,
-                                isDark: isDark,
                               ),
                             ),
                           ),
-
-                          // 2. Inactive Tab Icons
                           Positioned(
                             left: 0,
                             right: 0,
@@ -182,34 +208,120 @@ class _FluidCurvedNavBarState extends State<FluidCurvedNavBar> with SingleTicker
                             child: Row(
                               children: List.generate(itemCount, (index) {
                                 final item = widget.items[index];
-                                final isSelected = index == widget.currentIndex;
+                                final isSelected = !item.isActionOnly && index == safeSelected;
+
+                                if (item.isActionOnly) {
+                                  return Expanded(
+                                    child: Semantics(
+                                      button: true,
+                                      label: item.tooltip ?? item.label,
+                                      child: Tooltip(
+                                        message: item.tooltip ?? item.label,
+                                        child: InkWell(
+                                          borderRadius: BorderRadius.circular(18),
+                                          onTap: () {
+                                            HapticFeedback.mediumImpact();
+                                            item.onActionTap?.call();
+                                          },
+                                          splashColor: Colors.white.withValues(alpha: 0.18),
+                                          highlightColor: Colors.transparent,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            children: [
+                                              Container(
+                                                width: 31,
+                                                height: 31,
+                                                decoration: BoxDecoration(
+                                                  color: skin.action,
+                                                  shape: BoxShape.circle,
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: skin.action.withValues(alpha: 0.35),
+                                                      blurRadius: 8,
+                                                      offset: const Offset(0, 2),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Icon(
+                                                  item.icon,
+                                                  size: 20,
+                                                  color: skin.actionInk,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 2),
+                                              Padding(
+                                                padding: const EdgeInsets.only(bottom: 5, left: 2, right: 2),
+                                                child: Text(
+                                                  item.label,
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    fontSize: 10.5,
+                                                    height: 1.15,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: activeLabelCol,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
 
                                 return Expanded(
                                   child: Tooltip(
                                     message: item.tooltip ?? item.label,
                                     child: InkWell(
+                                      borderRadius: BorderRadius.circular(18),
                                       onTap: () {
-                                        if (index != widget.currentIndex) {
+                                        if (index != safeSelected) {
                                           HapticFeedback.lightImpact();
                                           widget.onTabSelected(index);
                                         }
                                       },
-                                      borderRadius: BorderRadius.circular(cornerRadius),
-                                      splashColor: isDark ? activeCircleCol.withOpacity(0.12) : Colors.white.withOpacity(0.22),
+                                      splashColor: Colors.white.withValues(alpha: 0.18),
                                       highlightColor: Colors.transparent,
-                                      child: Center(
-                                        child: AnimatedOpacity(
-                                          duration: const Duration(milliseconds: 200),
-                                          opacity: isSelected ? 0.0 : 1.0,
-                                          child: Semantics(
-                                            button: true,
-                                            label: item.label,
-                                            child: Icon(
-                                              item.icon,
-                                              size: 23,
-                                              color: inactiveCol,
+                                      child: Semantics(
+                                        button: true,
+                                        selected: isSelected,
+                                        label: item.label,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            AnimatedOpacity(
+                                              duration: reduceMotion
+                                                  ? Duration.zero
+                                                  : const Duration(milliseconds: 180),
+                                              opacity: isSelected ? 0.0 : 1.0,
+                                              child: Icon(
+                                                item.icon,
+                                                size: 20,
+                                                color: inactiveCol,
+                                              ),
                                             ),
-                                          ),
+                                            const SizedBox(height: 2),
+                                            Padding(
+                                              padding: const EdgeInsets.only(bottom: 6, left: 2, right: 2),
+                                              child: Text(
+                                                item.label,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  fontSize: 10.5,
+                                                  height: 1.15,
+                                                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                                                  color: isSelected ? activeLabelCol : inactiveCol,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),
@@ -218,65 +330,46 @@ class _FluidCurvedNavBarState extends State<FluidCurvedNavBar> with SingleTicker
                               }),
                             ),
                           ),
-
-                          // 3. Elevated Floating Circular Active Indicator
                           Positioned(
                             left: activeX - circleRadius,
-                            bottom: barHeight - circleRadius - 4.0, // Elevated ~14px above navbar
+                            bottom: barHeight - circleRadius - 1.0,
                             width: circleRadius * 2,
                             height: circleRadius * 2,
-                            child: Tooltip(
-                              message: widget.items[widget.currentIndex].tooltip ??
-                                  widget.items[widget.currentIndex].label,
+                            child: IgnorePointer(
                               child: Container(
+                                key: const Key('fluid_active_circle_badge'),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: activeCircleCol,
-                                  boxShadow: isDark
-                                      ? [
-                                          BoxShadow(
-                                            color: activeCircleCol.withOpacity(0.45),
-                                            blurRadius: 14,
-                                            spreadRadius: 1,
-                                            offset: const Offset(0, 4),
-                                          ),
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(0.35),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ]
-                                      : [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(0.16),
-                                            blurRadius: 10,
-                                            spreadRadius: 1,
-                                            offset: const Offset(0, 4),
-                                          ),
-                                          BoxShadow(
-                                            color: const Color(0xFF0284C7).withOpacity(0.28),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
+                                  border: Border.all(
+                                    color: isDark
+                                        ? skin.primary.withValues(alpha: 0.35)
+                                        : Colors.white.withValues(alpha: 0.65),
+                                    width: 1.5,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: shadowCol,
+                                      blurRadius: 10,
+                                      spreadRadius: 0.5,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
                                 ),
                                 child: Center(
                                   child: AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 240),
-                                    transitionBuilder: (child, anim) {
-                                      return ScaleTransition(
-                                        scale: CurvedAnimation(
-                                          parent: anim,
-                                          curve: Curves.easeOutBack,
-                                        ),
-                                        child: child,
-                                      );
-                                    },
+                                    duration: reduceMotion
+                                        ? Duration.zero
+                                        : const Duration(milliseconds: 220),
+                                    transitionBuilder: (child, anim) => ScaleTransition(
+                                      scale: CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
+                                      child: child,
+                                    ),
                                     child: Icon(
-                                      widget.items[widget.currentIndex].activeIcon ??
-                                          widget.items[widget.currentIndex].icon,
-                                      key: ValueKey<int>(widget.currentIndex),
-                                      size: 24,
+                                      widget.items[safeSelected].activeIcon ??
+                                          widget.items[safeSelected].icon,
+                                      key: ValueKey<int>(safeSelected),
+                                      size: 21,
                                       color: activeIconCol,
                                     ),
                                   ),
@@ -298,24 +391,23 @@ class _FluidCurvedNavBarState extends State<FluidCurvedNavBar> with SingleTicker
   }
 }
 
-/// Custom painter that draws the curved fluid notch matching Figma Smart Animate geometry.
 class _FluidNavBarPainter extends CustomPainter {
   final double activeX;
   final Color backgroundColor;
   final Color borderColor;
+  final Color shadowColor;
   final double notchRadius;
   final double notchDepth;
   final double cornerRadius;
-  final bool isDark;
 
   _FluidNavBarPainter({
     required this.activeX,
     required this.backgroundColor,
     required this.borderColor,
+    required this.shadowColor,
     required this.notchRadius,
     required this.notchDepth,
     required this.cornerRadius,
-    required this.isDark,
   });
 
   @override
@@ -331,62 +423,35 @@ class _FluidNavBarPainter extends CustomPainter {
     final borderPaint = Paint()
       ..color = borderColor
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2;
+      ..strokeWidth = 1.1;
 
-    // Notch horizontal boundaries
-    final notchStart = (activeX - notchRadius).clamp(r, w - r);
-    final notchEnd = (activeX + notchRadius).clamp(r, w - r);
+    final clampedActiveX = activeX.clamp(r + 4.0, w - r - 4.0);
+    final notchStart = (clampedActiveX - notchRadius).clamp(r, clampedActiveX);
+    final notchEnd = (clampedActiveX + notchRadius).clamp(clampedActiveX, w - r);
+    final leftSpan = clampedActiveX - notchStart;
+    final rightSpan = notchEnd - clampedActiveX;
 
-    // Control points for smooth horizontal cubic Bezier scoop
-    final cp1x = activeX - notchRadius * 0.52;
-    final cp2x = activeX - notchRadius * 0.48;
-    final cp3x = activeX + notchRadius * 0.48;
-    final cp4x = activeX + notchRadius * 0.52;
+    final cp1x = clampedActiveX - leftSpan * 0.52;
+    final cp2x = clampedActiveX - leftSpan * 0.48;
+    final cp3x = clampedActiveX + rightSpan * 0.48;
+    final cp4x = clampedActiveX + rightSpan * 0.52;
 
-    // 1. Fluid Outline Path
-    final path = Path();
-    // Top-left corner
-    path.moveTo(0, r);
-    path.quadraticBezierTo(0, 0, r, 0);
+    final path = Path()
+      ..moveTo(0, r)
+      ..quadraticBezierTo(0, 0, r, 0)
+      ..lineTo(notchStart, 0)
+      ..cubicTo(cp1x, 0, cp2x, notchDepth, clampedActiveX, notchDepth)
+      ..cubicTo(cp3x, notchDepth, cp4x, 0, notchEnd, 0)
+      ..lineTo(w - r, 0)
+      ..quadraticBezierTo(w, 0, w, r)
+      ..lineTo(w, h - r)
+      ..quadraticBezierTo(w, h, w - r, h)
+      ..lineTo(r, h)
+      ..quadraticBezierTo(0, h, 0, h - r)
+      ..close();
 
-    // Left flat edge to notch
-    path.lineTo(notchStart, 0);
-
-    // Downward scoop
-    path.cubicTo(cp1x, 0, cp2x, notchDepth, activeX, notchDepth);
-    // Upward scoop
-    path.cubicTo(cp3x, notchDepth, cp4x, 0, notchEnd, 0);
-
-    // Right flat edge
-    path.lineTo(w - r, 0);
-    // Top-right corner
-    path.quadraticBezierTo(w, 0, w, r);
-
-    // Bottom-right corner
-    path.lineTo(w, h - r);
-    path.quadraticBezierTo(w, h, w - r, h);
-
-    // Bottom edge
-    path.lineTo(r, h);
-    // Bottom-left corner
-    path.quadraticBezierTo(0, h, 0, h - r);
-
-    path.close();
-
-    // 2. Ambient drop shadow for floating container
-    canvas.drawShadow(
-      path,
-      isDark
-          ? Colors.black.withOpacity(0.35)
-          : const Color(0xFF0284C7).withOpacity(0.35),
-      12.0,
-      true,
-    );
-
-    // 3. Draw Fill
+    canvas.drawShadow(path, shadowColor, 14.0, true);
     canvas.drawPath(path, fillPaint);
-
-    // 4. Draw Border
     canvas.drawPath(path, borderPaint);
   }
 
@@ -394,6 +459,8 @@ class _FluidNavBarPainter extends CustomPainter {
   bool shouldRepaint(covariant _FluidNavBarPainter oldDelegate) {
     return oldDelegate.activeX != activeX ||
         oldDelegate.backgroundColor != backgroundColor ||
-        oldDelegate.borderColor != borderColor;
+        oldDelegate.borderColor != borderColor ||
+        oldDelegate.shadowColor != shadowColor ||
+        oldDelegate.cornerRadius != cornerRadius;
   }
 }

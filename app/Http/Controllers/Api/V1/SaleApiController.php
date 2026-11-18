@@ -374,6 +374,280 @@ class SaleApiController extends BaseApiController
         ], 'Mobile sale recorded and posted to general ledger', 201);
     }
 
+    /**
+     * A-14: List company-scoped sales quotations / proforma estimates.
+     */
+    public function quotations(Request $request): JsonResponse
+    {
+        $context = $this->companyContext($request);
+        $companyId = $context->companyId;
+        $perPage = min(max((int) $request->input('per_page', 30), 1), 100);
+
+        $rows = DB::table('quotations')
+            ->leftJoin('customers', 'quotations.customer_id', '=', 'customers.id')
+            ->leftJoin('warehouses', 'quotations.warehouse_id', '=', 'warehouses.id')
+            ->where('quotations.company_id', $companyId)
+            ->orderByDesc('quotations.id')
+            ->limit($perPage)
+            ->get([
+                'quotations.id',
+                'quotations.reference_no',
+                'quotations.customer_id',
+                'customers.name as customer_name',
+                'customers.phone_number as customer_phone',
+                'quotations.warehouse_id',
+                'warehouses.name as warehouse_name',
+                'quotations.item as item_count',
+                'quotations.total_qty',
+                'quotations.total_price',
+                'quotations.order_discount',
+                'quotations.order_tax',
+                'quotations.grand_total',
+                'quotations.quotation_status',
+                'quotations.note',
+                'quotations.converted_kind',
+                'quotations.converted_document_id',
+                'quotations.converted_at',
+                'quotations.created_at',
+            ]);
+
+        return $this->sendResponse([
+            'quotations' => $rows,
+            'total' => $rows->count(),
+        ], 'Quotations retrieved successfully');
+    }
+
+    /**
+     * A-14: Create a new company-scoped quotation / estimate.
+     */
+    public function storeQuotation(Request $request): JsonResponse
+    {
+        $context = $this->companyContext($request);
+        $companyId = $context->companyId;
+        $branchId = $context->branchId;
+
+        $validated = $request->validate([
+            'customer_id' => ['nullable', 'integer'],
+            'customer_name' => ['nullable', 'string', 'max:255'],
+            'warehouse_id' => ['nullable', 'integer'],
+            'product_id' => ['required_without:items', 'nullable', 'integer'],
+            'qty' => ['required_without:items', 'nullable', 'numeric', 'gt:0'],
+            'unit_price' => ['nullable', 'numeric', 'min:0'],
+            'grand_total' => ['nullable', 'numeric', 'min:0'],
+            'order_discount' => ['nullable', 'numeric', 'min:0'],
+            'note' => ['nullable', 'string', 'max:1000'],
+            'items' => ['required_without:product_id', 'nullable', 'array', 'min:1'],
+            'items.*.product_id' => ['required_with:items', 'integer'],
+            'items.*.qty' => ['required_with:items', 'numeric', 'gt:0'],
+            'items.*.unit_price' => ['nullable', 'numeric', 'min:0'],
+            'items.*.net_unit_price' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
+        $customerId = $this->resolveCompanyCustomerId(
+            $companyId,
+            isset($validated['customer_id']) ? (int) $validated['customer_id'] : null,
+            $validated['customer_name'] ?? null
+        );
+        $warehouseId = $this->resolveCompanyWarehouseId(
+            $companyId,
+            $branchId,
+            isset($validated['warehouse_id']) ? (int) $validated['warehouse_id'] : null
+        );
+        $billerId = $this->resolveCompanyBillerId($companyId);
+        $defaultUnitId = (int) (DB::table('units')->orderBy('id')->value('id') ?: 1);
+
+        $rawItems = $validated['items'] ?? [[
+            'product_id' => (int) $validated['product_id'],
+            'qty' => (float) $validated['qty'],
+            'unit_price' => $validated['unit_price'] ?? ($validated['grand_total'] ?? null),
+        ]];
+
+        $productIds = array_values(array_unique(array_map(fn ($r) => (int) $r['product_id'], $rawItems)));
+        $products = DB::table('products')
+            ->where('company_id', $companyId)
+            ->whereIn('id', $productIds)
+            ->get()
+            ->keyBy('id');
+
+        if ($products->count() !== count($productIds)) {
+            return $this->sendError('One or more products do not belong to the active company.', [], 422);
+        }
+
+        $refNo = 'QT-' . date('YmdHis') . '-' . strtoupper(substr(bin2hex(random_bytes(2)), 0, 4));
+        $quotation = DB::transaction(function () use ($companyId, $customerId, $warehouseId, $billerId, $defaultUnitId, $rawItems, $products, $validated, $refNo) {
+            $totalQty = 0.0;
+            $totalPrice = 0.0;
+            $prepared = [];
+
+            foreach ($rawItems as $line) {
+                $prod = $products->get((int) $line['product_id']);
+                $qty = round((float) $line['qty'], 2);
+                $price = round((float) ($line['unit_price'] ?? $line['net_unit_price'] ?? $prod->price ?? 0), 2);
+                $lineTotal = round($qty * $price, 2);
+
+                $totalQty += $qty;
+                $totalPrice += $lineTotal;
+                $prepared[] = [
+                    'product_id' => (int) $prod->id,
+                    'qty' => $qty,
+                    'sale_unit_id' => (int) ($prod->sale_unit_id ?: $prod->unit_id ?: $defaultUnitId),
+                    'net_unit_price' => $price,
+                    'total' => $lineTotal,
+                ];
+            }
+
+            $discount = round((float) ($validated['order_discount'] ?? 0), 2);
+            $grandTotal = round(max(0.0, $totalPrice - $discount), 2);
+
+            $quotationId = DB::table('quotations')->insertGetId([
+                'reference_no' => $refNo,
+                'user_id' => Auth::id() ?? 1,
+                'biller_id' => $billerId,
+                'customer_id' => $customerId,
+                'warehouse_id' => $warehouseId,
+                'item' => count($prepared),
+                'total_qty' => round($totalQty, 2),
+                'total_discount' => 0,
+                'total_tax' => 0,
+                'total_price' => round($totalPrice, 2),
+                'order_tax_rate' => 0,
+                'order_tax' => 0,
+                'order_discount' => $discount,
+                'shipping_cost' => 0,
+                'grand_total' => $grandTotal,
+                'quotation_status' => 1, // Pending / Sent
+                'note' => $validated['note'] ?? 'Mobile Commercial Quotation',
+                'company_id' => $companyId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            foreach ($prepared as $pLine) {
+                DB::table('product_quotation')->insert([
+                    'quotation_id' => $quotationId,
+                    'product_id' => $pLine['product_id'],
+                    'qty' => $pLine['qty'],
+                    'sale_unit_id' => $pLine['sale_unit_id'],
+                    'net_unit_price' => $pLine['net_unit_price'],
+                    'discount' => 0,
+                    'tax_rate' => 0,
+                    'tax' => 0,
+                    'total' => $pLine['total'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            return [
+                'id' => (int) $quotationId,
+                'reference_no' => $refNo,
+                'customer_id' => $customerId,
+                'warehouse_id' => $warehouseId,
+                'item_count' => count($prepared),
+                'total_qty' => round($totalQty, 2),
+                'grand_total' => $grandTotal,
+                'quotation_status' => 1,
+            ];
+        });
+
+        return $this->sendResponse($quotation, 'Quotation created successfully', 201);
+    }
+
+    /**
+     * A-14: Convert an approved quotation into a commercial sale invoice.
+     */
+    public function convertQuotation(Request $request, int $id): JsonResponse
+    {
+        $context = $this->companyContext($request);
+        $companyId = $context->companyId;
+        $branchId = $context->branchId;
+
+        $quotation = DB::table('quotations')
+            ->where('company_id', $companyId)
+            ->where('id', $id)
+            ->first();
+
+        if (!$quotation) {
+            return $this->sendError('Quotation not found in active company.', [], 404);
+        }
+
+        if (!empty($quotation->converted_document_id)) {
+            return $this->sendError('Quotation has already been converted to sale #' . $quotation->converted_document_id, [], 422);
+        }
+
+        $qLines = DB::table('product_quotation')
+            ->where('quotation_id', $quotation->id)
+            ->get();
+
+        $saleRef = 'INV-' . date('YmdHis') . '-' . strtoupper(substr(bin2hex(random_bytes(2)), 0, 4));
+        $converted = DB::transaction(function () use ($quotation, $qLines, $companyId, $branchId, $context, $saleRef) {
+            $saleData = [
+                'reference_no' => $saleRef,
+                'user_id' => Auth::id() ?? $quotation->user_id ?? 1,
+                'customer_id' => $quotation->customer_id,
+                'warehouse_id' => $quotation->warehouse_id,
+                'biller_id' => $quotation->biller_id ?? $this->resolveCompanyBillerId($companyId),
+                'item' => $quotation->item,
+                'total_qty' => $quotation->total_qty,
+                'total_discount' => $quotation->total_discount ?? 0,
+                'total_tax' => $quotation->total_tax ?? 0,
+                'total_price' => $quotation->total_price,
+                'grand_total' => $quotation->grand_total,
+                'order_tax_rate' => $quotation->order_tax_rate ?? 0,
+                'order_tax' => $quotation->order_tax ?? 0,
+                'order_discount' => $quotation->order_discount ?? 0,
+                'shipping_cost' => $quotation->shipping_cost ?? 0,
+                'sale_status' => 1,
+                'payment_status' => 2, // Due
+                'paid_amount' => 0,
+                'sale_note' => 'Converted from Quotation ' . $quotation->reference_no,
+                'company_id' => $companyId,
+                'branch_id' => $branchId,
+                'financial_year_id' => $context->financialYearId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+            $saleId = DB::table('sales')->insertGetId($saleData);
+
+            foreach ($qLines as $line) {
+                DB::table('product_sales')->insert([
+                    'sale_id' => $saleId,
+                    'product_id' => $line->product_id,
+                    'qty' => $line->qty,
+                    'sale_unit_id' => $line->sale_unit_id,
+                    'net_unit_price' => $line->net_unit_price,
+                    'discount' => $line->discount ?? 0,
+                    'tax_rate' => $line->tax_rate ?? 0,
+                    'tax' => $line->tax ?? 0,
+                    'total' => $line->total,
+                    'company_id' => $companyId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            DB::table('quotations')
+                ->where('id', $quotation->id)
+                ->update([
+                    'quotation_status' => 2, // Converted
+                    'converted_kind' => 'sale',
+                    'converted_document_id' => $saleId,
+                    'converted_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+            return [
+                'quotation_id' => (int) $quotation->id,
+                'quotation_reference_no' => $quotation->reference_no,
+                'sale_id' => (int) $saleId,
+                'sale_reference_no' => $saleRef,
+                'grand_total' => (float) $quotation->grand_total,
+            ];
+        });
+
+        return $this->sendResponse($converted, 'Quotation converted to commercial sale invoice', 201);
+    }
+
     private function resolveCompanyCustomerId(int $companyId, ?int $requestedId = null, ?string $customerName = null): int
     {
         if ($requestedId) {

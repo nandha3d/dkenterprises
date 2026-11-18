@@ -15,6 +15,7 @@ $(document).ready(function () {
         var compact = new Intl.NumberFormat(locale, {notation: 'compact', maximumFractionDigits: 1});
         var exact = new Intl.NumberFormat(locale, {maximumFractionDigits: Number(dashboard.dataset.decimals)});
         var cash = $('#cashFlow').data();
+        var daily = $('#dailySalesChart').data();
         var yearly = $('#saleChart').data();
         var monthly = $('#transactionChart').data();
         var charts = [];
@@ -76,6 +77,12 @@ $(document).ready(function () {
                 draw('cashFlow', 'line', cash.month, [
                     line(cash.label1, cash.recieved, plum, token('--z-primary-soft-strong')),
                     line(cash.label2, cash.sent, amber, token('--z-warning-soft'))
+                ], {legend: legend, scales: axes});
+            }
+            if (daily) {
+                draw('dailySalesChart', 'bar', daily.labels, [
+                    {label: daily.label1 || 'Billed Sales', data: daily.sales, backgroundColor: plum},
+                    {label: daily.label2 || 'Collected', data: daily.collected, backgroundColor: green}
                 ], {legend: legend, scales: axes});
             }
             if (yearly) {

@@ -256,7 +256,7 @@ class _DkWatersVerticalScreenState extends State<DkWatersVerticalScreen> {
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
-                                  '2 BEATS ACTIVE',
+                                  'LIVE BEAT GPS',
                                   style: GoogleFonts.inter(color: AppColors.brandEmerald, fontSize: 9, fontWeight: FontWeight.w900),
                                 ),
                               ),
@@ -265,8 +265,8 @@ class _DkWatersVerticalScreenState extends State<DkWatersVerticalScreen> {
                           const SizedBox(height: 10),
                           Text(
                             t
-                                ? '• TN-58-WA-101 (பீட் 1: 12/18 நிறுத்தங்கள் முடிந்தது · கிரீன் கார்டன் ஹோட்டல்)\n• TN-58-WA-102 (பீட் 2: 17/22 நிறுத்தங்கள் முடிந்தது · டெக்ச்வேலி டெக் ஹப்)'
-                                : '• TN-58-WA-101 (Beat 1: 12/18 Stops Done · Green Garden Hotel Next)\n• TN-58-WA-102 (Beat 2: 17/22 Stops Done · Texvalley Tech Hub Drop-off)',
+                                ? 'விநியோக வாகனங்களின் நேரலை GPS இருப்பிடம், நிறுத்த நிலை மற்றும் கேன் இருப்பை ரேடார் வரைபடத்தில் காண்க.'
+                                : 'Open the Delivery Beat GPS Radar below to monitor live route vans, stop completion, and jar inventory from server telemetry.',
                             style: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted(context), height: 1.45),
                           ),
                           const SizedBox(height: 12),
