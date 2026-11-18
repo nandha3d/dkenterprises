@@ -1,5 +1,37 @@
 # zoloERP Pro — Persistent Session Memory & State
 
+## Active Session & Follow-up — 2026-11-18: MilesWeb Production Database Clean Slate Wipe & Fresh Software Handover (branch main)
+
+- **User Requests Addressed:**
+  1. *"delete the records and make it fresh"*
+  2. *"not in local. the database is in milesweb server."*
+  3. *"delete the companies as well. we are just giving as a fresh software."*
+- **MilesWeb Production Server Direct Execution (`45.199.139.25` / `https://dkenterprises.animazon.in`):**
+  - Connected via Paramiko SSH directly to the production VPS (`animazon1@45.199.139.25` in `/var/www/2928957e-908a-4326-a64d-a58ad5b99ca0/dkenterprises.animazon.in`).
+  - Fetched and checked out latest commit `dd1f5cd` from `origin/main`.
+  - Ran migration `2026_11_18_000001_wipe_demo_companies_and_records_for_fresh_golive` and command `php artisan erp:reset-for-golive --force --wipe-companies`.
+  - Cleared all application caches (`optimize:clear`, `view:cache`, touched `.htaccess`).
+- **Clean Slate Database Verification (100% Wiped & Fresh):**
+  - `companies`: **0** (all demo entities `ARANCAFE`, `TMWS`, `DKWATERS` purged).
+  - `company_branches`: **0**
+  - `company_groups`: **0**
+  - `sales`: **0**
+  - `purchases`: **0**
+  - `expenses`: **0**
+  - `customers`: **0**
+  - `water_tankers`: **0**
+  - `water_pickup_points`: **0**
+  - `water_can_deliveries`: **0**
+  - `water_can_inventories`: **0**
+  - `products`: **0**
+  - `users`: **1** (only master Super Admin user ID 1 remains, with `company_name = null` and credentials `admin` / `admin`).
+- **Live Endpoint Verification on `https://dkenterprises.animazon.in`:**
+  - `POST /api/v1/mobile/login`: Returns HTTP 200 OK, `role: superAdmin`, `companies: []` (0 companies).
+  - `GET /api/v1/mobile/workspace`: Returns HTTP 200 OK, `total_companies_count: 0`, `total_turnover: ₹0`, `total_cash_and_bank: ₹0`, `total_receivables: ₹0`, `companies: []`.
+  - `GET /select-company`: Returns HTTP 200 OK, zero demo companies, presenting "New company" dialog button for onboarding the client's own company.
+- **Android Release APK:**
+  - Artifact ready: [`mobile/build/app/outputs/flutter-apk/app-release.apk`](file:///f:/PROJECTS/WEBSITES/DK%20Enterprises/mobile/build/app/outputs/flutter-apk/app-release.apk) (73,086,220 bytes / 69.7 MB).
+
 ## Active Session & Follow-up — 2026-11-18: Portable Toolchain on F:\dev, Full Flutter Verification & Release APK Built (branch main)
 
 - **F:\dev Portable Mobile Development Toolchain:**
