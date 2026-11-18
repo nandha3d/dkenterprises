@@ -128,9 +128,22 @@ return new class extends Migration
 
             if (Schema::hasTable('users')) {
                 DB::table('users')->where('id', '!=', 1)->delete();
-                DB::table('users')->where('id', 1)->update([
-                    'company_id' => null,
-                ]);
+                $userUpdates = [];
+                if (Schema::hasColumn('users', 'company_id')) {
+                    $userUpdates['company_id'] = null;
+                }
+                if (Schema::hasColumn('users', 'company_name')) {
+                    $userUpdates['company_name'] = null;
+                }
+                if (Schema::hasColumn('users', 'biller_id')) {
+                    $userUpdates['biller_id'] = null;
+                }
+                if (Schema::hasColumn('users', 'warehouse_id')) {
+                    $userUpdates['warehouse_id'] = null;
+                }
+                if (!empty($userUpdates)) {
+                    DB::table('users')->where('id', 1)->update($userUpdates);
+                }
             }
         } finally {
             if ($driver === 'mysql') {
